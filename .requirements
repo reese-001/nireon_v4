@@ -1,0 +1,8 @@
+ruff
+black 
+mypy
+pydocstyle
+grimp
+pipdeptree
+pytest
+coverage
