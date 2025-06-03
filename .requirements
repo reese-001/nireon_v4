@@ -6,3 +6,4 @@ grimp
 pipdeptree
 pytest
 coverage
+jsonschema
