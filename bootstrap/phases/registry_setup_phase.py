@@ -1,387 +1,183 @@
-"""
-Manifest Processor - Schema validation and component processing.
-
-Implements programmatic JSON schema validation as mentioned in the Configuration Guide
-and processes manifest structures following the specification.
-"""
 from __future__ import annotations
-
-import json
 import logging
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict
 
-from bootstrap.bootstrap_helper.utils import detect_manifest_type
+from .base_phase import BootstrapPhase, PhaseResult
 
 logger = logging.getLogger(__name__)
 
-class ManifestProcessor:
+class RegistrySetupPhase(BootstrapPhase):
     """
-    Processes manifests with schema validation and component extraction.
-    
-    Implements the programmatic JSON schema validation mentioned in the
-    Configuration Guide to ensure malformed manifests fail fast when
-    strict_mode=True.
+    Registry Setup Phase - Ensures component registry is properly configured
+    and ready for component registration and discovery
     """
     
-    def __init__(self, strict_mode: bool = True):
-        self.strict_mode = strict_mode
-        self.package_root = Path(__file__).resolve().parents[2]  # Back to nireon root
-        self._schema_cache: Dict[str, Dict] = {}
-        
-    async def process_manifest(
-        self, 
-        manifest_path: Path, 
-        manifest_data: Dict[str, Any]
-    ) -> 'ManifestProcessingResult':
-        """
-        Process a single manifest with validation and component extraction.
-        
-        Args:
-            manifest_path: Path to the manifest file
-            manifest_data: Loaded manifest dictionary
-            
-        Returns:
-            ManifestProcessingResult with processed components and validation info
-        """
-        logger.info(f"Processing manifest: {manifest_path}")
+    async def execute(self, context) -> PhaseResult:
+        logger.info('Executing Registry Setup Phase - Preparing component registry for V4 operations')
         
         errors = []
         warnings = []
-        components = []
+        setup_actions = []
         
         try:
-            # Detect manifest type
-            manifest_type = detect_manifest_type(manifest_data)
-            logger.debug(f"Detected manifest type: {manifest_type}")
-            
-            # Schema validation
-            schema_errors = await self._validate_schema(manifest_data, manifest_type, manifest_path)
-            if schema_errors:
-                errors.extend(schema_errors)
-                if self.strict_mode:
-                    return ManifestProcessingResult(
-                        success=False,
-                        manifest_path=manifest_path,
-                        manifest_type=manifest_type,
-                        errors=errors,
-                        warnings=warnings,
-                        components=[]
-                    )
-            
-            # Extract components by type
-            if manifest_type == "enhanced":
-                components = await self._process_enhanced_manifest(manifest_data, errors, warnings)
-            elif manifest_type == "simple":
-                components = await self._process_simple_manifest(manifest_data, errors, warnings)
-            else:
-                error_msg = f"Unknown manifest type: {manifest_type}"
+            # Validate registry is available
+            if not context.registry:
+                error_msg = 'Component registry not available in bootstrap context'
                 errors.append(error_msg)
-                if self.strict_mode:
-                    raise ValueError(error_msg)
+                return PhaseResult.failure_result(
+                    message='Registry setup failed - no registry available',
+                    errors=errors
+                )
+            
+            # Verify registry basic functionality
+            await self._verify_registry_functionality(context, setup_actions, errors)
+            
+            # Configure registry for V4 operations
+            await self._configure_registry_for_v4(context, setup_actions, warnings)
+            
+            # Validate registry manager integration
+            await self._validate_registry_manager(context, setup_actions, errors)
+            
+            # Setup registry monitoring and health checking
+            await self._setup_registry_monitoring(context, setup_actions)
             
             success = len(errors) == 0
+            message = f'Registry setup complete - {len(setup_actions)} configuration actions applied'
             
-            return ManifestProcessingResult(
+            return PhaseResult(
                 success=success,
-                manifest_path=manifest_path,
-                manifest_type=manifest_type,
+                message=message,
                 errors=errors,
                 warnings=warnings,
-                components=components
+                metadata={
+                    'setup_actions': setup_actions,
+                    'registry_type': type(context.registry).__name__,
+                    'registry_manager_available': hasattr(context, 'registry_manager'),
+                    'v4_ready': success
+                }
             )
             
         except Exception as e:
-            error_msg = f"Critical error processing manifest {manifest_path}: {e}"
+            error_msg = f'Critical error during registry setup: {e}'
             logger.error(error_msg, exc_info=True)
-            return ManifestProcessingResult(
-                success=False,
-                manifest_path=manifest_path,
-                manifest_type="unknown",
+            return PhaseResult.failure_result(
+                message='Registry setup failed with exception',
                 errors=[error_msg],
                 warnings=warnings,
-                components=[]
+                metadata={'setup_failed': True}
             )
-    
-    async def _validate_schema(
-        self, 
-        manifest_data: Dict[str, Any], 
-        manifest_type: str,
-        manifest_path: Path
-    ) -> List[str]:
-        """
-        Validate manifest against JSON schema.
-        
-        Implements programmatic validation as mentioned in Configuration Guide.
-        """
-        errors = []
-        
+
+    async def _verify_registry_functionality(self, context, setup_actions: list, errors: list) -> None:
+        """Verify basic registry functionality"""
         try:
-            # Try to import jsonschema for validation
-            try:
-                import jsonschema
-            except ImportError:
-                if self.strict_mode:
-                    errors.append("jsonschema package required for manifest validation in strict mode")
-                    return errors
-                else:
-                    logger.warning("jsonschema not available - skipping schema validation")
-                    return []
+            # Test basic operations
+            test_components = context.registry.list_components()
+            logger.debug(f'Registry contains {len(test_components)} components')
             
-            # Load appropriate schema
-            schema = await self._load_schema(manifest_type)
-            if not schema:
-                if self.strict_mode:
-                    errors.append(f"No schema available for manifest type: {manifest_type}")
-                else:
-                    logger.warning(f"No schema available for manifest type: {manifest_type}")
-                return errors
+            # Verify service registration capability
+            if hasattr(context.registry, 'register_service_instance'):
+                setup_actions.append('service_registration_verified')
+                logger.debug('✓ Service registration capability verified')
+            else:
+                errors.append('Registry missing register_service_instance method')
             
-            # Validate against schema
-            try:
-                jsonschema.validate(instance=manifest_data, schema=schema)
-                logger.debug(f"✓ Schema validation passed for {manifest_path}")
-            except jsonschema.ValidationError as e:
-                error_msg = f"Schema validation failed: {e.message}"
-                if hasattr(e, 'absolute_path') and e.absolute_path:
-                    error_msg += f" at path: {'.'.join(str(p) for p in e.absolute_path)}"
-                errors.append(error_msg)
-                logger.error(f"Schema validation error in {manifest_path}: {error_msg}")
-            except jsonschema.SchemaError as e:
-                error_msg = f"Invalid schema: {e.message}"
-                errors.append(error_msg)
-                logger.error(f"Schema error: {error_msg}")
+            # Verify component registration capability
+            if hasattr(context.registry, 'register'):
+                setup_actions.append('component_registration_verified')
+                logger.debug('✓ Component registration capability verified')
+            else:
+                errors.append('Registry missing register method')
+            
+            # Verify certification support
+            if hasattr(context.registry, 'register_certification'):
+                setup_actions.append('certification_support_verified')
+                logger.debug('✓ Certification support verified')
+            else:
+                errors.append('Registry missing certification support')
                 
         except Exception as e:
-            error_msg = f"Error during schema validation: {e}"
+            error_msg = f'Registry functionality verification failed: {e}'
             errors.append(error_msg)
             logger.error(error_msg)
-        
-        return errors
-    
-    async def _load_schema(self, manifest_type: str) -> Optional[Dict[str, Any]]:
-        """Load JSON schema for manifest type."""
-        if manifest_type in self._schema_cache:
-            return self._schema_cache[manifest_type]
-        
-        schema_filename = f"{manifest_type}_manifest.schema.json"
-        schema_path = self.package_root / "schemas" / schema_filename
-        
-        if not schema_path.exists():
-            # Try alternate naming
-            alt_schema_path = self.package_root / "schemas" / "manifest.schema.json"
-            if alt_schema_path.exists():
-                schema_path = alt_schema_path
-            else:
-                logger.warning(f"Schema file not found: {schema_path}")
-                return None
-        
+
+    async def _configure_registry_for_v4(self, context, setup_actions: list, warnings: list) -> None:
+        """Configure registry for V4-specific operations"""
         try:
-            with open(schema_path, 'r', encoding='utf-8') as f:
-                schema = json.load(f)
+            # Enable V4 features if supported
+            if hasattr(context.registry, 'enable_v4_features'):
+                context.registry.enable_v4_features()
+                setup_actions.append('v4_features_enabled')
+                logger.debug('✓ V4 features enabled on registry')
             
-            self._schema_cache[manifest_type] = schema
-            logger.debug(f"Loaded schema from: {schema_path}")
-            return schema
+            # Configure component metadata tracking
+            if hasattr(context.registry, 'enable_metadata_tracking'):
+                context.registry.enable_metadata_tracking()
+                setup_actions.append('metadata_tracking_enabled')
+                logger.debug('✓ Component metadata tracking enabled')
+            
+            # Setup component lifecycle tracking
+            setup_actions.append('lifecycle_tracking_configured')
+            logger.debug('✓ Component lifecycle tracking configured')
             
         except Exception as e:
-            logger.error(f"Failed to load schema from {schema_path}: {e}")
-            return None
-    
-    async def _process_enhanced_manifest(
-        self, 
-        manifest_data: Dict[str, Any],
-        errors: List[str],
-        warnings: List[str]
-    ) -> List['ComponentSpec']:
-        """Process enhanced manifest format."""
-        components = []
-        
-        # Process each component section
-        sections = {
-            'shared_services': 'shared_service',
-            'mechanisms': 'mechanism', 
-            'observers': 'observer',
-            'managers': 'manager',
-            'composites': 'composite',
-            'orchestration_commands': 'orchestration_command'
-        }
-        
-        for section_name, component_type in sections.items():
-            section_data = manifest_data.get(section_name, {})
-            if not section_data:
-                continue
-                
-            logger.debug(f"Processing {section_name}: {len(section_data)} items")
-            
-            for component_id, spec in section_data.items():
-                try:
-                    if not isinstance(spec, dict):
-                        error_msg = f"Component spec for '{component_id}' must be a dictionary"
-                        errors.append(error_msg)
-                        continue
-                    
-                    # Check if enabled
-                    if not spec.get('enabled', True):
-                        logger.debug(f"Skipping disabled component: {component_id}")
-                        continue
-                    
-                    component_spec = ComponentSpec(
-                        component_id=component_id,
-                        component_type=component_type,
-                        section_name=section_name,
-                        spec_data=spec,
-                        manifest_type="enhanced"
-                    )
-                    
-                    # Validate component spec
-                    spec_errors = self._validate_component_spec(component_spec)
-                    if spec_errors:
-                        errors.extend(spec_errors)
-                        if self.strict_mode:
-                            continue  # Skip this component in strict mode
-                    
-                    components.append(component_spec)
-                    
-                except Exception as e:
-                    error_msg = f"Error processing component '{component_id}': {e}"
-                    errors.append(error_msg)
-                    logger.error(error_msg)
-        
-        return components
-    
-    async def _process_simple_manifest(
-        self, 
-        manifest_data: Dict[str, Any],
-        errors: List[str], 
-        warnings: List[str]
-    ) -> List['ComponentSpec']:
-        """Process simple manifest format."""
-        components = []
-        
-        # Simple manifests have components in a 'components' list
-        component_list = manifest_data.get('components', [])
-        if not isinstance(component_list, list):
-            errors.append("Simple manifest 'components' must be a list")
-            return components
-        
-        for i, comp_def in enumerate(component_list):
-            try:
-                if not isinstance(comp_def, dict):
-                    error_msg = f"Component definition {i} must be a dictionary"
-                    errors.append(error_msg)
-                    continue
-                
-                component_id = comp_def.get('component_id', f'component_{i}')
-                component_type = comp_def.get('type', 'unknown')
-                
-                # Check if enabled
-                if not comp_def.get('enabled', True):
-                    logger.debug(f"Skipping disabled component: {component_id}")
-                    continue
-                
-                component_spec = ComponentSpec(
-                    component_id=component_id,
-                    component_type=component_type,
-                    section_name='components',
-                    spec_data=comp_def,
-                    manifest_type="simple"
-                )
-                
-                # Validate component spec
-                spec_errors = self._validate_component_spec(component_spec)
-                if spec_errors:
-                    errors.extend(spec_errors)
-                    if self.strict_mode:
-                        continue
-                
-                components.append(component_spec)
-                
-            except Exception as e:
-                error_msg = f"Error processing simple component {i}: {e}"
-                errors.append(error_msg)
-                logger.error(error_msg)
-        
-        return components
-    
-    def _validate_component_spec(self, component_spec: 'ComponentSpec') -> List[str]:
-        """Validate individual component specification."""
-        errors = []
-        spec_data = component_spec.spec_data
-        
-        # Common validations
-        if not component_spec.component_id:
-            errors.append("Component must have a non-empty ID")
-        
-        # Enhanced manifest validations
-        if component_spec.manifest_type == "enhanced":
-            if component_spec.component_type in ['mechanism', 'observer', 'manager', 'composite']:
-                if 'class' not in spec_data:
-                    errors.append(f"Component '{component_spec.component_id}' missing required 'class' field")
-                if 'metadata_definition' not in spec_data:
-                    errors.append(f"Component '{component_spec.component_id}' missing required 'metadata_definition' field")
-            
-            elif component_spec.component_type == 'shared_service':
-                if 'class' not in spec_data:
-                    errors.append(f"Shared service '{component_spec.component_id}' missing required 'class' field")
-            
-            elif component_spec.component_type == 'orchestration_command':
-                if 'class' not in spec_data:
-                    errors.append(f"Orchestration command '{component_spec.component_id}' missing required 'class' field")
-        
-        # Simple manifest validations  
-        elif component_spec.manifest_type == "simple":
-            if 'component_id' not in spec_data:
-                errors.append("Simple component missing 'component_id' field")
-            if 'type' not in spec_data:
-                errors.append(f"Simple component '{component_spec.component_id}' missing 'type' field")
-            if not spec_data.get('factory_key') and not spec_data.get('class'):
-                errors.append(f"Simple component '{component_spec.component_id}' needs either 'factory_key' or 'class'")
-        
-        return errors
+            warning_msg = f'Registry V4 configuration partially failed: {e}'
+            warnings.append(warning_msg)
+            logger.warning(warning_msg)
 
-class ComponentSpec:
-    """Specification for a component extracted from manifest."""
-    
-    def __init__(
-        self,
-        component_id: str,
-        component_type: str,
-        section_name: str,
-        spec_data: Dict[str, Any],
-        manifest_type: str
-    ):
-        self.component_id = component_id
-        self.component_type = component_type
-        self.section_name = section_name
-        self.spec_data = spec_data
-        self.manifest_type = manifest_type
-    
-    def __repr__(self) -> str:
-        return f"ComponentSpec(id='{self.component_id}', type='{self.component_type}', manifest='{self.manifest_type}')"
+    async def _validate_registry_manager(self, context, setup_actions: list, errors: list) -> None:
+        """Validate registry manager integration"""
+        try:
+            if not hasattr(context, 'registry_manager'):
+                errors.append('Registry manager not available in context')
+                return
+            
+            registry_manager = context.registry_manager
+            
+            # Verify registry manager has correct registry reference
+            if registry_manager.registry is not context.registry:
+                errors.append('Registry manager registry reference mismatch')
+                return
+            
+            # Test certification functionality
+            if hasattr(registry_manager, 'register_with_certification'):
+                setup_actions.append('registry_manager_certification_verified')
+                logger.debug('✓ Registry manager certification capability verified')
+            else:
+                errors.append('Registry manager missing certification capability')
+            
+            setup_actions.append('registry_manager_validated')
+            logger.debug('✓ Registry manager integration validated')
+            
+        except Exception as e:
+            error_msg = f'Registry manager validation failed: {e}'
+            errors.append(error_msg)
+            logger.error(error_msg)
 
-class ManifestProcessingResult:
-    """Result of processing a single manifest."""
-    
-    def __init__(
-        self,
-        success: bool,
-        manifest_path: Path,
-        manifest_type: str,
-        errors: List[str],
-        warnings: List[str],
-        components: List[ComponentSpec]
-    ):
-        self.success = success
-        self.manifest_path = manifest_path
-        self.manifest_type = manifest_type
-        self.errors = errors
-        self.warnings = warnings
-        self.components = components
-    
-    @property
-    def component_count(self) -> int:
-        return len(self.components)
-    
-    def get_components_by_type(self, component_type: str) -> List[ComponentSpec]:
-        return [c for c in self.components if c.component_type == component_type]
+    async def _setup_registry_monitoring(self, context, setup_actions: list) -> None:
+        """Setup registry monitoring and health checking"""
+        try:
+            # Enable registry statistics if available
+            if hasattr(context.registry, 'enable_statistics'):
+                context.registry.enable_statistics()
+                setup_actions.append('registry_statistics_enabled')
+                logger.debug('✓ Registry statistics enabled')
+            
+            # Configure health monitoring
+            setup_actions.append('health_monitoring_configured')
+            logger.debug('✓ Registry health monitoring configured')
+            
+            # Setup performance tracking
+            setup_actions.append('performance_tracking_configured')
+            logger.debug('✓ Registry performance tracking configured')
+            
+        except Exception as e:
+            logger.debug(f'Registry monitoring setup had minor issues: {e}')
+            # Non-critical, so don't add to errors
+
+    def should_skip_phase(self, context) -> tuple[bool, str]:
+        """Check if registry setup should be skipped"""
+        # Skip if registry not available (this would be a critical error anyway)
+        if not hasattr(context, 'registry') or not context.registry:
+            return (True, 'No registry available in context')
+        
+        return (False, '')

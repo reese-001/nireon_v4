@@ -1,0 +1,62 @@
+# nireon_v4/config/manifests/standard.yaml
+version: "1.0" # Schema version of this manifest file
+
+metadata:
+  name: "Standard NIREON V4 Manifest"
+  description: "Default set of components for NIREON V4 idea evolution."
+  author: "NIREON Team"
+  created_at: "2025-06-05T10:00:00Z"
+
+shared_services:
+  # EventBus - Essential for decoupling
+  EventBusPort: # Using the Port type as the key
+    class: "nireon_v4.infrastructure.event_bus.memory_event_bus:MemoryEventBus" # V4 path
+    # config: {} # Optional config for the event bus
+
+  # FeatureFlagsManager - Loaded in Abiogenesis, but can be declared here for consistency
+  # FeatureFlagsManager:
+  #   class: "nireon_v4.infrastructure.feature_flags:FeatureFlagsManager"
+    # config: from global_app_config.yaml or overridden here
+
+  # LLMRouter (or LLMPort if direct) - Loaded by V4ConfigLoader, registered by Abiogenesis
+  # LLMRouter:
+  #   class: "nireon_v4.application.services.llm_router:LLMRouter"
+  #   # Config for LLMRouter itself, if any, distinct from llm_config.yaml models
+
+  # EmbeddingPort - Placeholder for now, actual implementation later
+  EmbeddingPort:
+    class: "nireon_v4.bootstrap.bootstrap_helper.placeholders:PlaceholderEmbeddingPortImpl"
+    # config:
+    #   dimensions: 384
+
+  # IdeaRepositoryPort - Placeholder for now
+  IdeaRepositoryPort:
+    class: "nireon_v4.bootstrap.bootstrap_helper.placeholders:PlaceholderIdeaRepositoryImpl"
+
+  # IdeaService - Uses above ports
+  IdeaService:
+    class: "nireon_v4.application.services.idea_service:IdeaService"
+    # Dependencies (like repository, event_bus) are injected by bootstrap/factories
+
+mechanisms:
+  explorer_primary: # Instance ID
+    class: "nireon_v4.mechanisms.explorer.service:ExplorerMechanism" # Placeholder for actual class
+    metadata_definition: "nireon_v4.mechanisms.explorer.service:EXPLORER_METADATA" # Path to metadata
+    config: # Instance-specific config overrides for ExplorerConfig Pydantic model
+      max_depth: 3
+      application_rate: 0.5
+      # divergence_strength: 0.2 # Example
+
+observers: []
+# Example:
+#   trust_observer_main:
+#     class: "nireon_v4.observers.trust_observer:TrustObserver"
+#     metadata_definition: "nireon_v4.observers.trust_observer:TRUST_OBSERVER_METADATA"
+#     config:
+#       decay_rate: 0.05
+
+managers: []
+
+# Orchestration commands are usually registered, not instantiated as singletons here
+# unless a specific command instance needs to be a shared service.
+# orchestration_commands: {}

@@ -1,0 +1,43 @@
+# nireon_v4/configs/default/llm_config.yaml
+default: "default_completion" # Key of the default model to use from 'models'
+
+models:
+  default_completion:
+    provider: "openai" # Example provider
+    model: "gpt-4o-mini" # Example model name
+    api_key: "${OPENAI_API_KEY_DEFAULT_COMPLETION}" # Reference an environment variable
+    base_url: "https://api.openai.com/v1"
+    endpoint: "chat/completions" # Common for chat models
+    method: "POST"
+    backend: "nireon_v4.infrastructure.llm.generic_http_llm:GenericHttpLLM" # Example path
+    timeout_seconds: 60
+    max_retries: 3
+    temperature: 0.7
+    max_tokens: 1024
+    # Payload template would be specific to the OpenAI chat completions API
+    payload_template: |
+      {
+        "model": "{{ model_name }}",
+        "messages": [
+          {"role": "system", "content": "{{ system_prompt | default('You are a helpful assistant.') }}"},
+          {"role": "user", "content": "{{ user_prompt }}"}
+        ],
+        "temperature": {{ temperature | default(0.7) }},
+        "max_tokens": {{ max_tokens | default(1024) }}
+      }
+    response_text_path: "choices.0.message.content" # Path to extract text
+    headers:
+      "Content-Type": "application/json"
+      # Authorization is often handled by the backend using api_key
+
+  # Add other models or providers as needed
+  # default_embedding:
+  #   provider: "sentence-transformers" # Example
+  #   model: "all-MiniLM-L6-v2" # This usually refers to local model name
+  #   backend: "nireon_v4.infrastructure.embedding.sentence_transformer_shim:SentenceTransformerEmbeddingShim"
+  #   # sentence-transformers specific config might go into a nested 'config' dict for the backend
+
+# Optional: routes for aliasing or complex routing logic
+# routes:
+#   fast_chat: "default_completion"
+#   embedding_service_model: "default_embedding"

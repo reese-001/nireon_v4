@@ -1,11 +1,4 @@
-"""
-V4 Bootstrap Orchestrator - Main controller for system initialization.
-
-This orchestrator implements L0 Abiogenesis - bringing the NIREON system into existence
-from configuration manifests following the V4 architecture principles.
-"""
 from __future__ import annotations
-
 import asyncio
 import logging
 from dataclasses import dataclass
@@ -13,9 +6,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from bootstrap.phases.base_phase import BootstrapPhase
+from bootstrap.result_builder import BootstrapResult
 from core.registry import ComponentRegistry
 from application.ports.event_bus_port import EventBusPort
-from signals.bootstrap_signals import SYSTEM_BOOTSTRAPPED  # Import constant, don't hard-code
+from signals.bootstrap_signals import SYSTEM_BOOTSTRAPPED
 
 from .config.config_loader import V4ConfigLoader
 from .phases.abiogenesis_phase import AbiogenesisPhase
@@ -33,19 +28,24 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class BootstrapConfig:
-    """V4 Bootstrap configuration following Configuration Guide hierarchy."""
     config_paths: List[Path]
     existing_registry: Optional[ComponentRegistry] = None
     existing_event_bus: Optional[EventBusPort] = None
-    manifest_style: str = "auto"
+    manifest_style: str = 'auto'
     replay: bool = False
     env: Optional[str] = None
     global_app_config: Optional[Dict[str, Any]] = None
-    strict_mode: bool = True
+    initial_strict_mode_param: bool = True  # Value passed to bootstrap_nireon_system
+
+    @property
+    def effective_strict_mode(self) -> bool:
+        """Derive strict mode from global_app_config if present, else use parameter"""
+        if self.global_app_config and 'bootstrap_strict_mode' in self.global_app_config:
+            return bool(self.global_app_config['bootstrap_strict_mode'])
+        return self.initial_strict_mode_param  # Fallback to parameter if not in global_app_config
 
     @classmethod
     def from_params(cls, config_paths: List[str | Path], **kwargs) -> 'BootstrapConfig':
-        """Create BootstrapConfig from bootstrap_nireon_system parameters."""
         return cls(
             config_paths=[Path(p) for p in config_paths],
             existing_registry=kwargs.get('existing_registry'),
@@ -54,12 +54,11 @@ class BootstrapConfig:
             replay=kwargs.get('replay', False),
             env=kwargs.get('env'),
             global_app_config=kwargs.get('global_app_config'),
-            strict_mode=kwargs.get('strict_mode', True)
+            initial_strict_mode_param=kwargs.get('strict_mode', True)
         )
 
-@dataclass 
+@dataclass
 class BootstrapContext:
-    """Shared context passed between bootstrap phases."""
     config: BootstrapConfig
     run_id: str
     registry: ComponentRegistry
@@ -67,65 +66,60 @@ class BootstrapContext:
     health_reporter: V4HealthReporter
     signal_emitter: BootstrapSignalEmitter
     global_app_config: Dict[str, Any]
-    validation_data_store: Any  # BootstrapValidationData
-    
+    validation_data_store: Any
+
     @property
     def strict_mode(self) -> bool:
-        return self.global_app_config.get('bootstrap_strict_mode', True)
+        """Use effective strict mode from BootstrapConfig"""
+        return self.config.effective_strict_mode
+
 
 class BootstrapOrchestrator:
-    """
-    V4 Bootstrap Orchestrator - Coordinates system initialization phases.
-    
-    Implements L0 Abiogenesis by bringing NIREON components into existence
-    through a structured phase-based approach following V4 architecture.
-    """
-    
     def __init__(self, config: BootstrapConfig):
         self.config = config
         self.run_id = f"bootstrap_run_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
-        
+
     async def execute_bootstrap(self) -> 'BootstrapResult':
-        """
-        Execute the complete V4 bootstrap process.
+        logger.info('=== NIREON V4 System Bootstrap Starting (L0 Abiogenesis) ===')
+        logger.info(f'Run ID: {self.run_id}')
+        logger.info(f'Config Paths: {self.config.config_paths}')
         
-        Returns:
-            BootstrapResult with populated registry, health report, and validation data
-        """
-        logger.info("=== NIREON V4 System Bootstrap Starting (L0 Abiogenesis) ===")
-        logger.info(f"Run ID: {self.run_id}")
-        logger.info(f"Config Paths: {self.config.config_paths}")
-        
-        # Phase 0: Load global configuration
+        # Load global configuration
         config_loader = V4ConfigLoader()
         global_config = await config_loader.load_global_config(
-            env=self.config.env,
+            env=self.config.env, 
             provided_config=self.config.global_app_config
         )
         
-        # Initialize shared context
+        # Update the BootstrapConfig with the loaded global config for effective_strict_mode
+        if not self.config.global_app_config:
+            self.config.global_app_config = global_config
+        
+        # Create bootstrap context with correct strict mode
         context = await self._create_bootstrap_context(global_config)
         
-        # Execute bootstrap phases in L0 Abiogenesis order
+        logger.info(f'Effective Strict Mode: {context.strict_mode}')
+        
+        # Execute phases
         phases = self._create_phases()
         
         for phase in phases:
             try:
-                logger.info(f"Executing Phase: {phase.__class__.__name__}")
+                logger.info(f'Executing Phase: {phase.__class__.__name__}')
                 result = await phase.execute(context)
                 
                 if not result.success and context.strict_mode:
-                    raise BootstrapError(f"Phase {phase.__class__.__name__} failed in strict mode: {result.errors}")
+                    raise BootstrapError(f'Phase {phase.__class__.__name__} failed in strict mode: {result.errors}')
                 elif not result.success:
-                    logger.warning(f"Phase {phase.__class__.__name__} failed but continuing in non-strict mode: {result.errors}")
+                    logger.warning(f'Phase {phase.__class__.__name__} failed but continuing in non-strict mode: {result.errors}')
                     
             except Exception as e:
                 if context.strict_mode:
-                    logger.error(f"Critical failure in {phase.__class__.__name__}: {e}")
+                    logger.error(f'Critical failure in {phase.__class__.__name__}: {e}')
                     raise
-                logger.warning(f"Phase {phase.__class__.__name__} error (non-strict mode): {e}")
+                logger.warning(f'Phase {phase.__class__.__name__} error (non-strict mode): {e}')
         
-        # Emit system birth signal (L0 Abiogenesis complete)
+        # Emit completion signal
         await context.signal_emitter.emit_system_bootstrapped(
             component_count=len(context.registry.list_components()),
             run_id=self.run_id
@@ -134,19 +128,25 @@ class BootstrapOrchestrator:
         # Build final result
         from .result_builder import BootstrapResultBuilder
         return BootstrapResultBuilder(context).build()
-    
+
     async def _create_bootstrap_context(self, global_config: Dict[str, Any]) -> BootstrapContext:
-        """Create shared bootstrap context with V4 components."""
+        # Use existing registry or create new one
         registry = self.config.existing_registry or ComponentRegistry()
+        
+        # Create registry manager
         registry_manager = RegistryManager(registry)
+        
+        # Create health reporter
         health_reporter = V4HealthReporter(registry)
         
         # Create validation data store
         from .validation_data import BootstrapValidationData
         validation_data_store = BootstrapValidationData(global_config=global_config)
         
-        # Signal emitter for bootstrap events
+        # Handle event bus
         event_bus = self.config.existing_event_bus
+        
+        # Create signal emitter
         signal_emitter = BootstrapSignalEmitter(event_bus, self.run_id)
         
         return BootstrapContext(
@@ -159,19 +159,18 @@ class BootstrapOrchestrator:
             global_app_config=global_config,
             validation_data_store=validation_data_store
         )
-    
+
     def _create_phases(self) -> List['BootstrapPhase']:
-        """Create ordered list of bootstrap phases for L0 Abiogenesis."""
         return [
-            AbiogenesisPhase(),           # L0: System emergence
-            RegistrySetupPhase(),         # Core registry setup
-            FactorySetupPhase(),          # Initialize factories
-            ManifestProcessingPhase(),    # Process manifests
-            ComponentInitializationPhase(), # Initialize components
-            InterfaceValidationPhase(),   # Validate interfaces
-            RBACSetupPhase(),            # Enterprise RBAC policies
+            AbiogenesisPhase(),
+            RegistrySetupPhase(),
+            FactorySetupPhase(),
+            ManifestProcessingPhase(),
+            ComponentInitializationPhase(),
+            InterfaceValidationPhase(),
+            RBACSetupPhase()
         ]
 
+
 class BootstrapError(RuntimeError):
-    """Bootstrap-specific error for V4 system initialization failures."""
     pass

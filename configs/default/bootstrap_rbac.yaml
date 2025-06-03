@@ -1,0 +1,9 @@
+# nireon_v4/configs/default/bootstrap_rbac.yaml
+version: "1.0"
+policies:
+  - role: "system_admin"
+    permissions: ["*.*"] # Full access
+    description: "System administrator with all permissions."
+  - role: "default_user"
+    permissions: ["ideas.read", "components.read"]
+    description: "Default user with read-only access."

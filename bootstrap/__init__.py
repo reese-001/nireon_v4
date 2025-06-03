@@ -1,95 +1,55 @@
-"""
-NIREON V4 Bootstrap System
-
-This package provides the complete bootstrap infrastructure for NIREON V4 systems.
-It implements L0 Abiogenesis - the emergence of epistemic capability from
-configuration specifications into living, reasoning components.
-
-Key Features:
-- Phase-based bootstrap orchestration (7 phases from abiogenesis to validation)
-- 6-layer configuration hierarchy (Runtime → Env Vars → Manifest → Env → Default → Python)
-- Schema validation with JSON Schema enforcement
-- Self-certification system for component health tracking
-- Signal-driven architecture with 50+ bootstrap event types
-- Comprehensive health reporting and validation tracking
-
-Public API:
-    bootstrap_nireon_system() - Main async bootstrap function
-    bootstrap() - Convenience wrapper
-    bootstrap_sync() - Synchronous bootstrap wrapper
-    BootstrapResult - Result container with health and validation data
-    BootstrapValidationData - Validation tracking throughout bootstrap
-
-Example:
-    >>> from bootstrap import bootstrap_nireon_system
-    >>> result = await bootstrap_nireon_system(['config/manifests/standard.yaml'])
-    >>> registry = result.registry
-    >>> print(f"Bootstrap success: {result.success}")
-"""
-
+# Path: nireon_v4/bootstrap/__init__.py
 from .bootstrap import (
-    bootstrap_nireon_system,
-    bootstrap,
+    bootstrap_nireon_system, 
+    bootstrap, 
     bootstrap_sync,
     validate_bootstrap_config,
     smoke_test,
     smoke_test_sync,
-    BootstrapResult,
+    create_test_bootstrap_config, # Added for testing convenience
+    BootstrapResult, 
     CURRENT_SCHEMA_VERSION
 )
-
-from .validation_data import (
-    BootstrapValidationData,
-    ComponentValidationData
-)
-
-from .bootstrap_helper.exceptions import (
-    BootstrapError,
-    ComponentInstantiationError,
-    ComponentInitializationError,
+from .validation_data import BootstrapValidationData, ComponentValidationData # V4 validation data
+from .bootstrap_helper.exceptions import ( 
+    BootstrapError, 
+    ComponentInstantiationError, 
+    ComponentInitializationError, 
     ComponentValidationError,
     ManifestProcessingError,
     ConfigurationError,
     DependencyResolutionError,
     FactoryError,
     RegistryError,
-    RBACError,
+    RBACError, 
     PhaseExecutionError
 )
+from .orchestrator import BootstrapOrchestrator, BootstrapConfig, BootstrapContext 
 
-from .orchestrator import (
-    BootstrapOrchestrator,
-    BootstrapConfig,
-    BootstrapContext
-)
+__version__ = '4.0.0' 
+__author__ = 'NIREON V4 Bootstrap Team'
+__description__ = 'L0 Abiogenesis: Epistemic System Bootstrap Infrastructure for NIREON V4'
 
-# Version and metadata
-__version__ = "4.0.0"
-__author__ = "NIREON V4 Bootstrap Team"
-__description__ = "L0 Abiogenesis: Epistemic System Bootstrap Infrastructure"
-
-# Public API exports
 __all__ = [
-    # Main bootstrap functions
+    # Core bootstrap functions
     'bootstrap_nireon_system',
     'bootstrap',
     'bootstrap_sync',
     'validate_bootstrap_config',
     'smoke_test',
     'smoke_test_sync',
+    'create_test_bootstrap_config',
     
-    # Result and data classes
-    'BootstrapResult',
-    'BootstrapValidationData',
+    # Core data structures
+    'BootstrapResult', 
+    'BootstrapValidationData', 
     'ComponentValidationData',
-    
-    # Configuration and orchestration
-    'BootstrapOrchestrator',
-    'BootstrapConfig', 
-    'BootstrapContext',
+    'BootstrapOrchestrator', 
+    'BootstrapConfig',      
+    'BootstrapContext',     
     
     # Exceptions
-    'BootstrapError',
+    'BootstrapError',       
     'ComponentInstantiationError',
     'ComponentInitializationError',
     'ComponentValidationError',
@@ -101,114 +61,107 @@ __all__ = [
     'RBACError',
     'PhaseExecutionError',
     
-    # Constants
+    # Constants and Info
     'CURRENT_SCHEMA_VERSION',
-    
-    # Metadata
     '__version__',
     '__author__',
-    '__description__'
+    '__description__',
+    'get_version',
+    'get_schema_version', # Using V4 specific schema versioning
+    'get_supported_manifest_types',
+    'get_bootstrap_info',
+    'system_health_check' 
 ]
 
-
 def get_version() -> str:
-    """Get the bootstrap system version."""
+    """Returns the current version of the NIREON V4 bootstrap module."""
     return __version__
 
-
 def get_schema_version() -> str:
-    """Get the current bootstrap schema version."""
-    return CURRENT_SCHEMA_VERSION
-
+    """
+    Returns the schema version this bootstrap module is compatible with.
+    This should align with manifest and configuration schema versions.
+    (Ref: NIREON V4 API Governance.md, NIREON V4 Configuration Guide.md)
+    """
+    # Example: "1.0" if manifests are at version 1.0
+    # For now, using the CURRENT_SCHEMA_VERSION from bootstrap.py which is more generic
+    return CURRENT_SCHEMA_VERSION 
 
 def get_supported_manifest_types() -> list[str]:
-    """Get list of supported manifest types."""
-    return ['enhanced', 'simple']
-
+    """
+    Returns a list of manifest types supported by this bootstrap version.
+    (Ref: NIREON V4 Configuration Guide.md - Manifest Structure; bootstrap_helper/utils.py - detect_manifest_type)
+    """
+    return ['enhanced', 'simple'] 
 
 def get_bootstrap_info() -> dict[str, any]:
-    """
-    Get comprehensive information about the bootstrap system.
-    
-    Returns:
-        Dictionary with version, capabilities, and feature information
-    """
+    """Provides a dictionary of key information about the bootstrap module."""
     return {
         'version': __version__,
-        'schema_version': CURRENT_SCHEMA_VERSION,
+        'schema_version_compatibility': get_schema_version(),
         'description': __description__,
         'author': __author__,
-        'manifest_types': get_supported_manifest_types(),
-        'features': {
+        'supported_manifest_types': get_supported_manifest_types(),
+        'core_features': {
             'phase_based_orchestration': True,
-            'six_layer_config_hierarchy': True,
-            'schema_validation': True,
-            'self_certification': True,
-            'signal_driven_architecture': True,
-            'health_reporting': True,
-            'rbac_support': True,
-            'hot_reload_ready': True
+            'multi_layer_config_hierarchy': True, 
+            'manifest_schema_validation': True, 
+            'component_self_certification': True, 
+            'event_signal_driven_init': True, 
+            'comprehensive_health_reporting': True, 
+            'rbac_setup_phase': True, 
+            'hot_reload_support': False # Aspirational, currently False
         },
-        'phases': [
+        'bootstrap_phases': [ 
             'AbiogenesisPhase',
-            'RegistrySetupPhase', 
+            'RegistrySetupPhase',
             'FactorySetupPhase',
             'ManifestProcessingPhase',
             'ComponentInitializationPhase',
             'InterfaceValidationPhase',
             'RBACSetupPhase'
         ],
-        'api_functions': [
-            'bootstrap_nireon_system',
-            'bootstrap',
-            'bootstrap_sync',
-            'validate_bootstrap_config',
-            'smoke_test'
+        'public_api_functions': [
+            'bootstrap_nireon_system', 'bootstrap', 'bootstrap_sync',
+            'validate_bootstrap_config', 'smoke_test', 'smoke_test_sync'
         ]
     }
 
-
-# Bootstrap system health check
 def system_health_check() -> dict[str, any]:
     """
-    Perform a system health check of the bootstrap infrastructure.
-    
-    Returns:
-        Dictionary with health status and any detected issues
+    Performs a basic internal health check of the bootstrap module's structure and dependencies.
+    This is a lightweight check, not a full system bootstrap.
     """
-    health = {
-        'status': 'healthy',
-        'issues': [],
-        'checks_performed': []
-    }
-    
+    health = {'status': 'healthy', 'issues': [], 'checks_performed': []}
     try:
-        # Check imports
+        # Check critical imports
         from .orchestrator import BootstrapOrchestrator
         from .phases.base_phase import BootstrapPhase
         from .processors.manifest_processor import ManifestProcessor
-        health['checks_performed'].append('import_validation')
+        from .config.config_loader import V4ConfigLoader
+        health['checks_performed'].append('critical_module_imports')
+
+        # Check for signal definitions
+        from signals.bootstrap_signals import ALL_BOOTSTRAP_SIGNALS, SYSTEM_BOOTSTRAPPED
+        if not ALL_BOOTSTRAP_SIGNALS or SYSTEM_BOOTSTRAPPED not in ALL_BOOTSTRAP_SIGNALS:
+            health['issues'].append('Bootstrap signal definitions seem incomplete or missing key signals.')
+        health['checks_performed'].append('bootstrap_signal_definitions')
         
-        # Check signal constants
-        from signals.bootstrap_signals import ALL_BOOTSTRAP_SIGNALS
-        if len(ALL_BOOTSTRAP_SIGNALS) < 30:  # Should have 50+ signals
-            health['issues'].append('insufficient_bootstrap_signals')
-        health['checks_performed'].append('signal_validation')
+        # Check key helper modules
+        from .bootstrap_helper import exceptions, utils, metadata, placeholders, context_builder, health_reporter as v4_hr
+        if not hasattr(v4_hr, 'V4HealthReporter'): # Check specific V4 class
+             health['issues'].append('V4HealthReporter missing from bootstrap_helper.health_reporter.')
+        health['checks_performed'].append('bootstrap_helper_modules')
         
-        # Check helper modules
-        from .bootstrap_helper import (
-            exceptions, utils, metadata, placeholders, 
-            context_builder, health_reporter
-        )
-        health['checks_performed'].append('helper_validation')
+        if health['issues']:
+            health['status'] = 'degraded'
         
         return health
-        
     except ImportError as e:
         health['status'] = 'unhealthy'
-        health['issues'].append(f'import_error: {e}')
+        health['issues'].append(f'Critical import error: {e}')
         return health
     except Exception as e:
         health['status'] = 'degraded'
-        health['issues'].append(f'health_check_error: {e}')
+        health['issues'].append(f'Unexpected health check error: {e}')
         return health
