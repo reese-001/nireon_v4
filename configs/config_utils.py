@@ -87,7 +87,7 @@ class ConfigMerger:
 def merge_configs(base: Dict[str, Any], *overrides: Dict[str, Any], context: str = "ConfigChain", strict: bool = False) -> Dict[str, Any]:
     """
     Merges multiple override dictionaries into a base dictionary sequentially.
-    V4: `allow_new_keys_in_strict` is True by default for chained merges,
+    `allow_new_keys_in_strict` is True by default for chained merges,
     meaning later configs in the chain can introduce new keys even if strict is on for
     the comparison against the immediate base.
     """

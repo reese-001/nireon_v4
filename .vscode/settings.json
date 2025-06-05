@@ -1,6 +1,7 @@
 {
     "python.analysis.extraPaths": [
         "./components",
-        "./components"
+        "./components",
+        "./bootstrap"
     ]
 }

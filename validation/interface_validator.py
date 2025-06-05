@@ -1,18 +1,20 @@
-# nireon_v4/validation/interface_validator.py
+# nireon/validation/interface_validator.py
 from __future__ import annotations
 import logging
 import inspect # For inspecting methods
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Protocol
 
+from application.components.lifecycle import ComponentRegistryMissingError
+
 if TYPE_CHECKING:
-    from nireon_v4.application.components.base import NireonBaseComponent
-    from nireon_v4.application.components.lifecycle import ComponentMetadata # V4
-    from nireon_v4.application.context import NireonExecutionContext # V4
+    from application.components.base import NireonBaseComponent
+    from application.components.lifecycle import ComponentMetadata # V4
+    from application.context import NireonExecutionContext # V4
 
 logger = logging.getLogger(__name__)
 
 class InterfaceValidator:
-    # V4: NireonComponent protocol methods, more flexible than just a list
+    # NireonComponent protocol methods, more flexible than just a list
     # These are core methods expected by the runtime for lifecycle management.
     # Inheriting from NireonBaseComponent should provide these.
     CORE_LIFECYCLE_METHODS = [

@@ -21,8 +21,8 @@ class SimpleMechanismFactory:
         # Define known factory keys and their corresponding classes
         # This allows backward compatibility for factory-based instantiation
         self.KNOWN_MECHANISMS = {
-            "explorer_mechanism": "nireon_v4.mechanisms.explorer.service:ExplorerMechanism",
-            "explorer_default_key": "nireon_v4.mechanisms.explorer.service:ExplorerMechanism",
+            "explorer_mechanism": "nireon.mechanisms.explorer.service:ExplorerMechanism",
+            "explorer_default_key": "nireon.mechanisms.explorer.service:ExplorerMechanism",
             # Add more mechanism mappings here as needed
         }
         

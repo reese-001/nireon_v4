@@ -1,12 +1,12 @@
-# Combined nireon_v4/application/context.py
+# nireon/application/context.py
 from __future__ import annotations
 from copy import deepcopy
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
-# V4 imports - using the more complete import structure from version 2
-from core.registry import ComponentRegistry
-from application.ports.event_bus_port import EventBusPort
+# V4 imports - using the more complete import structure
+from core.registry import ComponentRegistry # Assuming ComponentRegistry is the class name
+from application.ports.event_bus_port import EventBusPort # Assuming EventBusPort is the interface/class
 
 # Placeholders for components that may not yet be fully implemented in V4
 # These can be properly typed or imported later when available
@@ -29,7 +29,7 @@ class NireonExecutionContext:
         run_id: str,
         step: int = 0,
         feature_flags: Optional[Dict[str, Any]] = None,
-        component_registry: Optional[ComponentRegistry] = None,
+        component_registry: Optional[ComponentRegistry] = None, # CHANGED: Parameter to snake_case
         event_bus: Optional[EventBusPort] = None,
         config: Optional[Dict[str, Any]] = None,
         session_id: Optional[str] = None,
@@ -45,17 +45,17 @@ class NireonExecutionContext:
         self.run_id: str = run_id
         self.step: int = step
         self.feature_flags: Dict[str, Any] = feature_flags or {}
-        self.component_registry = component_registry
-        self.event_bus = event_bus
-        self.logger = logger
-        self.config_provider = config_provider
-        self.state_manager = state_manager
-        self.config = config or {}
-        self.session_id = session_id
-        self.component_id = component_id
+        self.component_registry: Optional[ComponentRegistry] = component_registry # CORRECTED: Assignment uses snake_case param
+        self.event_bus: Optional[EventBusPort] = event_bus
+        self.logger: Optional[LoggerAdapter] = logger
+        self.config_provider: Optional[ConfigProvider] = config_provider
+        self.state_manager: Optional[StateManager] = state_manager
+        self.config: Dict[str, Any] = config or {}
+        self.session_id: Optional[str] = session_id
+        self.component_id: Optional[str] = component_id
         self.timestamp: datetime = timestamp or datetime.now(timezone.utc)
-        self.replay_mode = replay_mode
-        self.replay_seed = replay_seed
+        self.replay_mode: bool = replay_mode
+        self.replay_seed: Optional[int] = replay_seed
         self.metadata: Dict[str, Any] = metadata or {}
         self._custom_data: Dict[str, Any] = {}  # For arbitrary data passing
 
@@ -106,21 +106,20 @@ class NireonExecutionContext:
             "run_id": self.run_id,
             "step": self.step,
             "feature_flags": deepcopy(self.feature_flags),
-            "component_registry": self.component_registry,  # Shared singleton
-            "event_bus": self.event_bus,  # Shared singleton
+            "component_registry": self.component_registry,  # CORRECTED: Use self.component_registry
+            "event_bus": self.event_bus,
             "config": deepcopy(self.config),
             "session_id": self.session_id,
             "component_id": self.component_id,
-            "timestamp": self.timestamp,  # Keep original timestamp
+            "timestamp": self.timestamp,
             "replay_mode": self.replay_mode,
             "replay_seed": self.replay_seed,
             "metadata": deepcopy(self.metadata),
-            "logger": self.logger,  # Shared or re-scoped
-            "config_provider": self.config_provider,  # Shared singleton
-            "state_manager": self.state_manager,  # Shared singleton
+            "logger": self.logger,
+            "config_provider": self.config_provider,
+            "state_manager": self.state_manager,
         }
         
-        # Handle _custom_data separately for precise control
         internal_custom_data_override = overrides.pop("_internal_custom_data_override", None)
         params.update(overrides)
         
@@ -141,5 +140,5 @@ class NireonExecutionContext:
         )
 
 
-# Alias for backward compatibility with V3 code
+# Alias for backward compatibility
 ExecutionContext = NireonExecutionContext

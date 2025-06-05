@@ -1,4 +1,4 @@
-# nireon_v4/configs/default/mechanisms/explorer_primary.yaml
+# nireon/configs/default/mechanisms/explorer_primary.yaml
 # These are default values that override Pydantic defaults if specified.
 max_depth: 4
 application_rate: 0.6

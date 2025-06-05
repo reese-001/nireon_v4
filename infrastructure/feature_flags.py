@@ -19,7 +19,7 @@ class FeatureFlagsManager:
                     if 'description' in value:
                         self._descriptions[flag_name] = str(value['description'])
         
-        # V4: Register some common flags expected by Nireon components or bootstrap itself
+        # Register some common flags expected by Nireon components or bootstrap itself
         # These act as defaults if not in config.
         self.register_flag("sentinel_enable_progression_adjustment", default_value=False, description="Enables progression bonus in Sentinel mechanism")
         self.register_flag("sentinel_enable_edge_trust", default_value=False, description="Enables edge trust calculations in Sentinel (if Idea supports graph structure)")
@@ -28,7 +28,7 @@ class FeatureFlagsManager:
         self.register_flag("catalyst_anti_constraints", default_value=False, description="Enables anti-constraint functionality in Catalyst") # From V3 Catalyst
         self.register_flag("catalyst_duplication_check", default_value=False, description="Enables duplication detection and adaptation in Catalyst") # From V3 Catalyst
         
-        logger.info(f"FeatureFlagsManager (V4) initialized with {len(self._flags)} flags from config and defaults.")
+        logger.info(f"FeatureFlagsManager initialized with {len(self._flags)} flags from config and defaults.")
 
     def register_flag(self, flag_name: str, default_value: bool = False, description: Optional[str] = None) -> None:
         self._registered_flags.add(flag_name)
@@ -64,7 +64,7 @@ class FeatureFlagsManager:
         return self._descriptions.get(flag_name)
 
     def get_registered_flags(self) -> List[Dict[str, Any]]:
-        # V4: Provide a structured list of registered flags and their states
+        # Provide a structured list of registered flags and their states
         result = []
         for flag_name in sorted(self._registered_flags): # Iterate over explicitly registered ones
             flag_info = {
@@ -76,7 +76,7 @@ class FeatureFlagsManager:
             result.append(flag_info)
         return result
 
-# V4: Global function for registration, similar to V3's style, but likely not primary API.
+# Global function for registration, similar to V3's style, but likely not primary API.
 # The manager instance is preferred.
 def register_flag(flag_name: str, default_value: bool = False, description: Optional[str]=None) -> None:
     # This global function would typically interact with a singleton FeatureFlagsManager instance

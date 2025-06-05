@@ -1,16 +1,28 @@
-# Adapted from nireon_staging/nireon/application/components/base.py
+# application/components/base.py
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, List, Dict, Optional, TypeVar, Generic
 from datetime import datetime, timezone
 import hashlib
 import logging
-# V4: Relative import for NireonExecutionContext
+
+# Relative import for NireonExecutionContext
 from ..context import NireonExecutionContext
-# V4: Relative import for ComponentMetadata, ComponentRegistry, ComponentRegistryMissingError
-from .lifecycle import ComponentMetadata, ComponentRegistry, ComponentRegistryMissingError
-# V4: Relative import for results
-from .results import ProcessResult, AnalysisResult, SystemSignal, AdaptationAction, ComponentHealth
+
+# Relative import for ComponentMetadata, ComponentRegistryMissingError
+# Assuming lifecycle.py exists in the same directory (application/components/)
+from .lifecycle import ComponentMetadata, ComponentRegistryMissingError
+
+# Absolute import for ComponentRegistry (assuming 'core' is a top-level package)
+from core.registry import ComponentRegistry
+
+# Absolute imports for result types (assuming 'components' is a top-level package)
+# Note: ProcessResult is imported here and then again below from a more local path.
+# This might be an area for future cleanup/clarification to ensure the correct one is used.
+from components.results import ProcessResult as GeneralProcessResult, AnalysisResult, SystemSignal, AdaptationAction, ComponentHealth
+
+# More local import of ProcessResult, often takes precedence or is more specific.
+from application.components.results import ProcessResult # This will likely shadow the one from components.results
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +36,7 @@ class ComponentLifecycle(ABC):
         ...
 
     @abstractmethod
-    async def process(self, data: Any, context: NireonExecutionContext) -> ProcessResult:
+    async def process(self, data: Any, context: NireonExecutionContext) -> ProcessResult: # Uses the shadowed ProcessResult
         ...
 
     @abstractmethod
@@ -64,7 +76,8 @@ class NireonBaseComponent(ComponentLifecycle, ABC):
         self._last_process_timestamp: Optional[datetime] = None
         self._process_count: int = 0
         self._error_count: int = 0
-        logger.debug(f"NireonBaseComponent '{self._component_id}' instantiated (V4)")
+        # Use context's logger if available and appropriate, or module logger for init
+        logger.debug(f"NireonBaseComponent '{self._component_id}' instantiated")
 
     @property
     def metadata(self) -> ComponentMetadata:
@@ -91,56 +104,63 @@ class NireonBaseComponent(ComponentLifecycle, ABC):
         return self._error_count
 
     async def initialize(self, context: NireonExecutionContext) -> None:
+        # Ensure context has a logger; if not, this would raise an AttributeError
+        # This was handled in NireonExecutionContext, so it should be present.
+        component_logger = context.logger or logger # Fallback to module logger if context.logger is None
+
         if self._initialized_properly:
-            context.logger.warning(f"Component '{self.component_id}' already initialized. Re-initializing.")
+            component_logger.warning(f"Component '{self.component_id}' already initialized. Re-initializing.")
         
-        context.logger.info(f'Initializing component: {self.component_id} (v{self.metadata.version}, category: {self.metadata.category})')
+        component_logger.info(f'Initializing component: {self.component_id} (v{self.metadata.version}, category: {self.metadata.category})')
         
         if context.component_registry is None:
-            # V4: ComponentRegistry might be optional for some minimal contexts, but vital for initialize
-            raise ValueError(f"ComponentRegistry missing in ExecutionContext for '{self.component_id}'")
+            raise ValueError(f"ComponentRegistry missing in ExecutionContext for '{self.component_id}' initialization")
 
         try:
             existing = context.component_registry.get(self.component_id)
             if existing is not self:
-                context.logger.warning(f"Overwriting existing registration for '{self.component_id}'")
-        except ComponentRegistryMissingError: # V4: Using specific error type
-            pass # Not registered yet, which is fine.
+                component_logger.warning(f"Overwriting existing registration for '{self.component_id}' in registry during initialization.")
+        except ComponentRegistryMissingError:
+            pass # Not registered yet, which is fine for the first initialization.
         
-        context.component_registry.register(self, self.metadata)
-        await self._self_certify(context) # Assuming _self_certify is part of V4 base or will be added
+        context.component_registry.register(self, self.metadata) # Register self with its metadata
+        await self._self_certify(context)
         
         await self._initialize_impl(context)
         self._initialized_properly = True
         self._initialization_timestamp = datetime.now(timezone.utc)
-        context.logger.info(f"Component '{self.component_id}' initialized successfully")
+        component_logger.info(f"Component '{self.component_id}' initialized successfully")
 
     async def _initialize_impl(self, context: NireonExecutionContext) -> None:
         # Default implementation, can be overridden by subclasses
         pass
 
     async def _self_certify(self, context: NireonExecutionContext) -> None:
-        # Simplified from V3 for Phase 1, can be expanded later
+        component_logger = context.logger or logger
         config_hash = hashlib.sha256(str(sorted(self.config.items())).encode()).hexdigest()
         certification_data = {
             'component_id': self.component_id,
             'component_name': self.metadata.name,
             'version': self.metadata.version,
             'category': self.metadata.category,
-            'status': 'initializing',
+            'status': 'initializing', # Or 'certified' after this step
             'config_hash': config_hash,
             'timestamp': datetime.now(timezone.utc).isoformat(),
         }
-        if hasattr(context.component_registry, 'register_certification'): # V4: Check if method exists
+        if context.component_registry and hasattr(context.component_registry, 'register_certification'):
             context.component_registry.register_certification(self.component_id, certification_data)
-            context.logger.info(f"Component '{self.component_id}' self-certification completed")
+            component_logger.info(f"Component '{self.component_id}' self-certification completed")
         else:
-            context.logger.warning(f"ComponentRegistry for '{self.component_id}' does not support register_certification. Skipping.")
-
+            component_logger.warning(
+                f"ComponentRegistry for '{self.component_id}' either missing or "
+                f"does not support register_certification. Skipping self-certification registration."
+            )
 
     async def process(self, data: Any, context: NireonExecutionContext) -> ProcessResult:
+        component_logger = context.logger or logger
         if not self._initialized_properly:
             self._error_count += 1
+            component_logger.error(f"Component '{self.component_id}' process called before initialization.")
             return ProcessResult(success=False, component_id=self.component_id, message='Component not initialized', error_code='NOT_INITIALIZED')
         
         self._process_count += 1
@@ -150,10 +170,17 @@ class NireonBaseComponent(ComponentLifecycle, ABC):
             return await self._process_impl(data, context)
         except Exception as e:
             self._error_count += 1
-            context.logger.error(f"Component '{self.component_id}' process error: {e}", exc_info=True)
-            if await self.recover_from_error(e, context):
-                context.logger.info(f"Component '{self.component_id}' recovered from error")
-                return ProcessResult(success=True, component_id=self.component_id, message=f'Recovered from error: {e}', error_code='RECOVERED')
+            component_logger.error(f"Component '{self.component_id}' process error: {e}", exc_info=True)
+            # Attempt recovery
+            recovered = False
+            try:
+                recovered = await self.recover_from_error(e, context)
+            except Exception as recovery_e:
+                component_logger.error(f"Component '{self.component_id}' failed during recover_from_error: {recovery_e}", exc_info=True)
+
+            if recovered:
+                component_logger.info(f"Component '{self.component_id}' recovered from error: {e}")
+                return ProcessResult(success=True, component_id=self.component_id, message=f'Recovered from error: {e}', error_code='RECOVERED_AFTER_ERROR') # Potentially a new error code
             return ProcessResult(success=False, component_id=self.component_id, message=f'Processing error: {e}', error_code='PROCESS_ERROR')
 
     @abstractmethod
@@ -161,44 +188,51 @@ class NireonBaseComponent(ComponentLifecycle, ABC):
         ...
 
     async def shutdown(self, context: NireonExecutionContext) -> None:
-        context.logger.info(f"Shutting down component: '{self.component_id}'")
+        component_logger = context.logger or logger
+        component_logger.info(f"Shutting down component: '{self.component_id}'")
         try:
             await self._shutdown_impl(context)
         except Exception as e:
-            context.logger.error(f"Shutdown error for '{self.component_id}': {e}")
-        self._initialized_properly = False
-        context.logger.info(f"Component '{self.component_id}' shutdown complete")
+            component_logger.error(f"Error during _shutdown_impl for '{self.component_id}': {e}", exc_info=True)
+        self._initialized_properly = False # Mark as not initialized after shutdown logic
+        component_logger.info(f"Component '{self.component_id}' shutdown complete")
 
     async def _shutdown_impl(self, context: NireonExecutionContext) -> None:
         # Default implementation, can be overridden by subclasses
         pass
         
     async def analyze(self, context: NireonExecutionContext) -> AnalysisResult:
-        # Default implementation, can be overridden
-        return AnalysisResult(success=True, component_id=self.component_id, metrics={}, confidence=0.5)
+        return AnalysisResult(success=True, component_id=self.component_id, metrics={}, confidence=0.5, message="Default analysis: No specific metrics.")
 
     async def react(self, context: NireonExecutionContext) -> List[SystemSignal]:
-        # Default implementation, can be overridden
         return []
 
     async def adapt(self, context: NireonExecutionContext) -> List[AdaptationAction]:
-        # Default implementation, can be overridden
         return []
 
     async def recover_from_error(self, error: Exception, context: NireonExecutionContext) -> bool:
-        # Default implementation, can be overridden
-        context.logger.warning(f"No recovery implemented for '{self.component_id}': {error}")
-        return False
+        component_logger = context.logger or logger
+        component_logger.warning(f"Default recover_from_error for '{self.component_id}': No recovery implemented for error: {error}")
+        return False # Default is cannot recover
 
     async def health_check(self, context: NireonExecutionContext) -> ComponentHealth:
-        # Default implementation, can be overridden
-        status = "HEALTHY" if self._initialized_properly and self._error_count == 0 else "DEGRADED"
-        return ComponentHealth(component_id=self.component_id, status=status, message="Basic health check.")
+        status = "HEALTHY"
+        messages = ["Basic health check passed."]
+        if not self._initialized_properly:
+            status = "UNINITIALIZED"
+            messages.append("Component is not initialized.")
+        elif self._error_count > 0:
+            status = "DEGRADED"
+            messages.append(f"Component has encountered {self._error_count} errors.")
+        
+        return ComponentHealth(component_id=self.component_id, status=status, message=" ".join(messages), details={"error_count": self._error_count, "process_count": self.process_count})
 
 class TypedNireonComponent(NireonBaseComponent, Generic[TInput, TOutput]):
     @abstractmethod
-    async def _process_impl(self, data: TInput, context: NireonExecutionContext) -> ProcessResult:
+    async def _process_impl(self, data: TInput, context: NireonExecutionContext) -> ProcessResult: # Uses shadowed ProcessResult
         ...
 
+    # This override ensures that the 'data' parameter for the public 'process'
+    # method matches the TInput generic type for users of TypedNireonComponent.
     async def process(self, data: TInput, context: NireonExecutionContext) -> ProcessResult: # type: ignore[override]
         return await super().process(data, context)

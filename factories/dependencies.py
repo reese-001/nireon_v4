@@ -1,4 +1,4 @@
-# nireon_v4/factories/dependencies.py
+# nireon/factories/dependencies.py
 from __future__ import annotations
 import random
 from dataclasses import dataclass, field
@@ -6,12 +6,12 @@ from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     # V4 imports
-    from nireon_v4.application.ports.llm_port import LLMPort
-    from nireon_v4.application.services.llm_router import LLMRouter # V4
-    from nireon_v4.application.ports.embedding_port import EmbeddingPort
-    from nireon_v4.application.ports.event_bus_port import EventBusPort
-    from nireon_v4.application.services.idea_service import IdeaService # V4
-    from nireon_v4.core.registry import ComponentRegistry # V4
+    from application.ports.llm_port import LLMPort
+    from application.services.llm_router import LLMRouter # V4
+    from application.ports.embedding_port import EmbeddingPort
+    from application.ports.event_bus_port import EventBusPort
+    from application.services.idea_service import IdeaService # V4
+    from core.registry import ComponentRegistry # V4
 
 @dataclass(frozen=True)
 class CommonMechanismDependencies:

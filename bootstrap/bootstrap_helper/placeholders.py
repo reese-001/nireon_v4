@@ -6,6 +6,7 @@ to ensure the system can bootstrap even when real implementations are not availa
 These placeholders log their operations and provide minimal functionality.
 """
 
+from datetime import datetime
 import logging
 import random
 from typing import Any, Dict, List, Optional, Sequence

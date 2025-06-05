@@ -1,0 +1,86 @@
+version: "1.0"
+metadata:
+  name: "NIREON Example Manifest"
+  description: "Working example manifest with real components"
+  author: "NIREON Team"
+  created_at: "2025-01-03T10:00:00Z"
+
+# Core services that provide system capabilities
+shared_services:
+  EventBusPort:
+    class: "infrastructure.event_bus.memory_event_bus:MemoryEventBus"
+    enabled: true
+    config:
+      max_queue_size: 1000
+      enable_history: true
+  
+  EmbeddingPort:
+    class: "infrastructure.embeddings.dummy_embeddings:DummyEmbeddingService"
+    enabled: true
+    config:
+      dimensions: 384
+      cache_size: 1000
+  
+  IdeaRepositoryPort:
+    class: "infrastructure.persistence.memory_idea_repo:MemoryIdeaRepository"
+    enabled: true
+    config:
+      max_ideas: 10000
+      enable_lineage_tracking: true
+  
+  IdeaService:
+    class: "application.services.idea_service:IdeaService"
+    enabled: true
+
+# Mechanisms that generate and transform ideas
+mechanisms:
+  explorer_primary:
+    class: "components.mechanisms.explorer.service:ExplorerMechanism"
+    metadata_definition: "components.mechanisms.explorer.service:EXPLORER_METADATA"
+    enabled: true
+    config:
+      max_depth: 4
+      application_rate: 0.6
+      exploration_strategy: "depth_first"
+      max_variations_per_level: 3
+      enable_semantic_exploration: true
+      creativity_factor: 0.7
+    epistemic_tags: ["generator", "mutator", "innovator"]
+  
+  explorer_secondary:
+    class: "components.mechanisms.explorer.service:ExplorerMechanism"
+    metadata_definition: "components.mechanisms.explorer.service:EXPLORER_METADATA"
+    enabled: false
+    config:
+      max_depth: 2
+      application_rate: 0.3
+      exploration_strategy: "breadth_first"
+
+# Components that observe and analyze the system
+observers:
+  lineage_tracker:
+    class: "components.observers.lineage_tracker:LineageTracker"
+    metadata_definition: "components.observers.lineage_tracker:LINEAGE_METADATA"
+    enabled: true
+    config:
+      track_genealogy: true
+      max_lineage_depth: 10
+    epistemic_tags: ["historian", "tracer"]
+
+# Management components for coordination
+managers:
+  flow_coordinator:
+    class: "components.managers.flow_coordinator:FlowCoordinator"
+    metadata_definition: "components.managers.flow_coordinator:FLOW_METADATA"
+    enabled: true
+    config:
+      coordination_strategy: "priority_based"
+      max_concurrent_flows: 5
+    epistemic_tags: ["coordinator", "orchestrator"]
+
+# Command definitions for orchestration
+orchestration_commands:
+  apply_mechanism_command:
+    class: "orchestration.commands.apply_mechanism:ApplyMechanismCommand"
+    metadata_definition: "orchestration.commands.apply_mechanism:APPLY_MECHANISM_METADATA"
+    enabled: true

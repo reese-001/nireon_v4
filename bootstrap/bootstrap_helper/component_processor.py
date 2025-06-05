@@ -407,7 +407,7 @@ async def register_orchestration_command(
     global_app_config: Dict[str, Any],
 ) -> None:
     """
-    Registers an orchestration command CLASS and its METADATA into the V4 registry.
+    Registers an orchestration command CLASS and its METADATA into the registry.
     Does not instantiate the command.
     """
     class_path: str = command_spec_from_manifest.get("class")

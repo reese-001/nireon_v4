@@ -1,10 +1,10 @@
-# nireon_v4/config/templates/epistemic_templates.yaml
+# nireon/config/templates/epistemic_templates.yaml
 version: "1.0"
 
 templates:
   SEED_TRIGGER:
     description: "Triggers primary explorer on a SEED_SIGNAL"
-    command_type: "ApplyMechanismCommand" # Should resolve to the V4 class
+    command_type: "ApplyMechanismCommand" # Should resolve to the class
     default_params:
       mechanism_id: "explorer_primary" # Matches instance ID in manifest
     expected_input_signals: ["SEED_SIGNAL"]

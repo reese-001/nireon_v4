@@ -10,9 +10,9 @@ from bootstrap.phases.base_phase import BootstrapPhase
 from bootstrap.result_builder import BootstrapResult
 from core.registry import ComponentRegistry
 from application.ports.event_bus_port import EventBusPort
-from signals.bootstrap_signals import SYSTEM_BOOTSTRAPPED
+from bootstrap.signals.bootstrap_signals import SYSTEM_BOOTSTRAPPED
 
-from .config.config_loader import V4ConfigLoader
+from .config.config_loader import ConfigLoader
 from .phases.abiogenesis_phase import AbiogenesisPhase
 from .phases.registry_setup_phase import RegistrySetupPhase
 from .phases.factory_setup_phase import FactorySetupPhase
@@ -20,10 +20,10 @@ from .phases.manifest_phase import ManifestProcessingPhase
 from .phases.initialization_phase import ComponentInitializationPhase
 from .phases.validation_phase import InterfaceValidationPhase
 from .phases.rbac_phase import RBACSetupPhase
-from .health.reporter import V4HealthReporter
+from .health.reporter import HealthReporter
 from .registry.registry_manager import RegistryManager
 from .signals.bootstrap_signals import BootstrapSignalEmitter
-
+from bootstrap.bootstrap_context import BootstrapContext
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -35,14 +35,13 @@ class BootstrapConfig:
     replay: bool = False
     env: Optional[str] = None
     global_app_config: Optional[Dict[str, Any]] = None
-    initial_strict_mode_param: bool = True  # Value passed to bootstrap_nireon_system
+    initial_strict_mode_param: bool = True
 
     @property
     def effective_strict_mode(self) -> bool:
-        """Derive strict mode from global_app_config if present, else use parameter"""
         if self.global_app_config and 'bootstrap_strict_mode' in self.global_app_config:
             return bool(self.global_app_config['bootstrap_strict_mode'])
-        return self.initial_strict_mode_param  # Fallback to parameter if not in global_app_config
+        return self.initial_strict_mode_param
 
     @classmethod
     def from_params(cls, config_paths: List[str | Path], **kwargs) -> 'BootstrapConfig':
@@ -57,22 +56,6 @@ class BootstrapConfig:
             initial_strict_mode_param=kwargs.get('strict_mode', True)
         )
 
-@dataclass
-class BootstrapContext:
-    config: BootstrapConfig
-    run_id: str
-    registry: ComponentRegistry
-    registry_manager: RegistryManager
-    health_reporter: V4HealthReporter
-    signal_emitter: BootstrapSignalEmitter
-    global_app_config: Dict[str, Any]
-    validation_data_store: Any
-
-    @property
-    def strict_mode(self) -> bool:
-        """Use effective strict mode from BootstrapConfig"""
-        return self.config.effective_strict_mode
-
 
 class BootstrapOrchestrator:
     def __init__(self, config: BootstrapConfig):
@@ -83,23 +66,21 @@ class BootstrapOrchestrator:
         logger.info('=== NIREON V4 System Bootstrap Starting (L0 Abiogenesis) ===')
         logger.info(f'Run ID: {self.run_id}')
         logger.info(f'Config Paths: {self.config.config_paths}')
-        
-        # Load global configuration
-        config_loader = V4ConfigLoader()
+
+        # Load configuration
+        config_loader = ConfigLoader()
         global_config = await config_loader.load_global_config(
-            env=self.config.env, 
+            env=self.config.env,
             provided_config=self.config.global_app_config
         )
         
-        # Update the BootstrapConfig with the loaded global config for effective_strict_mode
         if not self.config.global_app_config:
             self.config.global_app_config = global_config
-        
-        # Create bootstrap context with correct strict mode
+
+        # Create bootstrap context
         context = await self._create_bootstrap_context(global_config)
-        
         logger.info(f'Effective Strict Mode: {context.strict_mode}')
-        
+
         # Execute phases
         phases = self._create_phases()
         
@@ -118,37 +99,31 @@ class BootstrapOrchestrator:
                     logger.error(f'Critical failure in {phase.__class__.__name__}: {e}')
                     raise
                 logger.warning(f'Phase {phase.__class__.__name__} error (non-strict mode): {e}')
-        
-        # Emit completion signal
+
+        # Emit system bootstrapped signal
         await context.signal_emitter.emit_system_bootstrapped(
             component_count=len(context.registry.list_components()),
             run_id=self.run_id
         )
-        
-        # Build final result
+
+        # Build and return result
         from .result_builder import BootstrapResultBuilder
         return BootstrapResultBuilder(context).build()
 
     async def _create_bootstrap_context(self, global_config: Dict[str, Any]) -> BootstrapContext:
-        # Use existing registry or create new one
+        # Initialize core components
         registry = self.config.existing_registry or ComponentRegistry()
-        
-        # Create registry manager
         registry_manager = RegistryManager(registry)
+        health_reporter = HealthReporter(registry)
         
-        # Create health reporter
-        health_reporter = V4HealthReporter(registry)
-        
-        # Create validation data store
+        # Initialize validation data store
         from .validation_data import BootstrapValidationData
         validation_data_store = BootstrapValidationData(global_config=global_config)
         
-        # Handle event bus
+        # Initialize signal emitter
         event_bus = self.config.existing_event_bus
-        
-        # Create signal emitter
         signal_emitter = BootstrapSignalEmitter(event_bus, self.run_id)
-        
+
         return BootstrapContext(
             config=self.config,
             run_id=self.run_id,
@@ -170,7 +145,6 @@ class BootstrapOrchestrator:
             InterfaceValidationPhase(),
             RBACSetupPhase()
         ]
-
 
 class BootstrapError(RuntimeError):
     pass

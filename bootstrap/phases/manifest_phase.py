@@ -1,356 +1,238 @@
+# C:\Users\erees\Documents\development\nireon_v4\bootstrap\phases\manifest_phase.py
 from __future__ import annotations
+import asyncio
 import json
 import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from bootstrap.bootstrap_helper.utils import detect_manifest_type
+from .base_phase import BootstrapPhase, PhaseResult
+from bootstrap.bootstrap_helper.utils import detect_manifest_type, load_yaml_robust
+from bootstrap.processors.manifest_processor import ManifestProcessor, ComponentSpec, ManifestProcessingResult
+from bootstrap.processors.component_processor import ComponentInstantiator
 
 logger = logging.getLogger(__name__)
 
-class ManifestProcessor:
-    def __init__(self, strict_mode: bool = True):
-        self.strict_mode = strict_mode
-        self.package_root = Path(__file__).resolve().parents[2]
-        self._schema_cache: Dict[str, Dict] = {}
 
-    async def process_manifest(self, manifest_path: Path, manifest_data: Dict[str, Any]) -> 'ManifestProcessingResult':
-        logger.info(f'Processing manifest: {manifest_path}')
-        
+class ManifestProcessingPhase(BootstrapPhase):
+    async def execute(self, context) -> PhaseResult:
+        logger.info('Executing Manifest Processing Phase - Loading and processing component manifests')
         errors = []
         warnings = []
-        components = []
-        
+        processing_stats = {
+            'manifests_processed': 0,
+            'components_discovered': 0,
+            'components_instantiated': 0,
+            'instantiation_failures': 0
+        }
+
         try:
-            # Detect manifest type
-            manifest_type = detect_manifest_type(manifest_data)
-            logger.debug(f'Detected manifest type: {manifest_type}')
+            manifest_paths = self._get_manifest_paths(context)
+            if not manifest_paths:
+                return PhaseResult.success_result(
+                    message='No manifest files found to process',
+                    metadata=processing_stats
+                )
+
+            # Use the dedicated ManifestProcessor from processors module
+            processor = ManifestProcessor(strict_mode=context.strict_mode)
             
-            # Validate schema
-            schema_errors = await self._validate_schema(manifest_data, manifest_type, manifest_path)
-            if schema_errors:
-                errors.extend(schema_errors)
-                if self.strict_mode:
-                    return ManifestProcessingResult(
-                        success=False,
-                        manifest_path=manifest_path,
-                        manifest_type=manifest_type,
-                        errors=errors,
-                        warnings=warnings,
-                        components=[]
+            instantiator = ComponentInstantiator(
+                mechanism_factory=getattr(context, 'mechanism_factory', None),
+                interface_validator=getattr(context, 'interface_validator', None),
+                registry_manager=context.registry_manager,
+                global_app_config=context.global_app_config
+            )
+
+            # Process all manifests
+            all_component_specs = []
+            for manifest_path in manifest_paths:
+                try:
+                    manifest_result = await self._process_single_manifest(
+                        manifest_path, processor, context, processing_stats, errors, warnings
                     )
-            
-            # Process based on manifest type
-            if manifest_type == 'enhanced':
-                components = await self._process_enhanced_manifest(manifest_data, errors, warnings)
-            elif manifest_type == 'simple':
-                components = await self._process_simple_manifest(manifest_data, errors, warnings)
-            else:
-                error_msg = f'Unknown manifest type: {manifest_type}'
-                errors.append(error_msg)
-                if self.strict_mode:
-                    raise ValueError(error_msg)
-            
-            success = len(errors) == 0
-            return ManifestProcessingResult(
+                    if manifest_result:
+                        all_component_specs.extend(manifest_result.components)
+                except Exception as e:
+                    error_msg = f'Failed to process manifest {manifest_path}: {e}'
+                    errors.append(error_msg)
+                    logger.error(error_msg, exc_info=True)
+
+            processing_stats['components_discovered'] = len(all_component_specs)
+
+            # Instantiate components
+            if all_component_specs:
+                await self._instantiate_components(
+                    all_component_specs, instantiator, context, processing_stats, errors, warnings
+                )
+
+            await self._emit_manifest_signals(context, processing_stats)
+
+            success = len(errors) == 0 or not context.strict_mode
+            message = f"Manifest processing complete - {processing_stats['manifests_processed']} manifests, {processing_stats['components_instantiated']}/{processing_stats['components_discovered']} components instantiated"
+
+            return PhaseResult(
                 success=success,
-                manifest_path=manifest_path,
-                manifest_type=manifest_type,
+                message=message,
                 errors=errors,
                 warnings=warnings,
-                components=components
+                metadata=processing_stats
             )
-            
+
         except Exception as e:
-            error_msg = f'Critical error processing manifest {manifest_path}: {e}'
+            error_msg = f'Critical error during manifest processing: {e}'
             logger.error(error_msg, exc_info=True)
-            return ManifestProcessingResult(
-                success=False,
-                manifest_path=manifest_path,
-                manifest_type='unknown',
+            return PhaseResult.failure_result(
+                message='Manifest processing failed',
                 errors=[error_msg],
                 warnings=warnings,
-                components=[]
+                metadata=processing_stats
             )
 
-    async def _validate_schema(self, manifest_data: Dict[str, Any], manifest_type: str, manifest_path: Path) -> List[str]:
-        """Validate manifest against JSON schema"""
-        errors = []
-        
-        try:
-            try:
-                import jsonschema
-            except ImportError:
-                if self.strict_mode:
-                    errors.append('jsonschema package required for manifest validation in strict mode')
-                    return errors
-                else:
-                    logger.warning('jsonschema not available - skipping schema validation')
-                    return []
-            
-            schema = await self._load_schema(manifest_type)
-            if not schema:
-                if self.strict_mode:
-                    errors.append(f'No schema available for manifest type: {manifest_type}')
-                else:
-                    logger.warning(f'No schema available for manifest type: {manifest_type}')
-                return errors
-            
-            try:
-                jsonschema.validate(instance=manifest_data, schema=schema)
-                logger.debug(f'✓ Schema validation passed for {manifest_path}')
-            except jsonschema.ValidationError as e:
-                error_msg = f'Schema validation failed: {e.message}'
-                if hasattr(e, 'absolute_path') and e.absolute_path:
-                    error_msg += f" at path: {'.'.join(str(p) for p in e.absolute_path)}"
-                errors.append(error_msg)
-                logger.error(f'Schema validation error in {manifest_path}: {error_msg}')
-            except jsonschema.SchemaError as e:
-                error_msg = f'Invalid schema: {e.message}'
-                errors.append(error_msg)
-                logger.error(f'Schema error: {error_msg}')
-                
-        except Exception as e:
-            error_msg = f'Error during schema validation: {e}'
-            errors.append(error_msg)
-            logger.error(error_msg)
-        
-        return errors
+    def _get_manifest_paths(self, context) -> List[Path]:
+        manifest_paths = []
+        if hasattr(context.config, 'config_paths'):
+            for path in context.config.config_paths:
+                if path.exists() and path.suffix in ['.yaml', '.yml']:
+                    manifest_paths.append(path)
 
-    async def _load_schema(self, manifest_type: str) -> Optional[Dict[str, Any]]:
-        """Load JSON schema for manifest type"""
-        if manifest_type in self._schema_cache:
-            return self._schema_cache[manifest_type]
-        
-        # Updated schema path construction as mentioned in instructions
-        schema_filename = f'{manifest_type}_manifest.schema.json'
-        schema_path = self.package_root / 'schemas' / schema_filename
-        
-        if not schema_path.exists():
-            # Fallback to generic schema
-            alt_schema_path = self.package_root / 'schemas' / 'manifest.schema.json'
-            if alt_schema_path.exists():
-                schema_path = alt_schema_path
-                logger.debug(f"Schema for type '{manifest_type}' not found, using generic {alt_schema_path}")
-            else:
-                logger.warning(f'Schema file not found for manifest type: {manifest_type}')
-                return None
+        if manifest_paths:
+            logger.info(f'Found {len(manifest_paths)} manifest files to process')
+            for path in manifest_paths:
+                logger.debug(f'  - {path}')
+        else:
+            logger.warning('No manifest files found in configuration paths')
+
+        return manifest_paths
+
+    async def _process_single_manifest(
+        self, manifest_path: Path, processor: ManifestProcessor, context,
+        stats: dict, errors: list, warnings: list
+    ) -> Optional[ManifestProcessingResult]:
+        logger.info(f'Processing manifest: {manifest_path}')
         
         try:
-            with open(schema_path, 'r', encoding='utf-8') as f:
-                schema = json.load(f)
-            self._schema_cache[manifest_type] = schema
-            logger.debug(f'Loaded schema from: {schema_path}')
-            return schema
+            manifest_data = load_yaml_robust(manifest_path)
+            if not manifest_data:
+                warning_msg = f'Manifest file is empty or invalid: {manifest_path}'
+                warnings.append(warning_msg)
+                logger.warning(warning_msg)
+                return None
+
+            result = await processor.process_manifest(manifest_path, manifest_data)
+            stats['manifests_processed'] += 1
+
+            if result.errors:
+                errors.extend(result.errors)
+                logger.error(f'Manifest processing errors for {manifest_path}: {result.errors}')
+
+            if result.warnings:
+                warnings.extend(result.warnings)
+                logger.warning(f'Manifest processing warnings for {manifest_path}: {result.warnings}')
+
+            if result.success:
+                logger.info(f'✓ Successfully processed manifest {manifest_path}: {result.component_count} components')
+            else:
+                logger.error(f'✗ Failed to process manifest {manifest_path}')
+
+            return result
+
         except Exception as e:
-            logger.error(f'Failed to load schema from {schema_path}: {e}')
+            error_msg = f'Exception processing manifest {manifest_path}: {e}'
+            errors.append(error_msg)
+            logger.error(error_msg, exc_info=True)
             return None
 
-    async def _process_enhanced_manifest(self, manifest_data: Dict[str, Any], errors: List[str], warnings: List[str]) -> List['ComponentSpec']:
-        """Process enhanced manifest format - handle both dict and list formats"""
-        components = []
+    async def _instantiate_components(
+        self, component_specs: List[ComponentSpec], instantiator: ComponentInstantiator,
+        context, stats: dict, errors: list, warnings: list
+    ) -> None:
+        logger.info(f'Instantiating {len(component_specs)} components from manifests')
+
+        # Group components by type for ordered processing
+        grouped_specs = self._group_components_by_type(component_specs)
+
+        # Process in dependency order
+        processing_order = ['shared_service', 'mechanism', 'observer', 'manager', 'composite', 'orchestration_command']
         
-        # Define sections and their types
-        sections = {
-            'shared_services': 'shared_service',
-            'mechanisms': 'mechanism',
-            'observers': 'observer', 
-            'managers': 'manager',
-            'composites': 'composite',
-            'orchestration_commands': 'orchestration_command'
-        }
-        
-        for section_name, component_type in sections.items():
-            section_data = manifest_data.get(section_name, {})
-            if not section_data:
+        for component_type in processing_order:
+            if component_type not in grouped_specs:
                 continue
-            
-            logger.debug(f'Processing {section_name}: {type(section_data).__name__} with {len(section_data)} items')
-            
-            # Handle both dict format (shared_services) and list format (mechanisms, observers, managers)
-            if isinstance(section_data, dict):
-                # Dictionary format: key is component_id, value is spec
-                for component_id, spec in section_data.items():
-                    try:
-                        if not isinstance(spec, dict):
-                            error_msg = f"Component spec for '{component_id}' must be a dictionary"
-                            errors.append(error_msg)
-                            continue
-                        
-                        if not spec.get('enabled', True):
-                            logger.debug(f'Skipping disabled component: {component_id}')
-                            continue
-                        
-                        component_spec = ComponentSpec(
-                            component_id=component_id,
-                            component_type=component_type,
-                            section_name=section_name,
-                            spec_data=spec,
-                            manifest_type='enhanced'
-                        )
-                        
-                        spec_errors = self._validate_component_spec(component_spec)
-                        if spec_errors:
-                            errors.extend(spec_errors)
-                            if self.strict_mode:
-                                continue
-                        
-                        components.append(component_spec)
-                        
-                    except Exception as e:
-                        error_msg = f"Error processing component '{component_id}': {e}"
-                        errors.append(error_msg)
-                        logger.error(error_msg)
-            
-            elif isinstance(section_data, list):
-                # List format: each item is a dict with component specification
-                for i, item in enumerate(section_data):
-                    try:
-                        if not isinstance(item, dict):
-                            error_msg = f"Item {i} in section '{section_name}' must be a dictionary"
-                            errors.append(error_msg)
-                            continue
-                        
-                        # Extract component_id from the item
-                        component_id = item.get('id') or item.get('component_id')
-                        if not component_id:
-                            error_msg = f"Item {i} in section '{section_name}' missing 'id' or 'component_id'"
-                            errors.append(error_msg)
-                            continue
-                        
-                        if not item.get('enabled', True):
-                            logger.debug(f'Skipping disabled component: {component_id}')
-                            continue
-                        
-                        component_spec = ComponentSpec(
-                            component_id=component_id,
-                            component_type=component_type,
-                            section_name=section_name,
-                            spec_data=item,
-                            manifest_type='enhanced'
-                        )
-                        
-                        spec_errors = self._validate_component_spec(component_spec)
-                        if spec_errors:
-                            errors.extend(spec_errors)
-                            if self.strict_mode:
-                                continue
-                        
-                        components.append(component_spec)
-                        
-                    except Exception as e:
-                        error_msg = f"Error processing item {i} in section '{section_name}': {e}"
-                        errors.append(error_msg)
-                        logger.error(error_msg)
-            
-            else:
-                error_msg = f"Section '{section_name}' must be a dictionary or list, got {type(section_data).__name__}"
-                errors.append(error_msg)
-        
-        return components
 
-    async def _process_simple_manifest(self, manifest_data: Dict[str, Any], errors: List[str], warnings: List[str]) -> List['ComponentSpec']:
-        """Process simple manifest format"""
-        components = []
-        
-        component_list = manifest_data.get('components', [])
-        if not isinstance(component_list, list):
-            errors.append("Simple manifest 'components' must be a list")
-            return components
-        
-        for i, comp_def in enumerate(component_list):
-            try:
-                if not isinstance(comp_def, dict):
-                    error_msg = f'Component definition {i} must be a dictionary'
+            type_specs = grouped_specs[component_type]
+            logger.info(f'Processing {len(type_specs)} {component_type} components')
+
+            for spec in type_specs:
+                try:
+                    result = await instantiator.instantiate_component(spec, context)
+                    
+                    if result.success:
+                        stats['components_instantiated'] += 1
+                        logger.debug(f'✓ Instantiated {spec.component_id} ({component_type})')
+                        
+                        # Update health reporter if available
+                        if hasattr(context, 'health_reporter') and result.component:
+                            try:
+                                from bootstrap.health.reporter import ComponentStatus  # ← CORRECT IMPORT
+                                metadata = result.component.metadata if hasattr(result.component, 'metadata') else None
+                                if metadata:
+                                    context.health_reporter.add_component_status(
+                                        spec.component_id,
+                                        ComponentStatus.INSTANCE_REGISTERED,  # ← Use compatible enum value
+                                        metadata,
+                                        result.warnings
+                                    )
+                            except (ImportError, AttributeError) as e:
+                                logger.debug(f'Could not update health reporter for {spec.component_id}: {e}')
+                                logger.info(f'Component {spec.component_id} instantiated successfully')
+                    else:
+                        stats['instantiation_failures'] += 1
+                        error_msg = f'Failed to instantiate {spec.component_id}: {result.errors}'
+                        if context.strict_mode:
+                            errors.extend(result.errors)
+                        else:
+                            warnings.extend(result.errors)
+                        logger.error(error_msg)
+
+                except Exception as e:
+                    stats['instantiation_failures'] += 1
+                    error_msg = f'Exception instantiating {spec.component_id}: {e}'
                     errors.append(error_msg)
-                    continue
-                
-                component_id = comp_def.get('component_id', f'component_{i}')
-                component_type = comp_def.get('type', 'unknown')
-                
-                if not comp_def.get('enabled', True):
-                    logger.debug(f'Skipping disabled component: {component_id}')
-                    continue
-                
-                component_spec = ComponentSpec(
-                    component_id=component_id,
-                    component_type=component_type,
-                    section_name='components',
-                    spec_data=comp_def,
-                    manifest_type='simple'
+                    logger.error(error_msg, exc_info=True)
+
+        logger.info(f"Component instantiation complete: {stats['components_instantiated']} successful, {stats['instantiation_failures']} failed")
+
+    def _group_components_by_type(self, component_specs: List[ComponentSpec]) -> Dict[str, List[ComponentSpec]]:
+        grouped = {}
+        for spec in component_specs:
+            component_type = spec.component_type
+            if component_type not in grouped:
+                grouped[component_type] = []
+            grouped[component_type].append(spec)
+        return grouped
+
+    async def _emit_manifest_signals(self, context, stats: dict) -> None:
+        try:
+            if hasattr(context, 'signal_emitter'):
+                from bootstrap.signals.bootstrap_signals import MANIFEST_PROCESSING_COMPLETE
+                await context.signal_emitter.emit_signal(
+                    MANIFEST_PROCESSING_COMPLETE,
+                    {
+                        'manifests_processed': stats['manifests_processed'],
+                        'components_discovered': stats['components_discovered'],
+                        'components_instantiated': stats['components_instantiated'],
+                        'instantiation_failures': stats['instantiation_failures'],
+                        'phase': 'ManifestProcessingPhase'
+                    }
                 )
-                
-                spec_errors = self._validate_component_spec(component_spec)
-                if spec_errors:
-                    errors.extend(spec_errors)
-                    if self.strict_mode:
-                        continue
-                
-                components.append(component_spec)
-                
-            except Exception as e:
-                error_msg = f'Error processing simple component {i}: {e}'
-                errors.append(error_msg)
-                logger.error(error_msg)
+        except Exception as e:
+            logger.warning(f'Failed to emit manifest processing signals: {e}')
+
+    def should_skip_phase(self, context) -> tuple[bool, str]:
+        if not hasattr(context.config, 'config_paths') or not context.config.config_paths:
+            return (True, 'No manifest configuration paths provided')
         
-        return components
-
-    def _validate_component_spec(self, component_spec: 'ComponentSpec') -> List[str]:
-        """Validate component specification"""
-        errors = []
-        spec_data = component_spec.spec_data
+        if context.global_app_config.get('skip_manifest_processing', False):
+            return (True, 'Manifest processing disabled in configuration')
         
-        if not component_spec.component_id:
-            errors.append('Component must have a non-empty ID')
-        
-        if component_spec.manifest_type == 'enhanced':
-            if component_spec.component_type in ['mechanism', 'observer', 'manager', 'composite']:
-                if 'class' not in spec_data:
-                    errors.append(f"Component '{component_spec.component_id}' missing required 'class' field")
-                if 'metadata_definition' not in spec_data:
-                    errors.append(f"Component '{component_spec.component_id}' missing required 'metadata_definition' field")
-            elif component_spec.component_type == 'shared_service':
-                if 'class' not in spec_data:
-                    errors.append(f"Shared service '{component_spec.component_id}' missing required 'class' field")
-            elif component_spec.component_type == 'orchestration_command':
-                if 'class' not in spec_data:
-                    errors.append(f"Orchestration command '{component_spec.component_id}' missing required 'class' field")
-        
-        elif component_spec.manifest_type == 'simple':
-            if 'component_id' not in spec_data:
-                errors.append("Simple component missing 'component_id' field")
-            if 'type' not in spec_data:
-                errors.append(f"Simple component '{component_spec.component_id}' missing 'type' field")
-            if not spec_data.get('factory_key') and not spec_data.get('class'):
-                errors.append(f"Simple component '{component_spec.component_id}' needs either 'factory_key' or 'class'")
-        
-        return errors
-
-
-class ComponentSpec:
-    def __init__(self, component_id: str, component_type: str, section_name: str, spec_data: Dict[str, Any], manifest_type: str):
-        self.component_id = component_id
-        self.component_type = component_type
-        self.section_name = section_name
-        self.spec_data = spec_data
-        self.manifest_type = manifest_type
-
-    def __repr__(self) -> str:
-        return f"ComponentSpec(id='{self.component_id}', type='{self.component_type}', manifest='{self.manifest_type}')"
-
-
-class ManifestProcessingResult:
-    def __init__(self, success: bool, manifest_path: Path, manifest_type: str, errors: List[str], warnings: List[str], components: List[ComponentSpec]):
-        self.success = success
-        self.manifest_path = manifest_path
-        self.manifest_type = manifest_type
-        self.errors = errors
-        self.warnings = warnings
-        self.components = components
-
-    @property
-    def component_count(self) -> int:
-        return len(self.components)
-
-    def get_components_by_type(self, component_type: str) -> List[ComponentSpec]:
-        return [c for c in self.components if c.component_type == component_type]
+        return (False, '')

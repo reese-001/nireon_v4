@@ -155,7 +155,7 @@ class NireonBaseComponent(ComponentLifecycle, ABC):
         self._last_process_timestamp: Optional[datetime] = None
         self._process_count: int = 0
         self._error_count: int = 0
-        logger.debug(f"NireonBaseComponent '{self._component_id}' instantiated (V4)")
+        logger.debug(f"NireonBaseComponent '{self._component_id}' instantiated")
 
     @property
     def metadata(self) -> ComponentMetadata:
@@ -528,7 +528,7 @@ class IdeaService:
     def __init__(self, repository: IdeaRepositoryPort, event_bus: EventBusPort | None = None):
         self.repository = repository
         self.event_bus = event_bus
-        logger.info("IdeaService initialized (V4)")
+        logger.info("IdeaService initialized")
 
     def create_idea(
         self,
@@ -564,7 +564,7 @@ class IdeaService:
                     "run_id": context.run_id if context else None,
                 },
             )
-        logger.info(f"Created Idea {idea.idea_id} (V4)")
+        logger.info(f"Created Idea {idea.idea_id}")
         return idea
 
     def save_idea(self, idea: Idea, context: NireonExecutionContext | None = None) -> None:
@@ -572,7 +572,7 @@ class IdeaService:
             logger.error(f"Attempted to save non-Idea object: {type(idea)}")
             raise ValueError("Can only save Idea objects.")
         self.repository.save(idea)
-        logger.info(f"Saved existing Idea {idea.idea_id} via save_idea method (V4).")
+        logger.info(f"Saved existing Idea {idea.idea_id} via save_idea method.")
         if self.event_bus:
             self.event_bus.publish('idea_persisted', {
                 'idea_id': idea.idea_id,
@@ -756,7 +756,7 @@ async def bootstrap_nireon_system(
     logger.info(f"Replay Mode: {replay}")
 
     if global_app_config is None:
-        logger.warning("global_app_config not provided to bootstrap_nireon_system (V4). Loading it now.")
+        logger.warning("global_app_config not provided to bootstrap_nireon_system. Loading it now.")
         env_for_config = env if env is not None else "default"
         try:
             # V4: Use V4 config loader
@@ -782,7 +782,7 @@ async def bootstrap_nireon_system(
     registry = existing_registry or ComponentRegistry()
     health_reporter = BootstrapHealthReporter(registry) # V4: health_reporter uses V4 registry
 
-    logger.info("Phase 0: Setting up FeatureFlagsManager (V4)...")
+    logger.info("Phase 0: Setting up FeatureFlagsManager...")
     try:
         ff_manager = None
         try:
@@ -798,7 +798,7 @@ async def bootstrap_nireon_system(
             raise BootstrapError("FeatureFlagsManager setup failed in strict mode.") from e_ff
         logger.warning("FeatureFlagsManager setup failed but continuing in non-strict mode.")
 
-    logger.info("Phase 1: Setting up core services (V4)...")
+    logger.info("Phase 1: Setting up core services...")
     try:
         await _setup_core_services(registry, existing_event_bus, final_global_app_config)
         logger.info("✓ Core services configured")
@@ -908,9 +908,9 @@ async def _finalize_bootstrap(
                 },
             )
         except Exception as exc:
-            logger.warning(f"Failed to publish bootstrap completion event (V4): {exc}")
+            logger.warning(f"Failed to publish bootstrap completion event: {exc}")
     else:
-        logger.warning("No event bus available – cannot publish bootstrap completion event (V4)")
+        logger.warning("No event bus available – cannot publish bootstrap completion event")
     
     logger.info("=== NIREON V4 System Bootstrap Phase 1 Completed (Single Bootstrap Authority) ===")
     logger.info(f"Total components in registry: {len(registry.list_components())}")
@@ -934,9 +934,9 @@ async def bootstrap( # Wrapper from V3, adapted for V4
     try:
         # V4: Use V4 config loader
         global_application_config: Dict[str, Any] = load_config(env=env_for_config)
-        logger.debug(f"✓ Loaded global_application_config for env '{env_for_config}' in bootstrap() (V4)")
+        logger.debug(f"✓ Loaded global_application_config for env '{env_for_config}' in bootstrap()")
     except Exception as exc:
-        logger.warning(f"Failed to load global_application_config in bootstrap() (V4) – proceeding with empty config. Error: {exc}")
+        logger.warning(f"Failed to load global_application_config in bootstrap() – proceeding with empty config. Error: {exc}")
         global_application_config = {}
 
     result = await bootstrap_nireon_system(
@@ -976,7 +976,7 @@ async def main(): # V4: Smoke test main
         # V4: Use V4 config loader
         global_app_config_for_smoke_test = load_config(env='default')
     except Exception as e:
-        logger.error(f"Smoke test: Failed to load global_app_config (V4): {e}")
+        logger.error(f"Smoke test: Failed to load global_app_config: {e}")
         global_app_config_for_smoke_test = {}
 
     try:
@@ -1418,10 +1418,10 @@ def get_or_create_idea_service(
 ) -> IdeaService:
     try:
         idea_service_instance = registry.get_service_instance(IdeaService)
-        logger.info("IdeaService found in registry. Using existing instance (V4).")
+        logger.info("IdeaService found in registry. Using existing instance.")
         return idea_service_instance
     except (ComponentRegistryMissingError, AttributeError): # V4: Use V4 error
-        logger.info("IdeaService not found in registry. Creating new instance (V4).")
+        logger.info("IdeaService not found in registry. Creating new instance.")
         # V4: Ensure IdeaService is imported from V4 services
         idea_service_instance = IdeaService(repository=idea_repo, event_bus=event_bus)
         _safe_register_service_instance(
@@ -1432,7 +1432,7 @@ def get_or_create_idea_service(
             "domain_service",
             description_for_meta="IdeaService created during V4 bootstrap"
         )
-        logger.info("IdeaService created and registered (V4).")
+        logger.info("IdeaService created and registered.")
         return idea_service_instance
 
 # V4 Phase 1: create_service_instance and its helpers might be too complex for P1.
@@ -2077,7 +2077,7 @@ class ComponentRegistry:
         self._metadata: Dict[str, ComponentMetadata] = {}
         self._certifications: Dict[str, Dict[str, Any]] = {} # V4: Retain from V3
         self._lock = threading.RLock() # V4: Use RLock for reentrancy
-        logger.debug("ComponentRegistry (V4) initialized with thread safety")
+        logger.debug("ComponentRegistry initialized with thread safety")
 
     def normalize_key(self, key: Union[str, Type, object]) -> str: # V4: Public method
         original_key_repr = repr(key)
@@ -2261,7 +2261,7 @@ class FeatureFlagsManager:
         self.register_flag("catalyst_anti_constraints", default_value=False, description="Enables anti-constraint functionality in Catalyst") # From V3 Catalyst
         self.register_flag("catalyst_duplication_check", default_value=False, description="Enables duplication detection and adaptation in Catalyst") # From V3 Catalyst
         
-        logger.info(f"FeatureFlagsManager (V4) initialized with {len(self._flags)} flags from config and defaults.")
+        logger.info(f"FeatureFlagsManager initialized with {len(self._flags)} flags from config and defaults.")
 
     def register_flag(self, flag_name: str, default_value: bool = False, description: Optional[str] = None) -> None:
         self._registered_flags.add(flag_name)

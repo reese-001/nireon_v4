@@ -11,7 +11,7 @@ import logging
 import sys
 from pathlib import Path
 
-# Add the nireon_v4 package to the path if needed
+# Add the nireon package to the path if needed
 sys.path.insert(0, str(Path(__file__).parent))
 
 # Configure logging
@@ -48,9 +48,9 @@ async def test_bootstrap_config_loader():
     logger.info("=== Testing V4 Bootstrap Config Loader ===")
     
     try:
-        from bootstrap.config.config_loader import V4ConfigLoader
+        from bootstrap.config.config_loader import ConfigLoader
         
-        loader = V4ConfigLoader()
+        loader = ConfigLoader()
         config = await loader.load_global_config(env='default')
         
         logger.info(f"✓ V4 config loader succeeded")

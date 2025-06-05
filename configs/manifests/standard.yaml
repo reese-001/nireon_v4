@@ -1,62 +1,101 @@
-# nireon_v4/config/manifests/standard.yaml
-version: "1.0" # Schema version of this manifest file
-
+version: "1.0"
 metadata:
-  name: "Standard NIREON V4 Manifest"
-  description: "Default set of components for NIREON V4 idea evolution."
+  name: "Standard NIREON Manifest"
+  description: "Default component configuration for NIREON with proper service definitions"
   author: "NIREON Team"
   created_at: "2025-06-05T10:00:00Z"
+  updated_at: "2025-06-05T12:00:00Z"
 
 shared_services:
-  # EventBus - Essential for decoupling
-  EventBusPort: # Using the Port type as the key
-    class: "nireon_v4.infrastructure.event_bus.memory_event_bus:MemoryEventBus" # V4 path
-    # config: {} # Optional config for the event bus
+  EventBusPort:
+    enabled: true
+    class: "infrastructure.event_bus.memory_event_bus.MemoryEventBus"
+    config:
+      max_history: 1000
+      enable_persistence: false
 
-  # FeatureFlagsManager - Loaded in Abiogenesis, but can be declared here for consistency
-  # FeatureFlagsManager:
-  #   class: "nireon_v4.infrastructure.feature_flags:FeatureFlagsManager"
-    # config: from global_app_config.yaml or overridden here
+  LLMPort:
+    enabled: true
+    class: "infrastructure.llm.openai_llm.OpenAILLMAdapter"
+    config:
+      api_key_env: "OPENAI_API_KEY"
+      model: "gpt-4"
+      timeout: 30
+      max_retries: 3
 
-  # LLMRouter (or LLMPort if direct) - Loaded by V4ConfigLoader, registered by Abiogenesis
-  # LLMRouter:
-  #   class: "nireon_v4.application.services.llm_router:LLMRouter"
-  #   # Config for LLMRouter itself, if any, distinct from llm_config.yaml models
-
-  # EmbeddingPort - Placeholder for now, actual implementation later
   EmbeddingPort:
-    class: "nireon_v4.bootstrap.bootstrap_helper.placeholders:PlaceholderEmbeddingPortImpl"
-    # config:
-    #   dimensions: 384
+    enabled: true
+    class: "infrastructure.embeddings.openai_embeddings.OpenAIEmbeddingAdapter"
+    config:
+      api_key_env: "OPENAI_API_KEY"
+      model: "text-embedding-3-small"
+      dimensions: 1536
 
-  # IdeaRepositoryPort - Placeholder for now
   IdeaRepositoryPort:
-    class: "nireon_v4.bootstrap.bootstrap_helper.placeholders:PlaceholderIdeaRepositoryImpl"
+    enabled: true
+    class: "infrastructure.persistence.postgres_idea_repository.PostgresIdeaRepository"
+    config:
+      connection_string_env: "DATABASE_URL"
+      pool_size: 10
+      timeout: 30
 
-  # IdeaService - Uses above ports
+  FeatureFlagsManager:
+    enabled: true
+    class: "infrastructure.feature_flags.FeatureFlagsManager"
+    config:
+      source: "config"  # Load from configuration
+
   IdeaService:
-    class: "nireon_v4.application.services.idea_service:IdeaService"
-    # Dependencies (like repository, event_bus) are injected by bootstrap/factories
+    enabled: true
+    class: "application.services.idea_service.IdeaService"
+
+  LLMRouter:
+    enabled: false  # Enable if you need routing between multiple LLMs
+    class: "application.services.llm_router.LLMRouter"
+    config:
+      default_provider: "openai"
+      fallback_provider: "placeholder"
 
 mechanisms:
-  explorer_primary: # Instance ID
-    class: "nireon_v4.mechanisms.explorer.service:ExplorerMechanism" # Placeholder for actual class
-    metadata_definition: "nireon_v4.mechanisms.explorer.service:EXPLORER_METADATA" # Path to metadata
-    config: # Instance-specific config overrides for ExplorerConfig Pydantic model
+  explorer_primary:
+    enabled: true
+    class: "components.mechanisms.explorer.service.ExplorerMechanism" 
+    metadata_definition: "components.mechanisms.explorer.service.EXPLORER_METADATA" 
+    config:
       max_depth: 3
       application_rate: 0.5
-      # divergence_strength: 0.2 # Example
+      divergence_strength: 0.2
+      exploration_timeout: 60
 
-observers: []
-# Example:
-#   trust_observer_main:
-#     class: "nireon_v4.observers.trust_observer:TrustObserver"
-#     metadata_definition: "nireon_v4.observers.trust_observer:TRUST_OBSERVER_METADATA"
-#     config:
-#       decay_rate: 0.05
+observers:
+  lineage_tracker:
+    enabled: false  # Disabled since class path might not exist yet
+    class: "components.observers.lineage_tracker.LineageTracker" 
+    metadata_definition: "components.observers.lineage_tracker.LINEAGE_METADATA" 
+    config:
+      track_genealogy: true
+      max_lineage_depth: 10
 
-managers: []
+managers:
+  flow_coordinator:
+    enabled: false  # Disabled since class path might not exist yet# Corrected
+    metadata_definition: "components.managers.flow_coordinator.FLOW_METADATA"
+    config:
+      coordination_strategy: "priority_based"
+      max_concurrent_flows: 5
 
-# Orchestration commands are usually registered, not instantiated as singletons here
-# unless a specific command instance needs to be a shared service.
-# orchestration_commands: {}
+environment_overrides:
+  development:
+    shared_services:
+      LLMPort:
+        class: "bootstrap.bootstrap_helper.placeholders.PlaceholderLLMPortImpl"
+      EmbeddingPort:
+        class: "bootstrap.bootstrap_helper.placeholders.PlaceholderEmbeddingPortImpl"
+  testing:
+    shared_services:
+      IdeaRepositoryPort:
+        class: "bootstrap.bootstrap_helper.placeholders.PlaceholderIdeaRepositoryImpl"
+      EventBusPort:
+        class: "bootstrap.bootstrap_helper.placeholders.PlaceholderEventBusImpl"
+  production:
+    shared_services: {}  # Use real implementations in production

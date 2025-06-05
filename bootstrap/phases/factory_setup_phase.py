@@ -173,38 +173,38 @@ class FactorySetupPhase(BootstrapPhase):
             logger.error(error_msg)
             return None
     
-    async def _setup_mechanism_factory(
-        self, 
-        context, 
-        common_deps: 'CommonMechanismDependencies',
-        setup_components: list, 
-        errors: list
-    ) -> 'SimpleMechanismFactory':
-        """Initialize mechanism factory."""
+    async def _setup_mechanism_factory(self, context, common_deps: 'CommonMechanismDependencies', setup_components: list, errors: list) -> 'SimpleMechanismFactory':
         try:
             if common_deps is None:
-                error_msg = "Cannot create MechanismFactory without CommonMechanismDependencies"
+                error_msg = 'Cannot create MechanismFactory without CommonMechanismDependencies'
                 errors.append(error_msg)
                 return None
-            
+
             mechanism_factory = SimpleMechanismFactory(common_deps)
-            setup_components.append("SimpleMechanismFactory")
-            logger.info("✓ Mechanism factory initialized")
             
-            # Register factory in registry for potential later use
+            # Register additional mechanism types from configuration
+            mechanism_mappings = context.global_app_config.get('mechanism_mappings', {})
+            for factory_key, class_path in mechanism_mappings.items():
+                mechanism_factory.register_mechanism_type(factory_key, class_path)
+                logger.info(f"Registered custom mechanism type: {factory_key} -> {class_path}")
+            
+            setup_components.append('SimpleMechanismFactory')
+            logger.info('✓ Mechanism factory initialized with dependencies')
+            
+            # Register in both the context AND the registry for global access
             context.registry_manager.register_service_with_certification(
                 service_type=SimpleMechanismFactory,
                 instance=mechanism_factory,
-                service_id="MechanismFactory",
-                category="factory_service",
-                description="Factory for creating mechanism components from specifications",
+                service_id='MechanismFactory',
+                category='factory_service',
+                description='Factory for creating mechanism components from specifications',
                 requires_initialize=False
             )
             
             return mechanism_factory
             
         except Exception as e:
-            error_msg = f"Failed to setup mechanism factory: {e}"
+            error_msg = f'Failed to setup mechanism factory: {e}'
             errors.append(error_msg)
             logger.error(error_msg)
             return None

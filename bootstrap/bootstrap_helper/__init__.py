@@ -1,4 +1,4 @@
-# V4: Nireon Bootstrap Helper Package
+# Nireon Bootstrap Helper Package
 from .exceptions import BootstrapError #, StepCommandError # StepCommandError might be for later phases
 from .health_reporter import BootstrapHealthReporter # HealthReporter for V4
 from .utils import import_by_path, load_yaml_robust, detect_manifest_type

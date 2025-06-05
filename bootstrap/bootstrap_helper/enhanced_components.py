@@ -1,4 +1,5 @@
 import asyncio
+import importlib
 import inspect
 import json
 import logging
@@ -7,20 +8,19 @@ import re
 from typing import Any, Dict, Optional, Type, Union
 from pydantic import BaseModel # For V4 Pydantic configs
 
-from nireon_v4.application.context import NireonExecutionContext
-from nireon_v4.application.components.lifecycle import (
+from application.context import NireonExecutionContext
+from application.components.lifecycle import (
     ComponentMetadata,
     ComponentRegistry,
     ComponentRegistryMissingError,
 )
-from nireon_v4.application.components.base import NireonBaseComponent
-from nireon_v4.factories.dependencies import CommonMechanismDependencies # V4 common deps
-# from nireon_v4.factories.observer_factory import CommonObserverDependencies # V4
-# from nireon_v4.factories.manager_factory import CommonManagerDependencies   # V4
-from nireon_v4.application.ports.event_bus_port import EventBusPort
-from nireon_v4.configs.config_utils import ConfigMerger # V4 ConfigMerger
+from application.components.base import NireonBaseComponent
+from factories.dependencies import CommonMechanismDependencies # V4 common deps
+# from nireon.factories.observer_factory import CommonObserverDependencies # V4
+# from nireon.factories.manager_factory import CommonManagerDependencies   # V4
+from application.ports.event_bus_port import EventBusPort
+from configs.config_utils import ConfigMerger # V4 ConfigMerger
 
-from .context_builder import build_execution_context
 from .exceptions import BootstrapError
 from .health_reporter import (
     BootstrapHealthReporter,
@@ -63,12 +63,12 @@ def _get_pydantic_defaults_v4(
             expected_config_class_name = f"{component_class_name}Config"
             
             potential_config_module_paths = [
-                f"{module_path}.config", # e.g., nireon_v4.mechanisms.explorer.config
+                f"{module_path}.config", # e.g. mechanisms.explorer.config
                 module_path # Check in the same module
             ]
-            if '.' in module_path: # e.g. nireon_v4.mechanisms.explorer
+            if '.' in module_path: # e.g. nireon.mechanisms.explorer
                 parent_module = module_path.rsplit('.', 1)[0]
-                potential_config_module_paths.append(f"{parent_module}.config") # e.g. nireon_v4.mechanisms.config
+                potential_config_module_paths.append(f"{parent_module}.config") # e.g. nireon.mechanisms.config
 
             for config_module_path_attempt in potential_config_module_paths:
                 try:
@@ -128,7 +128,7 @@ async def _create_component_instance_v4(
     if instance_metadata_object.id != instance_id:
         # This is a safeguard. The caller (init_full_component_v4) should ensure this.
         logger.error(
-            f"CRITICAL PRE-INSTANTIATION MISMATCH in _create_component_instance_v4: "
+            f"CRITICAL PRE-INSTANTIATION MISMATCH in _create_component_instance_"
             f"instance_metadata_object.id ('{instance_metadata_object.id}') != instance_id ('{instance_id}'). "
             f"This indicates an issue in the calling logic. Forcing metadata ID to '{instance_id}'."
         )

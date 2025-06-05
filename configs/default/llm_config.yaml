@@ -1,15 +1,15 @@
-# nireon_v4/configs/default/llm_config.yaml
+# nireon/configs/default/llm_config.yaml
 default: "default_completion" # Key of the default model to use from 'models'
 
 models:
   default_completion:
     provider: "openai" # Example provider
     model: "gpt-4o-mini" # Example model name
-    api_key: "${OPENAI_API_KEY_DEFAULT_COMPLETION}" # Reference an environment variable
+    api_key: "${OPENAI_API_KEY}" # Reference an environment variable
     base_url: "https://api.openai.com/v1"
     endpoint: "chat/completions" # Common for chat models
     method: "POST"
-    backend: "nireon_v4.infrastructure.llm.generic_http_llm:GenericHttpLLM" # Example path
+    backend: "infrastructure.llm.generic_http_llm:GenericHttpLLM" # Example path
     timeout_seconds: 60
     max_retries: 3
     temperature: 0.7
@@ -34,7 +34,7 @@ models:
   # default_embedding:
   #   provider: "sentence-transformers" # Example
   #   model: "all-MiniLM-L6-v2" # This usually refers to local model name
-  #   backend: "nireon_v4.infrastructure.embedding.sentence_transformer_shim:SentenceTransformerEmbeddingShim"
+  #   backend: "infrastructure.embedding.sentence_transformer_shim:SentenceTransformerEmbeddingShim"
   #   # sentence-transformers specific config might go into a nested 'config' dict for the backend
 
 # Optional: routes for aliasing or complex routing logic

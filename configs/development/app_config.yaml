@@ -1,0 +1,4 @@
+# configs/dev/app_config.yaml
+env: development
+abiogenesis:
+  resolution_mode: development

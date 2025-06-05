@@ -74,14 +74,18 @@ class ComponentInitializationPhase(BootstrapPhase):
                 )
             
             # Update health reporter with initialization results
-            await self._update_health_reporter(context, components_to_init, components_to_skip, errors)
-            
+            # await self._update_health_reporter(context, components_to_init, components_to_skip, errors)
+            # await self._report_component_health(context, components_to_skip, errors)
+            await self._report_component_health(context, components_to_init, components_to_skip, errors)
+
+
             # Emit initialization signals
             await self._emit_initialization_signals(context, initialization_stats)
             
             success = len(errors) == 0 or not context.strict_mode
             message = f'Component initialization complete - {initialization_stats["successfully_initialized"]}/{initialization_stats["components_requiring_init"]} components initialized'
-            
+           
+
             return PhaseResult(
                 success=success,
                 message=message,
@@ -207,7 +211,7 @@ class ComponentInitializationPhase(BootstrapPhase):
             logger.error(f'Component {component_id} initialization failed: {e}')
             return False
 
-    async def _update_health_reporter(self, context, components_to_init: List[tuple], 
+    async def _report_component_health(self, context, components_to_init: List[tuple], 
                                     components_to_skip: List[tuple], errors: list) -> None:
         """Update health reporter with initialization results"""
         try:
@@ -258,7 +262,7 @@ class ComponentInitializationPhase(BootstrapPhase):
         """Emit initialization completion signals"""
         try:
             if hasattr(context, 'signal_emitter'):
-                from signals.bootstrap_signals import INITIALIZATION_PHASE_COMPLETE
+                from bootstrap.signals.bootstrap_signals import INITIALIZATION_PHASE_COMPLETE
                 await context.signal_emitter.emit_signal(
                     INITIALIZATION_PHASE_COMPLETE,
                     {

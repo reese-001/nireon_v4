@@ -1,4 +1,4 @@
-# nireon_v4/configs/default/bootstrap_rbac.yaml
+# nireon/configs/default/bootstrap_rbac.yaml
 version: "1.0"
 policies:
   - role: "system_admin"

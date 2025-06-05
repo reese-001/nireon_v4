@@ -11,6 +11,9 @@ class ExplorerConfig(BaseModel):
     Defines exploration parameters, strategies, and behavioral settings
     for idea generation and variation.
     """
+
+    divergence_strength: float = 0.2
+    exploration_timeout: int = 60
     
     max_depth: int = Field(
         default=3,
