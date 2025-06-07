@@ -13,11 +13,20 @@ __all__ = ['LLMParameterService']
 
 
 class _SafeEvalVisitor(ast.NodeVisitor):
-    SAFE_NODES = {ast.Module, ast.Expr, ast.Load, ast.Name, ast.Attribute, ast.Compare, ast.BoolOp, ast.UnaryOp, ast.BinOp, ast.IfExp, ast.Num, ast.Constant, ast.Subscript, ast.Index, ast.Slice, ast.And, ast.Or, ast.Not, ast.Gt, ast.GtE, ast.Lt, ast.LtE, ast.Eq, ast.NotEq, ast.Add, ast.Sub, ast.Mult, ast.Div, ast.Mod, ast.Pow}
-
+    SAFE_NODES = {
+        ast.Module, ast.Expr, ast.Load, ast.Name, ast.Attribute, ast.Compare, 
+        ast.BoolOp, ast.UnaryOp, ast.BinOp, ast.IfExp, ast.Num, ast.Constant, 
+        ast.Subscript, ast.Index, ast.Slice, ast.And, ast.Or, ast.Not, 
+        ast.Gt, ast.GtE, ast.Lt, ast.LtE, ast.Eq, ast.NotEq, 
+        ast.Add, ast.Sub, ast.Mult, ast.Div, ast.Mod, ast.Pow,
+        # Add Expression for Python 3.8+ compatibility
+        ast.Expression if hasattr(ast, 'Expression') else type(None)
+    }
+    
     def generic_visit(self, node):
-        if type(node) not in self.SAFE_NODES:
-            raise ValueError(f'Disallowed AST node in dynamic rule: {type(node).__name__}')
+        node_type = type(node)
+        if node_type not in self.SAFE_NODES and node_type is not type(None):
+            raise ValueError(f'Disallowed AST node in dynamic rule: {node_type.__name__}')
         super().generic_visit(node)
 
 

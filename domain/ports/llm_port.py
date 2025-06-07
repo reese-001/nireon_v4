@@ -4,6 +4,7 @@ import abc
 import logging
 from typing import Any, Mapping, MutableMapping, Optional, Protocol, runtime_checkable
 
+from domain.epistemic_stage import EpistemicStage
 from domain.context import NireonExecutionContext
 
 logger = logging.getLogger(__name__)
@@ -55,7 +56,6 @@ class LLMResponse(MutableMapping[str, Any]):
     @property
     def text(self) -> str:
         """Return the primary textual output of the model ("completion")."""
-
         return self._data.get(self.TEXT_KEY, "")
 
     def __repr__(self) -> str:  # noqa: D401 – developer aid
@@ -70,14 +70,13 @@ class LLMPort(Protocol):
     provided for convenience but should delegate to :py:meth:`call_llm_async` internally.
     """
 
-    # NOTE: Using string annotations avoids importing heavy domain modules.
     async def call_llm_async(
         self,
         prompt: str,
         *,
-        stage: "EpistemicStage", # type: ignore
+        stage: EpistemicStage,
         role: str,
-        context: "NireonExecutionContext",
+        context: NireonExecutionContext,
         settings: Optional[Mapping[str, Any]] = None,
     ) -> LLMResponse:  # noqa: D401 – core protocol method
         """Asynchronously invoke the underlying LLM service.
@@ -103,9 +102,9 @@ class LLMPort(Protocol):
         self,
         prompt: str,
         *,
-        stage: "EpistemicStage", # type: ignore
+        stage: EpistemicStage,
         role: str,
-        context: "NireonExecutionContext",
+        context: NireonExecutionContext,
         settings: Optional[Mapping[str, Any]] = None,
     ) -> LLMResponse:  # noqa: D401 – convenience wrapper
         """Synchronously invoke the LLM.
@@ -113,4 +112,4 @@ class LLMPort(Protocol):
         This helper *should* await :py:meth:`call_llm_async` internally, e.g. using
         :pyfunc:`asyncio.run` when not already in an event loop.
         """
-        raise NotImplementedError
+        raise NotImplementedError("Synchronous LLM call not implemented by this adapter.")

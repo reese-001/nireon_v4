@@ -1,11 +1,26 @@
-# Corrected LLM configuration – *no outer `llm:` wrapper*
-# This file is merged into `global_config['llm']` by the ConfigLoader,
-# so the keys **default / models / routes** must be at the top level.
+# configs/default/llm_config.yaml (Enhanced version)
+# This file's content will be merged into the global_config['llm'] dictionary.
+
+# configs/default/llm_config.yaml
+# Clean version without any JSON syntax errors
 
 default: "nano_default"
 
+# Enhanced Router Configuration
+enable_circuit_breakers: true
+enable_health_checks: true
+enable_metrics: true
+health_check_interval: 300
+
+circuit_breaker_defaults:
+  failure_threshold: 5
+  recovery_timeout: 60
+  success_threshold: 3
+  timeout: 30.0
+
 models:
-  nano_default: &openai_chat
+  nano_default:
+    provider: openai
     backend: "infrastructure.llm.generic_http:GenericHttpLLM"
     method: POST
     base_url: "https://api.openai.com/v1"
@@ -13,27 +28,172 @@ models:
     auth_style: bearer
     auth_token_env: "OPENAI_API_KEY"
     timeout: 60
+    model_name_for_api: "gpt-4o-mini"
     payload_template: |
       {
-        "model": "gpt-4o-mini",
+        "model": "{{ model_name_for_api }}",
         "messages": [
           {"role": "system", "content": "{{ system_prompt }}"},
-          {"role": "{{ role }}", "content": "{{ prompt }}"}
+          {"role": "user", "content": "{{ prompt }}"}
         ],
         "temperature": {{ temperature }},
         "top_p": {{ top_p }},
         "max_tokens": {{ max_tokens }}
       }
     response_text_path: "$.choices[0].message.content"
+    circuit_breaker:
+      failure_threshold: 3
+      recovery_timeout: 30
+      timeout: 45.0
 
   gemini_pro:
-    <<: *openai_chat            # inherit common HTTP structure
+    provider: gemini
+    backend: "infrastructure.llm.generic_http:GenericHttpLLM"
+    method: POST
     base_url: "https://generativelanguage.googleapis.com"
     endpoint: "/v1beta/models/gemini-pro:generateContent"
-    headers:                     # Gemini uses an API‑key header, not bearer
-      x-goog-api-key: "${GEMINI_API_KEY}"
+    auth_style: header_key
+    auth_token_env: "GEMINI_API_KEY"
+    auth_header_name: "x-goog-api-key"
+    timeout: 60
+    model_name_for_api: "gemini-pro"
+    payload_template: |
+      {
+        "contents": [{
+          "role": "user",
+          "parts": [{"text": "{{ prompt }}"}]
+        }],
+        "generationConfig": {
+          "temperature": {{ temperature }},
+          "topP": {{ top_p }},
+          "maxOutputTokens": {{ max_tokens }}
+        }
+      }
     response_text_path: "$.candidates[0].content.parts[0].text"
+    circuit_breaker:
+      failure_threshold: 8
+      recovery_timeout: 120
+      timeout: 60.0
+
+  openai_gpt4_specific:
+    provider: openai
+    backend: "infrastructure.llm.openai_llm:OpenAILLMAdapter"
+    model: "gpt-4"
+    api_key_env: "OPENAI_API_KEY"
+    timeout: 90
+    max_retries: 2
+    circuit_breaker:
+      failure_threshold: 2
+      recovery_timeout: 180
+      success_threshold: 2
+      timeout: 120.0
+
+  mock_testing_model:
+    provider: mock
+    backend: "bootstrap.bootstrap_helper.placeholders:PlaceholderLLMPortImpl"
+    circuit_breaker:
+      failure_threshold: 100
+      recovery_timeout: 5
+      timeout: 5.0
 
 routes:
-  chat_fast:  "nano_default"
-  research:   "gemini_pro"
+  chat_fast: "nano_default"
+  quick: "nano_default"
+  research: "gemini_pro"
+  analysis: "openai_gpt4_specific"
+  test: "mock_testing_model"
+  mock: "mock_testing_model"
+
+parameters:
+  defaults:
+    temperature: 0.7
+    max_tokens: 1536
+    top_p: 1.0
+    system_prompt: "You are a helpful and concise AI assistant."
+
+  by_stage:
+    exploration:
+      temperature: 0.85
+      max_tokens: 2048
+      system_prompt: "You are a highly creative and imaginative AI assistant, skilled in divergent thinking and generating novel ideas. Be bold and explore unconventional paths."
+    
+    critique:
+      temperature: 0.4
+      max_tokens: 1024
+      system_prompt: "You are a precise and analytical AI assistant. Your role is to critically evaluate the given text, identify flaws, weaknesses, and potential issues. Be objective and thorough."
+    
+    synthesis:
+      temperature: 0.6
+      max_tokens: 2048
+      system_prompt: "You are an insightful AI assistant adept at synthesizing information. Combine the provided ideas or concepts into a coherent, well-structured, and enhanced summary or new concept."
+    
+    rapid_response:
+      temperature: 0.5
+      max_tokens: 512
+      system_prompt: "You are an efficient AI assistant. Provide clear, concise, and direct responses."
+    
+    deep_analysis:
+      temperature: 0.3
+      max_tokens: 4096
+      system_prompt: "You are a thorough AI analyst. Provide comprehensive, detailed analysis with evidence and reasoning."
+
+  by_role:
+    innovator:
+      top_p: 0.95
+      temperature: 0.8
+    
+    evaluator:
+      temperature: 0.3
+      top_p: 0.9
+    
+    researcher:
+      temperature: 0.4
+      max_tokens: 3072
+      system_prompt: "You are a meticulous researcher. Provide well-sourced, accurate, and comprehensive information."
+    
+    teacher:
+      temperature: 0.6
+      max_tokens: 2048
+      system_prompt: "You are a patient and knowledgeable teacher. Explain concepts clearly with examples and check for understanding."
+    
+    developer:
+      temperature: 0.2
+      max_tokens: 4096
+      system_prompt: "You are an expert software developer. Provide clean, efficient, well-documented code with explanations."
+
+  # Enhanced: Dynamic rules for runtime parameter adjustment (commented out due to AST issues)
+  # dynamic_rules:
+  #   # Adjust timeout based on context flags
+  #   timeout_seconds: "30 if ctx.is_flag_enabled('llm_fast_mode_flag') else 90"
+  #   
+  #   # Reduce tokens during high load
+  #   max_tokens: "512 if ctx.get_metric('system_load') > 0.8 else 1536"
+  #   
+  #   # Increase temperature for creative tasks
+  #   temperature: "0.9 if 'creative' in ctx.tags else 0.7"
+
+# --- Enhanced: Monitoring and Alerting Configuration ---
+monitoring:
+  # Metrics collection settings
+  metrics_retention_hours: 24
+  alert_on_failure_rate: 0.1  # Alert if failure rate > 10%
+  alert_on_latency_p95: 5000  # Alert if P95 latency > 5 seconds
+  
+  # Health check settings
+  health_check_timeout: 10    # Timeout for health checks
+  unhealthy_threshold: 3      # Mark unhealthy after 3 failed checks
+  
+  # Circuit breaker alerts
+  alert_on_circuit_open: true # Alert when circuit breakers open
+
+# --- Enhanced: Cost Management ---
+cost_controls:
+  # Daily limits per model (in tokens or requests)
+  daily_limits:
+    openai_gpt4_specific: 100000  # 100k tokens per day for GPT-4
+    gemini_pro: 500000            # 500k tokens per day for Gemini
+    nano_default: 1000000         # 1M tokens per day for mini model
+  
+  # Cost alerts
+  warn_at_percentage: 80  # Warn at 80% of daily limit
+  block_at_percentage: 95 # Block at 95% of daily limit

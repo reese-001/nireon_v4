@@ -4,7 +4,7 @@ metadata:
   description: "Production-ready configuration with generic, provider-agnostic naming"
   author: "NIREON Team"
   created_at: "2025-06-05T10:00:00Z"
-  updated_at: "2025-06-05T12:00:00Z"
+  updated_at: "2025-06-07T12:00:00Z"
 
 shared_services:
   EventBusPort:
@@ -18,7 +18,163 @@ shared_services:
     enabled: true
     class: "infrastructure.llm.router:LLMRouter"
     config:
-      config_file: "configs/default/llm_config.yaml"
+      # Complete LLM configuration embedded directly (no more config_file reference)
+      default: "nano_default"
+      
+      # Enhanced Router Configuration
+      enable_circuit_breakers: true
+      enable_health_checks: true
+      enable_metrics: true
+      health_check_interval: 300
+
+      circuit_breaker_defaults:
+        failure_threshold: 5
+        recovery_timeout: 60
+        success_threshold: 3
+        timeout: 30.0
+
+      models:
+        nano_default:
+          provider: openai
+          backend: "infrastructure.llm.generic_http:GenericHttpLLM"
+          method: POST
+          base_url: "https://api.openai.com/v1"
+          endpoint: "/chat/completions"
+          auth_style: bearer
+          auth_token_env: "OPENAI_API_KEY"
+          timeout: 60
+          model_name_for_api: "gpt-4o-mini"
+          payload_template: |
+            {
+              "model": "{{ model_name_for_api }}",
+              "messages": [
+                {"role": "system", "content": "{{ system_prompt }}"},
+                {"role": "user", "content": "{{ prompt }}"}
+              ],
+              "temperature": {{ temperature }},
+              "top_p": {{ top_p }},
+              "max_tokens": {{ max_tokens }}
+            }
+          response_text_path: "$.choices[0].message.content"
+          circuit_breaker:
+            failure_threshold: 3
+            recovery_timeout: 30
+            timeout: 45.0
+
+        gemini_pro:
+          provider: gemini
+          backend: "infrastructure.llm.generic_http:GenericHttpLLM"
+          method: POST
+          base_url: "https://generativelanguage.googleapis.com"
+          endpoint: "/v1beta/models/gemini-pro:generateContent"
+          auth_style: header_key
+          auth_token_env: "GEMINI_API_KEY"
+          auth_header_name: "x-goog-api-key"
+          timeout: 60
+          model_name_for_api: "gemini-pro"
+          payload_template: |
+            {
+              "contents": [{
+                "role": "user",
+                "parts": [{"text": "{{ prompt }}"}]
+              }],
+              "generationConfig": {
+                "temperature": {{ temperature }},
+                "topP": {{ top_p }},
+                "maxOutputTokens": {{ max_tokens }}
+              }
+            }
+          response_text_path: "$.candidates[0].content.parts[0].text"
+          circuit_breaker:
+            failure_threshold: 8
+            recovery_timeout: 120
+            timeout: 60.0
+
+        openai_gpt4_specific:
+          provider: openai
+          backend: "infrastructure.llm.openai_llm:OpenAILLMAdapter"
+          model: "gpt-4"
+          api_key_env: "OPENAI_API_KEY"
+          timeout: 90
+          max_retries: 2
+          circuit_breaker:
+            failure_threshold: 2
+            recovery_timeout: 180
+            success_threshold: 2
+            timeout: 120.0
+
+        mock_testing_model:
+          provider: mock
+          backend: "bootstrap.bootstrap_helper.placeholders:PlaceholderLLMPortImpl"
+          circuit_breaker:
+            failure_threshold: 100
+            recovery_timeout: 5
+            timeout: 5.0
+
+      routes:
+        chat_fast: "nano_default"
+        quick: "nano_default"
+        research: "gemini_pro"
+        analysis: "openai_gpt4_specific"
+        test: "mock_testing_model"
+        mock: "mock_testing_model"
+
+      parameters:
+        defaults:
+          temperature: 0.7
+          max_tokens: 1536
+          top_p: 1.0
+          system_prompt: "You are a helpful and concise AI assistant."
+
+        by_stage:
+          exploration:
+            temperature: 0.85
+            max_tokens: 2048
+            system_prompt: "You are a highly creative and imaginative AI assistant, skilled in divergent thinking and generating novel ideas. Be bold and explore unconventional paths."
+          
+          critique:
+            temperature: 0.4
+            max_tokens: 1024
+            system_prompt: "You are a precise and analytical AI assistant. Your role is to critically evaluate the given text, identify flaws, weaknesses, and potential issues. Be objective and thorough."
+          
+          synthesis:
+            temperature: 0.6
+            max_tokens: 2048
+            system_prompt: "You are an insightful AI assistant adept at synthesizing information. Combine the provided ideas or concepts into a coherent, well-structured, and enhanced summary or new concept."
+          
+          rapid_response:
+            temperature: 0.5
+            max_tokens: 512
+            system_prompt: "You are an efficient AI assistant. Provide clear, concise, and direct responses."
+          
+          deep_analysis:
+            temperature: 0.3
+            max_tokens: 4096
+            system_prompt: "You are a thorough AI analyst. Provide comprehensive, detailed analysis with evidence and reasoning."
+
+        by_role:
+          innovator:
+            top_p: 0.95
+            temperature: 0.8
+          
+          evaluator:
+            temperature: 0.3
+            top_p: 0.9
+          
+          researcher:
+            temperature: 0.4
+            max_tokens: 3072
+            system_prompt: "You are a meticulous researcher. Provide well-sourced, accurate, and comprehensive information."
+          
+          teacher:
+            temperature: 0.6
+            max_tokens: 2048
+            system_prompt: "You are a patient and knowledgeable teacher. Explain concepts clearly with examples and check for understanding."
+          
+          developer:
+            temperature: 0.2
+            max_tokens: 4096
+            system_prompt: "You are an expert software developer. Provide clean, efficient, well-documented code with explanations."
 
   EmbeddingPort:
     enabled: true
@@ -90,14 +246,43 @@ environment_overrides:
   development:
     shared_services:
       LLMPort:
-        class: "bootstrap.bootstrap_helper.placeholders.PlaceholderLLMPortImpl"
-      EmbeddingPort:
-        class: "bootstrap.bootstrap_helper.placeholders.PlaceholderEmbeddingPortImpl"
+        enabled: true
+        class: "infrastructure.llm.router:LLMRouter"
+        config_override:
+          # Override for development - use mock for testing when API keys not available
+          default: "mock_testing_model"
+          routes:
+            default: "mock_testing_model"
+            chat_fast: "mock_testing_model"
+            quick: "mock_testing_model"
+            research: "mock_testing_model"
+            analysis: "mock_testing_model"
+  
   testing:
     shared_services:
       IdeaRepositoryPort:
+        enabled: true
         class: "bootstrap.bootstrap_helper.placeholders.PlaceholderIdeaRepositoryImpl"
       EventBusPort:
+        enabled: true
         class: "bootstrap.bootstrap_helper.placeholders.PlaceholderEventBusImpl"
+      LLMPort:
+        enabled: true
+        class: "infrastructure.llm.router:LLMRouter"
+        config_override:
+          default: "mock_testing_model"
+          routes:
+            default: "mock_testing_model"
+  
   production:
-    shared_services: {}
+    shared_services:
+      LLMPort:
+        enabled: true
+        class: "infrastructure.llm.router:LLMRouter"
+        config_override:
+          # Production settings - use real models with enhanced monitoring
+          default: "nano_default"
+          enable_circuit_breakers: true
+          enable_health_checks: true
+          enable_metrics: true
+          health_check_interval: 120  # More frequent health checks in prod

@@ -9,13 +9,15 @@ These placeholders log their operations and provide minimal functionality.
 from datetime import datetime
 import logging
 import random
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence, Mapping
 import numpy as np
 
-from domain.ports.llm_port import LLMPort
+from domain.ports.llm_port import LLMPort, LLMResponse
 from domain.ports.embedding_port import EmbeddingPort
 from domain.ports.event_bus_port import EventBusPort
 from domain.ports.idea_repository_port import IdeaRepositoryPort
+from domain.context import NireonExecutionContext
+from domain.epistemic_stage import EpistemicStage
 from domain.embeddings.vector import Vector, DEFAULT_DTYPE
 from domain.ideas.idea import Idea
 
@@ -30,37 +32,64 @@ class PlaceholderLLMPortImpl(LLMPort):
     without calling any external LLM service.
     """
     
-    def __init__(self, config: Dict[str, Any] = None):
+    def __init__(self, config: Dict[str, Any] = None, model_name: Optional[str] = None):
         self.config = config or {}
+        self.model_name = model_name or "placeholder_model"
         self.call_count = 0
-        logger.info("PlaceholderLLMPort initialized - provides mock LLM responses")
+        logger.info(f'PlaceholderLLMPort initialized for model {self.model_name} - provides mock LLM responses')
     
-    async def call_llm_async(self, prompt: str, **kwargs) -> str:
+    async def call_llm_async(
+        self,
+        prompt: str,
+        *,
+        stage: EpistemicStage,
+        role: str,
+        context: NireonExecutionContext,
+        settings: Optional[Mapping[str, Any]] = None
+    ) -> LLMResponse:
         """Async LLM call that returns a mock response."""
         self.call_count += 1
-        logger.debug(f'PlaceholderLLMPort: Async call_llm #{self.call_count} with prompt: {prompt[:50]}...')
+        logger.debug(f'PlaceholderLLMPort ({self.model_name}): Async call_llm #{self.call_count} with prompt: {prompt[:50]}...')
         
         # Simulate processing delay based on prompt length
         import asyncio
-        delay = min(0.1, len(prompt) / 1000)  # Up to 100ms delay
+        delay = min(0.01, len(prompt) / 10000)  # Make it faster for tests
         await asyncio.sleep(delay)
         
-        return f'Placeholder LLM response #{self.call_count} to: "{prompt[:30]}{"..." if len(prompt) > 30 else ""}"'
+        response_text = f'Placeholder LLM response #{self.call_count} from model \'{self.model_name}\' (stage: {stage.value}, role: {role}) to: "{prompt[:30]}{"..." if len(prompt) > 30 else ""}"'
+        
+        return LLMResponse({LLMResponse.TEXT_KEY: response_text, "settings_used": settings})
     
-    def call_llm(self, prompt: str, **kwargs) -> str:
+    def call_llm_sync(
+        self,
+        prompt: str,
+        *,
+        stage: EpistemicStage,
+        role: str,
+        context: NireonExecutionContext,
+        settings: Optional[Mapping[str, Any]] = None
+    ) -> LLMResponse:
         """Sync LLM call that returns a mock response."""
         self.call_count += 1
-        logger.debug(f'PlaceholderLLMPort: Sync call_llm #{self.call_count} with prompt: {prompt[:50]}...')
+        logger.debug(f'PlaceholderLLMPort ({self.model_name}): Sync call_llm #{self.call_count} with prompt: {prompt[:50]}...')
         
-        return f'Placeholder LLM response #{self.call_count} to: "{prompt[:30]}{"..." if len(prompt) > 30 else ""}"'
+        response_text = f'Placeholder LLM response #{self.call_count} from model \'{self.model_name}\' (stage: {stage.value}, role: {role}) to: "{prompt[:30]}{"..." if len(prompt) > 30 else ""}"'
+        
+        return LLMResponse({LLMResponse.TEXT_KEY: response_text, "settings_used": settings})
     
+    # Optional: Keep simple generate methods if used elsewhere, but they should ideally use the main protocol methods
     def generate(self, prompt: str, **kwargs) -> str:
-        """Generate method that delegates to call_llm."""
-        return self.call_llm(prompt, **kwargs)
+        """Generate method that delegates to call_llm_sync."""
+        # This simplified signature might need its own context creation if context is not passed
+        mock_context = NireonExecutionContext(run_id="placeholder_sync_generate")
+        response = self.call_llm_sync(prompt, stage=EpistemicStage.DEFAULT, role="default", context=mock_context, settings=kwargs)
+        return response.text
     
     async def generate_async(self, prompt: str, **kwargs) -> str:
         """Async generate method that delegates to call_llm_async."""
-        return await self.call_llm_async(prompt, **kwargs)
+        mock_context = NireonExecutionContext(run_id="placeholder_async_generate")
+        response = await self.call_llm_async(prompt, stage=EpistemicStage.DEFAULT, role="default", context=mock_context, settings=kwargs)
+        return response.text
 
 
 class PlaceholderEmbeddingPortImpl(EmbeddingPort):

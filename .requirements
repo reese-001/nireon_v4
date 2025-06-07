@@ -7,3 +7,4 @@ pipdeptree
 pytest
 coverage
 jsonschema
+jsonpath-ng
