@@ -1,0 +1,35 @@
+# Development-specific configuration for flow_coordinator manager
+coordination_strategy: "round_robin"  # Simpler strategy for development
+max_concurrent_flows: 2  # Reduced for easier debugging
+flow_timeout_seconds: 120  # Shorter timeout for development
+enable_flow_recovery: false  # Disabled to see failures immediately
+
+# Development priority settings
+default_priority: 5
+high_priority_threshold: 7  # Lower threshold
+low_priority_threshold: 3  # Higher threshold  
+priority_decay_rate: 0.2  # Faster decay for dynamic testing
+
+# Development resource management (more conservative)
+max_memory_per_flow_mb: 128
+total_memory_limit_mb: 512
+cpu_throttle_threshold: 0.6
+
+# Development flow lifecycle
+auto_cleanup_completed_flows: false  # Keep for inspection
+completed_flow_retention_hours: 2  # Short retention for dev
+failed_flow_retention_hours: 8  # Keep failures longer for debugging
+
+# Development monitoring (more verbose)
+enable_flow_monitoring: true
+health_check_interval_seconds: 10  # More frequent checks
+alert_on_flow_failure: true
+alert_on_resource_exhaustion: true
+enable_step_by_step_logging: true
+log_all_flow_transitions: true
+
+# Development-specific debugging
+enable_flow_visualization: true
+export_flow_graphs: true
+pause_on_error: true  # Halt execution for inspection
+interactive_debugging: false

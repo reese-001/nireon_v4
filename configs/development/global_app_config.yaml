@@ -1,0 +1,15 @@
+env: "development" # Override environment name for development
+bootstrap_strict_mode: false # Keep relaxed for development
+feature_flags:
+  enable_schema_validation: false # Disabled for faster dev cycles
+  enable_self_certification: true
+  enable_rbac_bootstrap: true # Enabled for development testing
+  enable_component_tracing: true # Enabled for debugging
+  enable_debug_logging: true # Development-specific flag
+bootstrap_max_init_loops: 5 # Reduced for faster development iteration
+
+# Development-specific overrides
+development:
+  auto_reload: true
+  verbose_logging: true
+  disable_caching: true

@@ -27,7 +27,7 @@ async def test_config_loading():
     logger.info("=== Testing Configuration Loading ===")
     
     try:
-        from configs.loader import load_config
+        from configs.config_loader import ConfigLoader
         
         # Test default environment
         config = load_config(env='default')
@@ -48,7 +48,7 @@ async def test_bootstrap_config_loader():
     logger.info("=== Testing V4 Bootstrap Config Loader ===")
     
     try:
-        from bootstrap.config.config_loader import ConfigLoader
+        from configs.config_loader import ConfigLoader
         
         loader = ConfigLoader()
         config = await loader.load_global_config(env='default')
@@ -69,7 +69,7 @@ async def test_manifest_processing():
     
     try:
         from bootstrap.processors.manifest_processor import ManifestProcessor
-        from bootstrap.bootstrap_helper.utils import load_yaml_robust
+        from runtime.utils import load_yaml_robust
         from pathlib import Path
         
         # Try to load the standard manifest

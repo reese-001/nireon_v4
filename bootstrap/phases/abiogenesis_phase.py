@@ -4,18 +4,21 @@ from typing import Any, Dict, List, Tuple, Optional
 from enum import Enum
 from datetime import datetime, timezone
 
+from application.services.idea_service import IdeaService
+
 from .base_phase import BootstrapPhase, PhaseResult
-from infrastructure.feature_flags import FeatureFlagsManager
+from bootstrap.bootstrap_helper.feature_flags import FeatureFlagsManager
 from bootstrap.bootstrap_helper.placeholders import (
     PlaceholderLLMPortImpl, PlaceholderEmbeddingPortImpl, 
     PlaceholderEventBusImpl, PlaceholderIdeaRepositoryImpl
 )
-from bootstrap.bootstrap_helper.utils import import_by_path
-from application.ports.llm_port import LLMPort
-from application.ports.embedding_port import EmbeddingPort
-from application.ports.event_bus_port import EventBusPort
-from application.ports.idea_repository_port import IdeaRepositoryPort
-from application.services.idea_service import IdeaService
+from runtime.utils import import_by_path
+from domain.ports.llm_port import LLMPort
+from domain.ports.embedding_port import EmbeddingPort
+from domain.ports.event_bus_port import EventBusPort
+from domain.ports.idea_repository_port import IdeaRepositoryPort
+
+
 
 logger = logging.getLogger(__name__)
 

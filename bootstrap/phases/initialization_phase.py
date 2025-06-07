@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 
 from .base_phase import BootstrapPhase, PhaseResult
 from bootstrap.bootstrap_helper.context_helper import build_component_init_context
-from application.components.base import NireonBaseComponent
+from core.base_component import NireonBaseComponent
 
 logger = logging.getLogger(__name__)
 

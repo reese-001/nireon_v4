@@ -8,25 +8,25 @@ import re
 from typing import Any, Dict, Optional, Type, Union
 from pydantic import BaseModel # For V4 Pydantic configs
 
-from application.context import NireonExecutionContext
-from application.components.lifecycle import (
+from domain.context import NireonExecutionContext
+from core.lifecycle import (
     ComponentMetadata,
     ComponentRegistry,
     ComponentRegistryMissingError,
 )
-from application.components.base import NireonBaseComponent
+from core.base_component import NireonBaseComponent
 from factories.dependencies import CommonMechanismDependencies # V4 common deps
 # from nireon.factories.observer_factory import CommonObserverDependencies # V4
 # from nireon.factories.manager_factory import CommonManagerDependencies   # V4
-from application.ports.event_bus_port import EventBusPort
+from domain.ports.event_bus_port import EventBusPort
 from configs.config_utils import ConfigMerger # V4 ConfigMerger
 
-from .exceptions import BootstrapError
+from ._exceptions import BootstrapError
 from .health_reporter import (
     BootstrapHealthReporter,
     ComponentStatus,
 )
-from .utils import import_by_path, load_yaml_robust
+from ...runtime.utils import import_by_path, load_yaml_robust
 from .service_resolver import _safe_register_service_instance
 
 import dataclasses

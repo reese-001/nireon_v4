@@ -1,7 +1,7 @@
 version: "1.0"
 metadata:
-  name: "Standard NIREON Manifest"
-  description: "Default component configuration for NIREON with proper service definitions"
+  name: "NIREON V4 Generic Configuration"
+  description: "Production-ready configuration with generic, provider-agnostic naming"
   author: "NIREON Team"
   created_at: "2025-06-05T10:00:00Z"
   updated_at: "2025-06-05T12:00:00Z"
@@ -16,73 +16,75 @@ shared_services:
 
   LLMPort:
     enabled: true
-    class: "infrastructure.llm.openai_llm.OpenAILLMAdapter"
+    class: "infrastructure.llm.router:LLMRouter"
     config:
-      api_key_env: "OPENAI_API_KEY"
-      model: "gpt-4"
-      timeout: 30
-      max_retries: 3
+      config_file: "configs/default/llm_config.yaml"
 
   EmbeddingPort:
     enabled: true
-    class: "infrastructure.embeddings.openai_embeddings.OpenAIEmbeddingAdapter"
+    class: "infrastructure.embeddings.embeddings.EmbeddingAdapter"
     config:
-      api_key_env: "OPENAI_API_KEY"
-      model: "text-embedding-3-small"
-      dimensions: 1536
+      provider: "sentence_transformers"
+      model: "all-MiniLM-L6-v2"
+      dimensions: 384
+      cache_size: 1000
+      timeout: 30
+    config_override:
+      api_key: "${EMBEDDING_API_KEY}"
+      base_url: "${EMBEDDING_API_URL:-https://api.example.com/v1}"
 
   IdeaRepositoryPort:
     enabled: true
-    class: "infrastructure.persistence.postgres_idea_repository.PostgresIdeaRepository"
+    class: "infrastructure.persistence.idea_repository.IdeaRepository"
     config:
-      connection_string_env: "DATABASE_URL"
-      pool_size: 10
-      timeout: 30
+      provider: "sqlite"
+      db_path: "runtime/ideas_v4.db"
+      enable_wal_mode: true
+      timeout: 30.0
+    config_override:
+      connection_string: "${DATABASE_URL:-postgresql://localhost/nireon_v4}"
+      pool_size: 5
 
   FeatureFlagsManager:
     enabled: true
     class: "infrastructure.feature_flags.FeatureFlagsManager"
     config:
-      source: "config"  # Load from configuration
+      default_flags:
+        enable_exploration: true
+        enable_catalyst: true
+        enable_schema_validation: true
 
   IdeaService:
     enabled: true
     class: "application.services.idea_service.IdeaService"
-
-  LLMRouter:
-    enabled: false  # Enable if you need routing between multiple LLMs
-    class: "application.services.llm_router.LLMRouter"
-    config:
-      default_provider: "openai"
-      fallback_provider: "placeholder"
+    config: {}
 
 mechanisms:
   explorer_primary:
     enabled: true
-    class: "components.mechanisms.explorer.service.ExplorerMechanism" 
-    metadata_definition: "components.mechanisms.explorer.service.EXPLORER_METADATA" 
+    class: "components.mechanisms.explorer.service.ExplorerMechanism"
+    metadata_definition: "components.mechanisms.explorer.service.EXPLORER_METADATA"
     config:
-      max_depth: 3
-      application_rate: 0.5
-      divergence_strength: 0.2
-      exploration_timeout: 60
+      max_depth: 4
+      application_rate: 0.6
+      exploration_strategy: "depth_first"
+      max_variations_per_level: 3
+      enable_semantic_exploration: true
+      enable_llm_enhancement: true
+      creativity_factor: 0.7
+      exploration_timeout_seconds: 45.0
+    epistemic_tags:
+      - "generator"
+      - "mutator"
+      - "explorer"
 
-observers:
-  lineage_tracker:
-    enabled: false  # Disabled since class path might not exist yet
-    class: "components.observers.lineage_tracker.LineageTracker" 
-    metadata_definition: "components.observers.lineage_tracker.LINEAGE_METADATA" 
-    config:
-      track_genealogy: true
-      max_lineage_depth: 10
+observers: {}
 
-managers:
-  flow_coordinator:
-    enabled: false  # Disabled since class path might not exist yet# Corrected
-    metadata_definition: "components.managers.flow_coordinator.FLOW_METADATA"
-    config:
-      coordination_strategy: "priority_based"
-      max_concurrent_flows: 5
+managers: {}
+
+composites: {}
+
+orchestration_commands: {}
 
 environment_overrides:
   development:
@@ -98,4 +100,4 @@ environment_overrides:
       EventBusPort:
         class: "bootstrap.bootstrap_helper.placeholders.PlaceholderEventBusImpl"
   production:
-    shared_services: {}  # Use real implementations in production
+    shared_services: {}

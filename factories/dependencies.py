@@ -4,14 +4,20 @@ import random
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Optional
 
+# from core import registry
+
 if TYPE_CHECKING:
     # V4 imports
-    from application.ports.llm_port import LLMPort
-    from application.services.llm_router import LLMRouter # V4
-    from application.ports.embedding_port import EmbeddingPort
-    from application.ports.event_bus_port import EventBusPort
-    from application.services.idea_service import IdeaService # V4
+    from domain.ports.llm_port import LLMPort
+    # from application.services.llm_router import LLMRouter # V4
+    from domain.ports.embedding_port import EmbeddingPort
+    from domain.ports.event_bus_port import EventBusPort
+    from domain.ports.idea_service_port import IdeaServicePort # V4
     from core.registry import ComponentRegistry # V4
+
+
+# llm_port = registry.get_service_instance("LLMPort") 
+
 
 @dataclass(frozen=True)
 class CommonMechanismDependencies:
@@ -20,7 +26,7 @@ class CommonMechanismDependencies:
 
     # Optional dependencies, as in V3
     llm_port: Optional[LLMPort] = None
-    llm_router: Optional[LLMRouter] = None # V4 LLMRouter
+    llm_router: Optional[llm_port] = None # type: ignore # V4 LLMRouter
     event_bus: Optional[EventBusPort] = None
     idea_service: Optional[IdeaService] = None # V4 IdeaService
     rng: random.Random = field(default_factory=lambda: random.Random())

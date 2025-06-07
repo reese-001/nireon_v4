@@ -4,10 +4,10 @@ Generates idea variations through systematic exploration and mutation
 """
 import logging
 from typing import Any, Dict
-from application.components.base import NireonBaseComponent
-from application.components.lifecycle import ComponentMetadata
-from application.components.results import ProcessResult
-from application.context import NireonExecutionContext
+from core.base_component import NireonBaseComponent
+from core.lifecycle import ComponentMetadata
+from core.results import ProcessResult
+from domain.context import NireonExecutionContext
 from .config import ExplorerConfig
 
 logger = logging.getLogger(__name__)
@@ -255,7 +255,7 @@ class ExplorerMechanism(NireonBaseComponent):
 
     async def analyze(self, context: NireonExecutionContext):
         """Analyze exploration performance and patterns"""
-        from application.components.results import AnalysisResult
+        from core.results import AnalysisResult
         
         metrics = {
             'total_explorations': self._exploration_count,
@@ -275,7 +275,7 @@ class ExplorerMechanism(NireonBaseComponent):
 
     async def health_check(self, context: NireonExecutionContext):
         """Check explorer health and readiness"""
-        from application.components.results import ComponentHealth
+        from core.results import ComponentHealth
         
         status = 'HEALTHY'
         messages = []

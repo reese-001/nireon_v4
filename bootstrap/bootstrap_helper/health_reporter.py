@@ -10,7 +10,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 from datetime import datetime, timezone
 
-from application.components.lifecycle import ComponentMetadata
+from core.lifecycle import ComponentMetadata
 from core.registry import ComponentRegistry
 
 logger = logging.getLogger(__name__)

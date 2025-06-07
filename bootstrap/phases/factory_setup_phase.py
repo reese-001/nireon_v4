@@ -11,12 +11,14 @@ import logging
 from typing import Any, Dict
 
 from bootstrap.bootstrap_helper.context_helper import build_execution_context
+from core import registry
+from application.services.idea_service import IdeaService
 
 from .base_phase import BootstrapPhase, PhaseResult
 from factories.mechanism_factory import SimpleMechanismFactory
 from factories.dependencies import CommonMechanismDependencies
-from validation.interface_validator import InterfaceValidator
-
+from bootstrap.validators.interface_validator import InterfaceValidator
+from domain.ports.idea_service_port import IdeaServicePort
 
 logger = logging.getLogger(__name__)
 
@@ -116,8 +118,9 @@ class FactorySetupPhase(BootstrapPhase):
             # Try to resolve LLMRouter (optional)
             llm_router = None
             try:
-                from application.services.llm_router import LLMRouter
-                llm_router = context.registry.get_service_instance(LLMRouter)
+                # from application.services.llm_router import LLMRouter
+                llm_port = registry.get_service_instance("LLMPort") 
+                llm_router = context.registry.get_service_instance(llm_port)
                 logger.debug("✓ LLMRouter resolved for dependency injection")
             except Exception:
                 logger.debug("LLMRouter not available - continuing without it")
@@ -153,16 +156,16 @@ class FactorySetupPhase(BootstrapPhase):
         """Safely resolve a service by name."""
         try:
             if service_name == "LLMPort":
-                from application.ports.llm_port import LLMPort
+                from domain.ports.llm_port import LLMPort
                 return context.registry.get_service_instance(LLMPort)
             elif service_name == "EmbeddingPort":
-                from application.ports.embedding_port import EmbeddingPort
+                from domain.ports.embedding_port import EmbeddingPort
                 return context.registry.get_service_instance(EmbeddingPort)
             elif service_name == "EventBusPort":
-                from application.ports.event_bus_port import EventBusPort
+                from domain.ports.event_bus_port import EventBusPort
                 return context.registry.get_service_instance(EventBusPort)
             elif service_name == "IdeaService":
-                from application.services.idea_service import IdeaService
+                from domain.ports.idea_service_port import IdeaServicePort
                 return context.registry.get_service_instance(IdeaService)
             else:
                 raise ValueError(f"Unknown service name: {service_name}")
@@ -193,9 +196,9 @@ class FactorySetupPhase(BootstrapPhase):
             
             # Register in both the context AND the registry for global access
             context.registry_manager.register_service_with_certification(
-                service_type=SimpleMechanismFactory,
+                service_type=SimpleMechanismFactory, # Key used for type registration
                 instance=mechanism_factory,
-                service_id='MechanismFactory',
+                service_id='MechanismFactory',      # Canonical ID used for metadata
                 category='factory_service',
                 description='Factory for creating mechanism components from specifications',
                 requires_initialize=False
@@ -230,7 +233,7 @@ class FactorySetupPhase(BootstrapPhase):
             )
             
             # Safer approach - get event bus directly
-            from application.ports.event_bus_port import EventBusPort
+            from domain.ports.event_bus_port import EventBusPort
             event_bus = context.registry.get_service_instance(EventBusPort)
             
             validator_context = build_execution_context(

@@ -12,10 +12,10 @@ import random
 from typing import Any, Dict, List, Optional, Sequence
 import numpy as np
 
-from application.ports.llm_port import LLMPort
-from application.ports.embedding_port import EmbeddingPort
-from application.ports.event_bus_port import EventBusPort
-from application.ports.idea_repository_port import IdeaRepositoryPort
+from domain.ports.llm_port import LLMPort
+from domain.ports.embedding_port import EmbeddingPort
+from domain.ports.event_bus_port import EventBusPort
+from domain.ports.idea_repository_port import IdeaRepositoryPort
 from domain.embeddings.vector import Vector, DEFAULT_DTYPE
 from domain.ideas.idea import Idea
 

@@ -1,43 +1,39 @@
-# nireon/configs/default/llm_config.yaml
-default: "default_completion" # Key of the default model to use from 'models'
+# Corrected LLM configuration – *no outer `llm:` wrapper*
+# This file is merged into `global_config['llm']` by the ConfigLoader,
+# so the keys **default / models / routes** must be at the top level.
+
+default: "nano_default"
 
 models:
-  default_completion:
-    provider: "openai" # Example provider
-    model: "gpt-4o-mini" # Example model name
-    api_key: "${OPENAI_API_KEY}" # Reference an environment variable
+  nano_default: &openai_chat
+    backend: "infrastructure.llm.generic_http:GenericHttpLLM"
+    method: POST
     base_url: "https://api.openai.com/v1"
-    endpoint: "chat/completions" # Common for chat models
-    method: "POST"
-    backend: "infrastructure.llm.generic_http_llm:GenericHttpLLM" # Example path
-    timeout_seconds: 60
-    max_retries: 3
-    temperature: 0.7
-    max_tokens: 1024
-    # Payload template would be specific to the OpenAI chat completions API
+    endpoint: "/chat/completions"
+    auth_style: bearer
+    auth_token_env: "OPENAI_API_KEY"
+    timeout: 60
     payload_template: |
       {
-        "model": "{{ model_name }}",
+        "model": "gpt-4o-mini",
         "messages": [
-          {"role": "system", "content": "{{ system_prompt | default('You are a helpful assistant.') }}"},
-          {"role": "user", "content": "{{ user_prompt }}"}
+          {"role": "system", "content": "{{ system_prompt }}"},
+          {"role": "{{ role }}", "content": "{{ prompt }}"}
         ],
-        "temperature": {{ temperature | default(0.7) }},
-        "max_tokens": {{ max_tokens | default(1024) }}
+        "temperature": {{ temperature }},
+        "top_p": {{ top_p }},
+        "max_tokens": {{ max_tokens }}
       }
-    response_text_path: "choices.0.message.content" # Path to extract text
-    headers:
-      "Content-Type": "application/json"
-      # Authorization is often handled by the backend using api_key
+    response_text_path: "$.choices[0].message.content"
 
-  # Add other models or providers as needed
-  # default_embedding:
-  #   provider: "sentence-transformers" # Example
-  #   model: "all-MiniLM-L6-v2" # This usually refers to local model name
-  #   backend: "infrastructure.embedding.sentence_transformer_shim:SentenceTransformerEmbeddingShim"
-  #   # sentence-transformers specific config might go into a nested 'config' dict for the backend
+  gemini_pro:
+    <<: *openai_chat            # inherit common HTTP structure
+    base_url: "https://generativelanguage.googleapis.com"
+    endpoint: "/v1beta/models/gemini-pro:generateContent"
+    headers:                     # Gemini uses an API‑key header, not bearer
+      x-goog-api-key: "${GEMINI_API_KEY}"
+    response_text_path: "$.candidates[0].content.parts[0].text"
 
-# Optional: routes for aliasing or complex routing logic
-# routes:
-#   fast_chat: "default_completion"
-#   embedding_service_model: "default_embedding"
+routes:
+  chat_fast:  "nano_default"
+  research:   "gemini_pro"

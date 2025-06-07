@@ -10,9 +10,11 @@ from pydantic import BaseModel, Field, validator
 from jsonschema import validate as js_validate, ValidationError as SchemaError
 
 from bootstrap.phases.base_phase import BootstrapPhase, PhaseResult
-from bootstrap.bootstrap_helper.utils import load_yaml_robust
-from application.components.base import NireonBaseComponent
-from application.components.lifecycle import ComponentMetadata
+from runtime.utils import load_yaml_robust
+from core.base_component import NireonBaseComponent
+from core.lifecycle import ComponentMetadata
+from core.results import ProcessResult
+from domain.context import NireonExecutionContext
 
 # Use TYPE_CHECKING to avoid circular imports
 if TYPE_CHECKING:
@@ -64,7 +66,7 @@ class RBACPolicySet(BaseModel):
         super().__init__(**data)
 
     def get_rules_for_subject(self, subject: str) -> List[RBACRule]:
-        return [rule for rule in self.rules if subject in rule.subjects]
+        return self.policy_set.get_rules_for_subject(subject)
 
     def get_all_subjects(self) -> List[str]:
         subjects = set()
@@ -80,11 +82,17 @@ class PolicySetComponent(NireonBaseComponent):
         self.source_file = source_file
         self.loaded_at = datetime.now(timezone.utc)
 
+
+    async def _process_impl(self, data: Any, context: 'NireonExecutionContext') -> ProcessResult:
+        logger.debug(f"PolicySetComponent '{self.component_id}' received process call, but does not actively process data.")
+        return ProcessResult(success=True, component_id=self.component_id, message="PolicySetComponent does not process data.")
+    
+
     async def _initialize_impl(self, context):
         logger.debug(f'Initializing PolicySetComponent {self.component_id}')
         return
 
-    async def shutdown(self, context):
+    async def _shutdown_impl(self, context):
         logger.debug(f'Shutting down PolicySetComponent {self.component_id}')
         return
 
@@ -141,7 +149,7 @@ class RBACSetupPhase(BootstrapPhase):
             if loaded_components:
                 try:
                     # Import here to avoid circular dependency
-                    from security.rbac_engine import RBACPolicyEngine
+                    from bootstrap.security.rbac_engine import RBACPolicyEngine
                     
                     rbac_engine = RBACPolicyEngine(loaded_components)
                     
@@ -175,7 +183,7 @@ class RBACSetupPhase(BootstrapPhase):
             try:
                 if loaded_components:
                     # Avoid importing at module level
-                    from security.rbac_engine import RBACPolicyEngine
+                    from bootstrap.security.rbac_engine import RBACPolicyEngine
                     engine = context.registry.get_service_instance(RBACPolicyEngine)
                     engine_stats = engine.get_stats()
             except:
@@ -210,9 +218,8 @@ class RBACSetupPhase(BootstrapPhase):
     def _is_rbac_enabled(self, context) -> bool:
         """Check if RBAC is enabled in configuration."""
         feature_flags = context.global_app_config.get('feature_flags', {})
-        if not feature_flags.get('enable_rbac_bootstrap', False):
-            return False
-        return context.global_app_config.get('enable_rbac_bootstrap', False)
+        logger.info(f'Feature flags: {feature_flags}')
+        return feature_flags.get('enable_rbac_bootstrap', False)
 
     def _create_disabled_result(self) -> PhaseResult:
         """Create result for disabled RBAC."""
@@ -254,7 +261,7 @@ class RBACSetupPhase(BootstrapPhase):
                 return policy_files
 
         # Get package root
-        package_root = Path(__file__).resolve().parents[3]
+        package_root = Path(__file__).resolve().parents[2]
         env = context.global_app_config.get('env', 'default')
 
         # Check environment-specific policy file
@@ -376,7 +383,7 @@ class RBACSetupPhase(BootstrapPhase):
             for component in components:
                 # Note: Import here to avoid circular dependency issues
                 try:
-                    from application.ports.event_bus_port import EventBusPort
+                    from domain.ports.event_bus_port import EventBusPort
                     if hasattr(context, 'event_bus') and context.event_bus:
                         context.event_bus.publish('RBAC_POLICY_APPLIED', {
                             'component_id': component.component_id,

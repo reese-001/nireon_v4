@@ -2,15 +2,18 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, List, Optional
 
+from domain.context import NireonExecutionContext
+from bootstrap.bootstrap_context import BootstrapContext
+
 from .base_phase import BootstrapPhase, PhaseResult
 from bootstrap.bootstrap_helper.context_helper import build_validation_context
-from application.components.base import NireonBaseComponent
-from application.components.lifecycle import ComponentMetadata, ComponentRegistryMissingError
+from core.base_component import NireonBaseComponent
+from core.lifecycle import ComponentMetadata, ComponentRegistryMissingError
 
 logger = logging.getLogger(__name__)
 
 class InterfaceValidationPhase(BootstrapPhase):
-    async def execute(self, context) -> PhaseResult:
+    async def execute(self, context: BootstrapContext) -> PhaseResult:
         logger.info('Executing Interface Validation Phase - Validating component interfaces and contracts')
         
         errors = []
@@ -27,13 +30,13 @@ class InterfaceValidationPhase(BootstrapPhase):
         }
         
         try:
-            # Check if validator is available
-            if not hasattr(context, 'interface_validator') or not context.interface_validator:
-                warning_msg = 'Interface validator not available - skipping detailed validation'
+            # Check if the validator was set up on the BootstrapContext
+            if not hasattr(context, 'interface_validator') or context.interface_validator is None:
+                warning_msg = 'Interface validator not available on BootstrapContext - skipping detailed validation'
                 warnings.append(warning_msg)
                 logger.warning(warning_msg)
                 return PhaseResult.success_result(
-                    message='Interface validation skipped - no validator available',
+                    message='Interface validation skipped - no validator available on BootstrapContext',
                     warnings=warnings,
                     metadata=validation_stats
                 )
@@ -54,7 +57,29 @@ class InterfaceValidationPhase(BootstrapPhase):
             # Validate each component
             for component_id in all_component_ids:
                 try:
-                    await self._validate_single_component(component_id, context, validation_stats, errors, warnings)
+                    # Create the NireonExecutionContext for this component
+                    # This NireonExecutionContext will now have .interface_validator populated by BootstrapContext.with_component_scope
+                    component_exec_context = context.with_component_scope(component_id)
+                    
+                    # Get validation data
+                    validation_data_obj = None
+                    if hasattr(context, 'validation_data_store') and context.validation_data_store:
+                        validation_data_obj = context.validation_data_store.get_validation_data_for_component(component_id)
+                    
+                    # Create validation context with metadata
+                    validation_run_context = component_exec_context.with_metadata(
+                        validation_step=True, 
+                        validation_data=validation_data_obj or {}
+                    )
+                    
+                    await self._validate_single_component(
+                        component_id, 
+                        context, 
+                        validation_run_context, 
+                        validation_stats, 
+                        errors, 
+                        warnings
+                    )
                     validation_stats['components_validated'] += 1
                 except Exception as e:
                     validation_stats['validation_failed'] += 1
@@ -96,14 +121,16 @@ class InterfaceValidationPhase(BootstrapPhase):
                 metadata=validation_stats
             )
 
-    async def _validate_single_component(self, component_id: str, context, 
-                                       validation_stats: dict, errors: list, warnings: list) -> None:
+    async def _validate_single_component(self, component_id: str,
+                                         bootstrap_context: BootstrapContext,
+                                         validation_exec_context: NireonExecutionContext,
+                                         validation_stats: dict, errors: list, warnings: list) -> None:
         """Validate a single component."""
         logger.debug(f'Validating component: {component_id}')
         
         try:
-            component = context.registry.get(component_id)
-            metadata = await self._get_component_metadata_safe(component_id, component, context)
+            component = bootstrap_context.registry.get(component_id)
+            metadata = await self._get_component_metadata_safe(component_id, component, bootstrap_context)
             
             if metadata is None:
                 validation_stats['validation_skipped'] += 1
@@ -113,9 +140,9 @@ class InterfaceValidationPhase(BootstrapPhase):
                 return
             
             # Get validation data if available
-            validation_data = None
-            if hasattr(context, 'validation_data_store') and context.validation_data_store:
-                validation_data = context.validation_data_store.get_validation_data_for_component(component_id)
+            validation_data_obj = None
+            if hasattr(bootstrap_context, 'validation_data_store') and bootstrap_context.validation_data_store:
+                validation_data_obj = bootstrap_context.validation_data_store.get_validation_data_for_component(component_id)
             
             # Check if component is validatable
             if not isinstance(component, NireonBaseComponent) and not hasattr(component, 'validate'):
@@ -123,17 +150,14 @@ class InterfaceValidationPhase(BootstrapPhase):
                 logger.debug(f'Skipping validation for {component_id} - not a validatable component')
                 return
             
-            # Build validation context
-            validation_context = build_validation_context(component_id, context, validation_data)
-            
             # Perform validation based on component type
             if isinstance(component, NireonBaseComponent):
                 validation_errors = await self._validate_nireon_component(
-                    component, metadata, validation_context, validation_data, validation_stats
+                    component, metadata, validation_exec_context, validation_data_obj, validation_stats
                 )
             else:
                 validation_errors = await self._validate_custom_component(
-                    component, metadata, validation_context, validation_stats
+                    component, metadata, validation_exec_context, validation_stats
                 )
             
             # Process validation results
@@ -141,7 +165,7 @@ class InterfaceValidationPhase(BootstrapPhase):
                 validation_stats['validation_failed'] += 1
                 validation_stats['contract_violations'] += len(validation_errors)
                 error_msg = f'Component {component_id} failed validation: {validation_errors}'
-                if context.strict_mode:
+                if bootstrap_context.strict_mode:
                     errors.append(error_msg)
                     logger.error(error_msg)
                 else:
@@ -155,7 +179,7 @@ class InterfaceValidationPhase(BootstrapPhase):
             validation_stats['validation_failed'] += 1
             error_msg = f'Exception during validation of {component_id}: {e}'
             logger.error(error_msg, exc_info=True)
-            if context.strict_mode:
+            if bootstrap_context.strict_mode:
                 errors.append(error_msg)
             else:
                 warnings.append(error_msg)
@@ -217,8 +241,9 @@ class InterfaceValidationPhase(BootstrapPhase):
         logger.warning(f'Could not resolve metadata for component {component_id}')
         return None
 
-    async def _validate_nireon_component(self, component: NireonBaseComponent, metadata, 
-                                       validation_context, validation_data, validation_stats: dict) -> List[str]:
+    async def _validate_nireon_component(self, component: NireonBaseComponent, metadata,
+                                         validation_context: NireonExecutionContext,
+                                         validation_data, validation_stats: dict) -> List[str]:
         """Validate a NireonBaseComponent."""
         validation_stats['interface_checks'] += 1
         validation_stats['metadata_checks'] += 1
@@ -234,21 +259,17 @@ class InterfaceValidationPhase(BootstrapPhase):
                 resolved_config = validation_data.resolved_config
                 manifest_spec = validation_data.manifest_spec
             
-            # Get interface validator
-            try:
-                interface_validator = validation_context.registry.get_service_instance(
-                    type(validation_context.interface_validator)
-                )
-            except:
-                interface_validator = getattr(validation_context, 'interface_validator', None)
-                if not interface_validator:
-                    return ['Interface validator not available for detailed validation']
+            # SIMPLIFIED VALIDATOR ACCESS
+            interface_validator = validation_context.interface_validator  # Directly from NireonExecutionContext
+            if not interface_validator:
+                logger.error(f"[{component.component_id}] InterfaceValidator not found on validation_context during _validate_nireon_component.")
+                return ['Interface validator not available on execution context for detailed validation']
             
             # Perform component validation
             validation_errors = await interface_validator.validate_component(
                 instance=component,
                 expected_metadata=expected_metadata,
-                context=validation_context,
+                context=validation_context,  # Pass the NireonExecutionContext
                 yaml_config_at_instantiation=resolved_config,
                 actual_runtime_metadata=component.metadata,
                 manifest_spec=manifest_spec
@@ -257,10 +278,10 @@ class InterfaceValidationPhase(BootstrapPhase):
             return validation_errors
             
         except Exception as e:
-            logger.error(f'Error during NireonBaseComponent validation: {e}')
+            logger.error(f'Error during NireonBaseComponent validation for {component.component_id if hasattr(component, "component_id") else "UNKNOWN"}: {e}', exc_info=True)
             return [f'Validation error: {e}']
 
-    async def _validate_custom_component(self, component, metadata, validation_context, 
+    async def _validate_custom_component(self, component, metadata, validation_context: NireonExecutionContext, 
                                        validation_stats: dict) -> List[str]:
         """Validate a custom (non-NireonBaseComponent) component."""
         validation_stats['interface_checks'] += 1

@@ -6,7 +6,7 @@ default metadata for built-in NIREON components.
 """
 
 from typing import Dict, Optional
-from application.components.lifecycle import ComponentMetadata
+from core.lifecycle import ComponentMetadata
 
 
 # Default metadata for Explorer mechanism

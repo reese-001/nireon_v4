@@ -5,24 +5,25 @@ import logging
 import inspect # For inspect.signature
 from typing import Any, Dict, Type, Optional, Callable
 
-from application.components.base import NireonBaseComponent
-from application.components.lifecycle import (
+from core.base_component import NireonBaseComponent
+from core.lifecycle import (
     ComponentMetadata,
     ComponentRegistryMissingError,
 )
 from core.registry.component_registry import ComponentRegistry
-from application.ports.event_bus_port import EventBusPort
-from application.ports.idea_repository_port import IdeaRepositoryPort
+from domain.ports.event_bus_port import EventBusPort
+from domain.ports.idea_repository_port import IdeaRepositoryPort
+from domain.ports.idea_service_port import IdeaServicePort
+
 from application.services.idea_service import IdeaService
 
-# Assuming .metadata refers to a local metadata.py in the same helper package
+
+
 from .metadata import create_service_metadata
 logger = logging.getLogger(__name__)
 
 _ff_manager_lock = asyncio.Lock() # Retained as it might be used by other code not shown
 
-class BootstrapError(RuntimeError):
-    pass
 
 
 def _safe_register_service_instance(
@@ -246,7 +247,8 @@ def get_or_create_idea_service(
         return service_instance
     except (ComponentRegistryMissingError, AttributeError):
         logger.info("IdeaService not found. Creating new instance.")
-        new_idea_service = IdeaService(repository=idea_repo, event_bus=event_bus)
+   
+        new_idea_service: IdeaServicePort = registry.get_service_instance("idea_service")
         _safe_register_service_instance(
             registry,
             IdeaService,

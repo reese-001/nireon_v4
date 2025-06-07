@@ -5,8 +5,8 @@ from typing import Any, Dict, List, Optional, Type
 import hashlib
 
 from core.registry import ComponentRegistry
-from application.components.base import NireonBaseComponent
-from application.components.lifecycle import ComponentMetadata
+from core.base_component import NireonBaseComponent
+from core.lifecycle import ComponentMetadata
 
 logger = logging.getLogger(__name__)
 

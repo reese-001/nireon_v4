@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from .base_phase import BootstrapPhase, PhaseResult
-from bootstrap.bootstrap_helper.utils import detect_manifest_type, load_yaml_robust
+from runtime.utils import detect_manifest_type, load_yaml_robust
 from bootstrap.processors.manifest_processor import ManifestProcessor, ComponentSpec, ManifestProcessingResult
 from bootstrap.processors.component_processor import ComponentInstantiator
 

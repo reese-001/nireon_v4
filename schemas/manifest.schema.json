@@ -1,28 +1,172 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "NIREON V4 Component Manifest",
-  "description": "Defines components and services to load at bootstrap.",
+  "description": "Defines components and services to load at bootstrap for NIREON V4.",
   "type": "object",
-  "properties": {
-    "version": { "type": "string", "pattern": "^\\d+\\.\\d+$" },
-    "metadata": { "type": "object" },
-    "shared_services": { "type": "object" }, 
-    "mechanisms": { 
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string" },
-          "class": { "type": "string" },
-          "metadata_definition": { "type": "string" },
-          "config": { "type": "object" },
-          "enabled": { "type": "boolean" }
+  "definitions": {
+    "componentSpec": {
+      "type": "object",
+      "properties": {
+        "class": {
+          "type": "string",
+          "description": "Fully qualified path to the component's class (e.g., 'module.submodule:ClassName' or 'module.submodule.ClassName')."
         },
-        "required": ["id", "class"]
+        "metadata_definition": {
+          "type": "string",
+          "description": "Fully qualified path to the ComponentMetadata definition object (e.g., 'module.submodule:METADATA_OBJECT_INSTANCE'). Essential for NireonBaseComponent derivatives."
+        },
+        "config": {
+          "type": "object",
+          "description": "Component-specific configuration. Can be an inline object or reference a file processed by a ConfigLoader.",
+          "additionalProperties": true
+        },
+        "config_override": {
+          "type": "object",
+          "description": "Inline configuration to override or merge with the main 'config'.",
+          "additionalProperties": true
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this component definition is active and should be processed."
+        },
+        "epistemic_tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Optional: Overrides or sets epistemic_tags in the component's metadata."
+        }
+      },
+      "required": [
+        "class"
+      ]
+    },
+    "serviceSpec": {
+      "type": "object",
+      "properties": {
+        "class": {
+          "type": "string",
+          "description": "Fully qualified path to the service's class."
+        },
+        "config": {
+          "type": "object",
+          "description": "Service-specific configuration.",
+          "additionalProperties": true
+        },
+        "config_override": {
+          "type": "object",
+          "description": "Inline configuration to override or merge with the main 'config'.",
+          "additionalProperties": true
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this service definition is active."
+        }
+      },
+      "required": [
+        "class"
+      ]
+    },
+    "orchestrationCommandSpec": {
+      "type": "object",
+      "properties": {
+        "class": {
+          "type": "string",
+          "description": "Fully qualified path to the orchestration command class."
+        },
+        "metadata_definition": {
+          "type": "string",
+          "description": "Optional path to a ComponentMetadata object for registering this command class."
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this command class should be registered."
+        }
+      },
+      "required": [
+        "class"
+      ]
+    }
+  },
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_\\.-]+$",
+      "description": "Manifest schema version (e.g., '1.0', '0.1.0', '4.0.0-alpha')."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Descriptive metadata for the manifest file itself.",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "author": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name"]
+    },
+    "shared_services": {
+      "type": "object",
+      "description": "Key-value pairs defining shared services. Keys are service IDs.",
+      "additionalProperties": { "$ref": "#/definitions/serviceSpec" }
+    },
+    "mechanisms": {
+      "type": "object",
+      "description": "Key-value pairs defining mechanism components. Keys are component IDs.",
+      "additionalProperties": {
+        "allOf": [ { "$ref": "#/definitions/componentSpec" } ],
+        "required": ["class", "metadata_definition"]
       }
     },
-    "observers": { "type": "array", "items": {"type": "object"} },
-    "managers": { "type": "array", "items": {"type": "object"} }
+    "observers": {
+      "type": "object",
+      "description": "Key-value pairs defining observer components. Keys are component IDs.",
+      "additionalProperties": {
+        "allOf": [ { "$ref": "#/definitions/componentSpec" } ],
+        "required": ["class", "metadata_definition"]
+      }
+    },
+    "managers": {
+      "type": "object",
+      "description": "Key-value pairs defining manager components. Keys are component IDs.",
+      "additionalProperties": {
+        "allOf": [ { "$ref": "#/definitions/componentSpec" } ],
+        "required": ["class", "metadata_definition"]
+      }
+    },
+    "composites": {
+      "type": "object",
+      "description": "Key-value pairs defining composite components. Keys are component IDs.",
+      "additionalProperties": {
+        "allOf": [ { "$ref": "#/definitions/componentSpec" } ],
+        "required": ["class", "metadata_definition"]
+      }
+    },
+    "orchestration_commands": {
+      "type": "object",
+      "description": "Key-value pairs defining orchestration command classes to be registered. Keys are command registration IDs.",
+      "additionalProperties": { "$ref": "#/definitions/orchestrationCommandSpec" }
+    },
+    "environment_overrides": {
+      "type": "object",
+      "description": "Environment-specific overrides for component configurations. Keys are environment names (e.g., 'development', 'production').",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "shared_services": { "type": "object", "additionalProperties": { "$ref": "#/definitions/serviceSpec" } },
+          "mechanisms": { "type": "object", "additionalProperties": { "$ref": "#/definitions/componentSpec" } },
+          "observers": { "type": "object", "additionalProperties": { "$ref": "#/definitions/componentSpec" } },
+          "managers": { "type": "object", "additionalProperties": { "$ref": "#/definitions/componentSpec" } },
+          "composites": { "type": "object", "additionalProperties": { "$ref": "#/definitions/componentSpec" } }
+        }
+      }
+    }
   },
-  "required": ["version", "metadata"]
+  "required": [
+    "version",
+    "metadata"
+  ],
+  "additionalProperties": false
 }

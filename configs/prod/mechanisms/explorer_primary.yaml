@@ -1,0 +1,24 @@
+# Production configuration for explorer_primary mechanism
+# Optimized for performance and reliability
+
+max_depth: 6  # Higher depth for thorough exploration
+application_rate: 0.4  # Conservative rate for stability
+exploration_strategy: 'adaptive'  # Smart strategy for production
+max_variations_per_level: 5  # More thorough exploration
+enable_semantic_exploration: true
+creativity_factor: 0.6  # Balanced creativity
+timeout_seconds: 180  # Longer timeout for complex tasks
+
+# Production exploration parameters
+search_breadth: 8  # Wider search for better results
+similarity_threshold: 0.85  # Higher threshold for quality
+mutation_strength: 0.2  # Conservative mutations
+
+# Production resource limits
+max_memory_usage_mb: 1024  # Higher limits for production
+max_execution_time_seconds: 300
+
+# Production monitoring
+enable_performance_monitoring: true
+log_performance_metrics: true
+alert_on_performance_degradation: true

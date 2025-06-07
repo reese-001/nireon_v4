@@ -2,12 +2,12 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any, Dict
 
-from application.components.base import NireonBaseComponent
-from bootstrap.bootstrap_helper.utils import import_by_path
+from core.base_component import NireonBaseComponent
+from runtime.utils import import_by_path
 from .dependencies import CommonMechanismDependencies
 
 if TYPE_CHECKING:
-    from application.components.lifecycle import ComponentMetadata
+    from core.lifecycle import ComponentMetadata
 
 logger = logging.getLogger(__name__)
 

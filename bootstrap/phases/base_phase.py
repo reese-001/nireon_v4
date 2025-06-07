@@ -11,6 +11,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
+from bootstrap.exceptions import BootstrapError
+
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -225,7 +227,3 @@ class ErrorHandlingMixin:
             # In strict mode, we might want to fail fast
             # But for now, collect errors and let phase decide
             pass
-
-class BootstrapError(RuntimeError):
-    """Bootstrap-specific error for phase execution failures."""
-    pass

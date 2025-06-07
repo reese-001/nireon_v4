@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from application.ports.event_bus_port import EventBusPort
+from domain.ports.event_bus_port import EventBusPort
 from core.registry.component_registry import ComponentRegistry
 
 
@@ -17,6 +17,7 @@ class BootstrapConfig:
     env: Optional[str] = None
     global_app_config: Optional[Dict[str, Any]] = None
     initial_strict_mode_param: bool = True
+    
 
     @property
     def effective_strict_mode(self) -> bool:

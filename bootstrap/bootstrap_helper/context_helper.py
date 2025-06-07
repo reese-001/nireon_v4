@@ -10,8 +10,8 @@ from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 from core.registry import ComponentRegistry
-from application.context import NireonExecutionContext
-from application.ports.event_bus_port import EventBusPort
+from domain.context import NireonExecutionContext
+from domain.ports.event_bus_port import EventBusPort
 
 logger = logging.getLogger(__name__)
 

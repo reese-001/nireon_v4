@@ -4,104 +4,49 @@ Manifest Processor - Schema validation and component processing.
 Implements programmatic JSON schema validation as mentioned in the Configuration Guide
 and processes manifest structures following the specification.
 """
+# C:\Users\erees\Documents\development\nireon_v4\bootstrap\processors\manifest_processor.py
 from __future__ import annotations
-
 import json
 import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-
-from bootstrap.bootstrap_helper.utils import detect_manifest_type
-
+from runtime.utils import detect_manifest_type # MODIFIED
 logger = logging.getLogger(__name__)
 
 class ManifestProcessor:
-    """
-    Processes manifests with schema validation and component extraction.
-    
-    Implements the programmatic JSON schema validation mentioned in the
-    Configuration Guide to ensure malformed manifests fail fast when
-    strict_mode=True.
-    """
-    
-    def __init__(self, strict_mode: bool = True):
+    def __init__(self, strict_mode: bool=True):
         self.strict_mode = strict_mode
-        self.package_root = Path(__file__).resolve().parents[2]  # Back to nireon root
+        # Assuming 'processors' is two levels down from project root
+        self.package_root = Path(__file__).resolve().parents[2]
         self._schema_cache: Dict[str, Dict] = {}
-        
-    async def process_manifest(
-        self, 
-        manifest_path: Path, 
-        manifest_data: Dict[str, Any]
-    ) -> 'ManifestProcessingResult':
-        """
-        Process a single manifest with validation and component extraction.
-        
-        Args:
-            manifest_path: Path to the manifest file
-            manifest_data: Loaded manifest dictionary
-            
-        Returns:
-            ManifestProcessingResult with processed components and validation info
-        """
-        logger.info(f"Processing manifest: {manifest_path}")
-        
+    async def process_manifest(self, manifest_path: Path, manifest_data: Dict[str, Any]) -> 'ManifestProcessingResult':
+        logger.info(f'Processing manifest: {manifest_path}')
         errors = []
         warnings = []
         components = []
-        
         try:
-            # Detect manifest type
-            manifest_type = detect_manifest_type(manifest_data)
-            logger.debug(f"Detected manifest type: {manifest_type}")
-            
-            # Schema validation
+            manifest_type = detect_manifest_type(manifest_data) # This will now use the function from runtime.utils
+            logger.debug(f'Detected manifest type: {manifest_type}')
             schema_errors = await self._validate_schema(manifest_data, manifest_type, manifest_path)
             if schema_errors:
                 errors.extend(schema_errors)
                 if self.strict_mode:
-                    return ManifestProcessingResult(
-                        success=False,
-                        manifest_path=manifest_path,
-                        manifest_type=manifest_type,
-                        errors=errors,
-                        warnings=warnings,
-                        components=[]
-                    )
-            
-            # Extract components by type
-            if manifest_type == "enhanced":
+                    return ManifestProcessingResult(success=False, manifest_path=manifest_path, manifest_type=manifest_type, errors=errors, warnings=warnings, components=[])
+            if manifest_type == 'enhanced':
                 components = await self._process_enhanced_manifest(manifest_data, errors, warnings)
-            elif manifest_type == "simple":
+            elif manifest_type == 'simple':
                 components = await self._process_simple_manifest(manifest_data, errors, warnings)
             else:
-                error_msg = f"Unknown manifest type: {manifest_type}"
+                error_msg = f'Unknown manifest type: {manifest_type}'
                 errors.append(error_msg)
                 if self.strict_mode:
                     raise ValueError(error_msg)
-            
             success = len(errors) == 0
-            
-            return ManifestProcessingResult(
-                success=success,
-                manifest_path=manifest_path,
-                manifest_type=manifest_type,
-                errors=errors,
-                warnings=warnings,
-                components=components
-            )
-            
+            return ManifestProcessingResult(success=success, manifest_path=manifest_path, manifest_type=manifest_type, errors=errors, warnings=warnings, components=components)
         except Exception as e:
-            error_msg = f"Critical error processing manifest {manifest_path}: {e}"
+            error_msg = f'Critical error processing manifest {manifest_path}: {e}'
             logger.error(error_msg, exc_info=True)
-            return ManifestProcessingResult(
-                success=False,
-                manifest_path=manifest_path,
-                manifest_type="unknown",
-                errors=[error_msg],
-                warnings=warnings,
-                components=[]
-            )
+            return ManifestProcessingResult(success=False, manifest_path=manifest_path, manifest_type='unknown', errors=[error_msg], warnings=warnings, components=[])
     
     async def _validate_schema(
         self, 

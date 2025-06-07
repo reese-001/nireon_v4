@@ -1,13 +1,13 @@
 # nireon/configs/default/global_app_config.yaml
 env: "default" # Default environment name
 
-bootstrap_strict_mode: false # Default strictness for bootstrap
+bootstrap_strict_mode: true # Default strictness for bootstrap
 
 # Default feature flags (ConfigLoader currently adds some if missing)
 feature_flags:
-  enable_schema_validation: false # More strict by default
+  enable_schema_validation: true # More strict by default
   enable_self_certification: true
-  enable_rbac_bootstrap: false # False by default, can be overridden by env or manifest
+  enable_rbac_bootstrap: true     # False by default, can be overridden by env or manifest
   enable_component_tracing: false # Typically for dev
   # Add other specific feature flags here as they become relevant
 

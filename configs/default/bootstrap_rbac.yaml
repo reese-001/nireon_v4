@@ -1,9 +1,42 @@
-# nireon/configs/default/bootstrap_rbac.yaml
 version: "1.0"
-policies:
-  - role: "system_admin"
-    permissions: ["*.*"] # Full access
-    description: "System administrator with all permissions."
-  - role: "default_user"
-    permissions: ["ideas.read", "components.read"]
-    description: "Default user with read-only access."
+metadata:
+  name: "NIREON V4 Development RBAC Policies"
+  description: "Basic role-based access control for development environment"
+  author: "NIREON Team"
+  created_at: "2025-06-05T14:00:00Z"
+
+rules:
+  - id: "system_admin_full_access"
+    subjects: ["system_admin", "admin", "system"]
+    resources: ["*"]
+    actions: ["*"]
+    effect: "allow"
+    description: "System administrators have full access to all resources"
+
+  - id: "default_user_read_access"
+    subjects: ["default_user", "user", "guest"]
+    resources: ["ideas", "components", "health"]
+    actions: ["read"]
+    effect: "allow"
+    description: "Default users can read ideas and component information"
+
+  - id: "explorer_permissions"
+    subjects: ["explorer", "explorer_mechanism"]
+    resources: ["ideas", "exploration", "mechanisms"]
+    actions: ["read", "write", "execute"]
+    effect: "allow"
+    description: "Explorer mechanisms can read, write, and execute exploration operations"
+
+  - id: "developer_broad_access"
+    subjects: ["developer", "dev"]
+    resources: ["ideas", "components", "mechanisms", "debug"]
+    actions: ["read", "write", "execute"]
+    effect: "allow"
+    description: "Developers have broad access for testing and development"
+
+  - id: "component_self_access"
+    subjects: ["*"]
+    resources: ["self"]
+    actions: ["read", "health_check"]
+    effect: "allow"
+    description: "All components can access their own information and health"

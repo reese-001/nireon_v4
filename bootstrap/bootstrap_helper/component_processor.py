@@ -6,8 +6,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Type
 
-from application.components.base import NireonBaseComponent
-from application.components.lifecycle import (
+from core.base_component import NireonBaseComponent
+from core.lifecycle import (
     ComponentMetadata,
     ComponentRegistry,
     ComponentRegistryMissingError,
@@ -15,18 +15,18 @@ from application.components.lifecycle import (
 from factories.mechanism_factory import SimpleMechanismFactory
 # from nireon.factories.observer_factory import SimpleObserverFactory # For V4
 # from nireon.factories.manager_factory import SimpleManagerFactory   # For V4
-from application.ports.event_bus_port import EventBusPort
-from validation.interface_validator import InterfaceValidator # V4 validator
+from domain.ports.event_bus_port import EventBusPort
+from validators.interface_validator import InterfaceValidator # V4 validator
 
 
-from .exceptions import BootstrapError, StepCommandError
+from ._exceptions import BootstrapError, StepCommandError
 from .health_reporter import (
     BootstrapHealthReporter,
     ComponentStatus,
 )
 from .metadata import get_default_metadata as get_default_metadata # V4 version
 from .service_resolver import _safe_register_service_instance
-from .utils import import_by_path, load_yaml_robust
+from ...runtime.utils import import_by_path, load_yaml_robust
 from .enhanced_components import _create_component_instance, _get_pydantic_defaults
 from configs.config_utils import ConfigMerger # V4 ConfigMerger
 
