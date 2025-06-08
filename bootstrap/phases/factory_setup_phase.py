@@ -2,10 +2,15 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
+from datetime import datetime, timezone
 
 # Nireon Core/Domain imports
 from core.lifecycle import ComponentMetadata
+from core.results import (
+    ProcessResult, SystemSignal, SignalType, 
+    ResultCollector, create_success_result, create_error_result
+)
 from domain.ports.llm_port import LLMPort
 from domain.ports.embedding_port import EmbeddingPort
 from domain.ports.event_bus_port import EventBusPort
@@ -16,7 +21,7 @@ from domain.ports.mechanism_gateway_port import MechanismGatewayPort
 from application.services.idea_service import IdeaService
 from application.services.frame_factory_service import FrameFactoryService, FRAME_FACTORY_SERVICE_METADATA
 from application.gateway.mechanism_gateway import MechanismGateway
-from application.gateway.mechanism_gateway_metadata import MECHANISM_GATEWAY_METADATA # Import the metadata
+from application.gateway.mechanism_gateway_metadata import MECHANISM_GATEWAY_METADATA
 
 # Nireon Infrastructure imports
 from infrastructure.llm.parameter_service import ParameterService
@@ -31,255 +36,251 @@ from bootstrap.bootstrap_helper.context_helper import build_execution_context
 
 logger = logging.getLogger(__name__)
 
-# Define metadata for ParameterService if it's to be registered independently
+# Enhanced metadata for ParameterService
 PARAMETER_SERVICE_METADATA = ComponentMetadata(
     id='parameter_service_global',
     name='Global LLM Parameter Service',
     version='1.0.0',
     category='service_core',
     description='Centralized service for LLM parameter resolution.',
-    requires_initialize=True  # Changed to True for consistency
+    requires_initialize=True,
+    capabilities={'parameter_resolution', 'config_management', 'stage_routing'},
+    produces=['parameter_set', 'routing_config']
 )
 
 
 class FactorySetupPhase(BootstrapPhase):
-    """
-    Bootstrap phase responsible for setting up core factories, services, and gateways.
-    
-    This phase sets up:
-    - CommonMechanismDependencies
-    - SimpleMechanismFactory  
-    - InterfaceValidator
-    - ParameterService (for LLM parameter management)
-    - FrameFactoryService (for frame lifecycle management)
-    - MechanismGateway (unified facade for mechanism interactions)
-    
-    Note: This phase creates and registers components. The ComponentInitializationPhase
-    is responsible for calling initialize() on components where requires_initialize=True.
-    """
+    """Enhanced Factory Setup Phase with result tracking and dependency validation."""
+
+    def __init__(self):
+        super().__init__()
+        self.result_collector = ResultCollector()
+        self.phase_start_time = None
 
     async def execute(self, context) -> PhaseResult:
-        logger.info('Executing V4 Factory Setup Phase - setting up core factories, services, and gateways')
-        errors = []
-        warnings = []
+        logger.info('Executing Enhanced V4 Factory Setup Phase')
+        self.phase_start_time = datetime.now(timezone.utc)
+        
+        # Track phase correlation
+        phase_correlation_id = f"factory_setup_{self.phase_start_time.isoformat()}"
+        
         setup_components = []
 
         try:
             # 1. Setup CommonMechanismDependencies
-            common_deps = await self._setup_common_dependencies(context, setup_components, errors, warnings)
-            if common_deps is None:
-                errors.append("Failed to establish CommonMechanismDependencies, cannot proceed with factory setup.")
+            deps_result = await self._setup_common_dependencies(context, phase_correlation_id)
+            self.result_collector.add(deps_result)
+            
+            if deps_result.success:
+                context.common_mechanism_deps = deps_result.output_data
+                setup_components.append('CommonMechanismDependencies')
+            else:
                 context.common_mechanism_deps = None
                 if context.strict_mode:
-                    return PhaseResult.failure_result(
-                        message="Critical failure: CommonMechanismDependencies setup.", 
-                        errors=errors, warnings=warnings
-                    )
-                else:
-                    logger.error("Strict mode OFF: Proceeding without CommonMechanismDependencies. Some factories may fail.")
-            else:
-                # Ensure context.common_mechanism_deps is available if other parts of bootstrap expect it
-                context.common_mechanism_deps = common_deps
+                    return self._create_phase_result()
 
             # 2. Setup SimpleMechanismFactory
-            mechanism_factory = await self._setup_mechanism_factory(context, common_deps, setup_components, errors, warnings)
-            if mechanism_factory:
-                if not hasattr(context, 'mechanism_factory'):
-                    context.mechanism_factory = mechanism_factory
+            factory_result = await self._setup_mechanism_factory(
+                context, context.common_mechanism_deps, phase_correlation_id
+            )
+            self.result_collector.add(factory_result)
+            
+            if factory_result.success:
+                context.mechanism_factory = factory_result.output_data
+                setup_components.append('SimpleMechanismFactory')
             else:
-                # Always set the attribute to None if setup failed
                 context.mechanism_factory = None
-                if common_deps is not None and context.strict_mode:
-                    return PhaseResult.failure_result(
-                        message="MechanismFactory setup failed.", 
-                        errors=errors, warnings=warnings
-                    )
+                if context.strict_mode and context.common_mechanism_deps:
+                    return self._create_phase_result()
 
             # 3. Setup InterfaceValidator
-            interface_validator = await self._setup_interface_validator(context, setup_components, errors, warnings)
-            if interface_validator:
-                context.interface_validator = interface_validator
-                logger.info("✓ InterfaceValidator successfully set on context")
+            validator_result = await self._setup_interface_validator(context, phase_correlation_id)
+            self.result_collector.add(validator_result)
+            
+            if validator_result.success:
+                context.interface_validator = validator_result.output_data
+                setup_components.append('InterfaceValidator')
             else:
-                # Always set the attribute to None if setup failed, so validation can handle it properly
                 context.interface_validator = None
-                logger.error("✗ InterfaceValidator setup failed - set to None on context")
                 if context.strict_mode:
-                    logger.error("✗ Strict mode: returning failure due to InterfaceValidator setup failure")
-                    return PhaseResult.failure_result(
-                        message="InterfaceValidator setup failed in strict mode.", 
-                        errors=errors, warnings=warnings
-                    )
-                else:
-                    logger.warning("⚠ Non-strict mode: continuing despite InterfaceValidator failure")
+                    return self._create_phase_result()
 
-            # 4. Setup ParameterService (no longer initializing here)
-            parameter_service_instance = await self._setup_parameter_service(context, setup_components, errors, warnings)
-            if parameter_service_instance is None and context.strict_mode:
-                errors.append('ParameterService setup failed, which is critical for MechanismGateway.')
+            # 4. Setup ParameterService
+            param_result = await self._setup_parameter_service(context, phase_correlation_id)
+            self.result_collector.add(param_result)
+            
+            if not param_result.success and context.strict_mode:
+                return self._create_phase_result()
+            elif param_result.success:
+                setup_components.append(PARAMETER_SERVICE_METADATA.id)
 
-            # 5. Setup FrameFactoryService (no longer initializing here)
-            frame_factory_service = await self._setup_frame_factory_service(context, setup_components, errors, warnings)
-            if frame_factory_service is None and context.strict_mode:
-                return PhaseResult.failure_result(
-                    message="FrameFactoryService setup failed.", 
-                    errors=errors, warnings=warnings
+            # 5. Setup FrameFactoryService
+            frame_result = await self._setup_frame_factory_service(context, phase_correlation_id)
+            self.result_collector.add(frame_result)
+            
+            if not frame_result.success and context.strict_mode:
+                return self._create_phase_result()
+            elif frame_result.success:
+                setup_components.append(FRAME_FACTORY_SERVICE_METADATA.id)
+
+            # 6. Setup MechanismGateway
+            if frame_result.success:
+                gateway_result = await self._setup_mechanism_gateway(
+                    context, frame_result.output_data, phase_correlation_id
                 )
+                self.result_collector.add(gateway_result)
+                
+                if gateway_result.success:
+                    setup_components.append(MECHANISM_GATEWAY_METADATA.id)
+            else:
+                logger.warning("MechanismGateway setup skipped due to FrameFactoryService failure")
 
-            # 6. Setup MechanismGateway (no longer initializing here)
-            if frame_factory_service:
-                await self._setup_mechanism_gateway(context, frame_factory_service, setup_components, errors, warnings)
-            elif common_deps is not None:
-                error_msg = "MechanismGateway setup skipped due to FrameFactoryService failure."
-                if context.strict_mode:
-                    errors.append(error_msg)
-                else:
-                    warnings.append(error_msg)
-                logger.warning(error_msg)
+            # 7. Validate setup and check dependencies
+            validation_result = await self._validate_factory_setup(context, phase_correlation_id)
+            self.result_collector.add(validation_result)
 
-            # 7. Configure policies and validate setup
-            await self._configure_factory_policies(context, setup_components, warnings)
-            await self._validate_factory_setup(context, errors)
-
-            success = len(errors) == 0 or (not context.strict_mode and not any("Critical failure" in e for e in errors))
-            message = f'Factory setup phase complete - {len(setup_components)} core components/services processed.'
-            if errors:
-                message += f" Encountered {len(errors)} errors."
-            if warnings:
-                message += f" Encountered {len(warnings)} warnings."
-
-            return PhaseResult(
-                success=success,
-                message=message,
-                errors=errors,
-                warnings=warnings,
-                metadata={
-                    'factories_setup': setup_components,
-                    'factory_system_ready': success,
-                    'dependency_injection_enabled': common_deps is not None
-                }
-            )
+            return self._create_phase_result(setup_components)
 
         except Exception as e:
-            error_msg = f'Critical unhandled error during factory setup phase: {e}'
-            logger.error(error_msg, exc_info=True)
-            return PhaseResult.failure_result(
-                message='Factory setup phase failed critically',
-                errors=[error_msg, *errors],
-                warnings=warnings,
-                metadata={'factory_setup_failed': True}
+            error_result = create_error_result("factory_setup_phase", e)
+            error_result.set_correlation_id(phase_correlation_id)
+            self.result_collector.add(error_result)
+            
+            # Emit critical signal
+            critical_signal = SystemSignal(
+                signal_type=SignalType.CRITICAL,
+                component_id="factory_setup_phase",
+                message=f"Critical failure in factory setup: {e}",
+                payload={"exception_type": type(e).__name__},
+                requires_acknowledgment=True
             )
-
-    async def _setup_common_dependencies(self, context, setup_components: list, errors: list, warnings: list) -> Optional[CommonMechanismDependencies]:
-        """Setup CommonMechanismDependencies with core services."""
-        try:
-            llm_port = await self._resolve_service_safe(context, LLMPort, "LLMPort", errors, warnings, is_critical=True)
-            embedding_port = await self._resolve_service_safe(context, EmbeddingPort, "EmbeddingPort", errors, warnings, is_critical=True)
-            event_bus = await self._resolve_service_safe(context, EventBusPort, "EventBusPort", errors, warnings, is_critical=False)
-            idea_service = await self._resolve_service_safe(context, IdeaServicePort, "IdeaServicePort", errors, warnings, is_critical=True)
-            llm_router = llm_port
-
-            if llm_port and embedding_port and idea_service:
-                import random
-                common_deps = CommonMechanismDependencies(
-                    llm_port=llm_port,
-                    llm_router=llm_router,
-                    embedding_port=embedding_port,
-                    event_bus=event_bus,
-                    idea_service=idea_service,
-                    component_registry=context.registry,
-                    rng=random.Random()
+            
+            if hasattr(context, 'event_bus') and context.event_bus:
+                await context.event_bus.publish(
+                    critical_signal.to_event()["event_type"],
+                    critical_signal.to_event()
                 )
-                setup_components.append('CommonMechanismDependencies')
-                logger.info('✓ CommonMechanismDependencies created with core services.')
-                return common_deps
-            else:
-                logger.error("One or more critical services for CommonMechanismDependencies could not be resolved.")
-                return None
+            
+            return self._create_phase_result()
 
-        except Exception as e:
-            error_msg = f'Failed to setup CommonMechanismDependencies: {e}'
-            errors.append(error_msg)
-            logger.error(error_msg, exc_info=True)
-            return None
-
-    async def _resolve_service_safe(self, context, service_type: type, service_name_for_log: str, errors: list, warnings: list, is_critical: bool = True) -> Optional[Any]:
-        """Safely resolve a service from the registry with proper error handling."""
+    async def _setup_common_dependencies(self, context, correlation_id: str) -> ProcessResult:
+        """Setup CommonMechanismDependencies with result tracking."""
         try:
-            instance = context.registry.get_service_instance(service_type)
-            logger.info(f"✓ Resolved service '{service_name_for_log}' (Type: {service_type.__name__}) from registry.")
-            return instance
-        except Exception as e:
-            msg = f"Failed to resolve service '{service_name_for_log}' (Type: {service_type.__name__}): {e}"
-            if is_critical:
-                errors.append(msg)
-                logger.error(msg)
-            else:
-                warnings.append(msg)
-                logger.warning(msg)
-            return None
+            # Resolve services
+            services = {}
+            service_checks = [
+                (LLMPort, "LLMPort", True),
+                (EmbeddingPort, "EmbeddingPort", True),
+                (EventBusPort, "EventBusPort", False),
+                (IdeaServicePort, "IdeaServicePort", True)
+            ]
+            
+            for service_type, name, is_critical in service_checks:
+                try:
+                    instance = context.registry.get_service_instance(service_type)
+                    services[name] = instance
+                    logger.info(f"✓ Resolved {name}")
+                except Exception as e:
+                    if is_critical:
+                        error_result = create_error_result(
+                            "common_dependencies",
+                            RuntimeError(f"Failed to resolve critical service {name}: {e}")
+                        )
+                        error_result.set_correlation_id(correlation_id)
+                        return error_result
+                    else:
+                        services[name] = None
+                        logger.warning(f"Optional service {name} not available: {e}")
 
-    async def _setup_mechanism_factory(self, context, common_deps: Optional[CommonMechanismDependencies], setup_components: list, errors: list, warnings: list) -> Optional[SimpleMechanismFactory]:
-        """Setup SimpleMechanismFactory with mechanism type mappings."""
+            # Create dependencies object
+            import random
+            common_deps = CommonMechanismDependencies(
+                llm_port=services["LLMPort"],
+                llm_router=services["LLMPort"],  # Same as llm_port in this context
+                embedding_port=services["EmbeddingPort"],
+                event_bus=services.get("EventBusPort"),
+                idea_service=services["IdeaServicePort"],
+                component_registry=context.registry,
+                rng=random.Random()
+            )
+            
+            result = create_success_result(
+                "common_dependencies",
+                "CommonMechanismDependencies created successfully",
+                output_data=common_deps
+            )
+            result.set_correlation_id(correlation_id)
+            result.add_metric("services_resolved", len([s for s in services.values() if s]))
+            
+            logger.info('✓ CommonMechanismDependencies created with core services')
+            return result
+
+        except Exception as e:
+            error_result = create_error_result("common_dependencies", e)
+            error_result.set_correlation_id(correlation_id)
+            return error_result
+
+    async def _setup_mechanism_factory(
+        self, context, common_deps: Optional[CommonMechanismDependencies], 
+        correlation_id: str
+    ) -> ProcessResult:
+        """Setup SimpleMechanismFactory with enhanced tracking."""
         if common_deps is None:
-            msg = 'Cannot create SimpleMechanismFactory without CommonMechanismDependencies.'
-            if context.strict_mode:
-                errors.append(msg)
-            else:
-                warnings.append(msg)
-            logger.warning(msg + " (Skipping SimpleMechanismFactory setup)")
-            return None
+            return create_error_result(
+                "mechanism_factory",
+                RuntimeError("Cannot create SimpleMechanismFactory without CommonMechanismDependencies")
+            )
 
         try:
             mechanism_factory = SimpleMechanismFactory(common_deps)
+            
+            # Register custom mechanism types
             mechanism_mappings = context.global_app_config.get('mechanism_mappings', {})
             for factory_key, class_path in mechanism_mappings.items():
                 mechanism_factory.register_mechanism_type(factory_key, class_path)
-                logger.info(f'Registered custom mechanism type in SimpleMechanismFactory: {factory_key} -> {class_path}')
+                logger.info(f'Registered mechanism type: {factory_key} -> {class_path}')
 
-            setup_components.append('SimpleMechanismFactory')
-            logger.info('✓ SimpleMechanismFactory initialized.')
-
+            # Register in registry
             if hasattr(context, 'registry_manager'):
                 context.registry_manager.register_service_with_certification(
                     service_type=SimpleMechanismFactory,
                     instance=mechanism_factory,
                     service_id='SimpleMechanismFactory',
                     category='factory_service',
-                    description='Factory for creating mechanism components from specifications.',
+                    description='Factory for creating mechanism components.',
                     requires_initialize=False
                 )
             else:
                 context.registry.register_service_instance(SimpleMechanismFactory, mechanism_factory)
-            return mechanism_factory
+
+            result = create_success_result(
+                "mechanism_factory",
+                "SimpleMechanismFactory initialized successfully",
+                output_data=mechanism_factory
+            )
+            result.set_correlation_id(correlation_id)
+            result.add_metric("mechanism_types_registered", len(mechanism_mappings))
+            
+            logger.info('✓ SimpleMechanismFactory initialized')
+            return result
 
         except Exception as e:
-            error_msg = f'Failed to setup SimpleMechanismFactory: {e}'
-            errors.append(error_msg)
-            logger.error(error_msg, exc_info=True)
-            return None
+            error_result = create_error_result("mechanism_factory", e)
+            error_result.set_correlation_id(correlation_id)
+            return error_result
 
-    async def _setup_interface_validator(self, context, setup_components: list, errors: list, warnings: list) -> Optional[InterfaceValidator]:
-        """Setup InterfaceValidator for component interface validation."""
-        logger.info("Attempting to set up InterfaceValidator...")
-        
-        event_bus = await self._resolve_service_safe(
-            context, EventBusPort, "EventBusPort (for InterfaceValidator)", 
-            errors, warnings, is_critical=False
-        )
-        if event_bus is None:
-            logger.warning("InterfaceValidator will be created without EventBusPort.")
-
+    async def _setup_interface_validator(self, context, correlation_id: str) -> ProcessResult:
+        """Setup InterfaceValidator with enhanced error handling."""
         try:
-            # Check if required dependencies exist
-            if not hasattr(context, 'registry') or context.registry is None:
-                error_msg = "Cannot create InterfaceValidator: context.registry is missing"
-                errors.append(error_msg)
-                logger.error(error_msg)
-                return None
-                
+            # Try to get event bus (optional)
+            event_bus = None
+            try:
+                event_bus = context.registry.get_service_instance(EventBusPort)
+            except Exception:
+                logger.warning("EventBus not available for InterfaceValidator")
+
+            # Build execution context
             if not hasattr(context, 'run_id'):
-                logger.warning("context.run_id is missing, using default")
                 context.run_id = 'bootstrap_default'
             
             validator_exec_context = build_execution_context(
@@ -288,222 +289,296 @@ class FactorySetupPhase(BootstrapPhase):
                 registry=context.registry,
                 event_bus=event_bus
             )
+            
             interface_validator = InterfaceValidator(validator_exec_context)
-            setup_components.append('InterfaceValidator')
-            logger.info('✓ InterfaceValidator initialized.')
-
-            if hasattr(context, 'registry_manager') and context.registry_manager is not None:
+            
+            # Register validator
+            if hasattr(context, 'registry_manager') and context.registry_manager:
                 context.registry_manager.register_service_with_certification(
                     service_type=InterfaceValidator,
                     instance=interface_validator,
                     service_id='InterfaceValidator',
                     category='validation_service',
-                    description='Validator for component interfaces and contracts.',
+                    description='Validator for component interfaces.',
                     requires_initialize=False
                 )
-                logger.info('✓ InterfaceValidator registered with registry_manager.')
             else:
-                logger.warning("registry_manager not available, using direct registry registration")
                 context.registry.register_service_instance(InterfaceValidator, interface_validator)
-                logger.info('✓ InterfaceValidator registered with direct registry.')
-                
-            return interface_validator
+
+            result = create_success_result(
+                "interface_validator",
+                "InterfaceValidator initialized successfully",
+                output_data=interface_validator
+            )
+            result.set_correlation_id(correlation_id)
+            
+            logger.info('✓ InterfaceValidator initialized')
+            return result
 
         except Exception as e:
-            error_msg = f'Failed to setup InterfaceValidator: {e}'
-            errors.append(error_msg)
-            logger.error(error_msg, exc_info=True)
-            return None
+            error_result = create_error_result("interface_validator", e)
+            error_result.set_correlation_id(correlation_id)
+            return error_result
 
-    async def _setup_parameter_service(self, context, setup_components: list, errors: list, warnings: list) -> Optional[ParameterService]:
-        """Setup ParameterService for centralized LLM parameter management.
-        
-        Note: Creates and registers the service but does NOT initialize it.
-        Initialization will be handled by ComponentInitializationPhase.
-        """
-        logger.info("Attempting to set up ParameterService...")
+    async def _setup_parameter_service(self, context, correlation_id: str) -> ProcessResult:
+        """Setup ParameterService with enhanced metadata."""
         try:
-            # Config for ParameterService could come from global_app_config or a dedicated section
             param_service_config = context.global_app_config.get('llm', {}).get('parameters', {})
-
-            # Ensure that param_service_config is a dictionary
+            
             if not isinstance(param_service_config, dict):
-                logger.warning(f"ParameterService config is not a dictionary (type: {type(param_service_config)}), using empty config.")
+                logger.warning(f"Invalid ParameterService config type: {type(param_service_config)}")
                 param_service_config = {}
 
-            instance = ParameterService(config=param_service_config, metadata_definition=PARAMETER_SERVICE_METADATA)
+            # Fix: Use the actual registered component IDs
+            PARAMETER_SERVICE_METADATA.dependencies = {
+                "ComponentRegistry": "*"  # Changed from "component_registry" to match actual ID
+            }
 
-            # Register canonically with metadata
+            instance = ParameterService(
+                config=param_service_config, 
+                metadata_definition=PARAMETER_SERVICE_METADATA
+            )
+
+            # Register with enhanced metadata
             context.registry.register(instance, PARAMETER_SERVICE_METADATA)
-            
-            # Also register by type for service lookups
             context.registry.register_service_instance(ParameterService, instance)
             
-            setup_components.append(PARAMETER_SERVICE_METADATA.id)
-            logger.info(f"✓ {PARAMETER_SERVICE_METADATA.name} created and registered (initialization deferred).")
-            return instance
+            result = create_success_result(
+                PARAMETER_SERVICE_METADATA.id,
+                f"{PARAMETER_SERVICE_METADATA.name} created and registered",
+                output_data=instance
+            )
+            result.set_correlation_id(correlation_id)
+            
+            logger.info(f"✓ {PARAMETER_SERVICE_METADATA.name} created and registered")
+            return result
 
         except Exception as e:
-            error_msg = f"Failed to setup ParameterService: {e}"
-            errors.append(error_msg)
-            logger.error(error_msg, exc_info=True)
-            return None
+            error_result = create_error_result(PARAMETER_SERVICE_METADATA.id, e)
+            error_result.set_correlation_id(correlation_id)
+            return error_result
 
-    async def _setup_frame_factory_service(self, context, setup_components: list, errors: list, warnings: list) -> Optional[FrameFactoryService]:
-        """Setup FrameFactoryService for frame lifecycle management.
-        
-        Note: Creates and registers the service but does NOT initialize it.
-        Initialization will be handled by ComponentInitializationPhase.
-        """
-        logger.info("Attempting to set up FrameFactoryService...")
+    async def _setup_frame_factory_service(self, context, correlation_id: str) -> ProcessResult:
+        """Setup FrameFactoryService with enhanced tracking."""
         try:
             frame_factory_config = context.global_app_config.get('frame_factory_config', {})
+            
+            # Fix: Use the actual registered component IDs
+            FRAME_FACTORY_SERVICE_METADATA.dependencies = {
+                "ComponentRegistry": "*",  # Changed from "component_registry"
+                "EventBusPort": "*"        # Changed from "event_bus"
+            }
+            
             frame_factory = FrameFactoryService(
                 config=frame_factory_config,
                 metadata_definition=FRAME_FACTORY_SERVICE_METADATA
             )
             
-            # Register canonically with metadata
+            # Register with enhanced metadata
             context.registry.register(frame_factory, FRAME_FACTORY_SERVICE_METADATA)
-            
-            # Also register by type
             context.registry.register_service_instance(FrameFactoryService, frame_factory)
             
-            setup_components.append(FRAME_FACTORY_SERVICE_METADATA.id)
-            logger.info(f"✓ {FRAME_FACTORY_SERVICE_METADATA.name} created and registered (initialization deferred).")
-            return frame_factory
+            result = create_success_result(
+                FRAME_FACTORY_SERVICE_METADATA.id,
+                f"{FRAME_FACTORY_SERVICE_METADATA.name} created and registered",
+                output_data=frame_factory
+            )
+            result.set_correlation_id(correlation_id)
+            
+            logger.info(f"✓ {FRAME_FACTORY_SERVICE_METADATA.name} created and registered")
+            return result
 
         except Exception as e:
-            error_msg = f'Failed to setup FrameFactoryService: {e}'
-            errors.append(error_msg)
-            logger.error(error_msg, exc_info=True)
-            return None
+            error_result = create_error_result(FRAME_FACTORY_SERVICE_METADATA.id, e)
+            error_result.set_correlation_id(correlation_id)
+            return error_result
 
     async def _setup_mechanism_gateway(
         self, context, frame_factory_service: FrameFactoryService,
-        setup_components: list, errors: list, warnings: list
-    ) -> Optional[MechanismGateway]:
-        """Setup MechanismGateway as unified facade for mechanism interactions.
-        
-        Note: Creates and registers the gateway but does NOT initialize it.
-        Initialization will be handled by ComponentInitializationPhase because
-        MECHANISM_GATEWAY_METADATA.requires_initialize = True.
-        """
-        logger.info("Attempting to set up MechanismGateway...")
+        correlation_id: str
+    ) -> ProcessResult:
+        """Setup MechanismGateway with dependency validation."""
         try:
-            llm_router = await self._resolve_service_safe(
-                context, LLMPort, "LLMPort (for MechanismGateway)", 
-                errors, warnings, is_critical=True
-            )
-            param_service = await self._resolve_service_safe(
-                context, ParameterService, "ParameterService (for MechanismGateway)", 
-                errors, warnings, is_critical=True
-            )
-            event_bus = await self._resolve_service_safe(
-                context, EventBusPort, "EventBusPort (for MechanismGateway)", 
-                errors, warnings, is_critical=False
-            )
+            # Resolve dependencies
+            deps = {}
+            required_deps = [
+                (LLMPort, "llm_router"),
+                (ParameterService, "parameter_service")
+            ]
+            
+            for dep_type, dep_name in required_deps:
+                try:
+                    deps[dep_name] = context.registry.get_service_instance(dep_type)
+                except Exception as e:
+                    return create_error_result(
+                        MECHANISM_GATEWAY_METADATA.id,
+                        RuntimeError(f"Missing required dependency {dep_name}: {e}")
+                    )
+            
+            # Optional event bus
+            try:
+                deps["event_bus"] = context.registry.get_service_instance(EventBusPort)
+            except Exception:
+                deps["event_bus"] = None
+                logger.warning("EventBus not available for MechanismGateway")
 
-            if not llm_router or not param_service:
-                error_msg = "MechanismGateway setup failed due to missing critical dependencies (LLMRouter or ParameterService)."
-                errors.append(error_msg)
-                logger.error(error_msg)
-                return None
+            # Update metadata with actual dependencies - Fix: Use correct component IDs
+            enhanced_metadata = MECHANISM_GATEWAY_METADATA
+            enhanced_metadata.dependencies = {
+                "LLMPort": "*",                      # Changed from "llm_router"
+                "parameter_service_global": ">=1.0.0", # Changed from "parameter_service"
+                "frame_factory_service": "*"          # Changed from "frame_factory"
+            }
 
             gateway_config = context.global_app_config.get('mechanism_gateway_config', {})
             
-            # Create the gateway instance
+            # Create gateway
             gateway = MechanismGateway(
-                llm_router=llm_router,
-                parameter_service=param_service,
+                llm_router=deps["llm_router"],
+                parameter_service=deps["parameter_service"],
                 frame_factory=frame_factory_service,
-                event_bus=event_bus,
+                event_bus=deps.get("event_bus"),
                 config=gateway_config,
-                metadata_definition=MECHANISM_GATEWAY_METADATA
+                metadata_definition=enhanced_metadata
             )
             
-            # Step 1: Register canonically using the instance's metadata
-            # NireonBaseComponent sets gateway.metadata from the metadata_definition parameter
+            # Register with enhanced tracking
             context.registry.register(gateway, gateway.metadata)
-            logger.info(f"✓ {gateway.metadata.name} (ID: {gateway.component_id}) canonically registered.")
-            
-            # Step 2: Register alias for type-based lookup
             context.registry.register_service_instance(MechanismGatewayPort, gateway)
-            logger.info(f"✓ {gateway.metadata.name} also registered as MechanismGatewayPort.")
             
-            # Note: We do NOT call gateway.initialize() here.
-            # ComponentInitializationPhase will handle it because gateway.metadata.requires_initialize = True
+            result = create_success_result(
+                gateway.component_id,
+                f"{gateway.metadata.name} created and registered",
+                output_data=gateway
+            )
+            result.set_correlation_id(correlation_id)
+            result.add_metric("dependencies_resolved", len(deps))
             
-            setup_components.append(gateway.component_id)
-            return gateway
+            logger.info(f"✓ {gateway.metadata.name} created and registered")
+            return result
 
         except Exception as e:
-            error_msg = f'Failed to setup MechanismGateway: {e}'
-            errors.append(error_msg)
-            logger.error(error_msg, exc_info=True)
-            return None
+            error_result = create_error_result(MECHANISM_GATEWAY_METADATA.id, e)
+            error_result.set_correlation_id(correlation_id)
+            return error_result
 
-    async def _configure_factory_policies(self, context, setup_components: list, warnings: list) -> None:
-        """Configure factory-specific policies and settings."""
-        logger.debug("Executing _configure_factory_policies (no specific policies for new services in this version).")
-        # Future: Add any factory-specific configuration here
-        pass
-
-    async def _validate_factory_setup(self, context, errors: list) -> None:
-        """Validate that all factory components are properly set up and accessible."""
+    async def _validate_factory_setup(self, context, correlation_id: str) -> ProcessResult:
+        """Enhanced validation with dependency checking."""
+        issues = []
+        
         try:
-            # Check for attributes directly on the context object
-            required_context_attrs = [
+            # Check context attributes
+            required_attrs = [
                 ('common_mechanism_deps', 'CommonMechanismDependencies'),
                 ('mechanism_factory', 'SimpleMechanismFactory'),
                 ('interface_validator', 'InterfaceValidator')
             ]
             
-            for attr_name, component_name in required_context_attrs:
+            for attr_name, component_name in required_attrs:
                 if not hasattr(context, attr_name) or getattr(context, attr_name) is None:
-                    msg = f'Context is missing required factory/service attribute: {attr_name} ({component_name})'
-                    # Only treat as error if common_deps were expected to be there (i.e., setup was successful)
-                    if context.strict_mode and hasattr(context, 'common_mechanism_deps') and context.common_mechanism_deps:
-                        errors.append(msg)
+                    issue = f"Missing required attribute: {attr_name} ({component_name})"
+                    if context.strict_mode:
+                        issues.append(issue)
+                        logger.error(f"Validation issue: {issue}")
                     else:
-                        logger.warning(msg + ' (Skipping related validation or non-strict mode)')
+                        logger.warning(f"Warning: {issue}")
 
-            # Check if services are available in the registry
-            registry_services_to_check = [
+            # Check registry services
+            registry_checks = [
                 (ParameterService, "ParameterService"),
                 (FrameFactoryService, "FrameFactoryService"),
-                (MechanismGatewayPort, "MechanismGateway (via Port)")
+                (MechanismGatewayPort, "MechanismGateway")
             ]
 
-            for service_type, service_name in registry_services_to_check:
+            for service_type, service_name in registry_checks:
                 try:
                     context.registry.get_service_instance(service_type)
-                    logger.debug(f"✓ {service_name} found in registry.")
-                except Exception:
-                    errors.append(f"{service_name} not found in registry after setup.")
+                    logger.debug(f"✓ {service_name} found in registry")
+                except Exception as e:
+                    issue = f"{service_name} not found in registry: {str(e)}"
+                    issues.append(issue)
+                    logger.error(f"Validation issue: {issue}")
 
-            # Validate CommonMechanismDependencies if it exists
-            if hasattr(context, 'common_mechanism_deps') and context.common_mechanism_deps:
-                deps = context.common_mechanism_deps
-                if deps.llm_port is None:
-                    errors.append('CommonMechanismDependencies missing LLMPort')
-                if deps.embedding_port is None:
-                    errors.append('CommonMechanismDependencies missing EmbeddingPort')
-                if deps.component_registry is None:
-                    errors.append('CommonMechanismDependencies missing ComponentRegistry')
-
-            if not errors:
-                logger.info('✓ Factory setup validation complete, including new services.')
+            # Check dependency conflicts
+            if hasattr(context.registry, 'check_dependency_conflicts'):
+                conflicts = context.registry.check_dependency_conflicts()
+                if conflicts:
+                    for conflict in conflicts:
+                        issues.append(f"Dependency conflict: {conflict}")
+                        logger.error(f"Validation issue: Dependency conflict: {conflict}")
             else:
-                logger.warning(f'Factory setup validation found {len(errors)} issues.')
+                logger.debug("Registry does not support dependency conflict checking")
+
+            # Log summary
+            if issues:
+                logger.error(f"Factory validation found {len(issues)} issues:")
+                for i, issue in enumerate(issues, 1):
+                    logger.error(f"  {i}. {issue}")
+                
+                result = ProcessResult(
+                    success=False,
+                    component_id="factory_validation",
+                    message=f"Validation found {len(issues)} issues",
+                    error_code="VALIDATION_FAILED",
+                    metadata={"issues": issues}
+                )
+            else:
+                logger.info("✓ Factory setup validation passed - all checks successful")
+                result = create_success_result(
+                    "factory_validation",
+                    "Factory setup validation passed"
+                )
+                
+            result.set_correlation_id(correlation_id)
+            return result
 
         except Exception as e:
-            error_msg = f'Factory setup validation itself failed: {e}'
-            errors.append(error_msg)
-            logger.error(error_msg, exc_info=True)
+            logger.error(f"Error during validation: {e}", exc_info=True)
+            error_result = create_error_result("factory_validation", e)
+            error_result.set_correlation_id(correlation_id)
+            return error_result
+
+    def _create_phase_result(self, setup_components: Optional[List[str]] = None) -> PhaseResult:
+        """Create phase result from collected results."""
+        failures = self.result_collector.get_failures()
+        critical_signals = self.result_collector.get_critical_signals()
+        
+        success = len(failures) == 0 and len(critical_signals) == 0
+        
+        # Calculate phase duration
+        phase_duration = (datetime.now(timezone.utc) - self.phase_start_time).total_seconds()
+        
+        # Build message
+        if success:
+            message = f"Factory setup completed successfully - {len(setup_components or [])} components"
+        else:
+            message = f"Factory setup failed - {len(failures)} failures, {len(critical_signals)} critical issues"
+        
+        # Extract errors and warnings
+        errors = [f"{r.component_id}: {r.message}" for r in failures]
+        warnings = []
+        
+        # Add unacknowledged signals as warnings
+        for signal in self.result_collector.get_by_type(SystemSignal):
+            if signal.needs_acknowledgment:
+                warnings.append(f"{signal.component_id}: {signal.message}")
+        
+        return PhaseResult(
+            success=success,
+            message=message,
+            errors=errors,
+            warnings=warnings,
+            metadata={
+                'factories_setup': setup_components or [],
+                'factory_system_ready': success,
+                'phase_duration_seconds': phase_duration,
+                'total_results_collected': len(self.result_collector.results),
+                'dependency_conflicts': len(self.result_collector.get_by_component("factory_validation"))
+            }
+        )
 
     def should_skip_phase(self, context) -> tuple[bool, str]:
-        """Check if this phase should be skipped based on configuration."""
+        """Check if this phase should be skipped."""
         skip_factories = context.global_app_config.get('skip_factory_setup', False)
         if skip_factories:
             return (True, 'Factory setup phase explicitly disabled in configuration.')

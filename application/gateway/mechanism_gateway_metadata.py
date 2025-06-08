@@ -11,5 +11,11 @@ MECHANISM_GATEWAY_METADATA = ComponentMetadata(
     capabilities={'route_cognitive_events', 'apply_frame_policies', 'log_episodes', 'manage_service_interaction'},
     accepts=['COGNITIVE_EVENT_LLM_ASK', 'COGNITIVE_EVENT_PUBLISH'],
     produces=['GATEWAY_LLM_EPISODE_COMPLETED', 'GATEWAY_EVENT_EPISODE_COMPLETED'],
-    requires_initialize=True  # Changed to True - ComponentInitializationPhase will handle initialization
+    requires_initialize=True,  # Changed to True - ComponentInitializationPhase will handle initialization
+    # Add proper dependencies that match actual component IDs
+    dependencies={
+        "LLMPort": "*",
+        "parameter_service_global": ">=1.0.0",
+        "frame_factory_service": "*"
+    }
 )
