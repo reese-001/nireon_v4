@@ -6,6 +6,7 @@ from typing import Any, Dict, List
 from .base_phase import BootstrapPhase, PhaseResult
 from bootstrap.bootstrap_helper.context_helper import build_component_init_context
 from core.base_component import NireonBaseComponent
+from core.lifecycle import ComponentRegistryMissingError
 
 logger = logging.getLogger(__name__)
 
@@ -49,20 +50,35 @@ class ComponentInitializationPhase(BootstrapPhase):
             for component_id in all_component_ids:
                 try:
                     component = context.registry.get(component_id)
-                    metadata = context.registry.get_metadata(component_id)
                     
-                    if metadata.requires_initialize:
+                    # Attempt to get metadata. If it's an alias that doesn't resolve to
+                    # its own metadata entry, it's likely a protocol type key.
+                    # Concrete components should have their metadata registered under their ID.
+                    try:
+                        metadata = context.registry.get_metadata(component_id)
+                    except ComponentRegistryMissingError:
+                        # If metadata is missing for a key from list_components(),
+                        # it's likely an alias (like a Port type) whose actual component
+                        # (e.g., the concrete implementation) will be processed under its own ID.
+                        logger.debug(f"Skipping initialization for key '{component_id}' as it's likely an alias without direct metadata. Actual component will be initialized under its own ID.")
+                        components_to_skip.append((component_id, component, None))  # Pass None for metadata
+                        continue  # Skip to the next component_id
+
+                    if metadata.requires_initialize:  # Now metadata is guaranteed to be found
                         components_to_init.append((component_id, component, metadata))
                     else:
                         components_to_skip.append((component_id, component, metadata))
                         
                 except Exception as e:
-                    error_msg = f'Failed to access component {component_id} for initialization check: {e}'
+                    # This 'except' should catch errors from context.registry.get(component_id)
+                    # or other unexpected issues before metadata retrieval.
+                    error_msg = f'Failed to access component or its metadata for {component_id} during initialization check: {e}'
                     errors.append(error_msg)
-                    logger.error(error_msg)
+                    logger.error(error_msg, exc_info=True)  # Log with traceback for debugging
             
             initialization_stats['components_requiring_init'] = len(components_to_init)
-            initialization_stats['initialization_skipped'] = len(components_to_skip)
+            # Correctly count skipped components (those not requiring init or aliases)
+            initialization_stats['initialization_skipped'] = len(all_component_ids) - len(components_to_init) - len(errors)  # Subtract errored ones too
             
             logger.info(f'Components requiring initialization: {len(components_to_init)}')
             logger.info(f'Components skipping initialization: {len(components_to_skip)}')
@@ -74,10 +90,7 @@ class ComponentInitializationPhase(BootstrapPhase):
                 )
             
             # Update health reporter with initialization results
-            # await self._update_health_reporter(context, components_to_init, components_to_skip, errors)
-            # await self._report_component_health(context, components_to_skip, errors)
             await self._report_component_health(context, components_to_init, components_to_skip, errors)
-
 
             # Emit initialization signals
             await self._emit_initialization_signals(context, initialization_stats)
@@ -85,7 +98,6 @@ class ComponentInitializationPhase(BootstrapPhase):
             success = len(errors) == 0 or not context.strict_mode
             message = f'Component initialization complete - {initialization_stats["successfully_initialized"]}/{initialization_stats["components_requiring_init"]} components initialized'
            
-
             return PhaseResult(
                 success=success,
                 message=message,
@@ -246,14 +258,19 @@ class ComponentInitializationPhase(BootstrapPhase):
             for component_id, component, metadata in components_to_skip:
                 try:
                     from bootstrap.health.reporter import ComponentStatus
-                    health_reporter.add_component_status(
-                        component_id,
-                        ComponentStatus.INITIALIZATION_SKIPPED_NOT_REQUIRED,
-                        metadata,
-                        []
-                    )
+                    # If metadata was None (because it was an alias we skipped),
+                    # don't try to report health for it as a component needing init status.
+                    if metadata:
+                        health_reporter.add_component_status(
+                            component_id,
+                            ComponentStatus.INITIALIZATION_SKIPPED_NOT_REQUIRED,
+                            metadata,
+                            []
+                        )
+                    else:
+                        logger.debug(f'Skipping health report for alias component: {component_id}')
                 except Exception as e:
-                    logger.warning(f'Failed to update health status for {component_id}: {e}')
+                    logger.warning(f'Failed to update health status for skipped component {component_id}: {e}')
                     
         except Exception as e:
             logger.warning(f'Failed to update health reporter: {e}')

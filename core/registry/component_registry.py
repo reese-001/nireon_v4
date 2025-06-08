@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import logging
 import threading
-from typing import Any, Dict, List, Union, Type
+from typing import Any, Dict, List, Union, Type, Optional
 
 
 from core.lifecycle import ComponentMetadata, ComponentRegistryMissingError
@@ -19,8 +19,10 @@ class ComponentRegistry:
         self._components: Dict[str, Any] = {}
         self._metadata: Dict[str, ComponentMetadata] = {}
         self._certifications: Dict[str, Dict[str, Any]] = {} # Retain from V3
+        # NEW: Direct instance-to-metadata mapping for O(1) lookups
+        self._instance_to_metadata: Dict[int, ComponentMetadata] = {}
         self._lock = threading.RLock() # Use RLock for reentrancy
-        logger.debug("ComponentRegistry initialized with thread safety")
+        logger.debug("ComponentRegistry initialized with thread safety and instance-to-metadata mapping")
 
     def normalize_key(self, key: Union[str, Type, object]) -> str:
         """
@@ -46,80 +48,91 @@ class ComponentRegistry:
         return normalized_key in self._components
 
     def register(self, component_value: Any, metadata: ComponentMetadata) -> None:
-        import inspect # Ensure inspect is imported if not already at top of file
-
+        import inspect # Keep import here if not already at top of file
         if not isinstance(metadata, ComponentMetadata):
-            raise TypeError("metadata must be an instance of ComponentMetadata")
-
-        canonical_id = metadata.id # Primary key for components
+            raise TypeError('metadata must be an instance of ComponentMetadata')
         
-        # Determine a potential type-based key
+        canonical_id = metadata.id
         type_key_for_alias = None
         component_type_obj = type(component_value)
+
         if hasattr(component_type_obj, '__name__'):
             normalized_type_name = self.normalize_key(component_type_obj)
-            if normalized_type_name != canonical_id: # Only if it's different, it's an alias
+            if normalized_type_name != canonical_id:
                 type_key_for_alias = normalized_type_name
         
         with self._lock:
-            # Registration under canonical ID (primary)
             if canonical_id in self._components:
                 existing_instance = self._components[canonical_id]
                 if existing_instance is not component_value:
-                    logger.debug(
-                        f"[V4.ComponentRegistry] Component '{canonical_id}' is being re-registered with a new instance "
-                        f"(Old: {type(existing_instance)}, New: {type(component_value)})."
-                    )
+                    logger.debug(f"[V4.ComponentRegistry] Component '{canonical_id}' is being re-registered with a new instance (Old: {type(existing_instance)}, New: {type(component_value)}).")
+            
             self._components[canonical_id] = component_value
-            self._metadata[canonical_id] = metadata # Always store metadata by its canonical ID
-            logger.info(
-                f"Component '{canonical_id}' (canonical ID) registered (or re-registered) successfully "
-                f"(category: {metadata.category}, type: {type(component_value).__name__})"
-            )
+            self._metadata[canonical_id] = metadata # Canonical registration
+            
+            # NEW: Store instance-to-metadata mapping
+            self._instance_to_metadata[id(component_value)] = metadata
+            
+            logger.info(f"Component '{canonical_id}' (canonical ID) registered (or re-registered) successfully (category: {metadata.category}, type: {type(component_value).__name__})")
 
-            # If a distinct type-based alias key exists, ensure the component and its metadata are linked
+            # Link type alias if it's different and not already pointing to this instance/metadata
             if type_key_for_alias:
-                # Link instance if not already there by this alias
                 if type_key_for_alias not in self._components or self._components[type_key_for_alias] is not component_value:
                     self._components[type_key_for_alias] = component_value
                     logger.debug(f"Component instance '{canonical_id}' also made accessible via type alias '{type_key_for_alias}'.")
-                
-                # Link metadata under the alias key. This ensures get_metadata(alias) works.
-                # It's okay to potentially "overwrite" if the metadata object is the same or more up-to-date.
+                # Ensure the type alias also points to the canonical metadata
                 if type_key_for_alias not in self._metadata or self._metadata[type_key_for_alias] != metadata:
-                    self._metadata[type_key_for_alias] = metadata # Store the same metadata object
+                    self._metadata[type_key_for_alias] = metadata
                     logger.debug(f"Metadata for component '{canonical_id}' also linked under type alias '{type_key_for_alias}'.")
+
+            # Ensure all other existing aliases for this component_value also point to this canonical metadata
+            for alias_key, registered_instance in list(self._components.items()):
+                if registered_instance is component_value and alias_key != canonical_id and alias_key != type_key_for_alias:
+                    if alias_key not in self._metadata or self._metadata[alias_key] != metadata:
+                        self._metadata[alias_key] = metadata
+                        logger.debug(f"Updated metadata for existing service alias '{alias_key}' to point to canonical metadata of '{canonical_id}' during canonical registration.")
 
 
     def register_service_instance(self, key: Union[str, Type], instance: Any) -> None:
-        # This method is typically for registering by type/alias, not usually by canonical ID.
-        # Full registration with metadata should ideally go through self.register().
         normalized_key = self.normalize_key(key)
         if not normalized_key.strip():
-            raise ValueError("Service key cannot resolve to empty or whitespace")
-
+            raise ValueError('Service key cannot resolve to empty or whitespace')
+        
         with self._lock:
             if normalized_key in self._components and self._components[normalized_key] is not instance:
-                self._warn_re_register(normalized_key, "Service (via register_service_instance)")
+                self._warn_re_register(normalized_key, 'Service (via register_service_instance)')
             
             self._components[normalized_key] = instance
             logger.debug(f"Service instance registered: {key} -> '{normalized_key}' (Type: {type(instance).__name__})")
 
-            # Attempt to link metadata if instance has it and it's not already linked under this normalized_key
-            if hasattr(instance, 'metadata') and isinstance(getattr(instance, 'metadata', None), ComponentMetadata):
-                instance_meta: ComponentMetadata = instance.metadata
-                # Ensure the instance's own canonical metadata is present
-                if instance_meta.id not in self._metadata:
-                    self._metadata[instance_meta.id] = instance_meta
-                    logger.debug(f"Cached metadata for '{instance_meta.id}' from service instance '{normalized_key}'.")
-                
-                # Link this normalized_key to the instance's metadata if not already present or different
-                if normalized_key not in self._metadata or self._metadata[normalized_key] != instance_meta :
-                    self._metadata[normalized_key] = instance_meta
-                    logger.debug(f"Linked metadata for service key '{normalized_key}' to instance's metadata (ID: {instance_meta.id}).")
-            elif normalized_key not in self._metadata:
-                # If no metadata on instance, and no metadata for this key, it remains without specific metadata via this path
-                logger.debug(f"Service '{normalized_key}' registered via register_service_instance without immediate ComponentMetadata linkage under this key.")
+            # NEW: Use instance-to-metadata mapping first for O(1) lookup
+            canonical_metadata_to_link: Optional[ComponentMetadata] = None
+            
+            # Check our direct mapping first
+            instance_id = id(instance)
+            if instance_id in self._instance_to_metadata:
+                canonical_metadata_to_link = self._instance_to_metadata[instance_id]
+                logger.debug(f"Found canonical metadata for instance via direct mapping (ID: '{canonical_metadata_to_link.id}')")
+            
+            # If not found in direct mapping, check instance's metadata attribute
+            elif hasattr(instance, 'metadata') and isinstance(getattr(instance, 'metadata', None), ComponentMetadata):
+                canonical_metadata_to_link = instance.metadata
+                # Store in our direct mapping for future lookups
+                self._instance_to_metadata[instance_id] = canonical_metadata_to_link
+                # Ensure the canonical ID's metadata is stored
+                if canonical_metadata_to_link.id not in self._metadata:
+                    self._metadata[canonical_metadata_to_link.id] = canonical_metadata_to_link
+                    logger.debug(f"Cached metadata for '{canonical_metadata_to_link.id}' from instance.metadata")
+            
+            if canonical_metadata_to_link:
+                # Link the alias to the canonical metadata
+                if normalized_key not in self._metadata or self._metadata[normalized_key] != canonical_metadata_to_link:
+                    self._metadata[normalized_key] = canonical_metadata_to_link
+                    logger.debug(f"Linked metadata for service alias '{normalized_key}' to canonical metadata of '{canonical_metadata_to_link.id}'.")
+            else:
+                # No canonical metadata found - log for debugging
+                logger.debug(f"Service '{normalized_key}' registered. No canonical metadata found yet. "
+                             f"Will be resolved by canonical 'register()' call if this is an alias.")
 
 
     def get_service_instance(self, key: Union[str, Type]) -> Any:
@@ -178,39 +191,30 @@ class ComponentRegistry:
         # 2. If the key corresponds to a registered component, try to get metadata from the instance
         if normalized_key in self._components:
             comp = self._components[normalized_key]
+            
+            # NEW: Check instance-to-metadata mapping first
+            instance_id = id(comp)
+            if instance_id in self._instance_to_metadata:
+                metadata = self._instance_to_metadata[instance_id]
+                # Cache under the alias for future direct lookups
+                with self._lock:
+                    if normalized_key not in self._metadata:
+                        self._metadata[normalized_key] = metadata
+                logger.debug(f"Retrieved metadata for '{normalized_key}' from instance-to-metadata mapping")
+                return metadata
+            
+            # Fallback to checking instance.metadata attribute
             if hasattr(comp, 'metadata') and isinstance(getattr(comp, 'metadata', None), ComponentMetadata):
                 instance_meta: ComponentMetadata = comp.metadata
                 with self._lock:
+                    # Store in both places for future lookups
+                    self._instance_to_metadata[instance_id] = instance_meta
                     if instance_meta.id not in self._metadata:
                         self._metadata[instance_meta.id] = instance_meta
                     if normalized_key != instance_meta.id and normalized_key not in self._metadata:
                          self._metadata[normalized_key] = instance_meta
                 logger.debug(f"Retrieved and cached metadata for '{normalized_key}' from instance attribute (Canonical ID: '{instance_meta.id}')")
                 return instance_meta
-        
-        # ADD THIS FALLBACK: If normalized_key is an alias, and the instance's canonical metadata exists
-        if normalized_key in self._components: # We know the instance exists under this alias
-            instance_under_alias = self._components[normalized_key]
-            # For NireonBaseComponent or similar that store their canonical metadata object
-            if hasattr(instance_under_alias, 'metadata') and isinstance(getattr(instance_under_alias, 'metadata', None), ComponentMetadata):
-                canonical_metadata_from_instance: ComponentMetadata = instance_under_alias.metadata
-                if canonical_metadata_from_instance.id in self._metadata:
-                    # We found the canonical metadata. Cache it under the alias too for future direct lookups.
-                    with self._lock:
-                        if normalized_key not in self._metadata: # Avoid overwriting if already specifically set
-                            self._metadata[normalized_key] = self._metadata[canonical_metadata_from_instance.id]
-                    logger.debug(f"Found metadata for alias '{normalized_key}' by using its instance's canonical metadata ID '{canonical_metadata_from_instance.id}'.")
-                    return self._metadata[canonical_metadata_from_instance.id]
-            # For services that might not be NireonBaseComponent, but whose metadata was registered by RegistryManager
-            # We need to find the canonical ID if this normalized_key is just an alias
-            # This is tricky without a direct alias -> canonical_id map.
-            # However, RegistryManager uses service_id for the ComponentMetadata.id
-            # If the 'key' used in register_service_instance was 'SimpleMechanismFactory'
-            # and the 'service_id' for metadata was 'MechanismFactory'.
-            # We need to bridge this.
-            # One way is that during registration, _safe_register_service_instance or RegistryManager ensures
-            # that metadata is findable by BOTH normalized_key (type) and canonical_id.
-            # The ComponentRegistry.register method was updated to try this. Let's re-verify.
 
         available_metadata_keys = sorted(self._metadata.keys())
         available_component_keys = sorted(self._components.keys())
@@ -262,6 +266,10 @@ class ComponentRegistry:
         certified_count = len([cid for cid in self._certifications if self._certifications[cid]])
         categories: Dict[str, int] = {}
         epistemic_tags: Dict[str, int] = {}
+        
+        # Count unique metadata objects (not just keys, since aliases share metadata)
+        unique_metadata = set(id(md) for md in self._metadata.values())
+        
         for metadata in self._metadata.values(): # Iterate unique metadata objects
             categories[metadata.category] = categories.get(metadata.category, 0) + 1
             for tag in metadata.epistemic_tags:
@@ -274,6 +282,7 @@ class ComponentRegistry:
             "total_component_instances": len(unique_instances), # More accurate count of distinct objects
             "total_registered_keys": len(self._components), # Includes aliases
             "components_with_metadata": len(self._metadata), # Number of keys with associated metadata
+            "unique_metadata_objects": len(unique_metadata), # NEW: Number of unique metadata objects
             "certified_components": certified_count,
             "categories": categories,
             "epistemic_tags": epistemic_tags,
@@ -283,3 +292,11 @@ class ComponentRegistry:
     def _get_inspect_module(self):
         import inspect as _inspect_module
         return _inspect_module
+    
+    def cleanup_instance_reference(self, instance: Any) -> None:
+        """Remove instance from the instance-to-metadata mapping when it's being unregistered.
+        This prevents memory leaks from holding references to instances."""
+        instance_id = id(instance)
+        if instance_id in self._instance_to_metadata:
+            del self._instance_to_metadata[instance_id]
+            logger.debug(f"Cleaned up instance-to-metadata mapping for instance id {instance_id}")

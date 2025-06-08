@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional
 
 from domain.context import NireonExecutionContext
 from bootstrap.bootstrap_context import BootstrapContext
+from bootstrap.validation_data import ComponentValidationData
 
 from .base_phase import BootstrapPhase, PhaseResult
 from bootstrap.bootstrap_helper.context_helper import build_validation_context
@@ -144,13 +145,14 @@ class InterfaceValidationPhase(BootstrapPhase):
             if hasattr(bootstrap_context, 'validation_data_store') and bootstrap_context.validation_data_store:
                 validation_data_obj = bootstrap_context.validation_data_store.get_validation_data_for_component(component_id)
             
-            # Check if component is validatable
-            if not isinstance(component, NireonBaseComponent) and not hasattr(component, 'validate'):
-                validation_stats['validation_skipped'] += 1
-                logger.debug(f'Skipping validation for {component_id} - not a validatable component')
-                return
-            
-            # Perform validation based on component type
+            # NEW DEBUG LINE:
+            if component_id.lower() == 'frame_factory_service': # Check both frame_factory_service and FrameFactoryService
+                logger.critical(f"CRITICAL DEBUG for {component_id}: validation_data_obj is {'NOT None' if validation_data_obj else 'None'}")
+                if validation_data_obj:
+                        logger.critical(f"CRITICAL DEBUG for {component_id}: validation_data_obj.original_metadata.epistemic_tags = {validation_data_obj.original_metadata.epistemic_tags}")
+                        logger.critical(f"CRITICAL DEBUG for {component_id}: actual_runtime_metadata.epistemic_tags = {metadata.epistemic_tags}")
+
+
             if isinstance(component, NireonBaseComponent):
                 validation_errors = await self._validate_nireon_component(
                     component, metadata, validation_exec_context, validation_data_obj, validation_stats
@@ -241,44 +243,55 @@ class InterfaceValidationPhase(BootstrapPhase):
         logger.warning(f'Could not resolve metadata for component {component_id}')
         return None
 
-    async def _validate_nireon_component(self, component: NireonBaseComponent, metadata,
-                                         validation_context: NireonExecutionContext,
-                                         validation_data, validation_stats: dict) -> List[str]:
-        """Validate a NireonBaseComponent."""
+    async def _validate_nireon_component(self, 
+                                         component: NireonBaseComponent, 
+                                         actual_runtime_metadata: ComponentMetadata, # This IS component.metadata
+                                         validation_context: NireonExecutionContext, 
+                                         validation_data_from_store: Optional[ComponentValidationData], # From store
+                                         validation_stats: dict
+                                         ) -> List[str]:
         validation_stats['interface_checks'] += 1
         validation_stats['metadata_checks'] += 1
         
+        component_id_for_log = actual_runtime_metadata.id # Use the definite ID from runtime metadata
+        errors: List[str] = []
+
+        # Determine the source of truth for "expected" values for validation
+        if validation_data_from_store:
+            # If data exists from manifest processing, that's our primary source for "expected"
+            expected_metadata_for_comparison = validation_data_from_store.original_metadata
+            resolved_config_for_comparison = validation_data_from_store.resolved_config
+            manifest_spec_for_comparison = validation_data_from_store.manifest_spec
+            logger.debug(f"[{component_id_for_log}] Using manifest-derived data for validation. Expected tags from store: {expected_metadata_for_comparison.epistemic_tags}")
+        else:
+            # If no manifest data (e.g., programmatically created component),
+            # the component's current metadata is the "expected" definition.
+            expected_metadata_for_comparison = actual_runtime_metadata
+            resolved_config_for_comparison = component.config 
+            manifest_spec_for_comparison = {} 
+            logger.debug(f"[{component_id_for_log}] No manifest-derived data found. Using actual runtime metadata as expected for validation. Expected tags from runtime: {expected_metadata_for_comparison.epistemic_tags}")
+
         try:
-            # Prepare validation parameters
-            expected_metadata = metadata
-            resolved_config = {}
-            manifest_spec = {}
-            
-            if validation_data:
-                expected_metadata = validation_data.original_metadata
-                resolved_config = validation_data.resolved_config
-                manifest_spec = validation_data.manifest_spec
-            
-            # SIMPLIFIED VALIDATOR ACCESS
-            interface_validator = validation_context.interface_validator  # Directly from NireonExecutionContext
+            interface_validator = validation_context.interface_validator
             if not interface_validator:
-                logger.error(f"[{component.component_id}] InterfaceValidator not found on validation_context during _validate_nireon_component.")
+                # This was logged before, returning error directly
                 return ['Interface validator not available on execution context for detailed validation']
-            
-            # Perform component validation
-            validation_errors = await interface_validator.validate_component(
+
+            # Pass the consistently determined 'expected_metadata_for_comparison'
+            # and always the 'actual_runtime_metadata' from the component instance.
+            validation_errors_from_validator = await interface_validator.validate_component(
                 instance=component,
-                expected_metadata=expected_metadata,
-                context=validation_context,  # Pass the NireonExecutionContext
-                yaml_config_at_instantiation=resolved_config,
-                actual_runtime_metadata=component.metadata,
-                manifest_spec=manifest_spec
+                expected_metadata=expected_metadata_for_comparison, 
+                context=validation_context,
+                yaml_config_at_instantiation=resolved_config_for_comparison,
+                actual_runtime_metadata=actual_runtime_metadata, 
+                manifest_spec=manifest_spec_for_comparison
             )
-            
-            return validation_errors
+            errors.extend(validation_errors_from_validator)
+            return errors # Return all errors found by the validator
             
         except Exception as e:
-            logger.error(f'Error during NireonBaseComponent validation for {component.component_id if hasattr(component, "component_id") else "UNKNOWN"}: {e}', exc_info=True)
+            logger.error(f"Error during NireonBaseComponent validation for {component_id_for_log}: {e}", exc_info=True)
             return [f'Validation error: {e}']
 
     async def _validate_custom_component(self, component, metadata, validation_context: NireonExecutionContext, 

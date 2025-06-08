@@ -1,4 +1,5 @@
 version: "1.0"
+
 metadata:
   name: "NIREON V4 Generic Configuration"
   description: "Production-ready configuration with generic, provider-agnostic naming"
@@ -6,10 +7,16 @@ metadata:
   created_at: "2025-06-05T10:00:00Z"
   updated_at: "2025-06-07T12:00:00Z"
 
+# ----------------------------------------------------------------------
+# SHARED SERVICES – only those that are **not** bootstrap-managed.
+# Every entry now links to its canonical metadata constant so the
+# validator sees the correct epistemic tags.
+# ----------------------------------------------------------------------
 shared_services:
   EventBusPort:
     enabled: true
-    class: "infrastructure.event_bus.memory_event_bus.MemoryEventBus"
+    class: "infrastructure.event_bus.memory_event_bus:MemoryEventBus"
+    metadata_definition: "infrastructure.event_bus.memory_event_bus:MEMORY_EVENT_BUS_METADATA"
     config:
       max_history: 1000
       enable_persistence: false
@@ -17,11 +24,10 @@ shared_services:
   LLMPort:
     enabled: true
     class: "infrastructure.llm.router:LLMRouter"
+    metadata_definition: "infrastructure.llm.router:LLM_ROUTER_METADATA"
     config:
-      # Complete LLM configuration embedded directly (no more config_file reference)
       default: "nano_default"
-      
-      # Enhanced Router Configuration
+
       enable_circuit_breakers: true
       enable_health_checks: true
       enable_metrics: true
@@ -131,22 +137,18 @@ shared_services:
             temperature: 0.85
             max_tokens: 2048
             system_prompt: "You are a highly creative and imaginative AI assistant, skilled in divergent thinking and generating novel ideas. Be bold and explore unconventional paths."
-          
           critique:
             temperature: 0.4
             max_tokens: 1024
             system_prompt: "You are a precise and analytical AI assistant. Your role is to critically evaluate the given text, identify flaws, weaknesses, and potential issues. Be objective and thorough."
-          
           synthesis:
             temperature: 0.6
             max_tokens: 2048
             system_prompt: "You are an insightful AI assistant adept at synthesizing information. Combine the provided ideas or concepts into a coherent, well-structured, and enhanced summary or new concept."
-          
           rapid_response:
             temperature: 0.5
             max_tokens: 512
             system_prompt: "You are an efficient AI assistant. Provide clear, concise, and direct responses."
-          
           deep_analysis:
             temperature: 0.3
             max_tokens: 4096
@@ -156,21 +158,17 @@ shared_services:
           innovator:
             top_p: 0.95
             temperature: 0.8
-          
           evaluator:
             temperature: 0.3
             top_p: 0.9
-          
           researcher:
             temperature: 0.4
             max_tokens: 3072
             system_prompt: "You are a meticulous researcher. Provide well-sourced, accurate, and comprehensive information."
-          
           teacher:
             temperature: 0.6
             max_tokens: 2048
             system_prompt: "You are a patient and knowledgeable teacher. Explain concepts clearly with examples and check for understanding."
-          
           developer:
             temperature: 0.2
             max_tokens: 4096
@@ -178,7 +176,8 @@ shared_services:
 
   EmbeddingPort:
     enabled: true
-    class: "infrastructure.embeddings.embeddings.EmbeddingAdapter"
+    class: "infrastructure.embeddings.embeddings:EmbeddingAdapter"
+    metadata_definition: "infrastructure.embeddings.embeddings:EMBEDDING_ADAPTER_METADATA"
     config:
       provider: "sentence_transformers"
       model: "all-MiniLM-L6-v2"
@@ -191,7 +190,8 @@ shared_services:
 
   IdeaRepositoryPort:
     enabled: true
-    class: "infrastructure.persistence.idea_repository.IdeaRepository"
+    class: "infrastructure.persistence.idea_repository:IdeaRepository"
+    metadata_definition: "infrastructure.persistence.idea_repository:IDEA_REPOSITORY_METADATA"
     config:
       provider: "sqlite"
       db_path: "runtime/ideas_v4.db"
@@ -201,25 +201,14 @@ shared_services:
       connection_string: "${DATABASE_URL:-postgresql://localhost/nireon_v4}"
       pool_size: 5
 
-  FeatureFlagsManager:
-    enabled: true
-    class: "infrastructure.feature_flags.FeatureFlagsManager"
-    config:
-      default_flags:
-        enable_exploration: true
-        enable_catalyst: true
-        enable_schema_validation: true
-
-  IdeaService:
-    enabled: true
-    class: "application.services.idea_service.IdeaService"
-    config: {}
-
+# ----------------------------------------------------------------------
+# MECHANISMS (unchanged, already points to its own metadata constant)
+# ----------------------------------------------------------------------
 mechanisms:
   explorer_primary:
     enabled: true
-    class: "components.mechanisms.explorer.service.ExplorerMechanism"
-    metadata_definition: "components.mechanisms.explorer.service.EXPLORER_METADATA"
+    class: "components.mechanisms.explorer.service:ExplorerMechanism"
+    metadata_definition: "components.mechanisms.explorer.service:EXPLORER_METADATA"
     config:
       max_depth: 4
       application_rate: 0.6
@@ -235,13 +224,14 @@ mechanisms:
       - "explorer"
 
 observers: {}
-
 managers: {}
-
 composites: {}
-
 orchestration_commands: {}
 
+# ----------------------------------------------------------------------
+# ENVIRONMENT OVERRIDES – keep only LLM tweaks; nothing
+# bootstrap-managed is declared here.
+# ----------------------------------------------------------------------
 environment_overrides:
   development:
     shared_services:
@@ -249,7 +239,6 @@ environment_overrides:
         enabled: true
         class: "infrastructure.llm.router:LLMRouter"
         config_override:
-          # Override for development - use mock for testing when API keys not available
           default: "mock_testing_model"
           routes:
             default: "mock_testing_model"
@@ -257,15 +246,15 @@ environment_overrides:
             quick: "mock_testing_model"
             research: "mock_testing_model"
             analysis: "mock_testing_model"
-  
+
   testing:
     shared_services:
       IdeaRepositoryPort:
         enabled: true
-        class: "bootstrap.bootstrap_helper.placeholders.PlaceholderIdeaRepositoryImpl"
+        class: "bootstrap.bootstrap_helper.placeholders:PlaceholderIdeaRepositoryImpl"
       EventBusPort:
         enabled: true
-        class: "bootstrap.bootstrap_helper.placeholders.PlaceholderEventBusImpl"
+        class: "bootstrap.bootstrap_helper.placeholders:PlaceholderEventBusImpl"
       LLMPort:
         enabled: true
         class: "infrastructure.llm.router:LLMRouter"
@@ -273,16 +262,15 @@ environment_overrides:
           default: "mock_testing_model"
           routes:
             default: "mock_testing_model"
-  
+
   production:
     shared_services:
       LLMPort:
         enabled: true
         class: "infrastructure.llm.router:LLMRouter"
         config_override:
-          # Production settings - use real models with enhanced monitoring
           default: "nano_default"
           enable_circuit_breakers: true
           enable_health_checks: true
           enable_metrics: true
-          health_check_interval: 120  # More frequent health checks in prod
+          health_check_interval: 120
