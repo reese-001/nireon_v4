@@ -1,5 +1,5 @@
 # nireon/configs/default/global_app_config.yaml
-env: "default" # Default environment name
+env: "production" # Can be 'production', 'staging', 'test', 'default'
 
 bootstrap_strict_mode: true # Default strictness for bootstrap
 
@@ -7,12 +7,43 @@ bootstrap_strict_mode: true # Default strictness for bootstrap
 feature_flags:
   enable_schema_validation: true # More strict by default
   enable_self_certification: true
-  enable_rbac_bootstrap: true     # False by default, can be overridden by env or manifest
+  enable_rbac_bootstrap: false     # For easier debugging initially
+  enable_concurrent_initialization: false # Keep false for easier debugging initially
   enable_component_tracing: false # Typically for dev
-  # Add other specific feature flags here as they become relevant
+  # Explorer specific flags could go here if needed globally
+  # explorer_enable_semantic_exploration: true
 
 # Bootstrap operational parameters
 bootstrap_max_init_loops: 10 # From V3 reference, good to make configurable
+
+# FrameFactoryService configuration
+frame_factory_config:
+  root_frame_name: "NIREON_EXPLORER_TEST_ROOT"
+  log_frame_operations: true
+  max_frames: 100 # Keep low for testing
+  enable_frame_expiration: false # Simpler for now
+  cleanup_interval_seconds: 600
+
+# LLM configuration structure placeholder.
+# The actual 'llm' block will be populated by ConfigLoader by merging
+# this file with llm_config.yaml.
+# The LLMRouter component in standard.yaml will receive this merged 'llm' block.
+llm:
+  # Default and models/routes will come from llm_config.yaml
+  # but parameters can also be defined/overridden here.
+  parameters:
+    defaults: {}
+
+
+mechanism_gateway_config: {} # No specific gateway config needed for this test
+
+# Explorer config can be defined here (key should match component_id in manifest)
+# OR in the manifest's config_override section for the explorer component.
+# Using manifest override is often cleaner for component-specific config.
+# explorer_v4_instance_01:
+#   divergence_strength: 0.2
+#   max_variations_per_level: 1 # Minimal for quick testing
+#   max_depth: 1
 
 # Placeholder for other global settings as needed
 # system_log_level: "INFO"

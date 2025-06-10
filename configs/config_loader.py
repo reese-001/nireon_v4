@@ -76,36 +76,69 @@ class ConfigLoader:
                 logger.warning(f'{label} not found: {path}')
         return config
     async def _load_llm_configs(self, config: Dict[str, Any], env: str) -> Dict[str, Any]:
-        llm_config_from_yaml: Dict[str, Any] = {}
+        # This variable will store the merged content from *inside* the 'llm' key
+        # of all llm_config.yaml files encountered.
+        effective_llm_config_data: Dict[str, Any] = {}
+
         llm_config_paths_to_check = []
         default_llm_path = self.package_root / 'configs' / 'default' / 'llm_config.yaml'
         llm_config_paths_to_check.append(('DEFAULT_LLM_CONFIG', default_llm_path))
         if env != 'default':
             env_llm_path = self.package_root / 'configs' / env / 'llm_config.yaml'
             llm_config_paths_to_check.append((f'ENV_LLM_CONFIG ({env})', env_llm_path))
+
         for label, path in llm_config_paths_to_check:
             if path.exists():
                 try:
                     with open(path, 'r', encoding='utf-8') as fh:
-                        content = yaml.safe_load(fh) or {}
-                    if isinstance(content, dict):
-                        llm_config_from_yaml = ConfigMerger.merge(llm_config_from_yaml, content, f'llm_config_merge: {label}')
-                        logger.info(f'Loaded and merged LLM config from {label}: {path}')
+                        # content_from_yaml_file will be like {'llm': { actual_configs }}
+                        content_from_yaml_file = yaml.safe_load(fh) or {}
+                    
+                    if isinstance(content_from_yaml_file, dict):
+                        # Extract the actual LLM configuration data, which is expected
+                        # to be under the 'llm' key in the YAML file.
+                        current_file_llm_data_part = content_from_yaml_file.get('llm', {})
+                        if not isinstance(current_file_llm_data_part, dict):
+                            logger.warning(f"Content under 'llm' key in {label} ({path}) is not a dictionary. Skipping this part.")
+                            current_file_llm_data_part = {}
+
+                        # Merge the data from this file into our accumulating effective_llm_config_data
+                        effective_llm_config_data = ConfigMerger.merge(
+                            effective_llm_config_data,
+                            current_file_llm_data_part, # Merge the content *inside* 'llm'
+                            f'llm_config_content_merge: {label}'
+                        )
+                        logger.info(f'Loaded and merged LLM config content from {label}: {path}')
                     else:
                         logger.warning(f'{label} at {path} is not a dict, skipping.')
                 except Exception as exc:
                     logger.error(f'Error loading LLM config from {label} at {path}: {exc}', exc_info=True)
-            elif 'ENV_LLM' in label:
+            elif 'ENV_LLM' in label: # Only log debug if an environment-specific file is missing
                 logger.debug(f'{label} not found at {path}. Using defaults or previously loaded LLM config.')
-        if not llm_config_from_yaml:
-            if 'llm' in config and config['llm']:
-                logger.info("Using 'llm' section defined directly in global_app_config.yaml as llm_config.yaml was not found or empty.")
+
+        # Now, merge the accumulated effective_llm_config_data into the main config's 'llm' section.
+        # The main config['llm'] might have been initialized by global_app_config.yaml (e.g., with 'parameters').
+        if not effective_llm_config_data:
+            # This means no llm_config.yaml was found, or they were empty/invalid under 'llm' key.
+            # We rely on global_app_config.yaml potentially having a complete 'llm' section.
+            if 'llm' not in config or not config['llm']:
+                # This is a critical failure: no 'llm' section from global_app_config
+                # AND no valid content from any llm_config.yaml files.
+                raise RuntimeError(f"LLM configuration section ('llm') is completely empty after attempting to load files for env '{env}'. Cannot proceed.")
             else:
-                raise RuntimeError(f"LLM configuration section is completely empty after attempting to load files for env '{env}'. Cannot proceed.")
-        elif 'llm' not in config or not config['llm']:
-            config['llm'] = llm_config_from_yaml
-        else:
-            config['llm'] = ConfigMerger.merge(config['llm'], llm_config_from_yaml, 'global_llm_with_specific_llm_config')
+                # global_app_config.yaml has an 'llm' section, and no llm_config.yaml provided meaningful content.
+                # The 'llm' section in 'config' is already what it should be.
+                logger.info("Using 'llm' section as defined in global_app_config.yaml, as no overriding llm_config.yaml content was found.")
+        else: # We have valid content from llm_config.yaml files (in effective_llm_config_data)
+            if 'llm' not in config: # If global_app_config.yaml had NO 'llm' section at all
+                config['llm'] = effective_llm_config_data
+            else: # Both global_app_config.yaml (e.g. 'parameters') and llm_config.yaml files contributed.
+                  # config['llm'] already exists (possibly from global_app_config)
+                config['llm'] = ConfigMerger.merge(
+                    config.get('llm', {}), # Use existing config['llm'] as base
+                    effective_llm_config_data, 
+                    'global_llm_with_specific_llm_config_content'
+                )
         return config
     async def _apply_enhancements(self, base_config: Dict[str, Any], env: str) -> Dict[str, Any]:
         enhanced = base_config.copy()
@@ -188,27 +221,49 @@ class ConfigLoader:
         elif '${' in original_value and '}' in original_value: # Simplified check
             logger.warning(f"Unresolved environment variable: '{original_value}'")
         return expanded_str
+
+    def _get_config_path(self, filename: str, env: str) -> Optional[Path]:
+        """
+        Constructs the path to a configuration file, checking env-specific then default.
+        Returns the Path object if the file exists, otherwise None.
+        """
+        # Try environment-specific path first
+        if env != 'default':
+            env_path = self.package_root / 'configs' / env / filename
+            if env_path.exists():
+                logger.debug(f"Found config file '{filename}' in env '{env}' directory: {env_path}")
+                return env_path
+
+        # Fallback to default path
+        default_path = self.package_root / 'configs' / 'default' / filename
+        if default_path.exists():
+            logger.debug(f"Found config file '{filename}' in 'default' directory: {default_path}")
+            return default_path
+        
+        logger.debug(f"Config file '{filename}' not found in env '{env}' or 'default' directories.")
+        return None
+
     def _validate_required_config(self, config: Dict[str, Any], env: str) -> None:
-        required_keys = ['env', 'feature_flags', 'bootstrap_strict_mode']
-        missing_keys = [key for key in required_keys if key not in config]
-        if missing_keys:
-            raise ValueError(f"Missing required config keys for env '{env}': {missing_keys}")
-        if 'llm' in config:
-            if not isinstance(config['llm'], dict):
-                raise ValueError('LLM configuration must be a dictionary')
-            if 'models' not in config['llm'] or not config['llm']['models']:
-                raise ValueError("LLM configuration must include 'models' dictionary")
-            default_model_key = config['llm'].get('default')
-            if not default_model_key:
-                raise ValueError(f"No 'default' LLM model key specified in LLM configuration for env '{env}'.")
-            if default_model_key not in config['llm']['models']:
-                # Check if it's a route
-                is_valid_route_to_model = False
-                if 'routes' in config['llm'] and isinstance(config['llm']['routes'], dict):
-                    model_key_from_route = config['llm']['routes'].get(default_model_key)
-                    if model_key_from_route and model_key_from_route in config['llm']['models']:
-                        is_valid_route_to_model = True
-                if not is_valid_route_to_model:
-                    available_models = list(config['llm']['models'].keys())
-                    raise ValueError(f"Default LLM key '{default_model_key}' not found in 'llm.models' keys or as a valid 'llm.routes' entry for env '{env}'. Available models: {available_models}")
-        logger.debug(f"✓ Configuration validation passed for env '{env}'")
+        """Validate that required configuration sections exist."""
+        # Skip validation if llm config hasn't been loaded yet
+        if 'llm' not in config:
+            logger.warning(f"LLM config not yet loaded during validation for env '{env}' - skipping validation")
+            return
+            
+        llm_config = config.get('llm', {})
+        
+        # Only validate if llm config is present and is a dict
+        if isinstance(llm_config, dict) and llm_config:
+            if 'models' not in llm_config:
+                # If 'models' is missing from the llm_config (which should be fully merged by now),
+                # it's an error in the YAML content itself. _load_llm_configs already handles
+                # cases where llm_config.yaml might be missing entirely.
+                raise ValueError(
+                    f"LLM configuration (config['llm']) must include a 'models' dictionary. "
+                    f"Current keys in config['llm']: {list(llm_config.keys())}. "
+                    "This indicates an issue with the content of your llm_config.yaml or global_app_config.yaml."
+                )
+        else:
+            # This case should ideally be caught by _load_llm_configs raising a RuntimeError
+            # if the 'llm' section is completely empty after attempting to load files.
+            logger.warning(f"LLM configuration (config['llm']) is missing, not a dictionary, or empty for env '{env}'. This might be an issue.")

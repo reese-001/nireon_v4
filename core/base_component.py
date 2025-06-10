@@ -108,10 +108,19 @@ class NireonBaseComponent(ComponentLifecycle, ABC):
 
         context.component_registry.register(self, self.metadata)
         await self._self_certify(context)
-        await self._initialize_impl(context)
-        self._initialized_properly = True
-        self._initialization_timestamp = datetime.now(timezone.utc)
-        component_logger.info(f"Component '{self.component_id}' initialized successfully")
+        
+        try:
+            component_logger.debug(f"Component '{self.component_id}' starting _initialize_impl")
+            await self._initialize_impl(context)
+            component_logger.info(f"Component '{self.component_id}' _initialize_impl completed. Setting _initialized_properly to True.")
+            self._initialized_properly = True
+            self._initialization_timestamp = datetime.now(timezone.utc)
+            component_logger.info(f"Component '{self.component_id}' _initialized_properly is now {self._initialized_properly}.")
+            component_logger.info(f"Component '{self.component_id}' initialized successfully")
+        except Exception as e:
+            component_logger.error(f"Component '{self.component_id}' initialization failed: {e}", exc_info=True)
+            self._initialized_properly = False
+            raise
 
     async def _initialize_impl(self, context: NireonExecutionContext) -> None:
         # Default implementation, can be overridden by subclasses
@@ -139,7 +148,7 @@ class NireonBaseComponent(ComponentLifecycle, ABC):
         component_logger = context.logger or logger
         if not self._initialized_properly:
             self._error_count += 1
-            component_logger.error(f"Component '{self.component_id}' process called before initialization.")
+            component_logger.error(f"Component '{self.component_id}' process called before initialization. is_initialized={self.is_initialized}")
             return ProcessResult(success=False, component_id=self.component_id, message='Component not initialized', error_code='NOT_INITIALIZED')
 
         self._process_count += 1

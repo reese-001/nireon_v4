@@ -11,6 +11,8 @@ import logging
 import sys
 from pathlib import Path
 
+from configs.loader import load_config
+
 # Add the nireon package to the path if needed
 sys.path.insert(0, str(Path(__file__).parent))
 

@@ -13,6 +13,12 @@ from runtime.utils import import_by_path, extract_class_name
 from bootstrap.bootstrap_helper.metadata import get_default_metadata
 from configs.config_utils import ConfigMerger
 
+# Additional imports for dependency resolution
+from domain.ports.llm_port import LLMPort
+from infrastructure.llm.parameter_service import ParameterService  # Ensure this is imported
+from application.services.frame_factory_service import FrameFactoryService
+from application.services.budget_manager import BudgetManagerPort
+
 logger = logging.getLogger(__name__)
 
 
@@ -362,26 +368,56 @@ class ComponentInstantiator:
             if 'metadata_definition' in sig.parameters:
                 constructor_args['metadata_definition'] = metadata
 
-            # Dependency injection
+            # Attempt to resolve other named dependencies from the registry by type
+            # This is crucial for components like MechanismGateway
+            # This assumes component_class is not None
+            if component_class:  # Check if component_class is not None
+                for param_name, param_obj in sig.parameters.items():
+                    if param_name in ['self', 'config', 'metadata_definition', 'common_deps', 'kwargs', 'args']:  # Skip known/generic
+                        continue
+                    
+                    # If already filled by specific common_deps logic, skip
+                    if param_name in constructor_args:
+                        continue
+
+                    param_type = param_obj.annotation
+                    if param_type is not inspect.Parameter.empty and hasattr(context, 'registry'):
+                        try:
+                            # Try to get service instance by type annotation
+                            # This is a common pattern for dependency injection
+                            service_instance = context.registry.get_service_instance(param_type)
+                            constructor_args[param_name] = service_instance
+                            logger.debug(f"Resolved constructor arg '{param_name}' for '{component_id}' with instance of {type(service_instance).__name__} from registry.")
+                        except ComponentRegistryMissingError:
+                            logger.warning(f"Could not resolve constructor arg '{param_name}' of type '{param_type}' for '{component_id}' from registry. It might be optional or provided later.")
+                        except Exception as e_reg_lookup:
+                            logger.error(f"Error looking up dependency '{param_name}' (type: {param_type}) for '{component_id}': {e_reg_lookup}")
+
+            # Original common_deps logic (can still be useful for other components)
             if hasattr(context, 'common_mechanism_deps') and context.common_mechanism_deps:
                 common_deps = context.common_mechanism_deps
                 if 'common_deps' in sig.parameters:
-                    constructor_args['common_deps'] = common_deps
+                    if 'common_deps' not in constructor_args:  # Only if not already filled
+                        constructor_args['common_deps'] = common_deps
                 if 'llm' in sig.parameters and hasattr(common_deps, 'llm_port'):
-                    constructor_args['llm'] = common_deps.llm_port
+                    if 'llm' not in constructor_args:
+                        constructor_args['llm'] = common_deps.llm_port
                 if 'embedding_port' in sig.parameters and hasattr(common_deps, 'embedding_port'):
-                    constructor_args['embedding_port'] = common_deps.embedding_port
+                    if 'embedding_port' not in constructor_args:
+                        constructor_args['embedding_port'] = common_deps.embedding_port
                 if 'event_bus' in sig.parameters and hasattr(common_deps, 'event_bus'):
-                    constructor_args['event_bus'] = common_deps.event_bus
+                    if 'event_bus' not in constructor_args:
+                        constructor_args['event_bus'] = common_deps.event_bus
                 if 'registry' in sig.parameters:
-                    if hasattr(common_deps, 'component_registry') and common_deps.component_registry is not None:
-                        constructor_args['registry'] = common_deps.component_registry
-                    elif hasattr(context, 'registry') and context.registry is not None:
-                        constructor_args['registry'] = context.registry
-                    else:
-                        logger.warning(f"Cannot inject 'registry' for {component_id}: not found in common_deps or context.")
+                    if 'registry' not in constructor_args:
+                        if hasattr(common_deps, 'component_registry') and common_deps.component_registry is not None:
+                            constructor_args['registry'] = common_deps.component_registry
+                        elif hasattr(context, 'registry') and context.registry is not None:
+                            constructor_args['registry'] = context.registry
+                        else:
+                            logger.warning(f"Cannot inject 'registry' for {component_id}: not found in common_deps or context.")
 
-            logger.debug(f'Attempting to instantiate {component_class.__name__} with args: {list(constructor_args.keys())}')
+            logger.debug(f'Attempting to instantiate {component_class.__name__} with resolved args: {list(constructor_args.keys())}')
             instance = component_class(**constructor_args)
 
             # Ensure proper ID and metadata for NireonBaseComponent
@@ -396,8 +432,8 @@ class ComponentInstantiator:
             return instance
 
         except TypeError as e:
-            logger.error(f"TypeError during instantiation of {component_class.__name__} for '{component_id}': {e}", exc_info=True)
-            # Fallback attempts
+            logger.error(f"TypeError during instantiation of {component_class.__name__} for '{component_id}' with args {list(constructor_args.keys())}: {e}", exc_info=True)
+            # Fallback attempts might still be useful for simpler components
             try:
                 logger.debug(f"Fallback 1: Instantiating {component_class.__name__} with config only for '{component_id}'")
                 return component_class(config=config)

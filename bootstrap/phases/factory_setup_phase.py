@@ -16,10 +16,12 @@ from domain.ports.embedding_port import EmbeddingPort
 from domain.ports.event_bus_port import EventBusPort
 from domain.ports.idea_service_port import IdeaServicePort
 from domain.ports.mechanism_gateway_port import MechanismGatewayPort
+from domain.context import NireonExecutionContext
 
 # Nireon Application imports
 from application.services.idea_service import IdeaService
 from application.services.frame_factory_service import FrameFactoryService, FRAME_FACTORY_SERVICE_METADATA
+from application.services.budget_manager import BudgetManagerPort, InMemoryBudgetManager  # Make sure InMemoryBudgetManager is imported
 from application.gateway.mechanism_gateway import MechanismGateway
 from application.gateway.mechanism_gateway_metadata import MECHANISM_GATEWAY_METADATA
 
@@ -34,6 +36,7 @@ from factories.dependencies import CommonMechanismDependencies
 from bootstrap.validators.interface_validator import InterfaceValidator
 from bootstrap.bootstrap_helper.context_helper import build_execution_context
 
+from core.lifecycle import ComponentRegistryMissingError
 logger = logging.getLogger(__name__)
 
 # Enhanced metadata for ParameterService
@@ -123,17 +126,30 @@ class FactorySetupPhase(BootstrapPhase):
             elif frame_result.success:
                 setup_components.append(FRAME_FACTORY_SERVICE_METADATA.id)
 
-            # 6. Setup MechanismGateway
-            if frame_result.success:
+            # ***** NEW: Setup Budget Manager BEFORE Mechanism Gateway *****
+            budget_manager_result = await self._setup_budget_manager(context, phase_correlation_id)
+            self.result_collector.add(budget_manager_result)
+            if not budget_manager_result.success and context.strict_mode:
+                return self._create_phase_result()
+            elif budget_manager_result.success:
+                # Ensure the BudgetManager instance is available on the context if needed later,
+                # or rely on registry.get_service_instance(BudgetManagerPort)
+                # For MechanismGateway, it will pull from the registry.
+                setup_components.append('BudgetManagerPort_Instance')
+
+            # 6. Setup MechanismGateway (NOW it can be created)
+            if frame_result.success and budget_manager_result.success:  # Check budget_manager_result too
+                # The gateway will fetch FrameFactoryService and BudgetManagerPort from the registry
                 gateway_result = await self._setup_mechanism_gateway(
-                    context, frame_result.output_data, phase_correlation_id
+                    context,  # Pass the whole context
+                    phase_correlation_id
                 )
                 self.result_collector.add(gateway_result)
                 
                 if gateway_result.success:
                     setup_components.append(MECHANISM_GATEWAY_METADATA.id)
             else:
-                logger.warning("MechanismGateway setup skipped due to FrameFactoryService failure")
+                logger.warning("MechanismGateway setup skipped due to FrameFactoryService or BudgetManager failure")
 
             # 7. Validate setup and check dependencies
             validation_result = await self._validate_factory_setup(context, phase_correlation_id)
@@ -393,72 +409,89 @@ class FactorySetupPhase(BootstrapPhase):
             error_result.set_correlation_id(correlation_id)
             return error_result
 
-    async def _setup_mechanism_gateway(
-        self, context, frame_factory_service: FrameFactoryService,
-        correlation_id: str
-    ) -> ProcessResult:
+    # ***** NEW METHOD: _setup_budget_manager *****
+    async def _setup_budget_manager(self, context, correlation_id: str) -> ProcessResult:
+        BUDGET_MANAGER_METADATA = ComponentMetadata(
+            id='budget_manager_inmemory_instance',  # Or use manifest ID if defined there
+            name='InMemoryBudgetManager Instance',
+            version='1.0.0',
+            category='service_core',
+            description='In-memory budget manager for resource tracking.',
+            requires_initialize=False  # Typically simple managers might not need async init
+        )
+        try:
+            # Check if already registered by manifest (good practice)
+            try:
+                existing_bm = context.registry.get_service_instance(BudgetManagerPort)
+                logger.info(f"BudgetManagerPort already registered (likely by manifest): {type(existing_bm).__name__}")
+                return create_success_result(BUDGET_MANAGER_METADATA.id, 'BudgetManagerPort already registered.', output_data=existing_bm)
+            except ComponentRegistryMissingError:
+                logger.info("BudgetManagerPort not found in registry. Creating default InMemoryBudgetManager.")
+
+            budget_manager_config = context.global_app_config.get('budget_manager_config', {})
+            budget_manager = InMemoryBudgetManager(config=budget_manager_config)
+
+            # Register the instance with the port type and a specific metadata
+            context.registry.register(budget_manager, BUDGET_MANAGER_METADATA)
+            context.registry.register_service_instance(BudgetManagerPort, budget_manager)
+
+            result = create_success_result(BUDGET_MANAGER_METADATA.id, f'{BUDGET_MANAGER_METADATA.name} created and registered', output_data=budget_manager)
+            result.set_correlation_id(correlation_id)
+            logger.info(f'✓ {BUDGET_MANAGER_METADATA.name} created and registered by FactorySetupPhase')
+            return result
+        except Exception as e:
+            error_result = create_error_result(BUDGET_MANAGER_METADATA.id, e)
+            error_result.set_correlation_id(correlation_id)
+            return error_result
+
+    # Modify _setup_mechanism_gateway to fetch BudgetManagerPort from registry
+    async def _setup_mechanism_gateway(self, context: NireonExecutionContext, correlation_id: str) -> ProcessResult:
         """Setup MechanismGateway with dependency validation."""
         try:
-            # Resolve dependencies
             deps = {}
-            required_deps = [
-                (LLMPort, "llm_router"),
-                (ParameterService, "parameter_service")
-            ]
-            
-            for dep_type, dep_name in required_deps:
-                try:
-                    deps[dep_name] = context.registry.get_service_instance(dep_type)
-                except Exception as e:
-                    return create_error_result(
-                        MECHANISM_GATEWAY_METADATA.id,
-                        RuntimeError(f"Missing required dependency {dep_name}: {e}")
-                    )
-            
-            # Optional event bus
-            try:
-                deps["event_bus"] = context.registry.get_service_instance(EventBusPort)
-            except Exception:
-                deps["event_bus"] = None
-                logger.warning("EventBus not available for MechanismGateway")
+            # Required dependencies that MechanismGateway constructor expects by name
+            # The constructor will look these up in the registry if not passed directly.
+            # We will rely on the constructor's internal lookup via context.component_registry
+            # for most of these, but specifically pass BudgetManagerPort for clarity here.
 
-            # Update metadata with actual dependencies - Fix: Use correct component IDs
-            enhanced_metadata = MECHANISM_GATEWAY_METADATA
-            enhanced_metadata.dependencies = {
-                "LLMPort": "*",                      # Changed from "llm_router"
-                "parameter_service_global": ">=1.0.0", # Changed from "parameter_service"
-                "frame_factory_service": "*"          # Changed from "frame_factory"
-            }
+            llm_router_instance = context.registry.get_service_instance(LLMPort)
+            param_service_instance = context.registry.get_service_instance(ParameterService)
+            frame_factory_instance = context.registry.get_service_instance(FrameFactoryService)
+            budget_manager_instance = context.registry.get_service_instance(BudgetManagerPort)  # Key change
+
+            event_bus_instance = None
+            try:
+                event_bus_instance = context.registry.get_service_instance(EventBusPort)
+            except Exception:
+                logger.warning('EventBus not available for MechanismGateway during FactorySetupPhase instantiation')
 
             gateway_config = context.global_app_config.get('mechanism_gateway_config', {})
-            
-            # Create gateway
-            gateway = MechanismGateway(
-                llm_router=deps["llm_router"],
-                parameter_service=deps["parameter_service"],
-                frame_factory=frame_factory_service,
-                event_bus=deps.get("event_bus"),
-                config=gateway_config,
-                metadata_definition=enhanced_metadata
-            )
-            
-            # Register with enhanced tracking
-            context.registry.register(gateway, gateway.metadata)
-            context.registry.register_service_instance(MechanismGatewayPort, gateway)
-            
-            result = create_success_result(
-                gateway.component_id,
-                f"{gateway.metadata.name} created and registered",
-                output_data=gateway
-            )
-            result.set_correlation_id(correlation_id)
-            result.add_metric("dependencies_resolved", len(deps))
-            
-            logger.info(f"✓ {gateway.metadata.name} created and registered")
-            return result
 
+            # Ensure metadata definition is correct and has the new dependency
+            gateway_metadata_def = MECHANISM_GATEWAY_METADATA
+            gateway_metadata_def.dependencies['BudgetManagerPort'] = '*'  # Add if not already there
+
+            gateway = MechanismGateway(
+                llm_router=llm_router_instance,
+                parameter_service=param_service_instance,
+                frame_factory=frame_factory_instance,
+                budget_manager=budget_manager_instance,  # Explicitly pass it
+                event_bus=event_bus_instance,
+                config=gateway_config,
+                metadata_definition=gateway_metadata_def
+            )
+
+            # Register the gateway instance
+            context.registry.register(gateway, gateway.metadata)  # Use metadata from the instance
+            context.registry.register_service_instance(MechanismGatewayPort, gateway)
+
+            result = create_success_result(gateway.component_id, f'{gateway.metadata.name} created and registered', output_data=gateway)
+            result.set_correlation_id(correlation_id)
+            result.add_metric('dependencies_resolved', 4 + (1 if event_bus_instance else 0))
+            logger.info(f'✓ {gateway.metadata.name} created and registered by FactorySetupPhase')
+            return result
         except Exception as e:
-            error_result = create_error_result(MECHANISM_GATEWAY_METADATA.id, e)
+            error_result = create_error_result(MECHANISM_GATEWAY_METADATA.id, e)  # Use the canonical ID for error
             error_result.set_correlation_id(correlation_id)
             return error_result
 
@@ -487,7 +520,8 @@ class FactorySetupPhase(BootstrapPhase):
             registry_checks = [
                 (ParameterService, "ParameterService"),
                 (FrameFactoryService, "FrameFactoryService"),
-                (MechanismGatewayPort, "MechanismGateway")
+                (MechanismGatewayPort, "MechanismGateway"),
+                (BudgetManagerPort, "BudgetManager")  # Added budget manager check
             ]
 
             for service_type, service_name in registry_checks:

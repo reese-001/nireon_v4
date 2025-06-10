@@ -1,4 +1,4 @@
-# infrastructure\llm\router.py (Modified version per attachment 1 requirements)
+# infrastructure\llm\router.py (Fixed version addressing component_id mismatch)
 from __future__ import annotations
 import asyncio
 import logging
@@ -57,6 +57,17 @@ except ImportError as e:
 
 logger = logging.getLogger(__name__)
 
+# CRITICAL: Define module-level metadata that can be imported by the manifest
+LLM_ROUTER_METADATA = ComponentMetadata(
+    id='llm_router_main',  # Default ID, will be overridden by manifest
+    name='LLMRouter',
+    version='2.0.0',
+    category='service',
+    description='Enhanced LLM router with optional circuit breakers, metrics, and health monitoring.',
+    requires_initialize=True,
+    epistemic_tags=['router', 'llm_orchestrator', 'policy_enforcer']
+)
+
 @dataclass(slots=True)
 class _ModelConfig:
     name: str
@@ -81,17 +92,21 @@ class LLMRouter(NireonBaseComponent, LLMPort):
     All enhancements are optional and maintain backward compatibility.
     Modified to work with Gateway component that provides resolved settings.
     """
-    
+    METADATA_DEFINITION = LLM_ROUTER_METADATA
     def __init__(self, config: dict, metadata_definition: Optional[ComponentMetadata] = None):
         # Enhanced: Validate configuration if available
         if ENHANCEMENTS_AVAILABLE:
             validate_and_log_config(config, logger)
         
+        # CRITICAL FIX: Use the actual component ID from config if provided
+        # This ensures the metadata ID matches what's used in the manifest
         if metadata_definition is None:
+            # If there's an 'id' in config, use it for the metadata
+            component_id_from_config = config.get('id', 'llm_router_main')
             metadata_definition = ComponentMetadata(
-                id=config.get('id', 'llm_router'),
+                id=component_id_from_config,  # Use the actual ID from config/manifest
                 name='LLMRouter',
-                version='2.0.0',  # Version bump to indicate enhancements
+                version='2.0.0',
                 category='service',
                 description='Enhanced LLM router with optional circuit breakers, metrics, and health monitoring.',
                 requires_initialize=True,
@@ -99,6 +114,9 @@ class LLMRouter(NireonBaseComponent, LLMPort):
             )
         
         super().__init__(config=config, metadata_definition=metadata_definition)
+        
+        # Log the actual component_id being used
+        logger.info(f"LLMRouter instantiated with component_id='{self.component_id}' (from metadata.id)")
         
         # Original core attributes
         self._event_bus: Optional[EventBusPort] = None
@@ -127,8 +145,6 @@ class LLMRouter(NireonBaseComponent, LLMPort):
         })
         
         # Original parameter service setup
-        # The _param_service initialization is still useful for its own internal defaults if needed,
-        # or if the Gateway's settings are not exhaustive.
         param_service_config = self.config.get('parameters', {})
         param_service_metadata = ComponentMetadata(
             id='llm_parameter_service_for_router',
@@ -148,7 +164,7 @@ class LLMRouter(NireonBaseComponent, LLMPort):
         
         enhancement_status = "with enhancements" if ENHANCEMENTS_AVAILABLE else "basic mode"
         logger.info(
-            f"LLMRouter '{self.component_id}' initialized {enhancement_status} with "
+            f"LLMRouter '{self.component_id}' instantiated {enhancement_status} with "
             f"{len(self._model_defs)} model definitions. Default route: '{self._default_route}'"
         )
     
@@ -185,6 +201,16 @@ class LLMRouter(NireonBaseComponent, LLMPort):
                 )
     
     async def _initialize_impl(self, context: NireonExecutionContext) -> None:
+        """Initialize the LLM Router with proper logging."""
+        component_logger = context.logger or logger
+        component_logger.info(f"LLMRouter '{self.component_id}' starting _initialize_impl")
+        
+        # CRITICAL DEBUG: Log the instance ID and memory address
+        component_logger.info(
+            f"LLMRouter '{self.component_id}' instance at {hex(id(self))}, "
+            f"_initialized_properly={self._initialized_properly}"
+        )
+        
         # Original event bus setup
         if context.component_registry and context.event_bus:
             self._event_bus = context.event_bus
@@ -192,25 +218,27 @@ class LLMRouter(NireonBaseComponent, LLMPort):
             try:
                 self._event_bus = context.component_registry.get_service_instance(EventBusPort)
             except Exception:
-                logger.warning(f"LLMRouter '{self.component_id}': EventBusPort not found in registry during initialization.")
+                component_logger.warning(f"LLMRouter '{self.component_id}': EventBusPort not found in registry during initialization.")
         
         # Original default backend pre-warming
         try:
             default_backend_key = self._route_map.get(self._default_route, self._default_route)
             if default_backend_key in self._model_defs:
+                component_logger.info(f"LLMRouter '{self.component_id}': Pre-warming default backend '{default_backend_key}'")
                 await self._lazy_get_backend(default_backend_key)
-                logger.info(f"LLMRouter '{self.component_id}': Default backend '{default_backend_key}' pre-warmed.")
+                component_logger.info(f"LLMRouter '{self.component_id}': Default backend '{default_backend_key}' pre-warmed successfully.")
             else:
-                logger.warning(f"LLMRouter '{self.component_id}': Default backend key '{default_backend_key}' not found in model definitions.")
+                component_logger.warning(f"LLMRouter '{self.component_id}': Default backend key '{default_backend_key}' not found in model definitions.")
         except Exception as e:
-            logger.error(f"LLMRouter '{self.component_id}': Error pre-warming default backend: {e}")
+            component_logger.error(f"LLMRouter '{self.component_id}': Error pre-warming default backend: {e}", exc_info=True)
+            # Don't fail initialization if pre-warming fails - the backend can be initialized on demand
         
         # Enhanced: Start health check loop if enabled
         if self._enable_health_checks and ENHANCEMENTS_AVAILABLE:
             asyncio.create_task(self._health_check_loop())
-            logger.info(f"LLMRouter '{self.component_id}': Health monitoring enabled")
+            component_logger.info(f"LLMRouter '{self.component_id}': Health monitoring enabled")
         
-        logger.info(f"LLMRouter '{self.component_id}' initialized. Event bus: {'Configured' if self._event_bus else 'Not configured'}")
+        component_logger.info(f"LLMRouter '{self.component_id}' _initialize_impl completed. Event bus: {'Configured' if self._event_bus else 'Not configured'}")
     
     async def _health_check_loop(self):
         """Periodic health monitoring (enhancement)."""
@@ -286,62 +314,48 @@ class LLMRouter(NireonBaseComponent, LLMPort):
         context: NireonExecutionContext,
         settings: Optional[Mapping[str, Any]] = None
     ) -> LLMResponse:
+        component_logger = context.logger or logger
+        
+        # CRITICAL DEBUG: Enhanced error logging
         if not self.is_initialized:
-            logger.error(f"LLMRouter '{self.component_id}' called before initialization!")
-            return LLMResponse({'text': 'LLMRouter not initialized.', 'error': 'NotInitialized'})
+            error_msg = (
+                f"LLMRouter '{self.component_id}' (instance at {hex(id(self))}) called before initialization! "
+                f"is_initialized={self.is_initialized}, _initialized_properly={self._initialized_properly}"
+            )
+            component_logger.error(error_msg)
+            return LLMResponse({'text': 'LLMRouter not initialized.', 'error': 'NotInitialized', 'details': error_msg})
 
         # The 'call_id' should ideally be the CognitiveEvent.event_id if available from the context/settings
-        # passed by the MechanismGateway.
-        # For example, if context.parent_event_id or settings['ce_event_id'] exists.
         ce_event_id_from_context = getattr(context, 'ce_event_id', None) or (settings.get('ce_event_id') if settings else None)
         call_id = str(ce_event_id_from_context or uuid.uuid4())  # Use CE event ID if present
 
         start_time = time.time()
 
-        # The `settings` received here from the Gateway are assumed to be mostly resolved.
-        # The router's own _param_service can fill any gaps or apply router-level defaults if necessary,
-        # but Gateway's settings should take precedence for overrides.
-        
-        # Option 1: Trust settings from Gateway are complete
+        # Trust settings from Gateway are complete
         final_llm_params = dict(settings or {}) 
-        
-        # Option 2: Router's param service can still layer on top, if Gateway didn't provide everything.
-        # This makes sense if router has specific model-level defaults not known to Gateway.
-        # base_params_from_router_service = self._param_service.get_parameters(
-        #     stage=stage, role=role, ctx=context, overrides=None # No further overrides here
-        # )
-        # final_llm_params = {**base_params_from_router_service, **(settings or {})}
 
         route_override = final_llm_params.get('route')  # Get route from the (potentially Gateway-modified) settings
         logical_route = route_override or self._default_route
         backend_key = self._route_map.get(logical_route, logical_route)
         
-        logger.debug(f"LLMRouter '{self.component_id}': Routing call {call_id}. Logical route: '{logical_route}', Backend key: '{backend_key}'")
+        component_logger.debug(f"LLMRouter '{self.component_id}': Routing call {call_id}. Logical route: '{logical_route}', Backend key: '{backend_key}'")
 
         if self._enable_health_checks:
             health = self._backend_health.get(backend_key)
             if health and (not health.is_healthy):
-                logger.warning(f"Backend '{backend_key}' is marked as unhealthy, attempting anyway")
+                component_logger.warning(f"Backend '{backend_key}' is marked as unhealthy, attempting anyway")
         
         try:
             backend = await self._lazy_get_backend(backend_key)
         except KeyError as e:
-            logger.error(f"LLMRouter '{self.component_id}': Backend key '{backend_key}' (from route '{logical_route}') not found or failed to load. {e}")
-            # LLMRouter itself should raise or return an error response, not the Gateway formatting this.
-            # Gateway will catch this exception or handle the error response.
+            component_logger.error(f"LLMRouter '{self.component_id}': Backend key '{backend_key}' (from route '{logical_route}') not found or failed to load. {e}")
             raise LLMBackendNotAvailableError(f"LLM backend '{backend_key}' not available.", details={'backend_key': backend_key}) from e
-            # Or: return LLMResponse({'text': f"Error: LLM backend '{backend_key}' not available.", 'error': str(e), 'call_id': call_id})
 
         # Remove 'route' from params passed to the actual backend if it's a router-specific setting
         if 'route' in final_llm_params:
             del final_llm_params['route']
         if 'ce_event_id' in final_llm_params:  # Don't pass this meta-param to the backend
             del final_llm_params['ce_event_id']
-
-        # Event bus hooks for LLM_CALL_STARTED/COMPLETED can remain here,
-        # but they are for the *router's* perspective of the call to a *backend*.
-        # The Gateway will have its own CE-level events.
-        # ... (event bus publishing if still desired at this level) ...
 
         response_text = 'Error: LLM call failed.'  # Default for error cases
         error_details = None
@@ -368,7 +382,7 @@ class LLMRouter(NireonBaseComponent, LLMPort):
                 )
             return llm_response_obj
         except Exception as e:  # Catch exceptions from the backend adapter itself
-            logger.error(f"LLMRouter '{self.component_id}': Error calling backend '{backend_key}': {e}", exc_info=True)
+            component_logger.error(f"LLMRouter '{self.component_id}': Error calling backend '{backend_key}': {e}", exc_info=True)
             error_details = str(e)
             if self._enable_metrics and ENHANCEMENTS_AVAILABLE:
                 duration_ms = (time.time() - start_time) * 1000
@@ -385,14 +399,10 @@ class LLMRouter(NireonBaseComponent, LLMPort):
                     success=False,
                     error_type=type(e).__name__
                 )
-            # Option 1: Re-raise the exception for Gateway to handle
+            # Re-raise the exception for Gateway to handle
             if isinstance(e, LLMError): 
                 raise
             raise LLMProviderError(f"LLM backend '{backend_key}' failed.", cause=e, details={'backend_key': backend_key}) from e
-            # Option 2: Return an error response (Gateway would then check this)
-            # return LLMResponse({LLMResponse.TEXT_KEY: response_text, 'error': error_details, 'backend_key': backend_key, 'call_id': call_id, 'error_type': type(e).__name__})
-        # finally:
-            # ... (event bus publishing for LLM_CALL_COMPLETED if still desired at this level) ...
     
     def call_llm_sync(
         self,

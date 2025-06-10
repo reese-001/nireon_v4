@@ -3,8 +3,10 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 import time
 
+from domain.mixins.deterministic_rng_mixin import DeterministicRNGMixin
+
 @dataclass
-class Frame:
+class Frame(DeterministicRNGMixin):
     # Fields without defaults first
     id: str
     name: str

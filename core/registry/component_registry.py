@@ -113,21 +113,30 @@ class ComponentRegistry:
             logger.info(f"Component '{canonical_id}' registered successfully "
                        f"(version: {metadata.version}, fingerprint: {metadata.fingerprint[:8]}...)")
 
-            # Handle type alias
+            # Handle type alias - CRITICAL: Ensure metadata is linked for the type alias
             if type_key_for_alias:
                 if type_key_for_alias not in self._components or self._components[type_key_for_alias] is not component_value:
                     self._components[type_key_for_alias] = component_value
                     logger.debug(f"Component '{canonical_id}' also accessible via type alias '{type_key_for_alias}'")
                 if type_key_for_alias not in self._metadata or self._metadata[type_key_for_alias] != metadata:
                     self._metadata[type_key_for_alias] = metadata
-                    logger.debug(f"Metadata linked under type alias '{type_key_for_alias}'")
+                    logger.debug(f"Metadata for '{canonical_id}' linked under type alias '{type_key_for_alias}'")
 
-            # Update existing aliases
+            # Update existing aliases to ensure metadata consistency
             for alias_key, registered_instance in list(self._components.items()):
                 if registered_instance is component_value and alias_key != canonical_id and alias_key != type_key_for_alias:
                     if alias_key not in self._metadata or self._metadata[alias_key] != metadata:
                         self._metadata[alias_key] = metadata
-                        logger.debug(f"Updated metadata for alias '{alias_key}'")
+                        logger.debug(f"Updated metadata for existing alias '{alias_key}' to point to '{canonical_id}'")
+            
+            # Special handling for NireonBaseComponent to ensure metadata consistency
+            if hasattr(component_value, 'metadata') and hasattr(component_value, 'component_id'):
+                # Ensure the component's internal metadata matches what we're registering
+                if component_value.metadata != metadata:
+                    logger.warning(f"Component '{canonical_id}' has different internal metadata than registration metadata")
+                # Ensure component_id matches
+                if component_value.component_id != canonical_id:
+                    logger.warning(f"Component has internal ID '{component_value.component_id}' but being registered as '{canonical_id}'")
 
     def _update_dependency_graphs(self, component_id: str, metadata: ComponentMetadata) -> None:
         """Update dependency tracking graphs."""
@@ -171,10 +180,18 @@ class ComponentRegistry:
                     self._metadata[canonical_metadata_to_link.id] = canonical_metadata_to_link
                     logger.debug(f"Cached metadata for '{canonical_metadata_to_link.id}' from instance.metadata")
             
+            # CRITICAL: Link the metadata to the service key
             if canonical_metadata_to_link:
                 if normalized_key not in self._metadata or self._metadata[normalized_key] != canonical_metadata_to_link:
                     self._metadata[normalized_key] = canonical_metadata_to_link
-                    logger.debug(f"Linked metadata for service alias '{normalized_key}' to canonical metadata")
+                    logger.debug(f"Linked metadata for service alias '{normalized_key}' to canonical metadata (ID: '{canonical_metadata_to_link.id}')")
+                    
+                # Also ensure type alias has metadata if this is a type registration
+                if isinstance(key, type) and hasattr(key, '__name__'):
+                    type_name = key.__name__
+                    if type_name not in self._metadata:
+                        self._metadata[type_name] = canonical_metadata_to_link
+                        logger.debug(f"Also linked metadata under type name '{type_name}'")
 
     def get_service_instance(self, key: Union[str, Type]) -> Any:
         """Get service instance with enhanced error reporting."""
@@ -227,7 +244,7 @@ class ComponentRegistry:
         raise ComponentRegistryMissingError(normalized_key, available_components=available_keys)
 
     def get_metadata(self, component_id_or_alias: str) -> ComponentMetadata:
-        """Enhanced metadata retrieval."""
+        """Enhanced metadata retrieval with better alias handling."""
         normalized_key = self.normalize_key(component_id_or_alias)
 
         # Direct lookup
@@ -243,12 +260,15 @@ class ComponentRegistry:
             if instance_id in self._instance_to_metadata:
                 metadata = self._instance_to_metadata[instance_id]
                 with self._lock:
+                    # Ensure the alias key itself also points to this canonical metadata
                     if normalized_key not in self._metadata:
                         self._metadata[normalized_key] = metadata
-                logger.debug(f"Retrieved metadata via instance mapping")
+                logger.debug(f'Retrieved metadata via instance mapping for key {normalized_key} (points to {metadata.id})')
                 return metadata
             
-            # Check instance attribute
+            # If it's a NireonBaseComponent, it MUST have metadata, even if not found via instance_id map yet.
+            # This can happen if it was registered via a different key, and this alias is new.
+            # Its own .metadata property is the source of truth.
             if hasattr(comp, 'metadata') and isinstance(getattr(comp, 'metadata', None), ComponentMetadata):
                 instance_meta = comp.metadata
                 with self._lock:
@@ -256,8 +276,9 @@ class ComponentRegistry:
                     if instance_meta.id not in self._metadata:
                         self._metadata[instance_meta.id] = instance_meta
                     if normalized_key != instance_meta.id and normalized_key not in self._metadata:
-                         self._metadata[normalized_key] = instance_meta
-                logger.debug(f"Retrieved metadata from instance attribute")
+                        # Link the alias key to the canonical metadata from the instance
+                        self._metadata[normalized_key] = instance_meta
+                logger.debug(f'Retrieved metadata from instance attribute for key {normalized_key} (points to {instance_meta.id})')
                 return instance_meta
 
         available_metadata_keys = sorted(self._metadata.keys())
