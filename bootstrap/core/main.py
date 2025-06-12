@@ -11,9 +11,9 @@ from pydantic import BaseModel, Field, ValidationError
 
 from bootstrap.exceptions import BootstrapError, BootstrapValidationError, BootstrapTimeoutError
 from bootstrap.result_builder import BootstrapResult, BootstrapResultBuilder
-from bootstrap.bootstrap_context_builder import create_bootstrap_context
-from bootstrap.bootstrap_config import BootstrapConfig
-from bootstrap.bootstrap_context import BootstrapContext
+from bootstrap.context.bootstrap_context_builder import create_bootstrap_context
+from bootstrap.config.bootstrap_config import BootstrapConfig
+from bootstrap.context.bootstrap_context import BootstrapContext
 from core.registry.component_registry import ComponentRegistry
 
 # Import phases with error handling
@@ -39,28 +39,28 @@ except ImportError as e:
     FactorySetupPhase = None
 
 try:
-    from bootstrap.phases.manifest_phase import ManifestProcessingPhase
+    from phases.manifest_processing_phase import ManifestProcessingPhase
 except ImportError as e:
     logger = logging.getLogger(__name__)
     logger.error(f"Failed to import ManifestProcessingPhase: {e}")
     ManifestProcessingPhase = None
 
 try:
-    from bootstrap.phases.initialization_phase import ComponentInitializationPhase
+    from phases.component_initialization_phase import ComponentInitializationPhase
 except ImportError as e:
     logger = logging.getLogger(__name__)
     logger.error(f"Failed to import ComponentInitializationPhase: {e}")
     ComponentInitializationPhase = None
 
 try:
-    from bootstrap.phases.validation_phase import InterfaceValidationPhase
+    from phases.component_validation_phase import InterfaceValidationPhase
 except ImportError as e:
     logger = logging.getLogger(__name__)
     logger.error(f"Failed to import InterfaceValidationPhase: {e}")
     InterfaceValidationPhase = None
 
 try:
-    from bootstrap.phases.rbac_phase import RBACSetupPhase
+    from phases.rbac_setup_phase import RBACSetupPhase
 except ImportError as e:
     logger = logging.getLogger(__name__)
     logger.error(f"Failed to import RBACSetupPhase: {e}")

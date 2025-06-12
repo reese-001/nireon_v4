@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Type
 
 from .base_phase import BootstrapPhase, PhaseResult
 from core.base_component import NireonBaseComponent
-from core.registry import ComponentRegistryMissingError
+from core.lifecycle import ComponentRegistryMissingError
 from domain.ports.event_bus_port import EventBusPort
 from domain.ports.llm_port import LLMPort
 from domain.ports.embedding_port import EmbeddingPort

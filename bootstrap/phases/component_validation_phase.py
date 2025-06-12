@@ -3,7 +3,7 @@ import logging
 from typing import Any, Dict, List, Optional
 
 from domain.context import NireonExecutionContext
-from bootstrap.bootstrap_context import BootstrapContext
+from bootstrap.context.bootstrap_context import BootstrapContext
 from bootstrap.validation_data import ComponentValidationData
 
 from .base_phase import BootstrapPhase, PhaseResult

@@ -5,6 +5,6 @@ Bootstrap Configuration Module
 Handles loading and processing of bootstrap configuration files.
 """
 
-from ...configs.config_loader import ConfigLoader
+from configs.config_loader import ConfigLoader
 
 __all__ = ['ConfigLoader']

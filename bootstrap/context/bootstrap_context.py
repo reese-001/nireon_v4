@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, Optional
 from domain.context import NireonExecutionContext
-from bootstrap.bootstrap_config import BootstrapConfig
+from bootstrap.config.bootstrap_config import BootstrapConfig
 from core.registry.component_registry import ComponentRegistry
 from domain.ports.event_bus_port import EventBusPort 
 if TYPE_CHECKING:

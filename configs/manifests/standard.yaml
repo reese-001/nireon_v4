@@ -1,349 +1,138 @@
-version: "1.0"
+version: '1.0'
 metadata:
-  name: "NireonV4 Standard Setup for Explorer Test"
-  description: "Manifest to bootstrap core services and Explorer for testing Gateway magic."
-  author: "NIREON Team"
-  created_at: "2025-06-05T10:00:00Z"
-  updated_at: "2025-06-07T12:00:00Z"
-
-# ----------------------------------------------------------------------
-# SHARED SERVICES – only those that are **not** bootstrap-managed.
-# Every entry now links to its canonical metadata constant so the
-# validator sees the correct epistemic tags.
-# ----------------------------------------------------------------------
+  name: NireonV4 Standard Setup for Explorer Test
+  description: Manifest to bootstrap core services and Explorer for testing Gateway magic.
+  author: NIREON Team
+  created_at: '2025-06-05T10:00:00Z'
+  updated_at: '2025-06-07T12:00:00Z'
 shared_services:
   event_bus_memory:
     enabled: true
-    class: "infrastructure.event_bus.memory_event_bus:MemoryEventBus"
-    port_type: "domain.ports.event_bus_port:EventBusPort"  # ADD THIS LINE
-    metadata_definition: "infrastructure.event_bus.memory_event_bus:MEMORY_EVENT_BUS_METADATA"
+    class: infrastructure.event_bus.memory_event_bus:MemoryEventBus
+    port_type: domain.ports.event_bus_port:EventBusPort
+    metadata_definition: infrastructure.event_bus.memory_event_bus:MEMORY_EVENT_BUS_METADATA
     config:
       max_history: 1000
       enable_persistence: false
     config_override:
       max_history: 1000
-
-  parameter_service_global: # ID matches what MechanismGateway expects
-    class: "infrastructure.llm.parameter_service:ParameterService"
+  parameter_service_global:
     enabled: true
-    # ParameterService's own config (not the LLM params it serves).
-    # It gets LLM params from the global 'llm.parameters' block.
-    config_override: {}
-
-  frame_factory_service:
-    class: "application.services.frame_factory_service:FrameFactoryService"
-    enabled: true
-    # The config for FrameFactoryService instance will be taken from
-    # the 'frame_factory_config' block in global_app_config.yaml
-    # This is typically handled by BootstrapConfig passing global_app_config
-    # and component constructors looking up their section or their specific
-    # 'ConfigModel' Pydantic model parsing a relevant part of it.
-    # If direct mapping needed: config_override: ${frame_factory_config}
-    # However, FrameFactoryService constructor takes `config` and its Pydantic
-    # model `FrameFactoryConfig` will parse the whole dict.
-    # The bootstrap process should provide it the `global_app_config.get('frame_factory_config', {})`
-    # or the `FrameFactoryService.ConfigModel` should be smart enough.
-    # For simplicity, assume the bootstrap process passes the correct section.
-
-  budget_manager_inmemory:
-    class: "application.services.budget_manager:InMemoryBudgetManager"
-    enabled: true
-    config_override:
-      default_initial_budgets: # These are defaults if a Frame doesn't specify its own
-        llm_calls: 20.0
-        event_publishes: 50.0
-
-  llm_router_main: # ID for the LLMRouter instance
-    enabled: true
-    class: "infrastructure.llm.router:LLMRouter"
-    metadata_definition: "infrastructure.llm.router:LLM_ROUTER_METADATA"
-    port_type: "domain.ports.llm_port:LLMPort"
+    class: infrastructure.parameter_service.parameter_service:ParameterService
+    port_type: domain.ports.parameter_service_port:ParameterService
+    metadata_definition: infrastructure.parameter_service.parameter_service:PARAMETER_SERVICE_METADATA
     config:
-      id: "llm_router_main" 
-      default: "nano_default"
-
+      storage_backend: memory
+  frame_factory_service:
+    enabled: true
+    class: infrastructure.frame_factory.frame_factory_service:FrameFactoryService
+    port_type: domain.ports.frame_factory_port:FrameFactoryPort
+    metadata_definition: infrastructure.frame_factory.frame_factory_service:FRAME_FACTORY_SERVICE_METADATA
+    config:
+      default_frame_type: epistemic
+  budget_manager_inmemory:
+    enabled: true
+    class: application.services.budget_manager:InMemoryBudgetManager
+    port_type: domain.ports.budget_manager_port:BudgetManagerPort
+    metadata_definition: application.services.budget_manager:BUDGET_MANAGER_METADATA
+    config:
+      initial_budgets:
+        llm_calls: 10.0
+        event_publishes: 100.0
+        embedding_calls: 50.0
+  llm_router_main:
+    enabled: true
+    class: infrastructure.llm.router:LLMRouter
+    metadata_definition: infrastructure.llm.router:LLM_ROUTER_METADATA
+    port_type: domain.ports.llm_port:LLMPort
+    config:
+      id: llm_router_main
+      default: nano_default
+      routes:
+        default: nano_default
+        chat_fast: nano_default
+        research: nano_default
+        analysis: nano_default
       enable_circuit_breakers: true
       enable_health_checks: true
       enable_metrics: true
       health_check_interval: 300
-
       circuit_breaker_defaults:
         failure_threshold: 5
         recovery_timeout: 60
         success_threshold: 3
-        timeout: 30.0
-
+        timeout: 30
       models:
         nano_default:
           provider: openai
-          backend: "infrastructure.llm.generic_http:GenericHttpLLM"
+          backend: infrastructure.llm.generic_http:GenericHttpLLM
           method: POST
-          base_url: "https://api.openai.com/v1"
-          endpoint: "/chat/completions"
+          base_url: https://api.openai.com/v1
+          endpoint: /chat/completions
           auth_style: bearer
-          auth_token_env: "OPENAI_API_KEY"
+          auth_token_env: OPENAI_API_KEY
           timeout: 60
-          model_name_for_api: "gpt-4o-mini"
           payload_template: |
             {
               "model": "{{ model_name_for_api }}",
               "messages": [
                 {"role": "system", "content": "{{ system_prompt }}"},
-                {"role": "user", "content": "{{ prompt }}"}
+                {"role": "user",   "content": "{{ prompt }}"}
               ],
               "temperature": {{ temperature }},
               "top_p": {{ top_p }},
               "max_tokens": {{ max_tokens }}
             }
-          response_text_path: "$.choices[0].message.content"
-          circuit_breaker:
-            failure_threshold: 3
-            recovery_timeout: 30
-            timeout: 45.0
-
-        gemini_pro:
-          provider: gemini
-          backend: "infrastructure.llm.generic_http:GenericHttpLLM"
-          method: POST
-          base_url: "https://generativelanguage.googleapis.com"
-          endpoint: "/v1beta/models/gemini-pro:generateContent"
-          auth_style: header_key
-          auth_token_env: "GEMINI_API_KEY"
-          auth_header_name: "x-goog-api-key"
-          timeout: 60
-          model_name_for_api: "gemini-pro"
-          payload_template: |
-            {
-              "contents": [{
-                "role": "user",
-                "parts": [{"text": "{{ prompt }}"}]
-              }],
-              "generationConfig": {
-                "temperature": {{ temperature }},
-                "topP": {{ top_p }},
-                "maxOutputTokens": {{ max_tokens }}
-              }
-            }
-          response_text_path: "$.candidates[0].content.parts[0].text"
-          circuit_breaker:
-            failure_threshold: 8
-            recovery_timeout: 120
-            timeout: 60.0
-
-        openai_gpt4_specific:
-          provider: openai
-          backend: "infrastructure.llm.openai_llm:OpenAILLMAdapter"
-          model: "gpt-4"
-          api_key_env: "OPENAI_API_KEY"
-          timeout: 90
-          max_retries: 2
-          circuit_breaker:
-            failure_threshold: 2
-            recovery_timeout: 180
-            success_threshold: 2
-            timeout: 120.0
-
+          response_text_path: $.choices[0].message.content
         mock_testing_model:
           provider: mock
-          backend: "bootstrap.bootstrap_helper.placeholders:PlaceholderLLMPortImpl"
-          circuit_breaker:
-            failure_threshold: 100
-            recovery_timeout: 5
-            timeout: 5.0
-
-      routes:
-        chat_fast: "nano_default"
-        quick: "nano_default"
-        research: "gemini_pro"
-        analysis: "openai_gpt4_specific"
-        test: "mock_testing_model"
-        mock: "mock_testing_model"
-
-      parameters:
-        defaults:
-          temperature: 0.7
-          max_tokens: 1536
-          top_p: 1.0
-          system_prompt: "You are a helpful and concise AI assistant."
-
-        by_stage:
-          exploration:
-            temperature: 0.85
-            max_tokens: 2048
-            system_prompt: "You are a highly creative and imaginative AI assistant, skilled in divergent thinking and generating novel ideas. Be bold and explore unconventional paths."
-          critique:
-            temperature: 0.4
-            max_tokens: 1024
-            system_prompt: "You are a precise and analytical AI assistant. Your role is to critically evaluate the given text, identify flaws, weaknesses, and potential issues. Be objective and thorough."
-          synthesis:
-            temperature: 0.6
-            max_tokens: 2048
-            system_prompt: "You are an insightful AI assistant adept at synthesizing information. Combine the provided ideas or concepts into a coherent, well-structured, and enhanced summary or new concept."
-          rapid_response:
-            temperature: 0.5
-            max_tokens: 512
-            system_prompt: "You are an efficient AI assistant. Provide clear, concise, and direct responses."
-          deep_analysis:
-            temperature: 0.3
-            max_tokens: 4096
-            system_prompt: "You are a thorough AI analyst. Provide comprehensive, detailed analysis with evidence and reasoning."
-
-        by_role:
-          innovator:
-            top_p: 0.95
-            temperature: 0.8
-          evaluator:
-            temperature: 0.3
-            top_p: 0.9
-          researcher:
-            temperature: 0.4
-            max_tokens: 3072
-            system_prompt: "You are a meticulous researcher. Provide well-sourced, accurate, and comprehensive information."
-          teacher:
-            temperature: 0.6
-            max_tokens: 2048
-            system_prompt: "You are a patient and knowledgeable teacher. Explain concepts clearly with examples and check for understanding."
-          developer:
-            temperature: 0.2
-            max_tokens: 4096
-            system_prompt: "You are an expert software developer. Provide clean, efficient, well-documented code with explanations."
-
+          backend: infrastructure.llm.mock_llm:MockLLM
+          timeout: 5
+        openai_gpt4_specific:
+          provider: openai
+          backend: infrastructure.llm.generic_http:GenericHttpLLM
+          method: POST
+          base_url: https://api.openai.com/v1
+          endpoint: /chat/completions
+          auth_style: bearer
+          auth_token_env: OPENAI_API_KEY
+          timeout: 120
+          model_name_for_api: gpt-4o-mini
+          payload_template: |
+            {
+              "model": "{{ model_name_for_api }}",
+              "messages": [
+                {"role": "system", "content": "{{ system_prompt }}"},
+                {"role": "user",   "content": "{{ prompt }}"}
+              ],
+              "temperature": {{ temperature }},
+              "top_p": {{ top_p }},
+              "max_tokens": {{ max_tokens }}
+            }
+          response_text_path: $.choices[0].message.content
   EmbeddingPort:
-    enabled: true
-    class: "infrastructure.embeddings.embeddings:EmbeddingAdapter"
-    metadata_definition: "infrastructure.embeddings.embeddings:EMBEDDING_ADAPTER_METADATA"
-    port_type: "domain.ports.embedding_port:EmbeddingPort"
-    config:
-      provider: "sentence_transformers"
-      model: "all-MiniLM-L6-v2"
-      dimensions: 384
-      cache_size: 1000
-      timeout: 30
-    config_override:
-      api_key: "${EMBEDDING_API_KEY}"
-      base_url: "${EMBEDDING_API_URL:-https://api.example.com/v1}"
-
+    enabled: false
   IdeaRepositoryPort:
-    enabled: true
-    class: "infrastructure.persistence.idea_repository:IdeaRepository"
-    metadata_definition: "infrastructure.persistence.idea_repository:IDEA_REPOSITORY_METADATA"
-    port_type: "domain.ports.idea_repository_port:IdeaRepositoryPort"
-    config:
-      provider: "sqlite"
-      db_path: "runtime/ideas.db"
-      enable_wal_mode: true
-      timeout: 30.0
-    config_override:
-      connection_string: "${DATABASE_URL:-postgresql://localhost/nireon}"
-      pool_size: 5
-
-# ----------------------------------------------------------------------
-# COMPOSITES (Changed from 'mechanisms' to 'composites' for gateway)
-# ----------------------------------------------------------------------
+    enabled: false
 composites:
   mechanism_gateway_main:
-    class: "application.gateway.mechanism_gateway:MechanismGateway"
-    metadata_definition: "application.gateway.mechanism_gateway:MECHANISM_GATEWAY_METADATA"
+    class: application.gateway.mechanism_gateway:MechanismGateway
+    metadata_definition: application.gateway.mechanism_gateway:MECHANISM_GATEWAY_METADATA
     enabled: true
-    config_override: {}
-    # Dependencies are resolved by type by default by NireonBaseComponent if services
-    # are registered with their Port types.
-    # If you need to specify exact component IDs (e.g. if multiple LLMPorts exist):
-    # dependencies_override:
-    #   LLMPort: "llm_router_main"
-    #   ParameterService: "parameter_service_global"
-    #   FrameFactoryService: "frame_factory_service"
-    #   EventBusPort: "event_bus_memory" # Optional, but good to specify
-    #   BudgetManagerPort: "budget_manager_inmemory" # New dependency
-
-# ----------------------------------------------------------------------
-# MECHANISMS
-# ----------------------------------------------------------------------
-mechanisms:
-  explorer_instance_01: # This is the component_id for Explorer
-    enabled: true
-    class: "components.mechanisms.explorer.service:ExplorerMechanism"
-    metadata_definition: "components.mechanisms.explorer.service:EXPLORER_METADATA"
-    config:
-      max_depth: 1                # Keep low for quick test
-      application_rate: 0.6
-      exploration_strategy: "depth_first"
-      max_variations_per_level: 2 # Keep low for quick test
-      enable_semantic_exploration: true
-      enable_llm_enhancement: true
-      creativity_factor: 0.7
-      exploration_timeout_seconds: 45.0
-      request_embeddings_for_variations: false # Simpler for this test
-    config_override:
-      divergence_strength: 0.25
-      application_rate: 0.6
-      exploration_strategy: "depth_first"
-      max_variations_per_level: 2 # Keep low for quick test
-      max_depth: 1                # Keep low for quick test
-      enable_llm_enhancement: true
-      request_embeddings_for_variations: false # Simpler for this test
-      default_llm_policy_for_exploration:
-        temperature: 0.75
-        max_tokens: 150
-      default_resource_budget_for_exploration: # This is what Explorer tells FrameFactory
-        llm_calls: 3.0 # Reduced for test, ensure it's a float for BudgetManager
-        event_publishes: 10.0
-    epistemic_tags:
-      - "generator"
-      - "mutator"
-      - "explorer"
-    # Dependencies (MechanismGatewayPort, FrameFactoryService) are resolved by type.
-
+    dependencies_override:
+      LLMPort: llm_router_main
+      ParameterService: parameter_service_global
+      FrameFactoryService: frame_factory_service
+      EventBusPort: event_bus_memory
+      BudgetManagerPort: budget_manager_inmemory
+mechanisms: {}
 observers: {}
 managers: {}
 orchestration_commands: {}
-
-# ----------------------------------------------------------------------
-# ENVIRONMENT OVERRIDES – keep only LLM tweaks; nothing
-# bootstrap-managed is declared here.
-# ----------------------------------------------------------------------
 environment_overrides:
   development:
-    shared_services:
-      llm_router_main:
-        enabled: true
-        class: "infrastructure.llm.router:LLMRouter"
-        metadata_definition: "infrastructure.llm.router:LLM_ROUTER_METADATA"
-        port_type: "domain.ports.llm_port:LLMPort"  # Register as the port interface
-        config_override:
-          id: "llm_router_main"  # Ensure ID is set in all environments
-          default: "nano_default"  # Use the real model instead of mock
-          routes:
-            default: "nano_default"
-            chat_fast: "nano_default"
-            quick: "nano_default"
-            research: "nano_default"  # Could use gemini_pro if configured
-            analysis: "nano_default"  # Could use openai_gpt4_specific if needed
+    shared_services: {}
   testing:
-    shared_services:
-      IdeaRepositoryPort:
-        enabled: true
-        class: "bootstrap.bootstrap_helper.placeholders:PlaceholderIdeaRepositoryImpl"
-      event_bus_memory:
-        enabled: true
-        class: "bootstrap.bootstrap_helper.placeholders:PlaceholderEventBusImpl"
-      llm_router_main:
-        enabled: true
-        class: "infrastructure.llm.router:LLMRouter"
-        config_override:
-          id: "llm_router_main"  # Ensure ID is set in all environments
-          default: "mock_testing_model"
-          routes:
-            default: "mock_testing_model"
+    shared_services: {}
   production:
-    shared_services:
-      llm_router_main:
-        enabled: true
-        class: "infrastructure.llm.router:LLMRouter"
-        config_override:
-          id: "llm_router_main"  # Ensure ID is set in all environments
-          default: "nano_default"
-          enable_circuit_breakers: true
-          enable_health_checks: true
-          enable_metrics: true
-          health_check_interval: 120
+    shared_services: {}

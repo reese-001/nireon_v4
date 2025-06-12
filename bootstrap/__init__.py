@@ -1,102 +1,105 @@
-# C:\Users\erees\Documents\development\nireon\bootstrap\__init__.py
+"""
+bootstrap package – public re-exports + compatibility shims
+"""
+
 from __future__ import annotations
+import importlib
+import sys
 
-# Exceptions are fine as relative imports within the same package
-from .exceptions import (
-    BootstrapError, BootstrapValidationError, BootstrapTimeoutError,
-    ComponentInstantiationError, ComponentInitializationError, ComponentValidationError,
-    ManifestProcessingError, ConfigurationError, DependencyResolutionError,
-    FactoryError, RegistryError, RBACError, PhaseExecutionError,
-    BootstrapContextBuildError
+# ---------------------------------------------------------------------------
+# 1.  Compatibility shim for dynamic phase imports
+#     The bootstrap loader will try things like
+#        importlib.import_module("phases.manifest_processing_phase")
+#     so we alias "phases" → "bootstrap.phases"
+# ---------------------------------------------------------------------------
+
+# Alias the package itself
+sys.modules.setdefault("phases", importlib.import_module("bootstrap.phases"))
+
+# Alias each concrete phase module that might be requested
+for _mod in (
+    "manifest_processing_phase",
+    "component_initialization_phase",
+    "component_validation_phase",
+    "rbac_setup_phase",
+    "late_rebinding_phase",          # if used
+):
+    full_name = f"bootstrap.phases.{_mod}"
+    sys.modules.setdefault(f"phases.{_mod}", importlib.import_module(full_name))
+
+# ---------------------------------------------------------------------------
+# 2.  Re-export public objects from the new package layout
+# ---------------------------------------------------------------------------
+
+from .exceptions import *  # noqa: F401,F403
+
+# Core orchestrator & helpers
+from .core.main import (                # noqa: E402
+    BootstrapOrchestrator,
+    bootstrap_nireon_system,
+    bootstrap,
+    bootstrap_sync,
+)
+from .core.phase_executor import (      # noqa: E402
+    BootstrapPhaseExecutor,
+    PhaseExecutionResult,
+    PhaseExecutionSummary,
+    execute_bootstrap_phases,
+)
+from .context.bootstrap_context_builder import (  # noqa: E402
+    BootstrapContextBuilder,
+    create_bootstrap_context,
+)
+from .context.bootstrap_context import BootstrapContext  # noqa: E402
+from .config.bootstrap_config import BootstrapConfig     # noqa: E402
+
+# Result + health
+from .result_builder import (           # noqa: E402
+    BootstrapResult,
+    BootstrapResultBuilder,
+    build_result_from_context,
+    create_minimal_result,
+)
+from .validation_data import (          # noqa: E402
+    BootstrapValidationData,
+    ComponentValidationData,
+)
+from .health.reporter import (          # noqa: E402
+    HealthReporter,
+    ComponentStatus,
+    ComponentHealthRecord,
 )
 
-# Main bootstrap orchestrator and config/context classes
-from .main import (
-    BootstrapOrchestrator, BootstrapConfig, BootstrapContext,
-    bootstrap_nireon_system, bootstrap, bootstrap_sync
-)
+# Global config loader (unchanged path)
+from configs.config_loader import ConfigLoader  # noqa: E402
 
-# Context builder
-from .bootstrap_context_builder import (
-    BootstrapContextBuilder, create_bootstrap_context
-)
+# ---------------------------------------------------------------------------
+# 3.  Metadata
+# ---------------------------------------------------------------------------
 
-# Phase executor
-from .bootstrap_phase_executor import (
-    BootstrapPhaseExecutor, PhaseExecutionResult, PhaseExecutionSummary,
-    execute_bootstrap_phases
-)
-
-# Result builder
-from .result_builder import (
-    BootstrapResult, BootstrapResultBuilder,
-    build_result_from_context, create_minimal_result
-)
-
-# Validation data store
-from .validation_data import (
-    BootstrapValidationData, ComponentValidationData
-)
-
-# Health reporting
-from .health.reporter import (
-    HealthReporter, ComponentStatus, ComponentHealthRecord
-)
-
-# ConfigLoader - now imported from its new location
-from configs.config_loader import ConfigLoader
-
-
-__version__ = '4.0.0'
-__author__ = 'NIREON V4 Bootstrap Team'
-__description__ = 'L0 Abiogenesis – Bootstrap Infrastructure'
-CURRENT_SCHEMA_VERSION = 'V4-alpha.1.0'
+__version__ = "4.0.0"
+__author__ = "NIREON V4 Bootstrap Team"
+__description__ = "L0 Abiogenesis – Bootstrap Infrastructure"
+CURRENT_SCHEMA_VERSION = "V4-alpha.1.0"
 
 __all__ = [
-    # Main entry points
-    'bootstrap_nireon_system',
-    'bootstrap',
-    'bootstrap_sync',
-
-    # Configuration and Context
-    'BootstrapConfig',
-    'BootstrapContext',
-    'BootstrapContextBuilder',
-    'create_bootstrap_context',
-
-    # Orchestration and Execution
-    'BootstrapOrchestrator',
-    'BootstrapPhaseExecutor',
-    'PhaseExecutionResult',
-    'PhaseExecutionSummary',
-    'execute_bootstrap_phases',
-
-    # Results and Data
-    'BootstrapResult',
-    'BootstrapResultBuilder',
-    'build_result_from_context',
-    'create_minimal_result',
-    'BootstrapValidationData',
-    'ComponentValidationData',
-
-    # Health and Monitoring
-    'HealthReporter',
-    'ComponentStatus',
-    'ComponentHealthRecord',
-
-    # Configuration
-    'ConfigLoader', # Exporting the ConfigLoader from its new location
-
-    # Exceptions
-    'BootstrapError', 'BootstrapValidationError', 'BootstrapTimeoutError',
-    'ComponentInstantiationError', 'ComponentInitializationError', 'ComponentValidationError',
-    'ManifestProcessingError', 'ConfigurationError', 'DependencyResolutionError',
-    'FactoryError', 'RegistryError', 'RBACError', 'PhaseExecutionError',
-    'BootstrapContextBuildError',
-
+    # Entry points
+    "bootstrap_nireon_system", "bootstrap", "bootstrap_sync",
+    # Config / context
+    "BootstrapConfig", "BootstrapContext",
+    "BootstrapContextBuilder", "create_bootstrap_context",
+    # Orchestration
+    "BootstrapOrchestrator", "BootstrapPhaseExecutor",
+    "PhaseExecutionResult", "PhaseExecutionSummary", "execute_bootstrap_phases",
+    # Results / data
+    "BootstrapResult", "BootstrapResultBuilder",
+    "build_result_from_context", "create_minimal_result",
+    "BootstrapValidationData", "ComponentValidationData",
+    # Health
+    "HealthReporter", "ComponentStatus", "ComponentHealthRecord",
+    # Config loader
+    "ConfigLoader",
+    # Exceptions – wildcard-imported above
     # Versioning
-    'CURRENT_SCHEMA_VERSION',
-    '__version__',
-    '__author__',
-    '__description__',
+    "CURRENT_SCHEMA_VERSION", "__version__", "__author__", "__description__",
 ]

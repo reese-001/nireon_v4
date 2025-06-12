@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional, TYPE_CHECKING
 
 from pydantic import BaseModel, Field, ValidationError, validator
 
-from bootstrap.bootstrap_context import BootstrapContext
+from bootstrap.context.bootstrap_context import BootstrapContext
 from bootstrap.exceptions import BootstrapContextBuildError, BootstrapError, BootstrapValidationError
 from bootstrap.health.reporter import HealthReporter
 from bootstrap.registry.registry_manager import RegistryManager
@@ -14,7 +14,7 @@ from core.registry.component_registry import ComponentRegistry
 from domain.ports.event_bus_port import EventBusPort
 
 if TYPE_CHECKING:
-    from bootstrap.bootstrap_config import BootstrapConfig
+    from bootstrap.config.bootstrap_config import BootstrapConfig
 
 __all__ = ['BootstrapContextBuildConfig', 'BootstrapContextBuilder', 'BootstrapContextBuildError', 'create_bootstrap_context']
 

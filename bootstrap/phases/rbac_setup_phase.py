@@ -19,7 +19,7 @@ from bootstrap.bootstrap_helper.context_helper import create_context_builder, Si
 
 # Use TYPE_CHECKING to avoid circular imports
 if TYPE_CHECKING:
-    from bootstrap.bootstrap_context import BootstrapContext
+    from context.bootstrap_context import BootstrapContext
 
 logger = logging.getLogger(__name__)
 

@@ -36,11 +36,11 @@ def test_imports():
         print("✓ Exception imports working")
         
         # Test internal imports
-        from bootstrap.bootstrap_context_builder import BootstrapContextBuilder
+        from context.bootstrap_context_builder import BootstrapContextBuilder
         print("✓ Internal module imports working")
         
         # Test circular import resolution
-        from bootstrap.main import BootstrapOrchestrator as MainOrchestrator
+        from core.main import BootstrapOrchestrator as MainOrchestrator
         print("✓ No circular import detected")
         
         print("\n✅ All imports successful!")

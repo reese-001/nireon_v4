@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 
 if TYPE_CHECKING:
     from bootstrap.phases.base_phase import BootstrapPhase, PhaseResult
-    from bootstrap.bootstrap_context import BootstrapContext
+    from context.bootstrap_context import BootstrapContext
 
 logger = logging.getLogger(__name__)
 

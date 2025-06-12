@@ -36,7 +36,7 @@ async def main_cli_entry():
     
     if sys.argv[1] == '--smoke-test':
         try:
-            from .main import smoke_test
+            from .core.main import smoke_test
             success = await smoke_test()
             print("✓ Smoke test passed" if success else "✗ Smoke test failed")
             sys.exit(0 if success else 1)
@@ -50,7 +50,7 @@ async def main_cli_entry():
             sys.exit(1)
         
         try:
-            from .main import validate_bootstrap_config
+            from .core.main import validate_bootstrap_config
             result = await validate_bootstrap_config([sys.argv[2]])
             print(f"Validation: {'✓ PASSED' if result['valid'] else '✗ FAILED'}")
             
@@ -81,7 +81,7 @@ async def main_cli_entry():
             print(f"Warning: File {path} does not have .yaml/.yml extension")
     
     try:
-        from .main import bootstrap_nireon_system
+        from .core.main import bootstrap_nireon_system
         
         logger.info(f"Starting bootstrap with {len(config_paths)} configuration files")
         
