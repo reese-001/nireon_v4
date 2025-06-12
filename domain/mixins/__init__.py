@@ -1,4 +1,4 @@
-# nireon_v4/domain/mixins/__init__.py
+# nireon/domain/mixins/__init__.py
 """
 Domain mixins for adding functionality to core domain objects.
 """

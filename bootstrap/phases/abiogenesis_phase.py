@@ -4,21 +4,7 @@ from typing import Any, Dict, List, Tuple, Optional
 from enum import Enum
 from datetime import datetime, timezone
 
-from application.services.idea_service import IdeaService
-
 from .base_phase import BootstrapPhase, PhaseResult
-from bootstrap.bootstrap_helper.feature_flags import FeatureFlagsManager
-from bootstrap.bootstrap_helper.placeholders import (
-    PlaceholderLLMPortImpl, PlaceholderEmbeddingPortImpl, 
-    PlaceholderEventBusImpl, PlaceholderIdeaRepositoryImpl
-)
-from runtime.utils import import_by_path
-from domain.ports.llm_port import LLMPort
-from domain.ports.embedding_port import EmbeddingPort
-from domain.ports.event_bus_port import EventBusPort
-from domain.ports.idea_repository_port import IdeaRepositoryPort
-
-
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +16,7 @@ class ServiceResolutionMode(Enum):
 
 class ServiceImplementationType(Enum):
     REAL_IMPLEMENTATION = 'real'
-    PLACEHOLDER = 'placeholder'
+    PLACEHOLDER = 'placeholder' 
     PROVIDED_INSTANCE = 'provided'
     MANIFEST_CONFIGURED = 'manifest'
 
@@ -64,30 +50,31 @@ class AbiogenesisPhase(BootstrapPhase):
         super().__init__()
         self.service_resolutions: List[ServiceResolutionResult] = []
         self.resolution_mode: ServiceResolutionMode = ServiceResolutionMode.DEVELOPMENT
+        self.config_provider: Optional[Any] = None
 
     async def execute(self, context) -> PhaseResult:
-        logger.info('Executing Enhanced L0 Abiogenesis with placeholder leak detection')
+        logger.info('Executing Enhanced L0 Abiogenesis with V2 context integration')
         
+        self._initialize_enhanced_config(context)
         self.resolution_mode = self._determine_resolution_mode(context)
+        
         logger.info(f'Service resolution mode: {self.resolution_mode.value}')
         
         errors = []
         warnings = []
         created_services = []
-        
+
         try:
-            # Core service emergence
             await self._emerge_feature_flags_manager(context, created_services, errors)
             await self._emerge_component_registry(context, created_services, errors)
             await self._emerge_core_ports_enhanced(context, created_services, errors, warnings)
             await self._emerge_idea_service(context, created_services, errors)
+            await self._verify_service_emergence_with_contexts(context, created_services, warnings)
             
-            # Analyze placeholder usage
             placeholder_analysis = self._analyze_placeholder_usage()
             warnings.extend(placeholder_analysis['warnings'])
             errors.extend(placeholder_analysis['errors'])
             
-            # Emit completion signal
             await self._emit_enhanced_abiogenesis_signal(context, created_services)
             
             success = len(errors) == 0
@@ -105,13 +92,16 @@ class AbiogenesisPhase(BootstrapPhase):
                     'resolution_mode': self.resolution_mode.value,
                     'service_resolutions': [sr.to_dict() for sr in self.service_resolutions],
                     'placeholder_count': len([sr for sr in self.service_resolutions if sr.is_placeholder()]),
-                    'real_service_count': len([sr for sr in self.service_resolutions if not sr.is_placeholder()])
+                    'real_service_count': len([sr for sr in self.service_resolutions if not sr.is_placeholder()]),
+                    'config_provider_enabled': self.config_provider is not None,
+                    'v2_integration': True
                 }
             )
             
         except Exception as e:
             error_msg = f'Critical failure during Enhanced L0 Abiogenesis: {e}'
             logger.error(error_msg, exc_info=True)
+            
             return PhaseResult.failure_result(
                 message='Enhanced L0 Abiogenesis failed',
                 errors=[error_msg],
@@ -119,20 +109,43 @@ class AbiogenesisPhase(BootstrapPhase):
                 metadata={
                     'abiogenesis_failed': True,
                     'resolution_mode': self.resolution_mode.value,
-                    'partial_resolutions': [sr.to_dict() for sr in self.service_resolutions]
+                    'partial_resolutions': [sr.to_dict() for sr in self.service_resolutions],
+                    'v2_integration': True
                 }
             )
 
+    def _initialize_enhanced_config(self, context) -> None:
+        try:
+            # Import here to avoid circular imports
+            from bootstrap.bootstrap_helper.context_helper import SimpleConfigProvider
+            
+            feature_flags = context.global_app_config.get('feature_flags', {})
+            abiogenesis_config = context.global_app_config.get('abiogenesis', {})
+            
+            enhanced_config = {
+                **feature_flags,
+                **{f'abiogenesis.{k}': v for k, v in abiogenesis_config.items()}
+            }
+            
+            self.config_provider = SimpleConfigProvider(enhanced_config)
+            logger.debug(f'Enhanced config provider initialized with {len(enhanced_config)} configuration entries')
+            
+        except Exception as e:
+            logger.warning(f'Failed to initialize enhanced config provider: {e}')
+            self.config_provider = None
+
     def _determine_resolution_mode(self, context) -> ServiceResolutionMode:
-        # Check for explicit mode in configuration
-        explicit_mode = context.global_app_config.get('abiogenesis', {}).get('resolution_mode')
+        if self.config_provider:
+            explicit_mode = self.config_provider.get_config('abiogenesis', 'resolution_mode')
+        else:
+            explicit_mode = context.global_app_config.get('abiogenesis', {}).get('resolution_mode')
+        
         if explicit_mode:
             try:
                 return ServiceResolutionMode(explicit_mode)
             except ValueError:
                 logger.warning(f'Invalid resolution mode "{explicit_mode}", falling back to environment detection')
         
-        # Determine from environment
         env = context.global_app_config.get('env', 'development').lower()
         if env in ['prod', 'production']:
             return ServiceResolutionMode.PRODUCTION
@@ -145,6 +158,9 @@ class AbiogenesisPhase(BootstrapPhase):
 
     async def _emerge_feature_flags_manager(self, context, created_services: list, errors: list) -> None:
         try:
+            # Import here to avoid circular imports
+            from bootstrap.bootstrap_helper.feature_flags import FeatureFlagsManager
+            
             # Check if already exists
             try:
                 existing_ff = context.registry.get_service_instance(FeatureFlagsManager)
@@ -152,23 +168,27 @@ class AbiogenesisPhase(BootstrapPhase):
                 return
             except:
                 pass
-
-            # Create new instance
-            feature_flags_config = context.global_app_config.get('feature_flags', {})
+            
+            if self.config_provider:
+                feature_flags_config = self.config_provider.get_all_config()
+                feature_flags_config = {k: v for k, v in feature_flags_config.items() 
+                                      if not k.startswith('abiogenesis.')}
+            else:
+                feature_flags_config = context.global_app_config.get('feature_flags', {})
+            
             ff_manager = FeatureFlagsManager(feature_flags_config)
             
-            # Register with proper metadata
             context.registry_manager.register_service_with_certification(
                 service_type=FeatureFlagsManager,
                 instance=ff_manager,
                 service_id='FeatureFlagsManager',
                 category='core_service',
-                description='System-wide feature flag management for adaptive behavior',
+                description='System-wide feature flag management for adaptive behavior (V2 enhanced)',
                 requires_initialize=False
             )
             
             created_services.append('FeatureFlagsManager')
-            logger.info('✓ FeatureFlagsManager emerged with system feature control')
+            logger.info('✓ FeatureFlagsManager emerged with enhanced V2 configuration support')
             
         except Exception as e:
             error_msg = f'Failed to emerge FeatureFlagsManager: {e}'
@@ -177,30 +197,42 @@ class AbiogenesisPhase(BootstrapPhase):
 
     async def _emerge_component_registry(self, context, created_services: list, errors: list) -> None:
         try:
-            # Register the registry itself with proper metadata using canonical service ID
             context.registry_manager.register_service_with_certification(
                 service_type=type(context.registry),
                 instance=context.registry,
-                service_id='ComponentRegistry',  # Use ComponentRegistry as the canonical service ID
+                service_id='ComponentRegistry',
                 category='core_service',
-                description='Central component registry enabling system self-awareness',
+                description='Central component registry enabling system self-awareness (V2 enhanced)',
                 requires_initialize=False
             )
             
             created_services.append('ComponentRegistry')
-            logger.info('✓ ComponentRegistry achieved reflexive self-emergence')
+            logger.info('✓ ComponentRegistry achieved reflexive self-emergence with V2 integration')
             
         except Exception as e:
             error_msg = f'Failed to register ComponentRegistry reflexively: {e}'
             errors.append(error_msg)
             logger.error(error_msg)
 
-    async def _emerge_core_ports_enhanced(self, context, created_services: list, 
-                                        errors: list, warnings: list) -> None:
-        """Enhanced core port emergence with better manifest integration."""
+    async def _emerge_core_ports_enhanced(self, context, created_services: list, errors: list, warnings: list) -> None:
+        # Import here to avoid circular imports
+        try:
+            from domain.ports.llm_port import LLMPort
+            from domain.ports.embedding_port import EmbeddingPort
+            from domain.ports.event_bus_port import EventBusPort
+            from domain.ports.idea_repository_port import IdeaRepositoryPort
+            from bootstrap.bootstrap_helper.placeholders import (
+                PlaceholderLLMPortImpl, PlaceholderEmbeddingPortImpl,
+                PlaceholderEventBusImpl, PlaceholderIdeaRepositoryImpl
+            )
+        except ImportError as e:
+            logger.error(f"Failed to import port types or placeholders: {e}")
+            # Create minimal placeholders
+            errors.append(f"Failed to import required port types: {e}")
+            return
+        
         manifest_shared_services = context.global_app_config.get('shared_services', {})
         
-        # Define port configurations
         port_configs = [
             (LLMPort, PlaceholderLLMPortImpl, 'LLMPort', 
              'Language model interface for epistemic reasoning'),
@@ -215,8 +247,8 @@ class AbiogenesisPhase(BootstrapPhase):
         for port_type, placeholder_impl, service_id, description in port_configs:
             try:
                 resolution_result = await self._emerge_service_port_enhanced(
-                    context, port_type, placeholder_impl, service_id, description, 
-                    manifest_shared_services
+                    context, port_type, placeholder_impl, service_id, 
+                    description, manifest_shared_services
                 )
                 
                 if resolution_result:
@@ -239,9 +271,8 @@ class AbiogenesisPhase(BootstrapPhase):
     async def _emerge_service_port_enhanced(self, context, port_type, placeholder_impl, 
                                           service_id: str, description: str, 
                                           manifest_shared_services: dict) -> Optional[ServiceResolutionResult]:
-        """Enhanced service port emergence with manifest support."""
         
-        # Handle provided EventBus instance
+        # Special handling for EventBusPort if provided
         if service_id == 'EventBusPort' and context.config.existing_event_bus:
             instance = context.config.existing_event_bus
             result = ServiceResolutionResult(
@@ -252,7 +283,7 @@ class AbiogenesisPhase(BootstrapPhase):
             )
             await self._register_service_instance(context, port_type, instance, service_id, description)
             return result
-
+        
         # Check manifest for service specification
         service_spec = manifest_shared_services.get(service_id)
         if service_spec and service_spec.get('enabled', True):
@@ -260,6 +291,9 @@ class AbiogenesisPhase(BootstrapPhase):
             if class_path:
                 try:
                     logger.debug(f'Attempting to create {service_id} from manifest: {class_path}')
+                    
+                    # Import here to avoid circular imports
+                    from runtime.utils import import_by_path
                     service_class = import_by_path(class_path)
                     instance = self._instantiate_service_class(service_class, service_spec.get('config', {}))
                     
@@ -289,11 +323,11 @@ class AbiogenesisPhase(BootstrapPhase):
                 
                 if self.resolution_mode == ServiceResolutionMode.STRICT:
                     raise RuntimeError(f'Strict mode: {fallback_reason}')
-                
+                    
                 return await self._create_placeholder_service(
                     context, port_type, placeholder_impl, service_id, description, fallback_reason
                 )
-                
+        
         elif service_spec and not service_spec.get('enabled', True):
             logger.info(f'Service {service_id} disabled in manifest. Skipping.')
             return None
@@ -302,7 +336,7 @@ class AbiogenesisPhase(BootstrapPhase):
             
             if self.resolution_mode == ServiceResolutionMode.STRICT:
                 raise RuntimeError(f'Strict mode: {fallback_reason}')
-            
+                
             return await self._create_placeholder_service(
                 context, port_type, placeholder_impl, service_id, description, fallback_reason
             )
@@ -310,7 +344,6 @@ class AbiogenesisPhase(BootstrapPhase):
     async def _create_placeholder_service(self, context, port_type, placeholder_impl, 
                                         service_id: str, description: str, 
                                         fallback_reason: str) -> ServiceResolutionResult:
-        """Create and register a placeholder service."""
         instance = placeholder_impl()
         
         result = ServiceResolutionResult(
@@ -325,31 +358,24 @@ class AbiogenesisPhase(BootstrapPhase):
         return result
 
     def _instantiate_service_class(self, service_class, service_config: Dict[str, Any] = None) -> Any:
-        """Instantiate a service class with various fallback strategies."""
         config = service_config or {}
         
+        # Try different constructor patterns
         try:
-            # Try with config parameter
             return service_class(config=config)
         except TypeError:
             try:
-                # Try with cfg parameter
                 return service_class(cfg=config)
             except TypeError:
                 try:
-                    # Try with expanded config parameters
                     return service_class(**config)
                 except TypeError:
                     try:
-                        # Try with no parameters
                         return service_class()
                     except TypeError:
-                        # Try with just the config dict
                         return service_class(config)
 
-    async def _register_service_instance(self, context, port_type, instance, 
-                                       service_id: str, description: str):
-        """Register a service instance with proper metadata."""
+    async def _register_service_instance(self, context, port_type, instance, service_id: str, description: str):
         context.registry_manager.register_service_with_certification(
             service_type=port_type,
             instance=instance,
@@ -361,6 +387,9 @@ class AbiogenesisPhase(BootstrapPhase):
 
     async def _emerge_idea_service(self, context, created_services: list, errors: list) -> None:
         try:
+            # Import here to avoid circular imports
+            from application.services.idea_service import IdeaService
+            
             # Check if already exists
             try:
                 existing_idea_service = context.registry.get_service_instance(IdeaService)
@@ -368,34 +397,68 @@ class AbiogenesisPhase(BootstrapPhase):
                 return
             except:
                 pass
-
+            
             # Get dependencies
-            idea_repo = context.registry.get_service_instance(IdeaRepositoryPort)
-            event_bus = context.registry.get_service_instance(EventBusPort)
-            
-            # Create IdeaService
-            idea_service = IdeaService(repository=idea_repo, event_bus=event_bus)
-            
-            # Register with proper metadata
-            context.registry_manager.register_service_with_certification(
-                service_type=IdeaService,
-                instance=idea_service,
-                service_id='IdeaService',
-                category='domain_service',
-                description='Core epistemic service for idea creation, storage, and evolution',
-                requires_initialize=False
-            )
-            
-            created_services.append('IdeaService')
-            logger.info('✓ IdeaService emerged with epistemic capabilities')
-            
+            try:
+                from domain.ports.idea_repository_port import IdeaRepositoryPort
+                from domain.ports.event_bus_port import EventBusPort
+                
+                idea_repo = context.registry.get_service_instance(IdeaRepositoryPort)
+                event_bus = context.registry.get_service_instance(EventBusPort)
+                
+                idea_service = IdeaService(repository=idea_repo, event_bus=event_bus)
+                
+                context.registry_manager.register_service_with_certification(
+                    service_type=IdeaService,
+                    instance=idea_service,
+                    service_id='IdeaService',
+                    category='domain_service',
+                    description='Core epistemic service for idea creation, storage, and evolution (V2 enhanced)',
+                    requires_initialize=False
+                )
+                
+                created_services.append('IdeaService')
+                logger.info('✓ IdeaService emerged with enhanced V2 epistemic capabilities')
+                
+            except Exception as e:
+                error_msg = f'Failed to get dependencies for IdeaService: {e}'
+                errors.append(error_msg)
+                logger.error(error_msg)
+                
         except Exception as e:
             error_msg = f'Failed to emerge IdeaService: {e}'
             errors.append(error_msg)
             logger.error(error_msg)
 
+    async def _verify_service_emergence_with_contexts(self, context, created_services: list, warnings: list) -> None:
+        try:
+            logger.debug('Verifying service emergence with V2 context isolation')
+            
+            for service_id in created_services:
+                try:
+                    # Import here to avoid circular imports
+                    from bootstrap.bootstrap_helper.context_helper import create_minimal_context
+                    
+                    verification_context = create_minimal_context(
+                        component_id=f'verify_{service_id}',
+                        run_id=f'{context.run_id}_verification'
+                    )
+                    
+                    service_instance = context.registry.get(service_id)
+                    if service_instance is None:
+                        warnings.append(f'Service {service_id} verification failed: service not found')
+                    else:
+                        logger.debug(f'✓ Service {service_id} verified in isolated context')
+                        
+                except Exception as e:
+                    warnings.append(f'Service {service_id} verification failed: {e}')
+                    logger.warning(f'Service verification failed for {service_id}: {e}')
+                    
+        except Exception as e:
+            warnings.append(f'Service verification process failed: {e}')
+            logger.warning(f'Service verification process failed: {e}')
+
     def _analyze_placeholder_usage(self) -> Dict[str, List[str]]:
-        """Analyze placeholder service usage and generate recommendations."""
         analysis = {'warnings': [], 'errors': []}
         
         placeholder_services = [sr for sr in self.service_resolutions if sr.is_placeholder()]
@@ -418,11 +481,11 @@ class AbiogenesisPhase(BootstrapPhase):
         elif self.resolution_mode == ServiceResolutionMode.DEVELOPMENT:
             analysis['warnings'].append(f'Development mode: {placeholder_summary}')
         
-        # Log summary
-        logger.info(f'Service Resolution Summary:')
+        logger.info(f'Service Resolution Summary (V2 Enhanced):')
         logger.info(f'  Real implementations: {len(real_services)}')
         logger.info(f'  Placeholder services: {len(placeholder_services)}')
         logger.info(f'  Resolution mode: {self.resolution_mode.value}')
+        logger.info(f"  Config provider: {'enabled' if self.config_provider else 'disabled'}")
         
         for sr in self.service_resolutions:
             status = '🔴 PLACEHOLDER' if sr.is_placeholder() else '✅ REAL'
@@ -430,10 +493,8 @@ class AbiogenesisPhase(BootstrapPhase):
         
         return analysis
 
-    def _create_completion_message(self, created_services: List[str], 
-                                 placeholder_analysis: Dict[str, List[str]]) -> str:
-        """Create a completion message for the phase."""
-        base_message = f'Enhanced L0 Abiogenesis complete - {len(created_services)} services emerged'
+    def _create_completion_message(self, created_services: List[str], placeholder_analysis: Dict[str, List[str]]) -> str:
+        base_message = f'Enhanced L0 Abiogenesis V2 complete - {len(created_services)} services emerged'
         
         placeholder_count = len([sr for sr in self.service_resolutions if sr.is_placeholder()])
         real_count = len([sr for sr in self.service_resolutions if not sr.is_placeholder()])
@@ -445,7 +506,6 @@ class AbiogenesisPhase(BootstrapPhase):
             return f'{base_message} ({real_count} real, {placeholder_count} placeholder) {status}'
 
     async def _emit_enhanced_abiogenesis_signal(self, context, created_services: list) -> None:
-        """Emit enhanced abiogenesis completion signal."""
         try:
             from bootstrap.signals.bootstrap_signals import L0_ABIOGENESIS_COMPLETE
             
@@ -458,13 +518,12 @@ class AbiogenesisPhase(BootstrapPhase):
                 'service_resolutions': [sr.to_dict() for sr in self.service_resolutions],
                 'placeholder_count': len([sr for sr in self.service_resolutions if sr.is_placeholder()]),
                 'real_service_count': len([sr for sr in self.service_resolutions if not sr.is_placeholder()]),
-                'placeholder_services': [sr.service_id for sr in self.service_resolutions if sr.is_placeholder()]
+                'placeholder_services': [sr.service_id for sr in self.service_resolutions if sr.is_placeholder()],
+                'v2_integration': True,
+                'config_provider_enabled': self.config_provider is not None
             }
             
-            await context.signal_emitter.emit_signal(
-                signal_type=L0_ABIOGENESIS_COMPLETE,
-                payload=payload
-            )
+            await context.signal_emitter.emit_signal(signal_type=L0_ABIOGENESIS_COMPLETE, payload=payload)
             
         except Exception as e:
             logger.warning(f'Failed to emit enhanced L0 Abiogenesis signal: {e}')

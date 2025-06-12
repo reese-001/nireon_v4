@@ -1,4 +1,4 @@
-# C:\Users\erees\Documents\development\nireon_v4\infrastructure\llm\openai_llm.py
+# C:\Users\erees\Documents\development\nireon\infrastructure\llm\openai_llm.py
 import logging
 import os
 import httpx

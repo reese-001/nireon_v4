@@ -1,0 +1,34 @@
+# nireon_v4\bootstrap\processors\component_processing_utils.py
+import asyncio
+import dataclasses
+import inspect
+import logging
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Type
+from core.base_component import NireonBaseComponent
+from core.lifecycle import ComponentMetadata, ComponentRegistryMissingError
+from core.registry.component_registry import ComponentRegistry
+from factories.mechanism_factory import SimpleMechanismFactory
+from domain.ports.event_bus_port import EventBusPort
+from bootstrap.exceptions import BootstrapError
+from bootstrap.health.reporter import HealthReporter as BootstrapHealthReporter, ComponentStatus
+from bootstrap.bootstrap_helper.metadata import get_default_metadata
+from bootstrap.bootstrap_helper.service_resolver import _safe_register_service_instance
+from runtime.utils import import_by_path, load_yaml_robust
+# Changed import: Use the local enhanced_components from the processors package
+from .enhanced_components import _create_component_instance, _get_pydantic_defaults
+try:
+    from configs.config_utils import ConfigMerger
+except ImportError:
+    class ConfigMerger:
+        @staticmethod
+        def merge(dict1, dict2, context_name):
+            result = dict1.copy()
+            result.update(dict2)
+            return result
+logger = logging.getLogger(__name__)
+__all__ = ['asyncio', 'dataclasses', 'inspect', 'logging', 'datetime', 'timezone', 'Path', 'Any', 'Dict', 'List', 'Optional', 'Type', 'NireonBaseComponent', 
+           'ComponentMetadata', 'ComponentRegistryMissingError', 'ComponentRegistry', 'SimpleMechanismFactory', 'EventBusPort', 'BootstrapError', 
+           'BootstrapHealthReporter', 'ComponentStatus', 'get_default_metadata', '_safe_register_service_instance', 'import_by_path', 'load_yaml_robust', 
+           '_create_component_instance', '_get_pydantic_defaults', 'ConfigMerger', 'logger']

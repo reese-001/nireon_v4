@@ -40,7 +40,7 @@ mechanism_gateway_config: {} # No specific gateway config needed for this test
 # Explorer config can be defined here (key should match component_id in manifest)
 # OR in the manifest's config_override section for the explorer component.
 # Using manifest override is often cleaner for component-specific config.
-# explorer_v4_instance_01:
+# explorer_instance_01:
 #   divergence_strength: 0.2
 #   max_variations_per_level: 1 # Minimal for quick testing
 #   max_depth: 1

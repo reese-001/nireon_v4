@@ -1,4 +1,4 @@
-# nireon_v4/components/mechanisms/explorer/service_helpers/explorer_event_helper.py
+# nireon/components/mechanisms/explorer/service_helpers/explorer_event_helper.py
 import logging
 from typing import Dict, Optional, Any
 

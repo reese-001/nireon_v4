@@ -206,7 +206,12 @@ class ComponentInitializationPhase(BootstrapPhase):
             return
         
         # Create component-specific initialization context
-        init_context = build_component_init_context(component_id, context, {})
+        # FIXED: Use keyword arguments instead of positional arguments
+        init_context = build_component_init_context(
+            component_id=component_id, 
+            base_context=context, 
+            component_config={}
+        )
         
         # Initialize the component
         await component.initialize(init_context)

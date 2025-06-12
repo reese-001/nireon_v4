@@ -1,4 +1,4 @@
-# nireon_v4/application/gateway/mechanism_gateway_metadata.py
+# nireon/application/gateway/mechanism_gateway_metadata.py
 from core.lifecycle import ComponentMetadata
 
 MECHANISM_GATEWAY_METADATA = ComponentMetadata(

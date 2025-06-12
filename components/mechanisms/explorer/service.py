@@ -1,4 +1,4 @@
-# nireon_v4/components/mechanisms/explorer/service.py
+# nireon/components/mechanisms/explorer/service.py
 import logging
 import uuid
 from typing import Any, Dict, Optional, List
@@ -29,7 +29,7 @@ from .errors import ExplorerErrorCode
 logger = logging.getLogger(__name__)
 
 EXPLORER_METADATA = ComponentMetadata(
-    id='explorer_v4',
+    id='explorer',
     name='Explorer Mechanism V4',
     version='1.6.0',
     category='mechanism',
@@ -245,7 +245,7 @@ class ExplorerMechanism(NireonBaseComponent):
         input_hash = hashlib.sha256(seed_input_text.encode()).hexdigest()[:12]
         objective_from_data = data.get("objective", "Generate novel idea variations.") if isinstance(data, dict) else "Generate novel idea variations."
 
-        frame_name = f"explorer_v4_task_{task_short_id}_on_seed_{input_hash}"
+        frame_name = f"explorer_task_{task_short_id}_on_seed_{input_hash}"
         frame_description = (
             f"Exploration task initiated by '{self.component_id}' (exploration #{self._exploration_count}) "
             f"for seed idea (hash: {input_hash}, preview: '{seed_input_text[:30]}...') "
@@ -432,6 +432,7 @@ class ExplorerMechanism(NireonBaseComponent):
                 for i, llm_response in enumerate(llm_responses):
                     if llm_response and llm_response.text and not llm_response.get("error"):
                         variation_text = llm_response.text.strip()
+                        context.logger.info(f"[Explorer] LLM Variation {i+1} for Frame {current_frame.id}: {variation_text}") # temp logging line
                         if len(variation_text) >= self.cfg.minimum_idea_length:
                             generated_variations_texts.append(variation_text)
                             

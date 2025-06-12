@@ -1,4 +1,4 @@
-# nireon_v4/domain/ports/mechanism_gateway_port.py
+# nireon/domain/ports/mechanism_gateway_port.py
 from __future__ import annotations
 from typing import Protocol, Any, runtime_checkable 
 from domain.cognitive_events import CognitiveEvent

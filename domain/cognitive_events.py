@@ -1,4 +1,4 @@
-# nireon_v4/domain/cognitive_events.py
+# nireon/domain/cognitive_events.py
 from __future__ import annotations
 
 import time

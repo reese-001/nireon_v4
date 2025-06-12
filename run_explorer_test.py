@@ -154,7 +154,7 @@ async def main():
         return
 
     try:
-        explorer_id = "explorer_v4_instance_01"
+        explorer_id = "explorer_instance_01"
         set_current_log_component_id(explorer_id)
         explorer: ExplorerMechanism = registry.get(explorer_id)
         if not isinstance(explorer, ExplorerMechanism):
@@ -212,7 +212,7 @@ async def main():
     logger.info("Explorer Test Runner finished.")
 
 if __name__ == "__main__":
-    if Path.cwd().name == 'nireon_v4' and (Path.cwd().parent / 'configs').is_dir():
+    if Path.cwd().name == 'nireon' and (Path.cwd().parent / 'configs').is_dir():
         os.chdir(Path.cwd().parent)
         print(f"Changed CWD to project root: {Path.cwd()}")
     elif not (Path.cwd() / 'configs').is_dir() and PROJECT_ROOT and (PROJECT_ROOT / 'configs').is_dir():

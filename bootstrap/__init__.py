@@ -1,4 +1,4 @@
-# C:\Users\erees\Documents\development\nireon_v4\bootstrap\__init__.py
+# C:\Users\erees\Documents\development\nireon\bootstrap\__init__.py
 from __future__ import annotations
 
 # Exceptions are fine as relative imports within the same package

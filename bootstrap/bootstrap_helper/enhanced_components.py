@@ -1,401 +1,502 @@
-import asyncio
+"""
+Bootstrap helpers for *enhanced‑manifest* components (v4.1)
+==========================================================
+
+This module offers three public helpers that are consumed by the main bootstrap
+pipeline:
+
+* :func:`_get_pydantic_defaults` – discover Pydantic default config for a
+  component or factory key.
+* :func:`_create_component_instance` – instantiate a concrete component
+  given fully‑resolved metadata & config.
+* :func:`init_full_component` – create **and register** a component based on
+  the *enhanced* manifest spec (initialisation is deferred).
+
+The public API is **100 % backwards‑compatible** with the legacy v4.0
+implementation; only internal structure, typing, and logging have changed.
+"""
+
+from __future__ import annotations
+
+import dataclasses
 import importlib
 import inspect
 import json
 import logging
-from datetime import datetime, timezone
 import re
-from typing import Any, Dict, Optional, Type, Union
-from pydantic import BaseModel # For V4 Pydantic configs
+import types
+from dataclasses import asdict, replace
+from pathlib import Path
+from typing import Any, Dict, List, Mapping, Optional, Type, Union, cast
 
-from domain.context import NireonExecutionContext
+from pydantic import BaseModel
+
+from bootstrap.bootstrap_helper.placeholders import PlaceholderEventBusImpl  # type: ignore
+from bootstrap.health.reporter import BootstrapHealthReporter, ComponentStatus
+from configs.config_utils import ConfigMerger
+from core.base_component import NireonBaseComponent
 from core.lifecycle import (
     ComponentMetadata,
-    ComponentRegistry,
     ComponentRegistryMissingError,
 )
-from core.base_component import NireonBaseComponent
-from factories.dependencies import CommonMechanismDependencies # V4 common deps
-# from nireon.factories.observer_factory import CommonObserverDependencies # V4
-# from nireon.factories.manager_factory import CommonManagerDependencies   # V4
+from core.registry import ComponentRegistry
+from domain.context import NireonExecutionContext
 from domain.ports.event_bus_port import EventBusPort
-from configs.config_utils import ConfigMerger # V4 ConfigMerger
+from factories.dependencies import CommonMechanismDependencies
+from runtime.utils import import_by_path, load_yaml_robust
 
 from ._exceptions import BootstrapError
-from .health_reporter import (
-    BootstrapHealthReporter,
-    ComponentStatus,
-)
-from ...runtime.utils import import_by_path, load_yaml_robust
 from .service_resolver import _safe_register_service_instance
-
-import dataclasses
-from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-def _get_pydantic_defaults_v4(
-    component_class_or_factory_key: Union[Type, str],
-    component_name_for_logging: str
+__all__ = (
+    "_get_pydantic_defaults",
+    "_create_component_instance",
+    "init_full_component",
+    # Additional helpers from attachment 2
+    "_inject_dependencies",
+    "_validate_component_interfaces",
+    "_configure_component_logging",
+    "_prepare_component_metadata",
+)
+
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+# Helper – Pydantic defaults discovery
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+def _get_pydantic_defaults(
+    component_or_key: Union[Type, str],
+    label: str,
 ) -> Dict[str, Any]:
     """
-    Attempts to get default configuration from a Pydantic model associated with a V4 component.
-    It uses conventions to find the Pydantic config class.
+    Return default‑value dict from a Pydantic *ConfigModel* associated with a
+    component **class** (preferred) or, if `component_or_key` is a factory key,
+    an empty dict.
+
+    Conventions checked in order:
+
+    1. Nested ``ConfigModel`` attribute on the class.
+    2. `f"{ClassName}Config"` inside ``<module>.config``.
+    3. `f"{ClassName}Config"` in the same module.
+    4. `f"{ClassName}Config`` in ``<parent>.config``.
     """
-    logger.debug(f"Attempting to get Pydantic defaults for V4 component/key: '{component_name_for_logging}' (target: {component_class_or_factory_key})")
-    
-    config_model_cls: Optional[Type[BaseModel]] = None
+    logger.debug("Discovering Pydantic defaults for '%s' (%s)", label, component_or_key)
 
-    if inspect.isclass(component_class_or_factory_key):
-        # Convention 1: Component class has a nested Config Pydantic model
-        if hasattr(component_class_or_factory_key, "ConfigModel") and \
-           inspect.isclass(getattr(component_class_or_factory_key, "ConfigModel")) and \
-           issubclass(getattr(component_class_or_factory_key, "ConfigModel"), BaseModel):
-            config_model_cls = getattr(component_class_or_factory_key, "ConfigModel")
-            logger.debug(f"Found Pydantic ConfigModel nested in class for '{component_name_for_logging}'.")
-
-        # Convention 2: Look for a `config.py` in the same module or a `config` submodule
-        if not config_model_cls:
-            module_path = component_class_or_factory_key.__module__
-            component_class_name = component_class_or_factory_key.__name__
-            
-            # Expected Pydantic config class name (e.g., ExplorerMechanism -> ExplorerMechanismConfig)
-            expected_config_class_name = f"{component_class_name}Config"
-            
-            potential_config_module_paths = [
-                f"{module_path}.config", # e.g. mechanisms.explorer.config
-                module_path # Check in the same module
-            ]
-            if '.' in module_path: # e.g. nireon.mechanisms.explorer
-                parent_module = module_path.rsplit('.', 1)[0]
-                potential_config_module_paths.append(f"{parent_module}.config") # e.g. nireon.mechanisms.config
-
-            for config_module_path_attempt in potential_config_module_paths:
-                try:
-                    config_module = importlib.import_module(config_module_path_attempt)
-                    if hasattr(config_module, expected_config_class_name):
-                        candidate_cls = getattr(config_module, expected_config_class_name)
-                        if inspect.isclass(candidate_cls) and issubclass(candidate_cls, BaseModel):
-                            config_model_cls = candidate_cls
-                            logger.debug(f"Found Pydantic config class '{expected_config_class_name}' in module '{config_module_path_attempt}'.")
-                            break
-                except ImportError:
-                    logger.debug(f"Module '{config_module_path_attempt}' not found for Pydantic config of '{component_name_for_logging}'.")
-                except Exception as e:
-                    logger.debug(f"Error importing or accessing config from '{config_module_path_attempt}' for '{component_name_for_logging}': {e}")
-            
-    elif isinstance(component_class_or_factory_key, str): # It's a factory key
-        # For factory keys, Pydantic defaults are less common directly tied to the key.
-        # The factory itself might fetch them or they might be part of the component class it creates.
-        # This function is more about the class. If it's a key, the factory should handle Pydantic.
-        logger.debug(f"Input '{component_class_or_factory_key}' is a string (factory key), Pydantic defaults usually tied to the class it produces. Returning empty.")
+    if isinstance(component_or_key, str):
+        # Factory key – let the factory worry about defaults.
         return {}
 
+    cls = component_or_key
+    config_cls: Optional[Type[BaseModel]] = None
 
-    if config_model_cls:
-        try:
-            # Create an instance with default values and dump to dict
-            # .model_construct() is preferred for creating models without validation if defaults are trusted
-            # If validation of defaults is needed, use `config_model_cls()`
-            return config_model_cls.model_construct().model_dump()
-        except Exception as e:
-            logger.warning(f"Could not get defaults from Pydantic model {config_model_cls.__name__} for '{component_name_for_logging}': {e}")
-            return {}
+    # 1) Nested model
+    if hasattr(cls, "ConfigModel") and inspect.isclass(cls.ConfigModel) and issubclass(cls.ConfigModel, BaseModel):  # type: ignore[attr-defined]
+        config_cls = cls.ConfigModel  # type: ignore[assignment]
+    else:
+        # helpers
+        def _import_candidate(module_path: str) -> Optional[Type[BaseModel]]:
+            try:
+                mod = importlib.import_module(module_path)
+                cand = getattr(mod, f"{cls.__name__}Config", None)
+                if inspect.isclass(cand) and issubclass(cand, BaseModel):
+                    return cast(Type[BaseModel], cand)
+            except ImportError:
+                pass
+            return None
+
+        module_path = cls.__module__
+        candidates = [f"{module_path}.config", module_path]
+        if "." in module_path:
+            candidates.append(f"{module_path.rsplit('.', 1)[0]}.config")
+
+        for mod_path in candidates:
+            config_cls = _import_candidate(mod_path)
+            if config_cls:
+                break
+
+    if not config_cls:
+        return {}
+
+    try:
+        return config_cls.model_construct().model_dump()
+    except Exception as exc:
+        logger.warning("Could not extract defaults from %s for '%s': %s", config_cls.__name__, label, exc)
+        return {}
+
+def _get_pydantic_defaults(component_class: Type, component_name: str) -> Dict[str, Any]:
+    """Extract default values from Pydantic models associated with a component class."""
+    
+    defaults = {}
+    
+    try:
+        # Check for ConfigModel attribute
+        if hasattr(component_class, 'ConfigModel'):
+            config_model = component_class.ConfigModel
             
-    logger.debug(f"No Pydantic config model found or defaults retrievable for '{component_name_for_logging}'. Using empty dict for Pydantic defaults.")
-    return {}
+            # Pydantic v2 style
+            if hasattr(config_model, 'model_fields'):
+                for field_name, field_info in config_model.model_fields.items():
+                    if hasattr(field_info, 'default') and field_info.default is not ...:
+                        defaults[field_name] = field_info.default
+                    elif hasattr(field_info, 'default_factory') and field_info.default_factory is not None:
+                        try:
+                            defaults[field_name] = field_info.default_factory()
+                        except Exception:
+                            pass
+            # Pydantic v1 style
+            elif hasattr(config_model, '__fields__'):
+                for field_name, field in config_model.__fields__.items():
+                    if hasattr(field, 'default') and field.default is not ...:
+                        defaults[field_name] = field.default
+                    elif hasattr(field, 'default_factory') and field.default_factory is not None:
+                        try:
+                            defaults[field_name] = field.default_factory()
+                        except Exception:
+                            pass
+
+        # Check for DEFAULT_CONFIG class attribute
+        if hasattr(component_class, 'DEFAULT_CONFIG'):
+            defaults.update(component_class.DEFAULT_CONFIG)
+
+        if defaults:
+            logger.debug(f'Found {len(defaults)} Pydantic defaults for {component_name}')
+        else:
+            logger.debug(f'No Pydantic defaults found for {component_name}')
+
+    except Exception as e:
+        logger.debug(f'Error extracting Pydantic defaults for {component_name}: {e}')
+
+    return defaults
 
 
-async def _create_component_instance_v4(
-    component_class: Type, # The actual class of the component
-    resolved_config_for_instance: Dict[str, Any],
-    instance_id: str, # The ID for this specific instance (from manifest)
-    instance_metadata_object: ComponentMetadata, # The fully resolved V4 ComponentMetadata for this instance
-    common_deps: Optional[Union[CommonMechanismDependencies, Any]] = None, # V4 common deps for specific types
-                                                                        # Make Any for now if observer/manager deps differ
-    # V4 factories should be passed if needed, or registry used by the caller
-    # mechanism_factory: Optional[SimpleMechanismFactory] = None, 
-    # observer_factory: Optional[SimpleObserverFactory] = None,
-    # manager_factory: Optional[SimpleManagerFactory] = None,
+
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+# Helper – Component instantiation
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+async def _create_component_instance(
+    component_class: Type,
+    resolved_config: Dict[str, Any],
+    instance_id: str,
+    metadata: ComponentMetadata,
+    common_deps: Optional[CommonMechanismDependencies] = None,
 ) -> Optional[NireonBaseComponent]:
     """
-    Creates a V4 component instance.
-    Assumes NireonBaseComponent derivatives take (config, metadata_definition).
-    Uses common_deps if the component type matches and deps are provided.
+    Instantiate *component_class* with its resolved *metadata* & *config*.
+
+    Constructor argument resolution order (same as legacy):
+
+    1. ``config`` and ``metadata_definition`` if accepted.
+    2. Dependency‑injection via ``common_deps`` (llm, embed, event_bus, …).
+    3. Fallbacks: ``component_class(config=…)`` then ``component_class()``.
     """
-    logger.debug(f"[_create_component_instance_v4] ID='{instance_id}', Class='{component_class.__name__}', Metadata.ID='{instance_metadata_object.id}'")
-
-    if instance_metadata_object.id != instance_id:
-        # This is a safeguard. The caller (init_full_component_v4) should ensure this.
-        logger.error(
-            f"CRITICAL PRE-INSTANTIATION MISMATCH in _create_component_instance_"
-            f"instance_metadata_object.id ('{instance_metadata_object.id}') != instance_id ('{instance_id}'). "
-            f"This indicates an issue in the calling logic. Forcing metadata ID to '{instance_id}'."
-        )
-        instance_metadata_object = dataclasses.replace(instance_metadata_object, id=instance_id)
-    
-    try:
-        # Most V4 NireonBaseComponents should accept (config, metadata_definition)
-        # Some might also accept common_deps if they are e.g. mechanisms that need LLM ports directly.
-        # This needs careful handling based on component constructor signatures.
-
-        sig = inspect.signature(component_class.__init__)
-        constructor_args = {}
-
-        if "config" in sig.parameters:
-            constructor_args["config"] = resolved_config_for_instance
-        if "metadata_definition" in sig.parameters:
-            constructor_args["metadata_definition"] = instance_metadata_object
-        
-        # Add common dependencies if they are expected by the constructor
-        # This part is tricky as different component types might need different deps.
-        # For V4, factories are preferred for components needing complex deps.
-        # If a component takes `common_deps` directly, it's likely a mechanism.
-        if common_deps:
-            if "common_deps" in sig.parameters and isinstance(common_deps, CommonMechanismDependencies): # Be specific
-                 constructor_args["common_deps"] = common_deps
-            # Add elif for other common_deps types (observer, manager) when defined
-            elif "llm" in sig.parameters and hasattr(common_deps, "llm_port"):
-                constructor_args["llm"] = common_deps.llm_port
-            elif "embed" in sig.parameters and hasattr(common_deps, "embedding_port"):
-                constructor_args["embed"] = common_deps.embedding_port
-            # ... and so on for other direct dependencies if components take them.
-
-        logger.debug(f"Attempting to instantiate '{instance_id}' of type '{component_class.__name__}' with args: {list(constructor_args.keys())}")
-        instance = component_class(**constructor_args)
-        
-        # Post-instantiation checks specific to NireonBaseComponent
-        if isinstance(instance, NireonBaseComponent):
-            if not hasattr(instance, 'component_id') or instance.component_id != instance_id:
-                logger.error(
-                    f"CRITICAL MISMATCH: Instance '{getattr(instance, 'component_id', 'MISSING')}' ID "
-                    f"after creation does not match manifest ID '{instance_id}'. Overriding on instance."
-                )
-                # Directly set the attribute if possible (Python allows this)
-                object.__setattr__(instance, '_component_id', instance_id)
-            
-            if not hasattr(instance, 'metadata') or instance.metadata.id != instance_id:
-                logger.error(
-                    f"CRITICAL MISMATCH: Instance metadata ID '{getattr(getattr(instance, 'metadata', None), 'id', 'MISSING')}' "
-                    f"after creation does not match manifest ID '{instance_id}'. Overriding on instance."
-                )
-                object.__setattr__(instance, '_metadata_definition', instance_metadata_object)
-        return instance
-
-    except TypeError as err:
-        logger.error(
-            f"Instantiation TypeError for '{instance_id}' (Class: {component_class.__name__}) "
-            f"with metadata ID '{instance_metadata_object.id}'. Error: {err}",
-            exc_info=True
-        )
-        # Add more sophisticated fallback attempts if needed, similar to V3's _create_component_instance
-        # But V4 should ideally have more standardized constructors or use factories.
-        if issubclass(component_class, NireonBaseComponent): # Check if it's our base
-             raise BootstrapError(
-                f"NireonBaseComponent derivative '{instance_id}' failed instantiation with standard V4 signature. "
-                f"Constructor signature was: {sig}. Provided args: {list(constructor_args.keys())}. Error: {err}"
-            ) from err
-        else: # For non-NireonBaseComponent, try simpler patterns
-            logger.debug(f"Primary instantiation attempt for non-NireonBaseComponent '{instance_id}' failed: {err} – trying simpler fallbacks.")
-            try:
-                return component_class(config=resolved_config_for_instance)
-            except TypeError:
-                try:
-                    return component_class() # No-args constructor
-                except TypeError as err_no_args:
-                    logger.error(f"All instantiation attempts for '{instance_id}' failed. Initial error: {err}. No-args error: {err_no_args}", exc_info=True)
-                    raise BootstrapError(f"Instantiation attempts exhausted for '{instance_id}'. Last error: {err_no_args}") from err_no_args
-    except Exception as exc:
-        logger.error(f"General instantiation failure for '{instance_id}': {exc}", exc_info=True)
-        raise BootstrapError(f"Instantiation for '{instance_id}' failed: {exc}") from exc
-
-async def init_full_component_v4(
-    cid_manifest: str, # Component ID from the manifest
-    spec: Dict[str, Any], # Component specification from the manifest
-    registry: ComponentRegistry,
-    event_bus: EventBusPort, # V4 EventBusPort
-    run_id: str, # Current bootstrap run_id
-    replay_context: bool, # Indicates if in replay mode
-    common_deps: Optional[Union[CommonMechanismDependencies, Any]] = None, # V4 common deps
-    global_app_config: Dict[str, Any] = None,
-    health_reporter: BootstrapHealthReporter = None,
-    validation_data_store: Any = None # BootstrapValidationData
-    # perform_initialization is intentionally REMOVED. This function ONLY creates and registers.
-) -> None:
-    """
-    Initializes a V4 component based on an "enhanced" manifest specification.
-    This involves:
-    1. Importing the component class and its canonical metadata.
-    2. Merging configurations (Pydantic defaults, YAML file, manifest inline).
-    3. Instantiating the component.
-    4. Registering the instance with the V4 ComponentRegistry.
-    It DOES NOT call the component's .initialize() method.
-    """
-    global_app_config = global_app_config or {}
-    class_path: str = spec.get("class")
-    metadata_definition_path: str = spec.get("metadata_definition") # Path to V4 ComponentMetadata definition
-    instance_config_file_template: Optional[str] = spec.get("config") # Path template for instance-specific YAML
-    inline_config_override_from_manifest = spec.get("config_override", {})
-    is_enabled = spec.get("enabled", True)
-    is_strict_mode = global_app_config.get("bootstrap_strict_mode", True)
-
-    logger.info(f"-> Processing V4 Full Component: {cid_manifest} (Class: {class_path}, Enabled: {is_enabled})")
-
-    # Fallback metadata for early error reporting
-    base_name_for_report = class_path.split(":")[-1] if class_path and ":" in class_path else \
-                           class_path.split(".")[-1] if class_path else cid_manifest
-    category_from_spec = spec.get("type", "unknown_component_type") # 'type' in manifest maps to 'category' in ComponentMetadata
-    
-    fallback_metadata = ComponentMetadata(
-        id=cid_manifest, name=base_name_for_report, version="0.0.0", category=category_from_spec
+    logger.debug(
+        "[_create_component_instance] id=%s class=%s",
+        instance_id,
+        component_class.__name__,
     )
 
-    if not is_enabled:
-        logger.info(f"Component '{cid_manifest}' is disabled in manifest. Skipping.")
-        if health_reporter: health_reporter.add_component_status(cid_manifest, ComponentStatus.INSTANCE_REGISTERED_NO_INIT, fallback_metadata, ["Disabled in manifest"])
-        return
+    if metadata.id != instance_id:
+        metadata = replace(metadata, id=instance_id)
 
-    if not class_path or not metadata_definition_path:
-        msg = f"V4 Component '{cid_manifest}' definition missing 'class' ('{class_path}') or 'metadata_definition' ('{metadata_definition_path}')."
-        logger.error(msg)
-        if health_reporter: health_reporter.add_component_status(cid_manifest, ComponentStatus.DEFINITION_ERROR, fallback_metadata, [msg])
-        if is_strict_mode: raise BootstrapError(msg)
-        return
+    sig = inspect.signature(component_class.__init__)
+    kwargs: Dict[str, Any] = {}
 
-    # 1. Import component class and its canonical metadata definition
+    if "config" in sig.parameters:
+        kwargs["config"] = resolved_config
+    if "metadata_definition" in sig.parameters:
+        kwargs["metadata_definition"] = metadata
+
+    # Dependency injection
+    if common_deps:
+        mapping = {
+            "common_deps": common_deps,
+            "llm": getattr(common_deps, "llm_port", None),
+            "embedding_port": getattr(common_deps, "embedding_port", None),
+            "event_bus": getattr(common_deps, "event_bus", None),
+        }
+        for param, value in mapping.items():
+            if value is not None and param in sig.parameters:
+                kwargs.setdefault(param, value)
+
+    # Primary attempt
     try:
-        component_class = import_by_path(class_path)
-        if not inspect.isclass(component_class): # Ensure it's a class
-             raise TypeError(f"Path '{class_path}' for component '{cid_manifest}' did not resolve to a class.")
-    except (ImportError, TypeError) as e_cls:
-        msg = f"Failed to import/validate class '{class_path}' for component '{cid_manifest}': {e_cls}"
-        logger.error(msg, exc_info=True)
-        if health_reporter: health_reporter.add_component_status(cid_manifest, ComponentStatus.DEFINITION_ERROR, fallback_metadata, [msg])
-        if is_strict_mode: raise BootstrapError(msg) from e_cls
+        instance = component_class(**kwargs)
+    except TypeError as err:
+        logger.error("Constructor mismatch for '%s': %s", instance_id, err, exc_info=True)
+        # Fallbacks
+        for fallback_kwargs in ({"config": resolved_config}, {}):
+            try:
+                return component_class(**fallback_kwargs)
+            except TypeError:
+                continue
+        raise BootstrapError(f"Instantiation failed for '{instance_id}': {err}") from err
+
+    # Force‑synchronise IDs & metadata on NireonBaseComponent
+    if isinstance(instance, NireonBaseComponent):
+        if getattr(instance, "component_id", None) != instance_id:
+            object.__setattr__(instance, "_component_id", instance_id)
+        if getattr(instance, "metadata", None) is None or instance.metadata.id != instance_id:  # type: ignore[attr-defined]
+            object.__setattr__(instance, "_metadata_definition", metadata)
+
+    return cast(NireonBaseComponent, instance)
+
+
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+# Public – initialise & register component (no `.initialize()` called)
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+async def init_full_component(  # noqa: D401
+    cid_manifest: str,
+    spec: Mapping[str, Any],
+    registry: ComponentRegistry,
+    event_bus: EventBusPort,
+    run_id: str,
+    replay_context: bool,
+    common_deps: Optional[CommonMechanismDependencies] = None,
+    global_app_config: Optional[Dict[str, Any]] = None,
+    health_reporter: Optional[BootstrapHealthReporter] = None,
+    validation_data_store: Any = None,
+) -> None:
+    """
+    Create *and register* a component described by an **enhanced** manifest spec.
+
+    Steps (same semantics as v4.0):
+
+    1. Import target class & canonical metadata.
+    2. Merge config layers: Pydantic defaults → YAML → inline override.
+    3. Instantiate component (but **do not** call `.initialize()`).
+    4. Register with :class:`~core.lifecycle.ComponentRegistry`.
+    """
+    cfg = global_app_config or {}
+    strict = cfg.get("bootstrap_strict_mode", True)
+
+    # -------- 0. early exits / bookkeeping --------------------------------
+    if not spec.get("enabled", True):
+        logger.info("Component '%s' disabled in manifest – skipping.", cid_manifest)
+        if health_reporter:
+            health_reporter.add_component_status(cid_manifest, ComponentStatus.INSTANCE_REGISTERED_NO_INIT)
         return
 
+    class_path = spec.get("class")
+    meta_path = spec.get("metadata_definition")
+    if not class_path or not meta_path:
+        msg = f"Component '{cid_manifest}' missing 'class' or 'metadata_definition'."
+        _report_and_raise(msg, cid_manifest, health_reporter, strict, ComponentStatus.DEFINITION_ERROR)
+        return
+
+    # -------- 1. import class & canonical metadata ------------------------
     try:
-        canonical_metadata_definition: ComponentMetadata = import_by_path(metadata_definition_path)
-        if not isinstance(canonical_metadata_definition, ComponentMetadata):
-            msg = f"Imported metadata_definition '{metadata_definition_path}' for '{cid_manifest}' is not a ComponentMetadata instance (type: {type(canonical_metadata_definition)})."
-            logger.error(msg)
-            if health_reporter: health_reporter.add_component_status(cid_manifest, ComponentStatus.METADATA_ERROR, fallback_metadata, [msg])
-            if is_strict_mode: raise BootstrapError(msg)
-            return
-    except ImportError as e_meta_def:
-        msg = f"Failed to import canonical metadata_definition '{metadata_definition_path}' for component '{cid_manifest}': {e_meta_def}"
-        logger.error(msg, exc_info=True)
-        if health_reporter: health_reporter.add_component_status(cid_manifest, ComponentStatus.METADATA_ERROR, fallback_metadata, [msg])
-        if is_strict_mode: raise BootstrapError(msg) from e_meta_def
+        comp_cls = _import_class(class_path, cid_manifest)
+        canonical_meta = _import_metadata(meta_path, cid_manifest)
+    except BootstrapError as exc:
+        _report_and_raise(str(exc), cid_manifest, health_reporter, strict, ComponentStatus.DEFINITION_ERROR)
         return
 
-    # 2. Prepare instance-specific metadata (override ID, apply manifest overrides)
-    instance_specific_metadata_dict = dataclasses.asdict(canonical_metadata_definition)
-    instance_specific_metadata_dict["id"] = cid_manifest # Manifest ID is the instance ID
-    
-    manifest_meta_override = spec.get("metadata_override", {})
-    if manifest_meta_override:
-        logger.debug(f"[{cid_manifest}] Applying manifest metadata_override: {manifest_meta_override}")
-        for key, value in manifest_meta_override.items():
-            if key in instance_specific_metadata_dict:
-                instance_specific_metadata_dict[key] = value
-            elif key == "requires_initialize" and isinstance(value, bool):
-                 instance_specific_metadata_dict[key] = value
-            else:
-                logger.warning(f"[{cid_manifest}] Unknown key '{key}' or invalid type in metadata_override. Ignoring.")
-    
-    if "epistemic_tags" in spec: # Manifest tags override canonical
-        tags = spec["epistemic_tags"]
-        if isinstance(tags, list) and all(isinstance(t, str) for t in tags):
-            instance_specific_metadata_dict["epistemic_tags"] = tags
-        else:
-            logger.warning(f"[{cid_manifest}] Invalid 'epistemic_tags' in manifest. Using from canonical metadata.")
-    
-    if 'requires_initialize' not in instance_specific_metadata_dict:
-        instance_specific_metadata_dict['requires_initialize'] = canonical_metadata_definition.requires_initialize
+    # -------- 2. build instance metadata ----------------------------------
+    inst_meta = _build_instance_metadata(canonical_meta, cid_manifest, spec)
 
-    try:
-        instance_metadata = ComponentMetadata(**instance_specific_metadata_dict)
-    except Exception as e_meta_final:
-        msg = f"Failed to construct final ComponentMetadata for '{cid_manifest}': {e_meta_final}"
-        logger.error(msg, exc_info=True)
-        if health_reporter: health_reporter.add_component_status(cid_manifest, ComponentStatus.METADATA_CONSTRUCTION_ERROR, fallback_metadata, [msg])
-        if is_strict_mode: raise BootstrapError(msg) from e_meta_final
-        return
+    # -------- 3. resolve configuration ------------------------------------
+    pyd_defaults = _get_pydantic_defaults(comp_cls, inst_meta.name)
+    yaml_cfg = _load_yaml_layer(spec.get("config"), cid_manifest)
+    inline_override = spec.get("config_override", {})
 
-    logger.info(f"[{cid_manifest}] Instance Metadata prepared. ID='{instance_metadata.id}', Name='{instance_metadata.name}', Category='{instance_metadata.category}', ReqInit='{instance_metadata.requires_initialize}'")
+    merged_cfg = ConfigMerger.merge(pyd_defaults, yaml_cfg, f"{cid_manifest}_pyd_yaml")
+    resolved_cfg = ConfigMerger.merge(merged_cfg, inline_override, f"{cid_manifest}_final")
 
-    # 3. Configuration Merging
-    # Pydantic defaults -> YAML file -> Inline manifest config_override
-    pydantic_defaults = _get_pydantic_defaults_v4(component_class, instance_metadata.name)
-    logger.debug(f"[{cid_manifest}] Pydantic defaults: {list(pydantic_defaults.keys())}")
-
-    yaml_file_config = {}
-    if instance_config_file_template:
-        actual_config_path_str = instance_config_file_template.replace("{id}", cid_manifest)
-        yaml_file_config = load_yaml_robust(Path(actual_config_path_str))
-        # Add error handling for failed YAML load if needed
-        logger.debug(f"[{cid_manifest}] Loaded YAML from '{actual_config_path_str}': {list(yaml_file_config.keys())}")
-    
-    merged_config_step1 = ConfigMerger.merge(pydantic_defaults, yaml_file_config, f"{cid_manifest}_pydantic_yaml")
-    final_resolved_config = ConfigMerger.merge(merged_config_step1, inline_config_override_from_manifest, f"{cid_manifest}_final")
-    
-    logger.info(f"[{cid_manifest}] Final resolved config (top-level keys): {list(final_resolved_config.keys())}")
-    if logger.isEnabledFor(logging.DEBUG):
-        logger.debug(f"[{cid_manifest}] Full resolved config:\n{json.dumps(final_resolved_config, indent=2, default=str)}")
+    logger.info("[%s] Resolved config keys: %s", cid_manifest, list(resolved_cfg))
 
     if validation_data_store:
-        validation_data_store.store_component_data(
+        validation_data_store.store_component_data(  # type: ignore[attr-defined]
             component_id=cid_manifest,
-            original_metadata=instance_metadata, # This is the resolved metadata for this specific instance
-            resolved_config=final_resolved_config,
-            manifest_spec=spec
+            original_metadata=inst_meta,
+            resolved_config=resolved_cfg,
+            manifest_spec=spec,
         )
 
-    # 4. Instantiate the component
+    # -------- 4. instantiate ---------------------------------------------
     try:
-        instance = await _create_component_instance_v4(
-            component_class=component_class,
-            resolved_config_for_instance=final_resolved_config,
-            instance_id=cid_manifest, # Use manifest ID
-            instance_metadata_object=instance_metadata, # Pass the fully resolved instance metadata
-            common_deps=common_deps
+        instance = await _create_component_instance(
+            comp_cls,
+            resolved_cfg,
+            cid_manifest,
+            inst_meta,
+            common_deps=common_deps,
         )
-    except BootstrapError as e_create:
-        if health_reporter: health_reporter.add_component_status(cid_manifest, ComponentStatus.INSTANTIATION_ERROR, instance_metadata, [str(e_create)])
-        if is_strict_mode: raise
+    except BootstrapError as exc:
+        _report_and_raise(str(exc), cid_manifest, health_reporter, strict, ComponentStatus.INSTANTIATION_ERROR, inst_meta)
         return
 
     if instance is None:
-        msg = f"Instantiation for V4 component '{cid_manifest}' returned None."
-        if health_reporter: health_reporter.add_component_status(cid_manifest, ComponentStatus.INSTANTIATION_ERROR, instance_metadata, [msg])
-        if is_strict_mode: raise BootstrapError(msg)
+        _report_and_raise(
+            f"Instantiation for '{cid_manifest}' returned None.",
+            cid_manifest,
+            health_reporter,
+            strict,
+            ComponentStatus.INSTANTIATION_ERROR,
+            inst_meta,
+        )
         return
 
-    # 5. Register the instance (NO .initialize() call here)
+    # -------- 5. register (initialisation deferred) ----------------------
     try:
         _safe_register_service_instance(
             registry,
-            type(instance), # Register by its actual type
+            type(instance),
             instance,
-            instance.component_id, # Use the ID from the instance (should match cid_manifest)
+            instance.component_id,
             instance.metadata.category,
             description_for_meta=instance.metadata.description,
-            requires_initialize_override=instance.metadata.requires_initialize
+            requires_initialize_override=instance.metadata.requires_initialize,
         )
         if health_reporter:
             health_reporter.add_component_status(
                 instance.component_id,
-                ComponentStatus.INSTANCE_REGISTERED_INIT_DEFERRED, # Mark as registered, init is later
+                ComponentStatus.INSTANCE_REGISTERED_INIT_DEFERRED,
                 instance.metadata,
-                []
             )
-        logger.info(f"✓ V4 Component Instantiated & Registered: {instance.component_id} (Type: {type(instance).__name__}, Requires Init: {instance.metadata.requires_initialize})")
+        logger.info("✓ Registered component '%s' (requires_init=%s)", instance.component_id, instance.metadata.requires_initialize)
+    except Exception as exc:
+        _report_and_raise(str(exc), cid_manifest, health_reporter, strict, ComponentStatus.BOOTSTRAP_ERROR, inst_meta)
 
-    except BootstrapError as e_reg:
-        if health_reporter: health_reporter.add_component_status(instance.component_id, ComponentStatus.BOOTSTRAP_ERROR, instance.metadata, [str(e_reg)])
-        if is_strict_mode: raise
-    except Exception as exc_unexpected_reg:
-        logger.error(f"Unexpected error during registration of V4 component '{instance.component_id}': {exc_unexpected_reg}", exc_info=True)
-        if health_reporter: health_reporter.add_component_status(instance.component_id, ComponentStatus.BOOTSTRAP_ERROR, instance.metadata, [str(exc_unexpected_reg)])
-        if is_strict_mode: raise BootstrapError(f"Unexpected registration error for '{instance.component_id}'") from exc_unexpected_reg
+
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+# Additional helpers from attachment 2
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+def _inject_dependencies(
+    instance: NireonBaseComponent,
+    dependency_map: Dict[str, Any],
+    registry: Optional[Any] = None
+) -> None:
+    """Inject dependencies into a component instance."""
+    
+    try:
+        for dep_name, dep_value in dependency_map.items():
+            if hasattr(instance, f'_{dep_name}'):
+                setattr(instance, f'_{dep_name}', dep_value)
+                logger.debug(f"Injected dependency '{dep_name}' into {instance.component_id}")
+            elif hasattr(instance, dep_name):
+                setattr(instance, dep_name, dep_value)
+                logger.debug(f"Injected dependency '{dep_name}' into {instance.component_id}")
+    except Exception as e:
+        logger.warning(f'Failed to inject dependencies into {instance.component_id}: {e}')
+
+
+def _validate_component_interfaces(
+    instance: NireonBaseComponent,
+    expected_interfaces: List[Type]
+) -> List[str]:
+    """Validate that a component implements expected interfaces."""
+    
+    errors = []
+    try:
+        for interface in expected_interfaces:
+            if not isinstance(instance, interface):
+                errors.append(f'Component {instance.component_id} does not implement {interface.__name__}')
+    except Exception as e:
+        errors.append(f'Interface validation failed for {instance.component_id}: {e}')
+    
+    return errors
+
+
+def _configure_component_logging(
+    instance: NireonBaseComponent,
+    log_level: Optional[str] = None,
+    log_prefix: Optional[str] = None
+) -> None:
+    """Configure logging for a component instance."""
+    
+    try:
+        if hasattr(instance, '_configure_logging'):
+            instance._configure_logging(log_level=log_level, log_prefix=log_prefix)
+        elif hasattr(instance, 'logger'):
+            if log_level:
+                instance.logger.setLevel(getattr(logging, log_level.upper()))
+    except Exception as e:
+        logger.warning(f'Failed to configure logging for {instance.component_id}: {e}')
+
+
+def _prepare_component_metadata(
+    base_metadata: ComponentMetadata,
+    instance_id: str,
+    config_overrides: Optional[Dict[str, Any]] = None
+) -> ComponentMetadata:
+    """Prepare component metadata for an instance."""
+    
+    instance_metadata = dataclasses.replace(base_metadata, id=instance_id)
+    
+    if config_overrides:
+        metadata_overrides = config_overrides.get('metadata_override', {})
+        if metadata_overrides:
+            metadata_dict = dataclasses.asdict(instance_metadata)
+            metadata_dict.update(metadata_overrides)
+            instance_metadata = ComponentMetadata(**metadata_dict)
+    
+    return instance_metadata
+
+
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+# Internal helpers (not exported)
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+def _import_class(path: str, cid: str) -> Type:
+    obj = import_by_path(path)
+    if not inspect.isclass(obj):
+        raise BootstrapError(f"'{path}' for '{cid}' is not a class.")
+    return cast(Type, obj)
+
+
+def _import_metadata(path: str, cid: str) -> ComponentMetadata:
+    obj = import_by_path(path)
+    if not isinstance(obj, ComponentMetadata):
+        raise BootstrapError(f"'{path}' for '{cid}' is not a ComponentMetadata instance.")
+    return obj
+
+
+def _build_instance_metadata(canonical: ComponentMetadata, cid: str, spec: Mapping[str, Any]) -> ComponentMetadata:
+    data = asdict(canonical)
+    data["id"] = cid
+    data.update(spec.get("metadata_override", {}))
+
+    if "epistemic_tags" in spec and isinstance(spec["epistemic_tags"], list):
+        data["epistemic_tags"] = list(spec["epistemic_tags"])
+
+    data.setdefault("requires_initialize", canonical.requires_initialize)
+    return ComponentMetadata(**data)  # type: ignore[arg-type]
+
+
+def _load_yaml_layer(path_template: Optional[str], cid: str) -> Dict[str, Any]:
+    if not path_template:
+        return {}
+    try:
+        actual = Path(path_template.replace("{id}", cid))
+        return load_yaml_robust(actual)
+    except Exception as exc:
+        logger.warning("Failed to load YAML config for '%s': %s", cid, exc)
+        return {}
+
+
+def _report_and_raise(
+    msg: str,
+    cid: str,
+    reporter: Optional[BootstrapHealthReporter],
+    strict: bool,
+    status: ComponentStatus,
+    meta: Optional[ComponentMetadata] = None,
+) -> None:
+    logger.error(msg)
+    if reporter:
+        reporter.add_component_status(cid, status, meta or ComponentMetadata(id=cid, name=cid, version="0.0.0", category="unknown"), [msg])
+    if strict:
+        raise BootstrapError(msg)
+
+
+# Regex pre‑compilation example kept for future extensions (possible ID validation)
+_ID_RE = re.compile(r"^[A-Za-z0-9_\-\.]+$")

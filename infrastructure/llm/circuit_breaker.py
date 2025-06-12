@@ -1,4 +1,4 @@
-# nireon_v4/infrastructure/llm/circuit_breaker.py
+# nireon/infrastructure/llm/circuit_breaker.py
 """
 Circuit breaker pattern implementation for LLM backends.
 """

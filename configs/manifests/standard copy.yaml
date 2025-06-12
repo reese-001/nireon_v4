@@ -38,11 +38,11 @@ shared_services:
     class: "infrastructure.persistence.idea_repository.IdeaRepository"
     config:
       provider: "sqlite"
-      db_path: "runtime/ideas_v4.db"
+      db_path: "runtime/ideas.db"
       enable_wal_mode: true
       timeout: 30.0
     config_override:
-      connection_string: "${DATABASE_URL:-postgresql://localhost/nireon_v4}"
+      connection_string: "${DATABASE_URL:-postgresql://localhost/nireon}"
       pool_size: 5
 
   FeatureFlagsManager:

@@ -256,7 +256,7 @@ def create_minimal_result(registry, run_id: str = "minimal_run") -> BootstrapRes
         Minimal BootstrapResult
     """
     # Create minimal health reporter
-    from bootstrap.bootstrap_helper.health_reporter import BootstrapHealthReporter
+    from bootstrap.health.reporter import BootstrapHealthReporter
     health_reporter = BootstrapHealthReporter(registry)
     
     # Create minimal validation data

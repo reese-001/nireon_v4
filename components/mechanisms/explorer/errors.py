@@ -1,4 +1,4 @@
-# nireon_v4/components/mechanisms/explorer/errors.py
+# nireon/components/mechanisms/explorer/errors.py
 from enum import Enum
 
 class ExplorerErrorCode(Enum):

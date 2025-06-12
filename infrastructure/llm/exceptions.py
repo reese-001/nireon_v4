@@ -1,4 +1,4 @@
-# nireon_v4/infrastructure/llm/exceptions.py
+# nireon/infrastructure/llm/exceptions.py
 """
 Enhanced exception hierarchy for LLM subsystem.
 """
@@ -44,7 +44,7 @@ class LLMBackendNotAvailableError(LLMError):
     """Raised when a requested backend is not available."""
     pass
 
-# nireon_v4/infrastructure/llm/enhanced_openai_llm.py
+# nireon/infrastructure/llm/enhanced_openai_llm.py
 """
 Enhanced OpenAI LLM adapter with better error handling.
 """

@@ -243,7 +243,7 @@ class TestDeterministicRNGMixin:
             id="F-explorer-integration",
             name="Explorer Integration Test", 
             description="Test frame for explorer integration",
-            owner_agent_id="explorer_v4",
+            owner_agent_id="explorer",
             created_ts=time.time(),
             updated_ts=time.time()
         )

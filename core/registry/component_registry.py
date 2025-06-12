@@ -216,8 +216,8 @@ class ComponentRegistry:
             available_components=available_keys
         )
 
-    def get(self, key: Union[str, Type]) -> Any:
-        """General get with enhanced lookup."""
+    def get(self, key: Union[str, Type], default: Any = None) -> Any:
+        """General get with enhanced lookup and optional default."""
         normalized_key = self.normalize_key(key)
         if normalized_key in self._components:
             return self._components[normalized_key]
@@ -239,6 +239,11 @@ class ComponentRegistry:
                  elif hasattr(comp_instance, 'component_id') and comp_instance.component_id == normalized_key:
                      logger.debug(f"Found by component_id: '{normalized_key}'")
                      return comp_instance
+
+        # If default is provided, return it instead of raising exception
+        if default is not None:
+            logger.debug(f"Component '{normalized_key}' not found, returning default")
+            return default
 
         available_keys = sorted(self._components.keys())
         raise ComponentRegistryMissingError(normalized_key, available_components=available_keys)

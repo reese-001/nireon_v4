@@ -33,7 +33,7 @@ class IdeaRepository(IdeaRepositoryPort):
 
     def _init_sqlite(self):
         """Initialize SQLite backend"""
-        self.db_path = Path(self.config.get('db_path', 'runtime/ideas_v4.db'))
+        self.db_path = Path(self.config.get('db_path', 'runtime/ideas.db'))
         self.enable_wal_mode = self.config.get('enable_wal_mode', True)
         self.timeout = self.config.get('timeout', 30.0)
         
@@ -42,7 +42,7 @@ class IdeaRepository(IdeaRepositoryPort):
 
     def _init_postgres(self):
         """Initialize PostgreSQL backend (placeholder)"""
-        self.connection_string = self.config.get('connection_string', 'postgresql://localhost/nireon_v4')
+        self.connection_string = self.config.get('connection_string', 'postgresql://localhost/nireon')
         self.pool_size = self.config.get('pool_size', 5)
         self.timeout = self.config.get('timeout', 30.0)
         

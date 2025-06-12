@@ -15,7 +15,7 @@ shared_services:
   event_bus_memory:
     enabled: true
     class: "infrastructure.event_bus.memory_event_bus:MemoryEventBus"
-    port_type: "domain.ports.event_bus_port:EventBusPort"
+    port_type: "domain.ports.event_bus_port:EventBusPort"  # ADD THIS LINE
     metadata_definition: "infrastructure.event_bus.memory_event_bus:MEMORY_EVENT_BUS_METADATA"
     config:
       max_history: 1000
@@ -57,9 +57,9 @@ shared_services:
     enabled: true
     class: "infrastructure.llm.router:LLMRouter"
     metadata_definition: "infrastructure.llm.router:LLM_ROUTER_METADATA"
-    # CRITICAL: Add the component ID to the config so it matches the manifest key
+    port_type: "domain.ports.llm_port:LLMPort"
     config:
-      id: "llm_router_main"  # This ensures the component knows its correct ID
+      id: "llm_router_main" 
       default: "nano_default"
 
       enable_circuit_breakers: true
@@ -212,6 +212,7 @@ shared_services:
     enabled: true
     class: "infrastructure.embeddings.embeddings:EmbeddingAdapter"
     metadata_definition: "infrastructure.embeddings.embeddings:EMBEDDING_ADAPTER_METADATA"
+    port_type: "domain.ports.embedding_port:EmbeddingPort"
     config:
       provider: "sentence_transformers"
       model: "all-MiniLM-L6-v2"
@@ -226,13 +227,14 @@ shared_services:
     enabled: true
     class: "infrastructure.persistence.idea_repository:IdeaRepository"
     metadata_definition: "infrastructure.persistence.idea_repository:IDEA_REPOSITORY_METADATA"
+    port_type: "domain.ports.idea_repository_port:IdeaRepositoryPort"
     config:
       provider: "sqlite"
-      db_path: "runtime/ideas_v4.db"
+      db_path: "runtime/ideas.db"
       enable_wal_mode: true
       timeout: 30.0
     config_override:
-      connection_string: "${DATABASE_URL:-postgresql://localhost/nireon_v4}"
+      connection_string: "${DATABASE_URL:-postgresql://localhost/nireon}"
       pool_size: 5
 
 # ----------------------------------------------------------------------
@@ -258,7 +260,7 @@ composites:
 # MECHANISMS
 # ----------------------------------------------------------------------
 mechanisms:
-  explorer_v4_instance_01: # This is the component_id for Explorer
+  explorer_instance_01: # This is the component_id for Explorer
     enabled: true
     class: "components.mechanisms.explorer.service:ExplorerMechanism"
     metadata_definition: "components.mechanisms.explorer.service:EXPLORER_METADATA"

@@ -1,4 +1,4 @@
-# C:\Users\erees\Documents\development\nireon_v4\bootstrap\signals\bootstrap_signals.py
+# C:\Users\erees\Documents\development\nireon\bootstrap\signals\bootstrap_signals.py
 import logging
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional

@@ -58,19 +58,16 @@ class InterfaceValidationPhase(BootstrapPhase):
             # Validate each component
             for component_id in all_component_ids:
                 try:
-                    # Create the NireonExecutionContext for this component
-                    # This NireonExecutionContext will now have .interface_validator populated by BootstrapContext.with_component_scope
-                    component_exec_context = context.with_component_scope(component_id)
-                    
                     # Get validation data
                     validation_data_obj = None
                     if hasattr(context, 'validation_data_store') and context.validation_data_store:
                         validation_data_obj = context.validation_data_store.get_validation_data_for_component(component_id)
                     
-                    # Create validation context with metadata
-                    validation_run_context = component_exec_context.with_metadata(
-                        validation_step=True, 
-                        validation_data=validation_data_obj or {}
+                    # UPGRADED: Use the new context helper function with proper keyword arguments
+                    validation_run_context = build_validation_context(
+                        component_id=component_id,
+                        base_context=context.with_component_scope(component_id),
+                        validation_data=validation_data_obj.__dict__ if validation_data_obj else {}
                     )
                     
                     await self._validate_single_component(
@@ -145,13 +142,12 @@ class InterfaceValidationPhase(BootstrapPhase):
             if hasattr(bootstrap_context, 'validation_data_store') and bootstrap_context.validation_data_store:
                 validation_data_obj = bootstrap_context.validation_data_store.get_validation_data_for_component(component_id)
             
-            # NEW DEBUG LINE:
+            # DEBUG LINE:
             if component_id.lower() == 'frame_factory_service': # Check both frame_factory_service and FrameFactoryService
                 logger.critical(f"CRITICAL DEBUG for {component_id}: validation_data_obj is {'NOT None' if validation_data_obj else 'None'}")
                 if validation_data_obj:
                         logger.critical(f"CRITICAL DEBUG for {component_id}: validation_data_obj.original_metadata.epistemic_tags = {validation_data_obj.original_metadata.epistemic_tags}")
                         logger.critical(f"CRITICAL DEBUG for {component_id}: actual_runtime_metadata.epistemic_tags = {metadata.epistemic_tags}")
-
 
             if isinstance(component, NireonBaseComponent):
                 validation_errors = await self._validate_nireon_component(
@@ -294,28 +290,48 @@ class InterfaceValidationPhase(BootstrapPhase):
             logger.error(f"Error during NireonBaseComponent validation for {component_id_for_log}: {e}", exc_info=True)
             return [f'Validation error: {e}']
 
-    async def _validate_custom_component(self, component, metadata, validation_context: NireonExecutionContext, 
-                                       validation_stats: dict) -> List[str]:
-        """Validate a custom (non-NireonBaseComponent) component."""
+    # In bootstrap/phases/validation_phase.py, find and replace the _validate_custom_component method:
+
+    async def _validate_custom_component(self, component, metadata, validation_context: NireonExecutionContext, validation_stats: dict) -> List[str]:
         validation_stats['interface_checks'] += 1
         validation_errors = []
         
         try:
-            # Basic interface checks based on category
-            if metadata.category == 'service':
-                if not callable(component) and not hasattr(component, 'process'):
-                    validation_errors.append(f'Service component should be callable or have process method')
+            if metadata.category == 'service' or metadata.category == 'shared_service':
+                # Services don't need to be callable or have process methods
+                # They provide functionality through their own interfaces
+                # Just verify the component exists and is not None
+                if component is None:
+                    validation_errors.append(f'Service component is None')
+                # Services typically don't need the same lifecycle methods as mechanisms
+                # They may have their own specific interfaces
+                
             elif metadata.category in ['mechanism', 'observer', 'manager']:
+                # These components should have lifecycle methods
                 required_methods = ['initialize', 'process']
                 for method_name in required_methods:
                     if not hasattr(component, method_name):
                         validation_errors.append(f'Component missing required method: {method_name}')
-            
-            # Check metadata consistency
+                        
+            elif metadata.category == 'composite':
+                # Composite components may have different requirements
+                # Just ensure they have at least an initialize method
+                if not hasattr(component, 'initialize'):
+                    validation_errors.append(f'Composite component missing initialize method')
+                    
+            elif metadata.category == 'port_service':
+                # Port services (like EventBusPort) have their own interfaces
+                # They don't need process methods
+                if component is None:
+                    validation_errors.append(f'Port service component is None')
+                    
+            # Check metadata consistency regardless of category
             if hasattr(component, 'metadata'):
                 if component.metadata.id != metadata.id:
-                    validation_errors.append(f'Component metadata ID mismatch: {component.metadata.id} != {metadata.id}')
-            
+                    validation_errors.append(
+                        f'Component metadata ID mismatch: {component.metadata.id} != {metadata.id}'
+                    )
+                    
             return validation_errors
             
         except Exception as e:

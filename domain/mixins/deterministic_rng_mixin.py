@@ -1,4 +1,4 @@
-# nireon_v4/domain/mixins/deterministic_rng_mixin.py
+# nireon/domain/mixins/deterministic_rng_mixin.py
 import hashlib
 import random
 from typing import Optional

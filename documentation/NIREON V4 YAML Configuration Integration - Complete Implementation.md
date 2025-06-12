@@ -187,8 +187,8 @@ result = bootstrap_sync([
 # In manifest
 mechanisms:
   explorer_primary:
-    class: "nireon_v4.mechanisms.explorer.service:ExplorerMechanism"
-    metadata_definition: "nireon_v4.mechanisms.explorer.service:EXPLORER_METADATA"
+    class: "nireon.mechanisms.explorer.service:ExplorerMechanism"
+    metadata_definition: "nireon.mechanisms.explorer.service:EXPLORER_METADATA"
     config:
       max_depth: 3
     config_override:
@@ -200,7 +200,7 @@ mechanisms:
 # Replace placeholder with real implementation
 shared_services:
   EventBusPort:
-    class: "nireon_v4.infrastructure.event_bus.redis_event_bus:RedisEventBus"
+    class: "nireon.infrastructure.event_bus.redis_event_bus:RedisEventBus"
     config:
       redis_url: "${REDIS_URL:-redis://localhost:6379}"
 ```

@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install mypy
-      - run: mypy --strict nireon_v4/
+      - run: mypy --strict nireon/
 
   import-graph:
     runs-on: ubuntu-latest
@@ -30,7 +30,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install grimp pipdeptree
-      - run: grimp check no-cycles nireon_v4
+      - run: grimp check no-cycles nireon
 
   test:
     runs-on: ubuntu-latest
@@ -40,7 +40,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install pytest coverage
-      - run: pytest --cov=nireon_v4
+      - run: pytest --cov=nireon
 
   smoke:
     runs-on: ubuntu-latest

@@ -4,7 +4,7 @@ Manifest Processor - Schema validation and component processing.
 Implements programmatic JSON schema validation as mentioned in the Configuration Guide
 and processes manifest structures following the specification.
 """
-# C:\Users\erees\Documents\development\nireon_v4\bootstrap\processors\manifest_processor.py
+# C:\Users\erees\Documents\development\nireon\bootstrap\processors\manifest_processor.py
 from __future__ import annotations
 import json
 import logging

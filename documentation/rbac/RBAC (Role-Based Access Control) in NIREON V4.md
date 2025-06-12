@@ -132,7 +132,7 @@ else:
 Create the RBAC module structure:
 
 ```
-nireon_v4/
+nireon/
 ├── security/
 │   ├── __init__.py
 │   ├── execution_context.py

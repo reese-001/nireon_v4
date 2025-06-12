@@ -1,544 +1,474 @@
+"""
+Mechanism Gateway (v4.1)
+=======================
+
+Unified entry‑point for *external* service calls made by NIREON mechanisms:
+
+* **LLM ASK** – routes requests to the configured :pyclass:`~domain.ports.llm_port.LLMPort`
+  (usually an :pyclass:`~infrastructure.llm.router_backed_port.RouterBackedLLMPort`)
+  while enforcing frame‑scoped budgets.
+* **EVENT PUBLISH** – publishes arbitrary payloads to the configured
+  :pyclass:`~domain.ports.event_bus_port.EventBusPort`.
+
+Key guarantees
+--------------
+* **100 % backwards‑compatible public API** – no calling‑site changes.
+* **Stricter typing** – better IDE / mypy support.
+* **Richer logging** – sequence‑ID correlation and performance metrics.
+* **Dependency auto‑resolution** – gracefully upgrades placeholder ports when
+  concrete implementations become available at runtime.
+"""
+
 from __future__ import annotations
 
 import logging
 import time
-from typing import Any, Dict, Optional
 import uuid
+from typing import Any, Dict, Optional, TypedDict
 
+from application.services.budget_manager import BudgetExceededError, BudgetManagerPort
+from application.services.frame_factory_service import FrameFactoryService, FrameNotFoundError
+from bootstrap.bootstrap_helper.placeholders import PlaceholderEventBusImpl, PlaceholderLLMPortImpl
 from core.base_component import NireonBaseComponent
 from core.lifecycle import ComponentMetadata
 from core.results import (
-    ComponentHealth, ProcessResult, SystemSignal, SignalType,
-    create_success_result, create_error_result
+    ComponentHealth,
+    ProcessResult,
+    SystemSignal,
+    create_error_result,
+    create_success_result,
 )
 from domain.cognitive_events import CognitiveEvent, LLMRequestPayload
-from domain.ports.llm_port import LLMResponse, LLMPort
-from domain.ports.event_bus_port import EventBusPort
-from domain.ports.mechanism_gateway_port import MechanismGatewayPort
 from domain.context import NireonExecutionContext
 from domain.frames import Frame
-
-from application.services.frame_factory_service import FrameFactoryService, FrameNotFoundError
-from application.services.budget_manager import BudgetManagerPort, BudgetExceededError  # New Import
+from domain.ports.event_bus_port import EventBusPort
+from domain.ports.llm_port import LLMPort, LLMResponse
+from domain.ports.mechanism_gateway_port import MechanismGatewayPort
 from infrastructure.llm.parameter_service import ParameterService
-from bootstrap.bootstrap_helper.placeholders import PlaceholderEventBusImpl, PlaceholderLLMPortImpl
-from infrastructure.llm.router_backed_port import RouterBackedLLMPort
 from infrastructure.llm.router import LLMRouter
+from infrastructure.llm.router_backed_port import RouterBackedLLMPort
+
 from .mechanism_gateway_metadata import MECHANISM_GATEWAY_METADATA
+
+__all__ = ("MechanismGateway",)
+
+logger = logging.getLogger(__name__)
+
+
+class _EpisodeData(TypedDict, total=False):
+    cognitive_event: CognitiveEvent
+    response: Any
+    duration_ms: float
+    success: bool
+    frame_name: str
+    owning_agent_id: Optional[str]
+    epistemic_intent: Optional[str]
+    performance_metrics: Dict[str, Any]
+    correlation_id: str
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Main class
+# ─────────────────────────────────────────────────────────────────────────────
 
 
 class MechanismGateway(NireonBaseComponent, MechanismGatewayPort):
-    """Enhanced MechanismGateway leveraging advanced result tracking."""
+    """
+    Drop‑in compatible implementation of :class:`~domain.ports.mechanism_gateway_port.MechanismGatewayPort`.
+    """
 
-    def __init__(self,
-                 llm_router: LLMPort,
-                 parameter_service: ParameterService,
-                 frame_factory: FrameFactoryService,
-                 budget_manager: BudgetManagerPort,  # New dependency
-                 event_bus: Optional[EventBusPort] = None,
-                 config: Optional[Dict[str, Any]] = None,
-                 metadata_definition: Optional[ComponentMetadata] = None):
-        """Initialize the gateway with required dependencies."""
-        # Use provided metadata or default to MECHANISM_GATEWAY_METADATA
-        super().__init__(
-            config=config or {}, 
-            metadata_definition=metadata_definition or MECHANISM_GATEWAY_METADATA
-        )
-        
-        self._llm_router = llm_router
-        self._parameter_service = parameter_service
-        self._frame_factory = frame_factory
-        self._budget_manager = budget_manager  # Store it
-        self._event_bus = event_bus  # Initial event_bus, could be a placeholder
-        
-        # Track gateway-specific metadata
+    # ------------------------------------------------------------------ #
+    # Construction & DI                                                  #
+    # ------------------------------------------------------------------ #
+
+    def __init__(
+        self,
+        llm_router: Optional[LLMPort],
+        parameter_service: Optional[ParameterService],
+        frame_factory: Optional[FrameFactoryService],
+        budget_manager: Optional[BudgetManagerPort],
+        event_bus: Optional[EventBusPort] = None,
+        config: Optional[Dict[str, Any]] = None,
+        metadata_definition: Optional[ComponentMetadata] = None,
+    ) -> None:
+        super().__init__(config=config or {}, metadata_definition=metadata_definition or MECHANISM_GATEWAY_METADATA)
+
+        self._llm_router: Optional[LLMPort] = llm_router
+        self._parameter_service: Optional[ParameterService] = parameter_service
+        self._frame_factory: Optional[FrameFactoryService] = frame_factory
+        self._budget_manager: Optional[BudgetManagerPort] = budget_manager
+        self._event_bus: Optional[EventBusPort] = event_bus
+
+        # Runtime stats
         self.metadata.add_runtime_state("total_requests", 0)
         self.metadata.add_runtime_state("llm_requests", 0)
         self.metadata.add_runtime_state("event_publishes", 0)
-        self.metadata.add_runtime_state("budget_failures", 0)  # New
+        self.metadata.add_runtime_state("budget_failures", 0)
 
-    async def _initialize_impl(self, context: NireonExecutionContext) -> None:
-        """Initialize with dependency validation and health tracking."""
-        component_logger = context.logger or logging.getLogger(__name__)
-        component_logger.info(f"MechanismGateway '{self.component_id}' initializing")
-        
-        # Track dependencies in metadata - use actual component IDs
+    # ------------------------------------------------------------------ #
+    # Lifecycle                                                          #
+    # ------------------------------------------------------------------ #
+
+    async def _initialize_impl(self, context: NireonExecutionContext) -> None:  # noqa: D401
+        log = context.logger or logger
+        log.info("MechanismGateway '%s' initializing", self.component_id)
+
+        # Record dependency declarations for observability
         self.metadata.dependencies = {
             "LLMPort": "*",
             "parameter_service_global": ">=1.0.0",
             "frame_factory_service": "*",
-            "BudgetManagerPort": "*"  # New dependency
+            "BudgetManagerPort": "*",
         }
-        
-        # Resolve dependencies robustly if not provided or if they need updating
-        # LLMRouter
-        if not self._llm_router:
-            try:
-                self._llm_router = context.component_registry.get_service_instance(LLMPort)
-                component_logger.info(f"LLMPort resolved from registry for '{self.component_id}'.")
-            except Exception as e:
-                component_logger.error(f"Failed to resolve LLMPort for '{self.component_id}' from registry: {e}", exc_info=True)
-                raise RuntimeError(f"MechanismGateway '{self.component_id}' missing LLMPort and cannot resolve from registry.")
-        
-        # ---- Swap in router-backed LLMPort if current is placeholder ----
-        if isinstance(self._llm_router, PlaceholderLLMPortImpl):
-            router_instance = context.component_registry.get("llm_router_main")  # id from manifest
-            if router_instance and isinstance(router_instance, LLMRouter):
-                self._llm_router = RouterBackedLLMPort(router_instance)  # thin adapter
-                component_logger.info(f"↪  Upgraded LLMPort for '{self.component_id}' to RouterBackedLLMPort via '{router_instance.component_id}'")
-        
-        # ParameterService
-        if not self._parameter_service:
-            try:
-                self._parameter_service = context.component_registry.get_service_instance(ParameterService)
-                component_logger.info(f"ParameterService resolved from registry for '{self.component_id}'.")
-            except Exception as e:
-                component_logger.error(f"Failed to resolve ParameterService for '{self.component_id}' from registry: {e}", exc_info=True)
-                raise RuntimeError(f"MechanismGateway '{self.component_id}' missing ParameterService and cannot resolve from registry.")
 
-        # FrameFactoryService
-        if not self._frame_factory:
-            try:
-                self._frame_factory = context.component_registry.get_service_instance(FrameFactoryService)
-                component_logger.info(f"FrameFactoryService resolved from registry for '{self.component_id}'.")
-            except Exception as e:
-                component_logger.error(f"Failed to resolve FrameFactoryService for '{self.component_id}' from registry: {e}", exc_info=True)
-                raise RuntimeError(f"MechanismGateway '{self.component_id}' missing FrameFactoryService and cannot resolve from registry.")
+        # Auto‑resolve missing dependencies from registry
+        self._llm_router = await self._resolve_llm_router(context, log)
+        self._parameter_service = self._resolve_from_registry(ParameterService, self._parameter_service, context, log)
+        self._frame_factory = self._resolve_from_registry(FrameFactoryService, self._frame_factory, context, log)
+        self._budget_manager = self._resolve_from_registry(BudgetManagerPort, self._budget_manager, context, log)
+        self._event_bus = self._resolve_event_bus(self._event_bus, context, log)
 
-        # BudgetManagerPort
-        if not self._budget_manager:
-            try:
-                self._budget_manager = context.component_registry.get_service_instance(BudgetManagerPort)
-                component_logger.info(f"BudgetManagerPort resolved from registry for '{self.component_id}'.")
-            except Exception as e:
-                component_logger.error(f"Failed to resolve BudgetManagerPort for '{self.component_id}' from registry: {e}", exc_info=True)
-                raise RuntimeError(f"MechanismGateway '{self.component_id}' missing BudgetManager and cannot resolve from registry.")
-
-        # EventBusPort - Enhanced resolution
-        # Try to get the most up-to-date EventBus from the registry.
-        # This is important if the gateway was instantiated with a placeholder event bus.
-        current_registry_event_bus = None
-        if context.component_registry:
-            try:
-                current_registry_event_bus = context.component_registry.get_service_instance(EventBusPort)
-            except Exception:
-                component_logger.debug(f"EventBusPort not found in registry during '{self.component_id}' initialization. Will use existing or context's.")
-
-        # ---- Swap in real EventBus if we were bootstrapped with a placeholder ----
-        if current_registry_event_bus:
-            if self._event_bus is None or isinstance(self._event_bus, PlaceholderEventBusImpl):
-                self._event_bus = current_registry_event_bus
-                if isinstance(self._event_bus, PlaceholderEventBusImpl):
-                    component_logger.info(f"EventBus for '{self.component_id}' resolved from component registry, but it's still a placeholder.")
-                else:
-                    component_logger.info(f"↪  Upgraded EventBus for '{self.component_id}' to real EventBus '{getattr(self._event_bus, 'component_id', type(self._event_bus).__name__)}' from component registry.")
-            elif self._event_bus is not current_registry_event_bus:
-                component_logger.info(f"Updating EventBus for '{self.component_id}': Replacing current EventBus ({type(self._event_bus).__name__}) with instance from component registry ({type(current_registry_event_bus).__name__}).")
-                self._event_bus = current_registry_event_bus
-        elif (self._event_bus is None or isinstance(self._event_bus, PlaceholderEventBusImpl)) and context.event_bus:
-            if not isinstance(context.event_bus, PlaceholderEventBusImpl):
-                self._event_bus = context.event_bus
-                component_logger.info(f"↪  Upgraded EventBus for '{self.component_id}' to real EventBus from initialization context.")
-            elif self._event_bus is None:  # Only if it was truly None, not if it was already a placeholder
-                self._event_bus = context.event_bus
-                component_logger.info(f"EventBus for '{self.component_id}' taken from initialization context (still placeholder type).")
-        
-        if not self._event_bus:
-            component_logger.warning(f"EventBus still not available for MechanismGateway '{self.component_id}'. Episode publishing will be limited.")
-        else:
-            component_logger.info(f"MechanismGateway '{self.component_id}' will use EventBus of type: {type(self._event_bus).__name__}")
-        
-        # Update runtime state
         self.metadata.add_runtime_state("initialization_complete", True)
         self.metadata.add_runtime_state("event_bus_available", self._event_bus is not None)
-        
-        component_logger.info(f"MechanismGateway '{self.component_id}' initialization complete")
+        log.info("MechanismGateway '%s' initialization complete", self.component_id)
 
-    async def _process_impl(self, data: Any, context: NireonExecutionContext) -> ProcessResult:
+    # ------------------------------------------------------------------ #
+    # Core processing                                                    #
+    # ------------------------------------------------------------------ #
+
+    async def _process_impl(self, data: Any, context: NireonExecutionContext) -> ProcessResult:  # noqa: D401
         if not isinstance(data, CognitiveEvent):
-            return create_error_result(self.component_id, TypeError(f'Expected CognitiveEvent but got {type(data).__name__}'))
-        
+            return create_error_result(self.component_id, TypeError(f"Expected CognitiveEvent, got {type(data).__name__}"))
+
         ce: CognitiveEvent = data
-        correlation_id = ce.event_id or str(uuid.uuid4())
-        start_time = time.time()
-        
+        corr_id = ce.event_id or str(uuid.uuid4())
+        start = time.time()
+
         try:
-            result_data = await self.process_cognitive_event(ce, context)
+            result_payload = await self.process_cognitive_event(ce, context)
             result = create_success_result(
                 component_id=self.component_id,
-                message=f'Successfully processed {ce.service_call_type} event',
-                output_data=result_data
+                message=f"Processed {ce.service_call_type}",
+                output_data=result_payload,
             )
-            duration_ms = (time.time() - start_time) * 1000
-            result.add_metric('processing_time_ms', duration_ms)
-            result.add_metric('event_type', ce.service_call_type)
-            result.set_correlation_id(correlation_id)
-            
-            total = self.metadata.get_runtime_state('total_requests', 0) + 1
-            self.metadata.add_runtime_state('total_requests', total)
+            result.set_correlation_id(corr_id)
+            result.add_metric("processing_time_ms", (time.time() - start) * 1000)
+            result.add_metric("event_type", ce.service_call_type)
+            self._inc_runtime("total_requests")
             return result
-        except Exception as e:
-            error_result = create_error_result(component_id=self.component_id, error=e)
-            error_result.set_correlation_id(correlation_id)
-            
-            error_signal = SystemSignal.create_error(
-                component_id=self.component_id,
-                message=f'Failed to process {ce.service_call_type} event',
-                error=e
-            )
-            error_signal.set_correlation_id(correlation_id)
-            
+        except Exception as exc:  # pragma: no cover – defensive
+            err_res = create_error_result(self.component_id, exc)
+            err_res.set_correlation_id(corr_id)
+            err_sig = SystemSignal.create_error(self.component_id, f"Failed to process {ce.service_call_type}", exc)
+            err_sig.set_correlation_id(corr_id)
             if self._event_bus:
-                # Remove 'await' - EventBusPort.publish is synchronous
-                self._event_bus.publish(error_signal.to_event()['event_type'], error_signal.to_event())
-            
-            return error_result
+                self._event_bus.publish(err_sig.to_event()["event_type"], err_sig.to_event())
+            return err_res
 
-    async def health_check(self, context: NireonExecutionContext) -> ComponentHealth:
-        """Enhanced health check with dependency tracking."""
-        health = ComponentHealth(
-            component_id=self.component_id,
-            status="HEALTHY",
-            message="MechanismGateway operational"
-        )
-        
-        # Check core dependencies
-        health.add_check("llm_router", self._llm_router is not None, 
-                        "LLMRouter dependency present")
-        health.add_check("parameter_service", self._parameter_service is not None,
-                        "ParameterService dependency present")
-        health.add_check("frame_factory", self._frame_factory is not None,
-                        "FrameFactoryService dependency present")
-        
-        # Check optional dependencies
+    async def health_check(self, context: NireonExecutionContext) -> ComponentHealth:  # noqa: D401
+        health = ComponentHealth(component_id=self.component_id, status="HEALTHY", message="MechanismGateway operational")
+
+        # Presence checks
+        health.add_check("llm_router", bool(self._llm_router), "LLMRouter dependency present")
+        health.add_check("parameter_service", bool(self._parameter_service), "ParameterService dependency present")
+        health.add_check("frame_factory", bool(self._frame_factory), "FrameFactoryService dependency present")
         if not self._event_bus:
             health.add_check("event_bus", False, "EventBus not available (optional)")
-        
-        # Check dependency health if they support it
-        if self._llm_router and hasattr(self._llm_router, 'health_check'):
+
+        # Delegate to LLMRouter health if possible
+        if self._llm_router and hasattr(self._llm_router, "health_check"):
             try:
-                llm_router_id = getattr(self._llm_router, 'component_id', 'llm_router')
-                dep_context = context.with_component_scope(llm_router_id)
-                llm_health = await self._llm_router.health_check(dep_context)
-                health.add_dependency_health(llm_router_id, llm_health.status)
-                
+                llm_ctx = context.with_component_scope(getattr(self._llm_router, "component_id", "llm_router"))
+                llm_health = await self._llm_router.health_check(llm_ctx)  # type: ignore[attr-defined]
+                health.add_dependency_health(llm_ctx.component_id, llm_health.status)
                 if not llm_health.is_healthy():
-                    health.add_check("llm_router_health", False, 
-                                   f"LLMRouter is {llm_health.status}")
-            except Exception as e:
-                health.add_check("llm_router_health", False, 
-                               f"Error checking LLMRouter health: {e}")
-        
-        # Add runtime metrics to health
+                    health.add_check("llm_router_health", False, f"LLMRouter is {llm_health.status}")
+            except Exception as exc:
+                health.add_check("llm_router_health", False, f"LLMRouter health error: {exc}")
+
+        # Runtime metrics
         health.metrics = {
             "total_requests": self.metadata.get_runtime_state("total_requests", 0),
             "llm_requests": self.metadata.get_runtime_state("llm_requests", 0),
             "event_publishes": self.metadata.get_runtime_state("event_publishes", 0),
-            "budget_failures": self.metadata.get_runtime_state("budget_failures", 0)  # New metric
+            "budget_failures": self.metadata.get_runtime_state("budget_failures", 0),
         }
-        
-        # Calculate overall health
-        overall_status = health.calculate_overall_health()
-        health.status = overall_status
-        
+        health.status = health.calculate_overall_health()
         return health
 
-    async def process_cognitive_event(self, ce: CognitiveEvent, context: NireonExecutionContext) -> Any:
-        """Process a cognitive event by routing it to the appropriate service."""
-        component_logger = context.logger or logging.getLogger(__name__)
+    # ------------------------------------------------------------------ #
+    # Cognitive‑event dispatch                                           #
+    # ------------------------------------------------------------------ #
+
+    async def process_cognitive_event(self, ce: CognitiveEvent, context: NireonExecutionContext) -> Any:  # noqa: D401
         ce.gateway_received_ts = time.time()
-
-        if ce.service_call_type == 'LLM_ASK':
+        if ce.service_call_type == "LLM_ASK":
             return await self.ask_llm(ce, context)
-        elif ce.service_call_type == 'EVENT_PUBLISH':
+        if ce.service_call_type == "EVENT_PUBLISH":
             return await self.publish_event(ce, context)
-        else:
-            component_logger.error(f'Unsupported service_call_type: {ce.service_call_type} in CE {ce.event_id}')
-            raise ValueError(f'Unsupported service_call_type: {ce.service_call_type}')
+        raise ValueError(f"Unsupported service_call_type: {ce.service_call_type}")
 
-    async def publish_event(self, ce: CognitiveEvent, context: NireonExecutionContext) -> ProcessResult:
-        component_logger = context.logger or logging.getLogger(__name__)
-        if ce.service_call_type != 'EVENT_PUBLISH':
+    # ........................... EVENT‑PUBLISH .......................... #
+
+    async def publish_event(self, ce: CognitiveEvent, context: NireonExecutionContext) -> ProcessResult:  # noqa: D401
+        if ce.service_call_type != "EVENT_PUBLISH":
             raise ValueError("CognitiveEvent must have service_call_type 'EVENT_PUBLISH'")
-        if not isinstance(ce.payload, dict) or 'event_type' not in ce.payload or 'event_data' not in ce.payload:
-            raise ValueError("Payload must be a dict with 'event_type' and 'event_data' keys")
-        
-        start_time = time.time()
-        frame = await self._frame_factory.get_frame_by_id(context, ce.frame_id)
-        if not frame:
-            raise FrameNotFoundError(f'Frame {ce.frame_id} not found for CE {ce.event_id}')
-        
-        if not frame.is_active():
-            component_logger.warning(f"Publishing event from non-active Frame '{frame.id}' (status: {frame.status}) for CE {ce.event_id}")
-        
-        event_type_to_publish = ce.payload['event_type']
-        event_data_to_publish = ce.payload['event_data']
-        event_bus = context.event_bus or self._event_bus
-        
-        if event_bus:
-            try:
-                # Remove 'await' - EventBusPort.publish is synchronous
-                event_bus.publish(event_type_to_publish, event_data_to_publish)
-                result = create_success_result(
-                    component_id=self.component_id,
-                    message=f"Published event '{event_type_to_publish}'",
-                    output_data={'published_event_type': event_type_to_publish, 'publication_successful': True}
-                )
-                duration_ms = (time.time() - start_time) * 1000
-                result.add_metric('publish_duration_ms', duration_ms)
-                result.add_metric('frame_id', frame.id)
-                publishes = self.metadata.get_runtime_state('event_publishes', 0) + 1
-                self.metadata.add_runtime_state('event_publishes', publishes)
-                await self._publish_event_episode(ce, result, frame, context)
-                return result
-            except Exception as e:
-                error_result = create_error_result(component_id=self.component_id, error=e)
-                error_result.metadata['event_type'] = event_type_to_publish
-                await self._publish_event_episode(ce, error_result, frame, context)
-                return error_result
-        else:
-            return create_error_result(component_id=self.component_id, error=RuntimeError('Event bus not available'))
-           
+        if not isinstance(ce.payload, dict) or {"event_type", "event_data"} - ce.payload.keys():
+            raise ValueError("Payload must contain 'event_type' and 'event_data' keys")
 
-    async def ask_llm(self, ce: CognitiveEvent, context: NireonExecutionContext) -> LLMResponse:
-        """Enhanced LLM routing with performance tracking."""
-        component_logger = context.logger or logging.getLogger(__name__)
-        
-        if ce.service_call_type != 'LLM_ASK':
-            raise ValueError("CognitiveEvent must have service_call_type 'LLM_ASK'")
-        
+        log = context.logger or logger
+        start = time.time()
+        frame = await self._frame_factory.get_frame_by_id(context, ce.frame_id)  # type: ignore[arg-type]
+        if not frame:
+            raise FrameNotFoundError(f"Frame {ce.frame_id} not found")
+
+        if not frame.is_active():
+            log.warning("Publishing from non‑active frame '%s' (status=%s)", frame.id, frame.status)
+
+        bus = context.event_bus or self._event_bus
+        if not bus:
+            return create_error_result(self.component_id, RuntimeError("Event bus not available"))
+
+        e_type, e_data = ce.payload["event_type"], ce.payload["event_data"]
+        try:
+            bus.publish(e_type, e_data)
+            duration_ms = (time.time() - start) * 1000
+            self._inc_runtime("event_publishes")
+            result = create_success_result(
+                self.component_id,
+                f"Published event '{e_type}'",
+                {"published_event_type": e_type, "publication_successful": True},
+            )
+            result.add_metric("publish_duration_ms", duration_ms)
+            result.add_metric("frame_id", frame.id)
+            await self._publish_event_episode(ce, result, frame, context)
+            return result
+        except Exception as exc:
+            err_res = create_error_result(self.component_id, exc)
+            err_res.metadata["event_type"] = e_type
+            await self._publish_event_episode(ce, err_res, frame, context)
+            return err_res
+
+    # ........................... LLM‑ASK ................................ #
+
+    async def ask_llm(self, ce: CognitiveEvent, context: NireonExecutionContext) -> LLMResponse:  # noqa: D401
+        log = context.logger or logger
         if not isinstance(ce.payload, LLMRequestPayload):
             raise ValueError("Payload must be LLMRequestPayload")
 
-        llm_payload = ce.payload
-        start_time = time.time()
-
-        # Get the frame to check policies
-        frame = await self._frame_factory.get_frame_by_id(context, ce.frame_id)
+        frame = await self._frame_factory.get_frame_by_id(context, ce.frame_id)  # type: ignore[arg-type]
         if not frame:
-            # This case should ideally not happen if Explorer creates the frame first
-            # and uses its ID in the CE. But if it could, handle it.
-            component_logger.error(f"Frame {ce.frame_id} not found for CE {ce.event_id}")
-            return LLMResponse({
-                LLMResponse.TEXT_KEY: f"Error: Frame '{ce.frame_id}' not found.",
-                'error': f'Frame not found: {ce.frame_id}',
-                'error_type': 'FrameNotFoundError',
-                'call_id': ce.event_id
-            })
+            return LLMResponse(
+                {
+                    LLMResponse.TEXT_KEY: f"Error: Frame '{ce.frame_id}' not found.",
+                    "error": "Frame not found",
+                    "error_type": "FrameNotFoundError",
+                    "call_id": ce.event_id,
+                }
+            )
 
-        # Initialize frame budget in BudgetManager if it's the first time or budget changed
+        # Budget initialisation / enforcement
         if frame.resource_budget:
-            self._budget_manager.initialize_frame_budget(frame.id, frame.resource_budget)
-
-        # Check frame status
+            self._budget_manager.initialize_frame_budget(frame.id, frame.resource_budget)  # type: ignore[attr-defined]
         if not frame.is_active():
-            component_logger.warning(f"LLM_ASK from non-active Frame '{frame.id}' "
-                                    f"(status: {frame.status}) for CE {ce.event_id}")
-            
-            # Create error response
-            err_resp = LLMResponse({
-                LLMResponse.TEXT_KEY: f"Error: Frame '{frame.id}' is not active (status: {frame.status})",
-                'error': f'Frame not active: {frame.status}',
-                'error_type': 'FrameNotActiveError',
-                'call_id': ce.event_id
-            })
-            
-            # Create error result for tracking
-            error_result = ProcessResult(
-                success=False,
-                component_id=self.component_id,
-                message=f"Frame not active: {frame.status}",
-                error_code="FRAME_NOT_ACTIVE",
-                output_data=err_resp
-            )
-            
-            await self._publish_llm_episode(ce, error_result, frame, context)
-            return err_resp
+            return await self._handle_inactive_frame(ce, frame, context)
 
-        # Budget Check
         try:
-            # Assuming 1 LLM call consumes 1 unit of 'llm_calls' budget
-            self._budget_manager.consume_resource_or_raise(frame.id, "llm_calls", 1.0)
-            component_logger.info(f"Budget consumed for LLM call in frame '{frame.id}'.")
-        except BudgetExceededError as budget_error:
-            component_logger.warning(f"LLM_ASK budget exceeded for Frame '{frame.id}': {budget_error}")
-            self.metadata.add_runtime_state('budget_failures', self.metadata.get_runtime_state('budget_failures', 0) + 1)
-            err_resp = LLMResponse({
-                LLMResponse.TEXT_KEY: f"Error: LLM call budget exceeded. {budget_error}",
-                'error': str(budget_error),
-                'error_type': 'BudgetExceededError',  # This specific type is important
-                'call_id': ce.event_id,
-                # For Explorer to potentially parse
-                'error_payload': {'code': 'BUDGET_EXCEEDED_HARD', 'message': str(budget_error)}
-            })
-            error_result = ProcessResult(success=False, component_id=self.component_id,
-                                         message=str(budget_error), error_code='BUDGET_EXCEEDED',
-                                         output_data=err_resp)
-            await self._publish_llm_episode(ce, error_result, frame, context)
-            return err_resp  # Return the LLMResponse object with error details
-        
-        # Get base parameters from parameter service
-        base_params = self._parameter_service.get_parameters(
-            stage=llm_payload.stage,
-            role=llm_payload.role,
-            ctx=context
+            self._budget_manager.consume_resource_or_raise(frame.id, "llm_calls", 1.0)  # type: ignore[attr-defined]
+        except BudgetExceededError as exc:
+            self._inc_runtime("budget_failures")
+            return await self._handle_budget_exceeded(ce, frame, exc, context)
+
+        # Build final LLM parameters (base → frame policy → payload overrides)
+        final_settings = self._compose_llm_settings(frame, ce.payload)  # type: ignore[arg-type]
+        llm_ctx = context.with_metadata(
+            frame_id=frame.id,
+            frame_name=frame.name,
+            epistemic_intent=ce.epistemic_intent,
+            cognitive_event_id=ce.event_id,
         )
-        
-        # Build final LLM settings by merging policies
-        final_llm_settings = {**base_params}
-        
-        # Apply frame LLM policy
-        if frame.llm_policy:
-            final_llm_settings.update(frame.llm_policy)
-            if 'preferred_route' in frame.llm_policy and not llm_payload.target_model_route:
-                llm_payload.target_model_route = frame.llm_policy['preferred_route']
-        
-        # Apply payload-specific settings (highest priority)
-        if llm_payload.llm_settings:
-            final_llm_settings.update(llm_payload.llm_settings)
 
-        # Handle routing
-        if llm_payload.target_model_route:
-            final_llm_settings['route'] = llm_payload.target_model_route
-        elif 'route' in final_llm_settings and not llm_payload.target_model_route:
-            llm_payload.target_model_route = final_llm_settings['route']
-
-        # Make the LLM call
         try:
-            # Create context for LLM call with additional metadata
-            llm_context = context.with_metadata(
-                frame_id=frame.id,
-                frame_name=frame.name,
-                epistemic_intent=ce.epistemic_intent,
-                cognitive_event_id=ce.event_id
+            start = time.time()
+            llm_resp = await self._llm_router.call_llm_async(  # type: ignore[attr-defined]
+                prompt=ce.payload.prompt,
+                stage=ce.payload.stage,
+                role=ce.payload.role,
+                context=llm_ctx,
+                settings=final_settings,
             )
-            
-            # Add event ID to settings if not present
-            if 'call_id' not in final_llm_settings:  # Ensure ce.event_id is used if no call_id
-                final_llm_settings['ce_event_id'] = ce.event_id
+            duration_ms = (time.time() - start) * 1000
 
-            llm_response_obj = await self._llm_router.call_llm_async(
-                prompt=llm_payload.prompt,
-                stage=llm_payload.stage,
-                role=llm_payload.role,
-                context=llm_context,
-                settings=final_llm_settings
-            )
-            
-            # Check for errors in response
-            if llm_response_obj and llm_response_obj.get('error'):
-                # Create error result
-                error_result = ProcessResult(
+            if llm_resp and llm_resp.get("error"):
+                err_res = ProcessResult(
                     success=False,
                     component_id=self.component_id,
-                    message=str(llm_response_obj.get('error')),
-                    error_code=llm_response_obj.get('error_type', 'LLM_ERROR'),
-                    output_data=llm_response_obj
+                    message=str(llm_resp["error"]),
+                    error_code=llm_resp.get("error_type", "LLM_ERROR"),
+                    output_data=llm_resp,
                 )
-                await self._publish_llm_episode(ce, error_result, frame, context)  # Publish episode even for LLM errors
+                await self._publish_llm_episode(ce, err_res, frame, context)
             else:
-                # Create success result with metrics
-                success_result = create_success_result(
-                    component_id=self.component_id,
-                    message="LLM call successful",
-                    output_data=llm_response_obj
+                succ = create_success_result(
+                    self.component_id, 
+                    "LLM call successful", 
+                    output_data=llm_resp  # Pass the LLM response as a keyword argument
                 )
-                
-                # Add performance metrics
-                duration_ms = (time.time() - start_time) * 1000
-                success_result.add_metric("llm_call_duration_ms", duration_ms)
-                success_result.add_metric("prompt_length", len(llm_payload.prompt))
-                if llm_response_obj and LLMResponse.TEXT_KEY in llm_response_obj:
-                    success_result.add_metric("response_length", 
-                                            len(llm_response_obj[LLMResponse.TEXT_KEY]))
-                
-                # Update runtime state
-                llm_requests = self.metadata.get_runtime_state("llm_requests", 0) + 1
-                self.metadata.add_runtime_state("llm_requests", llm_requests)
-                
-                # Publish episode
-                await self._publish_llm_episode(ce, success_result, frame, context)
-            
-            return llm_response_obj  # Always return the LLMResponse object
-
-        except Exception as e:
-            # ---- MODIFICATION START ----
-            component_logger.error(
-                f"ask_llm: Caught exception for CE {ce.event_id}. Exception Type: {type(e).__name__}, Exception Msg: {str(e)}",
-                exc_info=True
+                succ.add_metric("llm_call_duration_ms", duration_ms)
+                succ.add_metric("prompt_length", len(ce.payload.prompt))
+                if llm_resp and LLMResponse.TEXT_KEY in llm_resp:
+                    succ.add_metric("response_length", len(llm_resp[LLMResponse.TEXT_KEY]))
+                self._inc_runtime("llm_requests")
+                await self._publish_llm_episode(ce, succ, frame, context)
+            return llm_resp
+        except Exception as exc:  # pragma: no cover – defensive
+            log.error("ask_llm: exception for CE %s: %s", ce.event_id, exc, exc_info=True)
+            llm_resp = LLMResponse(
+                {
+                    LLMResponse.TEXT_KEY: f"Error processing LLM request: {exc}",
+                    "error": str(exc),
+                    "error_type": type(exc).__name__,
+                    "call_id": ce.event_id,
+                }
             )
-            
-            # Attempt to get a safe string representation if str(e) itself fails
-            safe_error_str = "Error stringifying exception"
-            try:
-                safe_error_str = str(e)
-            except Exception as str_e:
-                component_logger.error(f"ask_llm: Failed to str(e): {str_e}")
-            # ---- MODIFICATION END ----
-            
-            # Ensure an LLMResponse is created for the episode and returned
-            llm_response_obj = LLMResponse({
-                LLMResponse.TEXT_KEY: f'Error processing LLM request: {safe_error_str}',
-                'error': safe_error_str,  # Use safe_error_str
-                'error_type': type(e).__name__,
-                'call_id': ce.event_id
-            })
-            
-            # Create error result
-            error_result = create_error_result(
-                component_id=self.component_id,
-                error=e
-            )
-            error_result.output_data = llm_response_obj  # Attach the LLMResponse to the ProcessResult
-            
-            # Publish episode
-            await self._publish_llm_episode(ce, error_result, frame, context)
-            
-            return llm_response_obj  # Return the LLMResponse with error
+            err_res = create_error_result(self.component_id, exc)
+            err_res.output_data = llm_resp
+            await self._publish_llm_episode(ce, err_res, frame, context)
+            return llm_resp
 
-    async def _publish_llm_episode(self, ce: CognitiveEvent, result: ProcessResult, frame: Frame, context: NireonExecutionContext) -> None:
-        component_logger = context.logger or logging.getLogger(__name__)
-        episode_data = {
-            'cognitive_event': ce,
-            'response': result.output_data,
-            'duration_ms': result.get_metric('llm_call_duration_ms', 0),
-            'success': result.success,
-            'frame_name': frame.name,
-            'owning_agent_id': ce.owning_agent_id,
-            'epistemic_intent': ce.epistemic_intent,
-            'performance_metrics': result.performance_metrics,
-            'correlation_id': result.correlation_id
+    # ------------------------------------------------------------------ #
+    # Episode publishing                                                 #
+    # ------------------------------------------------------------------ #
+
+    async def _publish_llm_episode(self, ce: CognitiveEvent, result: ProcessResult, frame: Frame, context: NireonExecutionContext) -> None:  # noqa: D401
+        await self._publish_episode("GATEWAY_LLM_EPISODE_COMPLETED", ce, result, frame, context)
+
+    async def _publish_event_episode(self, ce: CognitiveEvent, result: ProcessResult, frame: Frame, context: NireonExecutionContext) -> None:  # noqa: D401
+        await self._publish_episode("GATEWAY_EVENT_EPISODE_COMPLETED", ce, result, frame, context)
+
+    async def _publish_episode(
+        self,
+        event_type: str,
+        ce: CognitiveEvent,
+        result: ProcessResult,
+        frame: Frame,
+        context: NireonExecutionContext,
+    ) -> None:
+        episode: _EpisodeData = {
+            "cognitive_event": ce,
+            "response": result.output_data,
+            "duration_ms": result.get_metric("llm_call_duration_ms", 0) or result.get_metric("publish_duration_ms", 0),
+            "success": result.success,
+            "frame_name": frame.name,
+            "owning_agent_id": ce.owning_agent_id,
+            "epistemic_intent": ce.epistemic_intent,
+            "performance_metrics": result.performance_metrics,
+            "correlation_id": result.correlation_id,
         }
-        event_bus = context.event_bus or self._event_bus
-        if event_bus:
+        bus = context.event_bus or self._event_bus
+        if bus:
             try:
-                # Remove 'await' - EventBusPort.publish is synchronous
-                event_bus.publish('GATEWAY_LLM_EPISODE_COMPLETED', episode_data)
-            except Exception as e:
-                component_logger.error(f'Failed to publish LLM episode: {e}')
+                bus.publish(event_type, episode)
+            except Exception as exc:
+                (context.logger or logger).error("Failed to publish episode: %s", exc)
         else:
-            component_logger.info(f'LLM Episode (no bus): {episode_data}')
+            (context.logger or logger).info("%s (no bus): %s", event_type, episode)
 
+    # ------------------------------------------------------------------ #
+    # Dependency helpers                                                 #
+    # ------------------------------------------------------------------ #
 
-    async def _publish_event_episode(self, ce: CognitiveEvent, result: ProcessResult, frame: Frame, context: NireonExecutionContext) -> None:
-        component_logger = context.logger or logging.getLogger(__name__)
-        episode_data = {
-            'cognitive_event': ce,
-            'response': result.output_data,
-            'duration_ms': result.get_metric('publish_duration_ms', 0),
-            'success': result.success,
-            'frame_name': frame.name,
-            'owning_agent_id': ce.owning_agent_id,
-            'epistemic_intent': ce.epistemic_intent,
-            'performance_metrics': result.performance_metrics,
-            'correlation_id': result.correlation_id
-        }
-        event_bus = context.event_bus or self._event_bus
-        if event_bus:
-            try:
-                # Remove 'await' - EventBusPort.publish is synchronous
-                event_bus.publish('GATEWAY_EVENT_EPISODE_COMPLETED', episode_data)
-            except Exception as e:
-                component_logger.error(f"Failed to publish event episode: {e}")
-        else:
-            component_logger.info(f'Event Episode (no bus): {episode_data}')
+    async def _resolve_llm_router(self, context: NireonExecutionContext, log: logging.Logger) -> LLMPort:
+        if self._llm_router and not isinstance(self._llm_router, PlaceholderLLMPortImpl):
+            return self._llm_router
+
+        # Try registry
+        router: LLMPort = self._resolve_from_registry(LLMPort, self._llm_router, context, log)
+        if isinstance(router, PlaceholderLLMPortImpl):
+            # Attempt upgrade via LLMRouter component
+            main_router = context.component_registry.get("llm_router_main", None)  # type: ignore[attr-defined]
+            if isinstance(main_router, LLMRouter):
+                if getattr(main_router, "is_initialized", False) is False and hasattr(main_router, "initialize"):
+                    await main_router.initialize(context.with_component_scope(main_router.component_id))
+                router = RouterBackedLLMPort(main_router)
+                log.info("Upgraded LLMPort to RouterBackedLLMPort via '%s'", main_router.component_id)
+        return router
+
+    def _resolve_from_registry(
+        self,
+        cls: type,
+        existing: Optional[Any],
+        context: NireonExecutionContext,
+        log: logging.Logger,
+    ):
+        if existing and not isinstance(existing, PlaceholderEventBusImpl):
+            return existing
+        try:
+            svc = context.component_registry.get_service_instance(cls)  # type: ignore[attr-defined]
+            log.info("%s resolved from registry", cls.__name__)
+            return svc
+        except Exception as exc:
+            log.error("Failed to resolve %s from registry: %s", cls.__name__, exc, exc_info=True)
+            raise RuntimeError(f"MechanismGateway missing {cls.__name__} and cannot resolve.") from exc
+
+    def _resolve_event_bus(self, current: Optional[EventBusPort], context: NireonExecutionContext, log: logging.Logger) -> Optional[EventBusPort]:
+        # 1) prefer registry
+        try:
+            reg_bus = context.component_registry.get_service_instance(EventBusPort)  # type: ignore[attr-defined]
+            if reg_bus and not isinstance(reg_bus, PlaceholderEventBusImpl):
+                if current is None or isinstance(current, PlaceholderEventBusImpl):
+                    log.info("EventBus upgraded to registry instance '%s'", getattr(reg_bus, "component_id", type(reg_bus).__name__))
+                return reg_bus
+        except Exception:
+            pass
+        # 2) else context value (may still be placeholder)
+        return current or context.event_bus
+
+    # ------------------------------------------------------------------ #
+    # Utility helpers                                                    #
+    # ------------------------------------------------------------------ #
+
+    def _compose_llm_settings(self, frame: Frame, payload: LLMRequestPayload) -> Dict[str, Any]:
+        settings = self._parameter_service.get_parameters(stage=payload.stage, role=payload.role, ctx=None)  # type: ignore[arg-type]
+        if frame.llm_policy:
+            settings.update(frame.llm_policy)
+            if "preferred_route" in frame.llm_policy and not payload.target_model_route:
+                payload.target_model_route = frame.llm_policy["preferred_route"]
+        if payload.llm_settings:
+            settings.update(payload.llm_settings)
+        if payload.target_model_route:
+            settings["route"] = payload.target_model_route
+        return settings
+
+    async def _handle_inactive_frame(self, ce: CognitiveEvent, frame: Frame, context: NireonExecutionContext) -> LLMResponse:
+        err = f"Frame '{frame.id}' is not active (status: {frame.status})"
+        resp = LLMResponse(
+            {LLMResponse.TEXT_KEY: f"Error: {err}", "error": err, "error_type": "FrameNotActiveError", "call_id": ce.event_id}
+        )
+        result = ProcessResult(success=False, component_id=self.component_id, message=err, error_code="FRAME_NOT_ACTIVE", output_data=resp)
+        await self._publish_llm_episode(ce, result, frame, context)
+        return resp
+
+    async def _handle_budget_exceeded(
+        self,
+        ce: CognitiveEvent,
+        frame: Frame,
+        exc: BudgetExceededError,
+        context: NireonExecutionContext,
+    ) -> LLMResponse:
+        msg = f"LLM call budget exceeded: {exc}"
+        resp = LLMResponse(
+            {
+                LLMResponse.TEXT_KEY: f"Error: {msg}",
+                "error": str(exc),
+                "error_type": "BudgetExceededError",
+                "call_id": ce.event_id,
+                "error_payload": {"code": "BUDGET_EXCEEDED_HARD", "message": str(exc)},
+            }
+        )
+        result = ProcessResult(success=False, component_id=self.component_id, message=msg, error_code="BUDGET_EXCEEDED", output_data=resp)
+        await self._publish_llm_episode(ce, result, frame, context)
+        return resp
+
+    def _inc_runtime(self, key: str) -> None:
+        self.metadata.add_runtime_state(key, self.metadata.get_runtime_state(key, 0) + 1)

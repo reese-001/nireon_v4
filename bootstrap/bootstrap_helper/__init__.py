@@ -1,16 +1,116 @@
-# C:\Users\erees\Documents\development\nireon_v4\bootstrap\bootstrap_helper\__init__.py
-from ._exceptions import BootstrapError
-from .health_reporter import BootstrapHealthReporter
-# from ...runtime.utils import import_by_path, load_yaml_robust, detect_manifest_type # REMOVE THIS LINE
-from .metadata import DEFAULT_COMPONENT_METADATA_MAP, get_default_metadata, create_service_metadata
-from .placeholders import PlaceholderLLMPortImpl, PlaceholderEmbeddingPortImpl, PlaceholderEventBusImpl, PlaceholderIdeaRepositoryImpl
-from .service_resolver import find_event_bus_service
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Import exceptions first as they have minimal dependencies
+try:
+    from ._exceptions import BootstrapError
+except ImportError as e:
+    logger.warning(f"Failed to import BootstrapError: {e}")
+    class BootstrapError(RuntimeError):
+        pass
+
+# Import metadata with error handling
+try:
+    from .metadata import (
+        DEFAULT_COMPONENT_METADATA_MAP, 
+        get_default_metadata, 
+        create_service_metadata
+    )
+except ImportError as e:
+    logger.warning(f"Failed to import metadata utilities: {e}")
+    DEFAULT_COMPONENT_METADATA_MAP = {}
+    
+    def get_default_metadata(key):
+        return None
+    
+    def create_service_metadata(service_id, service_name, **kwargs):
+        from core.lifecycle import ComponentMetadata
+        return ComponentMetadata(
+            id=service_id,
+            name=service_name,
+            version='1.0.0',
+            category='service',
+            **kwargs
+        )
+
+# Import placeholders with error handling
+try:
+    from .placeholders import (
+        PlaceholderLLMPortImpl,
+        PlaceholderEmbeddingPortImpl, 
+        PlaceholderEventBusImpl,
+        PlaceholderIdeaRepositoryImpl
+    )
+except ImportError as e:
+    logger.warning(f"Failed to import placeholder implementations: {e}")
+    
+    # Create minimal placeholder classes
+    class PlaceholderLLMPortImpl:
+        def __init__(self, *args, **kwargs):
+            pass
+        
+        def call_llm_sync(self, prompt, **kwargs):
+            return type('LLMResponse', (), {'text': f'Placeholder response to: {prompt[:50]}...'})()
+        
+        async def call_llm_async(self, prompt, **kwargs):
+            return self.call_llm_sync(prompt, **kwargs)
+    
+    class PlaceholderEmbeddingPortImpl:
+        def __init__(self, *args, **kwargs):
+            self.dimensions = kwargs.get('dimensions', 384)
+        
+        def encode(self, text):
+            import numpy as np
+            return type('Vector', (), {'data': np.random.random(self.dimensions)})()
+    
+    class PlaceholderEventBusImpl:
+        def __init__(self, *args, **kwargs):
+            pass
+        
+        def publish(self, event_type, payload):
+            logger.debug(f"PlaceholderEventBus: {event_type} - {payload}")
+        
+        def subscribe(self, event_type, handler):
+            logger.debug(f"PlaceholderEventBus: Subscribed to {event_type}")
+        
+        def get_logger(self, component_id):
+            return logging.getLogger(f'nireon.{component_id}')
+    
+    class PlaceholderIdeaRepositoryImpl:
+        def __init__(self, *args, **kwargs):
+            self._ideas = {}
+        
+        def save(self, idea):
+            self._ideas[idea.idea_id] = idea
+        
+        def get_by_id(self, idea_id):
+            return self._ideas.get(idea_id)
+        
+        def get_all(self):
+            return list(self._ideas.values())
+
+# Import service resolver with error handling
+try:
+    from .service_resolver import find_event_bus_service
+except ImportError as e:
+    logger.warning(f"Failed to import service_resolver: {e}")
+    
+    def find_event_bus_service(registry):
+        logger.warning("find_event_bus_service placeholder implementation")
+        return None
+
 __version__ = '1.0.0'
 __author__ = 'Nireon Bootstrap Team V4'
+
 __all__ = [
-    'BootstrapError', 'BootstrapHealthReporter',
-    # 'import_by_path', 'load_yaml_robust', 'detect_manifest_type', # Already removed from __all__
-    'DEFAULT_COMPONENT_METADATA_MAP', 'get_default_metadata', 'create_service_metadata',
-    'PlaceholderLLMPortImpl', 'PlaceholderEmbeddingPortImpl', 'PlaceholderEventBusImpl',
-    'PlaceholderIdeaRepositoryImpl', 'find_event_bus_service'
+    'BootstrapError',
+    'DEFAULT_COMPONENT_METADATA_MAP',
+    'get_default_metadata', 
+    'create_service_metadata',
+    'PlaceholderLLMPortImpl',
+    'PlaceholderEmbeddingPortImpl', 
+    'PlaceholderEventBusImpl',
+    'PlaceholderIdeaRepositoryImpl',
+    'find_event_bus_service'
 ]

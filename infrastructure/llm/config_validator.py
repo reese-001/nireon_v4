@@ -1,4 +1,4 @@
-# nireon_v4/infrastructure/llm/config_validator.py
+# nireon/infrastructure/llm/config_validator.py
 from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 import logging
