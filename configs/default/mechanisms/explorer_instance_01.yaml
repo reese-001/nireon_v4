@@ -1,0 +1,6 @@
+parameters:
+  max_depth: 3
+  application_rate: 0.7
+  exploration_strategy: "depth_first"
+  creativity_factor: 0.8
+  enable_llm_enhancement: true

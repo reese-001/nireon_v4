@@ -1,110 +1,172 @@
-# nireon_v4\application\services\budget_manager.py
-from typing import Protocol, Dict, Any, Optional, runtime_checkable
-from dataclasses import dataclass
-import logging
-logger = logging.getLogger(__name__)
-class BudgetExceededError(Exception):
-    def __init__(self, frame_id: str, resource_key: str, requested: float, available: float):
-        self.frame_id = frame_id
-        self.resource_key = resource_key
-        self.requested = requested
-        self.available = available
-        super().__init__(f"Budget for '{resource_key}' in frame '{frame_id}' exceeded. Requested: {requested}, Available: {available:.2f}")
-@dataclass
-class BudgetEntry:
-    total: float
-    consumed: float = 0.0
-@runtime_checkable
-class BudgetManagerPort(Protocol):
-    def initialize_frame_budget(self, frame_id: str, budgets: Dict[str, float]) -> None:
-        ...
-    def try_consume_resource(self, frame_id: str, resource_key: str, amount_to_consume: float) -> bool:
-        ...
-    def consume_resource_or_raise(self, frame_id: str, resource_key: str, amount_to_consume: float) -> None:
-        ...
-    def get_budget_status(self, frame_id: str, resource_key: str) -> Dict[str, float]:
-        ...
-    def get_all_budgets_for_frame(self, frame_id: str) -> Dict[str, Dict[str, float]]:
-        ...
-class InMemoryBudgetManager(BudgetManagerPort):
-    def __init__(self, config: Optional[Dict[str, Any]]=None):
-        self._budgets: Dict[str, Dict[str, BudgetEntry]] = {}
-        self.config = config or {}
-        self.default_initial_budgets = self.config.get('default_initial_budgets', {'llm_calls': 10.0, 'event_publishes': 100.0, 'embedding_calls': 50.0})
-        logger.info(f'InMemoryBudgetManager initialized. Default initial budgets: {self.default_initial_budgets}')
-    def initialize_frame_budget(self, frame_id: str, budgets: Dict[str, float]) -> None:
-        new_frame_initialization = False
-        if frame_id not in self._budgets:
-            self._budgets[frame_id] = {}
-            new_frame_initialization = True
-            logger.debug(f"Initializing new budget for frame '{frame_id}'.")
-        else:
-            logger.debug(f"Frame '{frame_id}' already has budget entries. Applying new/default budgets if not explicitly set.")
+"""
+Nireon V4 – In-memory budget manager (thread-safe).
 
-        # Apply explicit budgets provided in the call
-        for resource_key, total_amount_float in budgets.items():
-            # If it's a brand new frame, or if the specific resource key wasn't set before for this frame,
-            # or if we want to allow overriding (this part can be debated, current logic prefers not to overwrite loudly)
-            if new_frame_initialization or resource_key not in self._budgets[frame_id]:
-                self._budgets[frame_id][resource_key] = BudgetEntry(total=float(total_amount_float))
-                logger.info(f"Budget for frame '{frame_id}', resource '{resource_key}' set to: total={total_amount_float}")
-            else:
-                # If the frame existed and this specific budget key also existed.
-                # The original warning logic is preserved here for now, as overwriting could be risky without an explicit 'update'
-                existing_budget = self._budgets[frame_id][resource_key]
-                if existing_budget.total != float(total_amount_float): # Only warn if new value is different
-                    logger.warning(
-                        f"Budget for frame '{frame_id}', resource '{resource_key}' already exists "
-                        f"(current: {existing_budget}). Not overwriting with explicit value {total_amount_float}. "
-                        f"Use a dedicated update method if override is intended."
-                    )
+Implements BudgetManagerPort + NireonBaseComponent.
+Suitable for development / unit tests – NOT durable storage.
+"""
+
+from __future__ import annotations
+
+from asyncio.log import logger
+import inspect
+import threading
+from typing import Any, Dict, Mapping, MutableMapping, Optional
+
+from core.base_component import NireonBaseComponent
+from core.lifecycle import ComponentMetadata
+from core.results import ProcessResult
+from domain.context import NireonExecutionContext
+
+# ---------------------------------------------------------------------------
+# Optional shim – if the real interface isn't on PYTHONPATH in this env
+# ---------------------------------------------------------------------------
+try:
+    from domain.ports.budget_manager_port import BudgetManagerPort
+except ModuleNotFoundError:  # pragma: no cover
+    class BudgetManagerPort:  # type: ignore
+        def all_budgets(self) -> Dict[str, float]: ...
+        def remaining(self, key: str) -> float: ...
+        def consume(self, key: str, amount: float) -> bool: ...
+        def credit(self, key: str, amount: float) -> None: ...
+
+
+# ---------------------------------------------------------------------------
+# Exceptions
+# ---------------------------------------------------------------------------
+class BudgetKeyError(KeyError):
+    """The requested budget key does not exist."""
+
+
+class BudgetExceededError(RuntimeError):
+    """`consume()` would put the budget into the red."""
+
+
+__all__ = [
+    "BudgetKeyError",
+    "BudgetExceededError",
+    "InMemoryBudgetManager",
+    "BUDGET_MANAGER_METADATA",
+]
+
+# ---------------------------------------------------------------------------
+# Component-level metadata
+# ---------------------------------------------------------------------------
+BUDGET_MANAGER_METADATA = ComponentMetadata(
+    id="budget_manager_inmemory",
+    name="InMemoryBudgetManager",
+    version="1.0.3",
+    category="shared_service",
+    description="Thread-safe in-memory quota / budget manager.",
+    requires_initialize=True,
+    epistemic_tags=["policy_enforcer", "facade"],
+)
+
+
+# ---------------------------------------------------------------------------
+# Implementation
+# ---------------------------------------------------------------------------
+class InMemoryBudgetManager(NireonBaseComponent, BudgetManagerPort):
+    """Simple in-process budget tracker."""
+
+    METADATA_DEFINITION = BUDGET_MANAGER_METADATA
+
+    # ------------------------------------------------------------------ ctor
+    def __init__(
+        self,
+        *,
+        config: Optional[Mapping[str, Any]] = None,
+        initial_budgets: Optional[Mapping[str, float]] = None,
+        metadata_definition: Optional[ComponentMetadata] = None,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        config
+            Passed by bootstrap (kept for parity even when unused).
+        initial_budgets
+            Mapping of budget_key → float quota to pre-seed the manager.
+        """
+        super().__init__(
+            config=dict(config or {}),
+            metadata_definition=metadata_definition or self.METADATA_DEFINITION,
+        )
+
+        self._budgets: MutableMapping[str, float] = dict(initial_budgets or {})
+        self._lock = threading.RLock()
+
+    def initialize_frame_budget(self, frame_id: str, budget: Dict[str, float]) -> None:
+        """Initializes budget entries for a specific frame."""
+        with self._lock:
+            for resource_key, limit in budget.items():
+                frame_resource_key = f"{frame_id}:{resource_key}"
+                if frame_resource_key not in self._budgets:
+                    self._budgets[frame_resource_key] = float(limit)
+                    logger.debug(f"Initialized budget for '{frame_resource_key}' to {limit}")
+
+    def consume_resource_or_raise(self, frame_id: str, resource_key: str, amount: float):
+        """Consumes a resource from a frame's budget, raising BudgetExceededError on failure."""
+        if amount < 0:
+            raise ValueError('amount must be >= 0')
+        
+        frame_resource_key = f"{frame_id}:{resource_key}"
+        with self._lock:
+            if frame_resource_key not in self._budgets:
+                # Fallback to a global budget if one exists, otherwise raise an error
+                if resource_key in self._budgets:
+                    frame_resource_key = resource_key # Use the global key
                 else:
-                     logger.debug(f"Budget for frame '{frame_id}', resource '{resource_key}' already set to {total_amount_float}. No change needed.")
+                    raise BudgetKeyError(f"Budget key '{frame_resource_key}' not found and no global fallback.")
 
+            if self._budgets[frame_resource_key] < amount:
+                raise BudgetExceededError(f"Budget for '{frame_resource_key}' exhausted (remaining {self._budgets[frame_resource_key]:.2f}, requested {amount:.2f})")
+            
+            self._budgets[frame_resource_key] -= amount
+            return True
 
-        # Apply default budgets for any keys not covered by explicit budgets
-        for res_key, default_total in self.default_initial_budgets.items():
-            if res_key not in self._budgets[frame_id]:
-                self._budgets[frame_id][res_key] = BudgetEntry(total=float(default_total))
-                logger.debug(f"Applied default budget for frame '{frame_id}', resource '{res_key}': total={default_total}")
-    def _ensure_frame_and_resource_key_exists(self, frame_id: str, resource_key: str):
-        if frame_id not in self._budgets:
-            logger.debug(f"Frame '{frame_id}' not explicitly budgeted. Initializing with defaults.")
-            self.initialize_frame_budget(frame_id, self.default_initial_budgets.copy()) # Pass a copy
-        if resource_key not in self._budgets[frame_id]:
-            default_total = self.default_initial_budgets.get(resource_key, float('inf'))
-            self._budgets[frame_id][resource_key] = BudgetEntry(total=default_total)
-            if default_total == float('inf'):
-                logger.warning(f"Resource '{resource_key}' for frame '{frame_id}' not in default budgets. Using infinite budget. This resource should ideally be part of default_initial_budgets or explicitly set.")
-            logger.debug(f"Lazily initialized budget for frame '{frame_id}', resource '{resource_key}' to total: {default_total}")
-    def try_consume_resource(self, frame_id: str, resource_key: str, amount_to_consume: float) -> bool:
-        self._ensure_frame_and_resource_key_exists(frame_id, resource_key)
-        budget_info = self._budgets[frame_id][resource_key]
-        if budget_info.total == float('inf'):
-            budget_info.consumed += amount_to_consume
-            logger.debug(f"Consumed {amount_to_consume} of '{resource_key}' (infinite budget) for frame '{frame_id}'. Total consumed: {budget_info.consumed:.2f}.")
-            return True
-        if budget_info.consumed + amount_to_consume <= budget_info.total:
-            budget_info.consumed += amount_to_consume
-            logger.debug(f"Consumed {amount_to_consume} of '{resource_key}' for frame '{frame_id}'. New consumed: {budget_info.consumed:.2f}, Total: {budget_info.total:.2f}.")
-            return True
+    # ------------------------------------------------------------------ lifecycle
+    async def _initialize_impl(self, context: NireonExecutionContext) -> None:
+        cert_fn = getattr(self, 'self_certify', None) or getattr(self, '_self_certify', None)
+        if cert_fn is None:
+            return
+        # We know _self_certify is async, so we can just await it.
+        if len(inspect.signature(cert_fn).parameters):
+            await cert_fn(context)
         else:
-            logger.warning(f"Budget CHECK FAILED for '{resource_key}' in frame '{frame_id}'. Requested: {amount_to_consume}, Consumed: {budget_info.consumed:.2f}, Total: {budget_info.total:.2f}, Available: {budget_info.total - budget_info.consumed:.2f}.")
-            return False
-    def consume_resource_or_raise(self, frame_id: str, resource_key: str, amount_to_consume: float) -> None:
-        self._ensure_frame_and_resource_key_exists(frame_id, resource_key)
-        budget_info = self._budgets[frame_id][resource_key]
-        available = budget_info.total - budget_info.consumed if budget_info.total != float('inf') else float('inf')
-        if not self.try_consume_resource(frame_id, resource_key, amount_to_consume):
-            raise BudgetExceededError(frame_id, resource_key, amount_to_consume, available)
-    def get_budget_status(self, frame_id: str, resource_key: str) -> Dict[str, float]:
-        self._ensure_frame_and_resource_key_exists(frame_id, resource_key)
-        budget_info = self._budgets[frame_id][resource_key]
-        total = budget_info.total
-        consumed = budget_info.consumed
-        remaining = total - consumed if total != float('inf') else float('inf')
-        return {'total': total, 'consumed': consumed, 'remaining': remaining}
-    def get_all_budgets_for_frame(self, frame_id: str) -> Dict[str, Dict[str, float]]:
-        if frame_id not in self._budgets:
-            self._ensure_frame_and_resource_key_exists(frame_id, next(iter(self.default_initial_budgets), 'llm_calls'))
-        return {res_key: self.get_budget_status(frame_id, res_key) for res_key in self._budgets.get(frame_id, {}).keys()}
+            await cert_fn()
+    # ------------------------------------------------------------------ BudgetManagerPort API
+    def all_budgets(self) -> Dict[str, float]:
+        with self._lock:
+            return dict(self._budgets)
+
+    def remaining(self, key: str) -> float:
+        with self._lock:
+            if key not in self._budgets:
+                raise BudgetKeyError(key)
+            return self._budgets[key]
+
+    def consume(self, key: str, amount: float) -> bool:
+        if amount < 0:
+            raise ValueError("amount must be >= 0")
+        with self._lock:
+            if key not in self._budgets:
+                raise BudgetKeyError(key)
+            if self._budgets[key] < amount:
+                raise BudgetExceededError(
+                    f"Budget '{key}' exhausted "
+                    f"(remaining {self._budgets[key]:.2f}, requested {amount:.2f})"
+                )
+            self._budgets[key] -= amount
+            return True
+
+    def credit(self, key: str, amount: float) -> None:
+        if amount < 0:
+            raise ValueError("amount must be >= 0")
+        with self._lock:
+            self._budgets[key] = self._budgets.get(key, 0.0) + amount
+
+    # ------------------------------------------------------------------ NireonBaseComponent stub
+    async def _process_impl(
+        self, data: Any, context: NireonExecutionContext
+    ) -> ProcessResult:
+        """Budget manager is not a stream processor – no-op."""
+        return ProcessResult.ok("No processing performed.")

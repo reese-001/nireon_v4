@@ -39,28 +39,28 @@ except ImportError as e:
     FactorySetupPhase = None
 
 try:
-    from phases.manifest_processing_phase import ManifestProcessingPhase
+    from bootstrap.phases.manifest_processing_phase import ManifestProcessingPhase
 except ImportError as e:
     logger = logging.getLogger(__name__)
     logger.error(f"Failed to import ManifestProcessingPhase: {e}")
     ManifestProcessingPhase = None
 
 try:
-    from phases.component_initialization_phase import ComponentInitializationPhase
+    from bootstrap.phases.component_initialization_phase import ComponentInitializationPhase
 except ImportError as e:
     logger = logging.getLogger(__name__)
     logger.error(f"Failed to import ComponentInitializationPhase: {e}")
     ComponentInitializationPhase = None
 
 try:
-    from phases.component_validation_phase import InterfaceValidationPhase
+    from bootstrap.phases.component_validation_phase import InterfaceValidationPhase
 except ImportError as e:
     logger = logging.getLogger(__name__)
     logger.error(f"Failed to import InterfaceValidationPhase: {e}")
     InterfaceValidationPhase = None
 
 try:
-    from phases.rbac_setup_phase import RBACSetupPhase
+    from bootstrap.phases.rbac_setup_phase import RBACSetupPhase
 except ImportError as e:
     logger = logging.getLogger(__name__)
     logger.error(f"Failed to import RBACSetupPhase: {e}")

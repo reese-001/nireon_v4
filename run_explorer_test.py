@@ -1,222 +1,222 @@
 import asyncio
 import logging
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
+from typing import List, Optional
+import time
 
-# --- Path Setup ---
 def find_project_root(marker_dirs=['bootstrap', 'domain', 'core', 'configs']):
+    """
+    Finds the project root directory by looking for a set of marker directories.
+    """
     current_dir = Path(__file__).resolve().parent
     paths_to_check = [current_dir, current_dir.parent, current_dir.parent.parent]
     for p_root in paths_to_check:
-        if all((p_root / marker).is_dir() for marker in marker_dirs):
+        if all(((p_root / marker).is_dir() for marker in marker_dirs)):
             return p_root
+    
     if all((Path.cwd() / marker).is_dir() for marker in marker_dirs):
         return Path.cwd()
+        
     return None
 
 PROJECT_ROOT = find_project_root()
 if PROJECT_ROOT is None:
-    print("ERROR: Could not determine the NIREON V4 project root.")
+    print('ERROR: Could not determine the NIREON V4 project root.')
     sys.exit(1)
 
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-# TEMPORARY FIX: Monkey-patch the config loader validation
-import configs.config_loader
-original_validate = configs.config_loader.ConfigLoader._validate_required_config
-
-def patched_validate(self, config, env):
-    """Patched validation that's more lenient during bootstrap."""
-    # Just skip the models validation for now
-    if 'llm' not in config:
-        logging.getLogger(__name__).warning("LLM config section missing - will be loaded later")
-        return
-        
-    llm_config = config.get('llm', {})
-    if not isinstance(llm_config, dict):
-        logging.getLogger(__name__).warning("LLM config is not a dict - will be fixed during loading")
-        return
-        
-    # Don't validate models - let it be loaded naturally
-    if 'models' not in llm_config:
-        logging.getLogger(__name__).info("Models not yet in LLM config - will be loaded from llm_config.yaml")
-    
-    # Skip the original validation that's causing issues
-    return
-
-# Apply the monkey patch
-configs.config_loader.ConfigLoader._validate_required_config = patched_validate
-
-# Now import bootstrap after patching
-from bootstrap import bootstrap_nireon_system, BootstrapConfig
+from bootstrap import bootstrap_nireon_system
 from domain.context import NireonExecutionContext
 from components.mechanisms.explorer.service import ExplorerMechanism
+from components.mechanisms.sentinel.service import SentinelMechanism
+from domain.ideas.idea import Idea
+from application.services.idea_service import IdeaService
 from core.registry.component_registry import ComponentRegistry
 from domain.ports.event_bus_port import EventBusPort
+from application.services.frame_factory_service import FrameFactoryService
 
-# --- Logging Setup ---
+
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)-25s - %(levelname)-8s - [%(component_id)s] - %(message)s',
     datefmt='%H:%M:%S'
 )
+logging.getLogger('httpx').setLevel(logging.WARNING)
+logging.getLogger('httpcore').setLevel(logging.WARNING)
+logging.getLogger('openai').setLevel(logging.WARNING)
 
-logging.getLogger("httpx").setLevel(logging.WARNING)
-logging.getLogger("httpcore").setLevel(logging.WARNING)
-logging.getLogger("openai").setLevel(logging.WARNING)
-
+# Custom log record factory to inject component_id
 _original_logrecord_factory = logging.getLogRecordFactory()
-_component_id_for_log_context = "System"
+_component_id_for_log_context = 'System'
 
 def record_factory(*args, **kwargs):
     record = _original_logrecord_factory(*args, **kwargs)
     global _component_id_for_log_context
     record.component_id = _component_id_for_log_context
     return record
-    
+
 logging.setLogRecordFactory(record_factory)
 
 def set_current_log_component_id(component_id: str):
+    """Sets the component ID for the current logging context."""
     global _component_id_for_log_context
     _component_id_for_log_context = component_id
 
-async def ensure_llm_router_initialized(registry: ComponentRegistry, logger: logging.Logger) -> bool:
-    """Ensure LLM router is properly initialized before use."""
-    try:
-        # Try to get the router instance
-        router_instance = registry.get("llm_router_main")
-        if not router_instance:
-            logger.error("LLM router instance 'llm_router_main' not found in registry")
-            return False
-            
-        # # Check if it's initialized
-        # if hasattr(router_instance, 'is_initialized') and not router_instance.is_initialized:
-        #     logger.warning("LLM router not initialized, attempting manual initialization")
-            
-        #     # Create a minimal context for initialization
-        #     init_context = NireonExecutionContext(
-        #         run_id="llm_router_init",
-        #         component_id="llm_router_main",
-        #         logger=logging.getLogger("llm_router_main"),
-        #         component_registry=registry,
-        #         event_bus=registry.get_service_instance(EventBusPort),
-        #     )
-            
-        #     # Initialize the router
-        #     await router_instance.initialize(init_context)
-        #     logger.info("LLM router manually initialized successfully")
-            
-        return True
-        
-    except Exception as e:
-        logger.error(f"Error ensuring LLM router initialization: {e}", exc_info=True)
-        return False
-
 async def main():
-    set_current_log_component_id("MainRunner")
+    # This list will be populated by our event handler
+    newly_persisted_ideas: List[Idea] = []
+
+    def idea_signal_handler(payload: dict):
+        """This function will be called by the event bus when an IdeaGeneratedSignal is published."""
+        nonlocal newly_persisted_ideas
+        logger.info(f"Handler received IdeaGeneratedSignal for idea '{payload.get('id')}'")
+        idea_obj = idea_service.create_idea(text=payload['text'], parent_id=payload.get('seed_idea_id'))
+        newly_persisted_ideas.append(idea_obj)
+
+    set_current_log_component_id('MainRunner')
     logger = logging.getLogger(__name__)
-    logger.info(f"Starting Nireon V4 Explorer Test Runner from project root: {PROJECT_ROOT}")
 
-    manifest_file = PROJECT_ROOT / "configs" / "manifests" / "standard.yaml"
-
-    logger.info(f"Using manifest file: {manifest_file}")
-    if not manifest_file.exists():
-        logger.error(f"Manifest file not found: {manifest_file}")
-        return
-
-    logger.info("Bootstrapping NIREON system...")
+    logger.info(f'Starting Nireon V4 Generative Loop Test from project root: {PROJECT_ROOT}')
+    manifest_file = PROJECT_ROOT / 'configs' / 'manifests' / 'standard.yaml'
+    
+    logger.info('Bootstrapping NIREON system...')
     try:
-        bootstrap_result = await bootstrap_nireon_system(
-            config_paths=[manifest_file],
-            strict_mode=True
-        )
-    except Exception as e:
-        logger.error(f"Critical bootstrap failure: {e}", exc_info=True)
-        return
-
-    if not bootstrap_result.success:
-        logger.error("Bootstrap failed!")
-        logger.error(f"Critical failures: {bootstrap_result.critical_failure_count}")
-        logger.error("Health Report:\n" + bootstrap_result.get_health_report())
-        return
-
-    logger.info("Bootstrap successful!")
-    logger.info(f"Components loaded: {bootstrap_result.component_count}")
-    logger.info(f"Healthy components: {bootstrap_result.healthy_component_count}")
-
-    registry: ComponentRegistry = bootstrap_result.get_component_registry()
-
-    # Ensure LLM router is initialized before proceeding
-    if not await ensure_llm_router_initialized(registry, logger):
-        logger.error("Failed to ensure LLM router initialization")
-        return
-
-    try:
-        explorer_id = "explorer_instance_01"
-        set_current_log_component_id(explorer_id)
-        explorer: ExplorerMechanism = registry.get(explorer_id)
-        if not isinstance(explorer, ExplorerMechanism):
-            logger.error(f"Retrieved '{explorer_id}' is not ExplorerMechanism. Type: {type(explorer)}")
+        bootstrap_result = await bootstrap_nireon_system(config_paths=[manifest_file], strict_mode=False)
+        if not bootstrap_result.success:
+            logger.error('Bootstrap failed!\n' + bootstrap_result.get_health_report())
             return
-        logger.info(f"Successfully retrieved ExplorerMechanism: {explorer.component_id}")
+        logger.info('Bootstrap successful!')
     except Exception as e:
-        logger.error(f"Failed to get ExplorerMechanism '{explorer_id}' from registry: {e}", exc_info=True)
-        logger.info("Available components in registry:")
-        for comp_id_iter in registry.list_components():
-            try:
-                meta = registry.get_metadata(comp_id_iter)
-                logger.info(f"  - ID: {comp_id_iter}, Name: {meta.name}, Category: {meta.category}")
-            except:
-                logger.info(f"  - ID: {comp_id_iter} (metadata retrieval failed)")
+        logger.error(f'Critical bootstrap failure: {e}', exc_info=True)
         return
 
-    set_current_log_component_id(explorer.component_id)
-    process_context = NireonExecutionContext(
-        run_id="explorer_test_run_001",
-        component_id=explorer.component_id,
-        logger=logging.getLogger(explorer.component_id),
+    # Resolve components from the registry
+    registry: ComponentRegistry = bootstrap_result.registry
+    explorer: ExplorerMechanism = registry.get('explorer_instance_01')
+    sentinel: SentinelMechanism = registry.get('sentinel_instance_01')
+    idea_service: IdeaService = registry.get('IdeaService')
+    event_bus: EventBusPort = registry.get('EventBusPort')
+    frame_factory: FrameFactoryService = registry.get('frame_factory_service')
+
+    # Subscribe our handler to the event bus
+    event_bus.subscribe('IdeaGeneratedSignal', idea_signal_handler)
+    logger.info("Main test runner subscribed to 'IdeaGeneratedSignal'")
+
+    # Set up execution context
+    run_id = f'generative_loop_{int(time.time())}'
+    main_logger = logging.getLogger(run_id)
+    base_context = NireonExecutionContext(
+        run_id=run_id,
         component_registry=registry,
-        event_bus=registry.get_service_instance(EventBusPort),
+        event_bus=event_bus,
+        config=bootstrap_result.global_config,
         feature_flags=bootstrap_result.global_config.get('feature_flags', {}),
-        config=bootstrap_result.global_config
+        logger=main_logger
     )
 
-    seed_data = {
-        "text": "A detective discovers a parallel universe hidden in a coffee shop.",
-        "objective": "Generate two distinct plot twists for this story."
-    }
+    # --- Generative Loop ---
+    num_iterations = 3
+    current_idea_text = 'A detective discovers a parallel universe hidden in a coffee shop.'
+    current_idea_obj: Optional[Idea] = None
+    all_ideas_in_thread: List[Idea] = []
+    parent_iteration_frame_id: Optional[str] = None
 
-    logger.info(f"Calling Explorer process with seed: '{seed_data['text']}'")
-    try:
-        explorer_result = await explorer.process(seed_data, process_context)
-    except Exception as e:
-        logger.error(f"Error during Explorer process call: {e}", exc_info=True)
-        return
+    for i in range(num_iterations):
+        print('\n' + '=' * 80)
+        logger.info(f"Iteration {i + 1}/{num_iterations} | Current Seed: '{current_idea_text[:100]}...'")
+        print('=' * 80)
 
-    set_current_log_component_id("MainRunner")
-    logger.info("Explorer process finished.")
-    if explorer_result.success:
-        logger.info(f"Explorer Result: SUCCESS - {explorer_result.message}")
-        logger.info(f"Output Data: {explorer_result.output_data}")
-    else:
-        logger.error(f"Explorer Result: FAILED - {explorer_result.message}")
-        if explorer_result.error_code:
-            logger.error(f"Error Code: {explorer_result.error_code}")
-        if explorer_result.output_data and explorer_result.output_data.get('error'):
-            logger.error(f"Gateway/LLM Error: {explorer_result.output_data.get('error_type')} - {explorer_result.output_data.get('error')}")
-        elif explorer_result.output_data:
-            logger.error(f"Output Data (if any on failure): {explorer_result.output_data}")
+        # **FIX:** Create one active frame for the entire iteration with a budget
+        set_current_log_component_id('TestOrchestrator')
+        iteration_frame = await frame_factory.create_frame(
+            context=base_context,
+            name=f"iteration_frame_{i+1}",
+            description=f"Main frame for generative loop iteration {i+1}",
+            owner_agent_id="test_orchestrator",
+            parent_frame_id=parent_iteration_frame_id,
+            resource_budget={'llm_calls': 20, 'event_publishes': 50} # Add budget
+        )
+        logger.info(f"Created main iteration frame: {iteration_frame.id}")
+        parent_iteration_frame_id = iteration_frame.id # Next iteration will be a child of this one.
+        
+        # 1. Create the seed idea for this iteration
+        set_current_log_component_id('IdeaService')
+        current_idea_obj = idea_service.create_idea(text=current_idea_text, parent_id=current_idea_obj.idea_id if current_idea_obj else None)
+        all_ideas_in_thread.append(current_idea_obj)
+        logger.info(f'Created new seed idea with ID: {current_idea_obj.idea_id}')
 
-    logger.info("Explorer Test Runner finished.")
+        # 2. Use Explorer to generate variations (using the active iteration frame)
+        set_current_log_component_id(explorer.component_id)
+        # The explorer will create its own sub-frame, parented to our iteration_frame
+        explorer_context = base_context.with_component_scope(explorer.component_id).with_metadata(current_frame_id=iteration_frame.id)
+        explorer_result = await explorer.process({'text': current_idea_obj.text, 'id': current_idea_obj.idea_id, 'objective': 'Evolve the story with a surprising twist.'}, explorer_context)
 
-if __name__ == "__main__":
+        if not explorer_result.success:
+            logger.error('Exploration failed, ending loop.')
+            await frame_factory.update_frame_status(base_context, iteration_frame.id, "error_explorer")
+            break
+        
+        await asyncio.sleep(0.1) 
+
+        if not newly_persisted_ideas:
+            logger.warning('Explorer did not generate any new ideas. Ending loop.')
+            await frame_factory.update_frame_status(base_context, iteration_frame.id, "completed_no_ideas")
+            break
+        
+        logger.info(f'Explorer generated and handler persisted {len(newly_persisted_ideas)} new variations.')
+        variations_to_assess = newly_persisted_ideas.copy()
+        newly_persisted_ideas.clear()  
+
+        # 3. Use Sentinel to assess the generated variations (also using the active iteration frame)
+        assessed_variations = []
+        for variation in variations_to_assess:
+            set_current_log_component_id(sentinel.component_id)
+            sentinel_context = base_context.with_component_scope(sentinel.component_id).with_metadata(current_frame_id=iteration_frame.id)
+            
+            logger.info(f"Sentinel assessing variation '{variation.text[:60]}...'")
+            sentinel_result = await sentinel.process(
+                {'target_idea_id': variation.idea_id, 'reference_ideas': all_ideas_in_thread}, 
+                sentinel_context
+            )
+            if sentinel_result.success:
+                assessment_data = sentinel_result.output_data
+                assessed_variations.append(assessment_data)
+                logger.info(f"  -> Assessment: Stable={assessment_data.get('is_stable')}, Trust={assessment_data.get('trust_score', 0):.2f}")
+            else:
+                logger.error(f'  -> Sentinel failed to assess variation {variation.idea_id}: {sentinel_result.message}')
+        
+        # 4. Select the best idea for the next iteration
+        stable_and_good = [a for a in assessed_variations if a and a.get('is_stable') and a.get('trust_score', 0) > sentinel.trust_th]
+        if not stable_and_good:
+            logger.warning('No stable and high-trust ideas found in this iteration. Ending loop.')
+            await frame_factory.update_frame_status(base_context, iteration_frame.id, "completed_no_selection")
+            break
+            
+        best_variation = max(stable_and_good, key=lambda a: a.get('trust_score', 0))
+        best_idea_obj = idea_service.get_idea(best_variation['idea_id'])
+        logger.info(f"Selected best idea for next iteration (ID: {best_idea_obj.idea_id}, Trust: {best_variation.get('trust_score', 0):.2f})")
+        current_idea_text = best_idea_obj.text
+        current_idea_obj = best_idea_obj
+
+        # Mark the iteration frame as complete
+        await frame_factory.update_frame_status(base_context, iteration_frame.id, "completed_ok")
+
+    print('\n' + '=' * 80)
+    logger.info('Generative loop finished.')
+    print('=' * 80)
+
+if __name__ == '__main__':
+    # Ensure CWD is project root for consistent pathing
     if Path.cwd().name == 'nireon' and (Path.cwd().parent / 'configs').is_dir():
         os.chdir(Path.cwd().parent)
-        print(f"Changed CWD to project root: {Path.cwd()}")
+        print(f'Changed CWD to project root: {Path.cwd()}')
     elif not (Path.cwd() / 'configs').is_dir() and PROJECT_ROOT and (PROJECT_ROOT / 'configs').is_dir():
         os.chdir(PROJECT_ROOT)
-        print(f"Changed CWD to detected project root: {Path.cwd()}")
-
+        print(f'Changed CWD to detected project root: {Path.cwd()}')
+        
     asyncio.run(main())

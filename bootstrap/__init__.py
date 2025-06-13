@@ -1,105 +1,42 @@
-"""
-bootstrap package – public re-exports + compatibility shims
-"""
-
+# nireon_v4/bootstrap/__init__.py
 from __future__ import annotations
-import importlib
-import sys
+from __future__ import absolute_import
 
-# ---------------------------------------------------------------------------
-# 1.  Compatibility shim for dynamic phase imports
-#     The bootstrap loader will try things like
-#        importlib.import_module("phases.manifest_processing_phase")
-#     so we alias "phases" → "bootstrap.phases"
-# ---------------------------------------------------------------------------
+# Removed sys.modules monkey-patching for 'phases'
+# Imports will now use fully qualified paths like 'bootstrap.phases.some_phase'
 
-# Alias the package itself
-sys.modules.setdefault("phases", importlib.import_module("bootstrap.phases"))
+from .exceptions import *
+from .core.main import BootstrapOrchestrator, bootstrap_nireon_system, bootstrap, bootstrap_sync
+from .core.phase_executor import BootstrapPhaseExecutor, PhaseExecutionResult, PhaseExecutionSummary, execute_bootstrap_phases
+from .context.bootstrap_context_builder import BootstrapContextBuilder, create_bootstrap_context
+from .context.bootstrap_context import BootstrapContext
+from .config.bootstrap_config import BootstrapConfig
+from .result_builder import BootstrapResult, BootstrapResultBuilder, build_result_from_context, create_minimal_result
+from .validation_data import BootstrapValidationData, ComponentValidationData
+from .health.reporter import HealthReporter, ComponentStatus, ComponentHealthRecord
+from configs.config_loader import ConfigLoader # Assuming this is correctly located
 
-# Alias each concrete phase module that might be requested
-for _mod in (
-    "manifest_processing_phase",
-    "component_initialization_phase",
-    "component_validation_phase",
-    "rbac_setup_phase",
-    "late_rebinding_phase",          # if used
-):
-    full_name = f"bootstrap.phases.{_mod}"
-    sys.modules.setdefault(f"phases.{_mod}", importlib.import_module(full_name))
-
-# ---------------------------------------------------------------------------
-# 2.  Re-export public objects from the new package layout
-# ---------------------------------------------------------------------------
-
-from .exceptions import *  # noqa: F401,F403
-
-# Core orchestrator & helpers
-from .core.main import (                # noqa: E402
-    BootstrapOrchestrator,
-    bootstrap_nireon_system,
-    bootstrap,
-    bootstrap_sync,
-)
-from .core.phase_executor import (      # noqa: E402
-    BootstrapPhaseExecutor,
-    PhaseExecutionResult,
-    PhaseExecutionSummary,
-    execute_bootstrap_phases,
-)
-from .context.bootstrap_context_builder import (  # noqa: E402
-    BootstrapContextBuilder,
-    create_bootstrap_context,
-)
-from .context.bootstrap_context import BootstrapContext  # noqa: E402
-from .config.bootstrap_config import BootstrapConfig     # noqa: E402
-
-# Result + health
-from .result_builder import (           # noqa: E402
-    BootstrapResult,
-    BootstrapResultBuilder,
-    build_result_from_context,
-    create_minimal_result,
-)
-from .validation_data import (          # noqa: E402
-    BootstrapValidationData,
-    ComponentValidationData,
-)
-from .health.reporter import (          # noqa: E402
-    HealthReporter,
-    ComponentStatus,
-    ComponentHealthRecord,
-)
-
-# Global config loader (unchanged path)
-from configs.config_loader import ConfigLoader  # noqa: E402
-
-# ---------------------------------------------------------------------------
-# 3.  Metadata
-# ---------------------------------------------------------------------------
-
-__version__ = "4.0.0"
-__author__ = "NIREON V4 Bootstrap Team"
-__description__ = "L0 Abiogenesis – Bootstrap Infrastructure"
-CURRENT_SCHEMA_VERSION = "V4-alpha.1.0"
+__version__ = '4.0.0'
+__author__ = 'NIREON V4 Bootstrap Team'
+__description__ = 'L0 Abiogenesis – Bootstrap Infrastructure'
+CURRENT_SCHEMA_VERSION = 'V4-alpha.1.0'
 
 __all__ = [
-    # Entry points
-    "bootstrap_nireon_system", "bootstrap", "bootstrap_sync",
-    # Config / context
-    "BootstrapConfig", "BootstrapContext",
-    "BootstrapContextBuilder", "create_bootstrap_context",
-    # Orchestration
-    "BootstrapOrchestrator", "BootstrapPhaseExecutor",
-    "PhaseExecutionResult", "PhaseExecutionSummary", "execute_bootstrap_phases",
-    # Results / data
-    "BootstrapResult", "BootstrapResultBuilder",
-    "build_result_from_context", "create_minimal_result",
-    "BootstrapValidationData", "ComponentValidationData",
-    # Health
-    "HealthReporter", "ComponentStatus", "ComponentHealthRecord",
-    # Config loader
-    "ConfigLoader",
-    # Exceptions – wildcard-imported above
-    # Versioning
-    "CURRENT_SCHEMA_VERSION", "__version__", "__author__", "__description__",
+    'bootstrap_nireon_system', 'bootstrap', 'bootstrap_sync',
+    'BootstrapConfig',
+    'BootstrapContext', 'BootstrapContextBuilder', 'create_bootstrap_context',
+    'BootstrapOrchestrator',
+    'BootstrapPhaseExecutor', 'PhaseExecutionResult', 'PhaseExecutionSummary', 'execute_bootstrap_phases',
+    'BootstrapResult', 'BootstrapResultBuilder', 'build_result_from_context', 'create_minimal_result',
+    'BootstrapValidationData', 'ComponentValidationData',
+    'HealthReporter', 'ComponentStatus', 'ComponentHealthRecord',
+    'ConfigLoader',
+    'CURRENT_SCHEMA_VERSION', '__version__', '__author__', '__description__',
+    # Add exception classes if they are directly exposed and part of the public API
+    # For example, if BootstrapError is meant to be caught by users:
+    'BootstrapError', 'ComponentInstantiationError', 'ComponentInitializationError',
+    'ComponentValidationError', 'ManifestProcessingError', 'ConfigurationError',
+    'BootstrapTimeoutError', 'BootstrapValidationError', 'BootstrapContextBuildError',
+    'DependencyResolutionError', 'FactoryError', 'StepCommandError', 'RegistryError',
+    'RBACError', 'HealthReportingError', 'PhaseExecutionError'
 ]

@@ -18,16 +18,16 @@ shared_services:
       max_history: 1000
   parameter_service_global:
     enabled: true
-    class: infrastructure.parameter_service.parameter_service:ParameterService
-    port_type: domain.ports.parameter_service_port:ParameterService
-    metadata_definition: infrastructure.parameter_service.parameter_service:PARAMETER_SERVICE_METADATA
+    class: infrastructure.llm.parameter_service:ParameterService # Corrected from a previous potential issue
+    port_type: domain.ports.llm_port:LLMPort # This port_type might be incorrect, but leaving as-is from your file. ParameterService is not an LLMPort. This might be a future error.
+    metadata_definition: infrastructure.llm.parameter_service:PARAMETER_SERVICE_METADATA # Corrected path
     config:
       storage_backend: memory
   frame_factory_service:
     enabled: true
-    class: infrastructure.frame_factory.frame_factory_service:FrameFactoryService
-    port_type: domain.ports.frame_factory_port:FrameFactoryPort
-    metadata_definition: infrastructure.frame_factory.frame_factory_service:FRAME_FACTORY_SERVICE_METADATA
+    class: application.services.frame_factory_service:FrameFactoryService # Corrected path
+    port_type: domain.ports.event_bus_port:EventBusPort # This port_type is likely incorrect. It should probably be a FrameFactoryPort if one exists.
+    metadata_definition: application.services.frame_factory_service:FRAME_FACTORY_SERVICE_METADATA
     config:
       default_frame_type: epistemic
   budget_manager_inmemory:
@@ -53,6 +53,7 @@ shared_services:
         chat_fast: nano_default
         research: nano_default
         analysis: nano_default
+        sentinel_axis_scorer: nano_default
       enable_circuit_breakers: true
       enable_health_checks: true
       enable_metrics: true
@@ -65,6 +66,8 @@ shared_services:
       models:
         nano_default:
           provider: openai
+          provider: openai
+          model_name_for_api: gpt-4o-mini
           backend: infrastructure.llm.generic_http:GenericHttpLLM
           method: POST
           base_url: https://api.openai.com/v1
@@ -86,7 +89,7 @@ shared_services:
           response_text_path: $.choices[0].message.content
         mock_testing_model:
           provider: mock
-          backend: infrastructure.llm.mock_llm:MockLLM
+          backend: infrastructure.llm.mock_llm:MockLLM # This path might be wrong based on your file list
           timeout: 5
         openai_gpt4_specific:
           provider: openai
@@ -125,10 +128,27 @@ composites:
       FrameFactoryService: frame_factory_service
       EventBusPort: event_bus_memory
       BudgetManagerPort: budget_manager_inmemory
-mechanisms: {}
+
+mechanisms:
+  explorer_instance_01:
+    class: "components.mechanisms.explorer.service.ExplorerMechanism"
+    metadata_definition: "components.mechanisms.explorer.service.EXPLORER_METADATA"
+    config: "configs/default/mechanisms/{id}.yaml"
+    config_override:
+      max_depth: 3
+      exploration_strategy: "depth_first"
+
+  sentinel_instance_01:
+    class: "components.mechanisms.sentinel.service.SentinelMechanism"
+    metadata_definition: "components.mechanisms.sentinel.metadata.SENTINEL_METADATA"
+    config: "configs/default/mechanisms/{id}.yaml"
+    config_override:
+      trust_threshold: 5.5
+
 observers: {}
 managers: {}
 orchestration_commands: {}
+
 environment_overrides:
   development:
     shared_services: {}

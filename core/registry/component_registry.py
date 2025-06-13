@@ -1,439 +1,270 @@
-# ComponentRegistry class, enhanced to leverage new metadata features
-from __future__ import annotations
-
 import logging
-import threading
-from typing import Any, Dict, List, Union, Type, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Type, Union
 from datetime import datetime, timezone
-from collections import defaultdict
 
 from core.lifecycle import ComponentMetadata, ComponentRegistryMissingError
-
-__all__ = ['ComponentRegistry']
+from domain.ports.event_bus_port import EventBusPort
 
 logger = logging.getLogger(__name__)
 
-
 class ComponentRegistry:
-    """Enhanced registry leveraging advanced metadata features."""
+    """
+    Central registry for all components in the NIREON system.
+    Supports registration by ID, type, and maintains metadata and certification.
+    """
     
-    def __init__(self) -> None:
+    def __init__(self, event_bus: Optional[EventBusPort] = None):
         self._components: Dict[str, Any] = {}
         self._metadata: Dict[str, ComponentMetadata] = {}
         self._certifications: Dict[str, Dict[str, Any]] = {}
-        self._instance_to_metadata: Dict[int, ComponentMetadata] = {}
-        
-        # New: Track component relationships
-        self._dependency_graph: Dict[str, Set[str]] = defaultdict(set)  # component_id -> dependencies
-        self._dependents_graph: Dict[str, Set[str]] = defaultdict(set)  # component_id -> dependents
-        
-        # New: Version tracking
-        self._version_history: Dict[str, List[Tuple[str, datetime]]] = defaultdict(list)  # component_id -> [(version, timestamp)]
-        
-        # New: Fingerprint cache for quick comparison
-        self._fingerprint_cache: Dict[str, str] = {}
-        
-        self._lock = threading.RLock()
-        logger.debug("ComponentRegistry initialized with enhanced features")
-
-    def normalize_key(self, key: Union[str, Type, object]) -> str:
-        """Simple key normalization."""
-        if isinstance(key, str):
-            return key.strip()
-        elif isinstance(key, type):
-            return key.__name__
-        elif hasattr(key, '__name__'):
-            return getattr(key, '__name__')
+        self._service_instances: Dict[Type, Any] = {}  # Type -> instance mapping
+        self._event_bus = event_bus
+        self._registration_order: List[str] = []
+        logger.info("ComponentRegistry initialized")
+    
+    def normalize_key(self, key: Any) -> str:
+        """
+        Normalize a key for consistent lookups.
+        IMPORTANT: For string keys, we preserve them as-is to maintain manifest IDs.
+        """
+        if isinstance(key, type):
+            # For types, use the full module.class name
+            return f"{key.__module__}.{key.__name__}"
+        elif isinstance(key, str):
+            # For strings, DON'T normalize them - keep the exact ID from manifest
+            # This preserves 'llm_router_main' as-is
+            return key
         else:
+            # For other objects, use their string representation
             return str(key)
-
-    def _warn_re_register(self, key: str, kind: str) -> None:
-        logger.warning(f"[ComponentRegistry] {kind} with key '{key}' is being re-registered.")
-
-    def is_service_registered(self, key: Union[str, Type]) -> bool:
-        """Check if a service is registered."""
-        normalized_key = self.normalize_key(key)
-        return normalized_key in self._components
-
-    def register(self, component_value: Any, metadata: ComponentMetadata) -> None:
-        """Enhanced registration with dependency tracking and validation."""
+    
+    def register(self, component: Any, metadata: ComponentMetadata) -> None:
+        """
+        Register a component with its metadata.
+        This is the primary registration method that preserves manifest IDs.
+        """
+        component_id = metadata.id
+        
+        # Validate metadata
         if not isinstance(metadata, ComponentMetadata):
-            raise TypeError('metadata must be an instance of ComponentMetadata')
+            raise TypeError(f"metadata must be ComponentMetadata instance, got {type(metadata)}")
         
-        canonical_id = metadata.id
-        type_key_for_alias = None
-        component_type_obj = type(component_value)
-
-        if hasattr(component_type_obj, '__name__'):
-            normalized_type_name = self.normalize_key(component_type_obj)
-            if normalized_type_name != canonical_id:
-                type_key_for_alias = normalized_type_name
+        # Store the component with its exact ID
+        self._components[component_id] = component
+        self._metadata[component_id] = metadata
+        self._registration_order.append(component_id)
         
-        with self._lock:
-            # Check for version changes
-            if canonical_id in self._metadata:
-                existing_metadata = self._metadata[canonical_id]
-                if existing_metadata.version != metadata.version:
-                    # Track version history
-                    self._version_history[canonical_id].append(
-                        (metadata.version, datetime.now(timezone.utc))
-                    )
-                    logger.info(f"Component '{canonical_id}' version changed: "
-                               f"{existing_metadata.version} -> {metadata.version}")
-            
-            # Validate interface compatibility
-            if metadata.expected_interfaces:
-                validation_errors = metadata.validate_interfaces(component_value)
-                if validation_errors:
-                    logger.warning(f"Interface validation issues for '{canonical_id}': "
-                                  f"{'; '.join(validation_errors)}")
-            
-            # Check for conflicts
-            for comp_id, comp_meta in self._metadata.items():
-                if comp_id != canonical_id:
-                    if not metadata.is_compatible_with(comp_meta):
-                        logger.warning(f"Component '{canonical_id}' may not be compatible "
-                                      f"with existing component '{comp_id}'")
-            
-            # Register the component
-            self._components[canonical_id] = component_value
-            self._metadata[canonical_id] = metadata
-            self._instance_to_metadata[id(component_value)] = metadata
-            
-            # Cache fingerprint
-            self._fingerprint_cache[canonical_id] = metadata.fingerprint
-            
-            # Update dependency graphs
-            self._update_dependency_graphs(canonical_id, metadata)
-            
-            # Update metadata runtime state
-            metadata.add_runtime_state("registered_at", datetime.now(timezone.utc).isoformat())
-            metadata.add_runtime_state("registry_id", id(self))
-            
-            logger.info(f"Component '{canonical_id}' registered successfully "
-                       f"(version: {metadata.version}, fingerprint: {metadata.fingerprint[:8]}...)")
-
-            # Handle type alias - CRITICAL: Ensure metadata is linked for the type alias
-            if type_key_for_alias:
-                if type_key_for_alias not in self._components or self._components[type_key_for_alias] is not component_value:
-                    self._components[type_key_for_alias] = component_value
-                    logger.debug(f"Component '{canonical_id}' also accessible via type alias '{type_key_for_alias}'")
-                if type_key_for_alias not in self._metadata or self._metadata[type_key_for_alias] != metadata:
-                    self._metadata[type_key_for_alias] = metadata
-                    logger.debug(f"Metadata for '{canonical_id}' linked under type alias '{type_key_for_alias}'")
-
-            # Update existing aliases to ensure metadata consistency
-            for alias_key, registered_instance in list(self._components.items()):
-                if registered_instance is component_value and alias_key != canonical_id and alias_key != type_key_for_alias:
-                    if alias_key not in self._metadata or self._metadata[alias_key] != metadata:
-                        self._metadata[alias_key] = metadata
-                        logger.debug(f"Updated metadata for existing alias '{alias_key}' to point to '{canonical_id}'")
-            
-            # Special handling for NireonBaseComponent to ensure metadata consistency
-            if hasattr(component_value, 'metadata') and hasattr(component_value, 'component_id'):
-                # Ensure the component's internal metadata matches what we're registering
-                if component_value.metadata != metadata:
-                    logger.warning(f"Component '{canonical_id}' has different internal metadata than registration metadata")
-                # Ensure component_id matches
-                if component_value.component_id != canonical_id:
-                    logger.warning(f"Component has internal ID '{component_value.component_id}' but being registered as '{canonical_id}'")
-
-    def _update_dependency_graphs(self, component_id: str, metadata: ComponentMetadata) -> None:
-        """Update dependency tracking graphs."""
-        # Clear old dependencies
-        if component_id in self._dependency_graph:
-            for dep_id in self._dependency_graph[component_id]:
-                self._dependents_graph[dep_id].discard(component_id)
+        # If it's a NireonBaseComponent, ensure its component_id matches
+        if hasattr(component, 'component_id') and component.component_id != component_id:
+            logger.warning(
+                f"Component ID mismatch: instance has '{component.component_id}', "
+                f"metadata has '{component_id}'. Using metadata ID for registration."
+            )
+            # Try to update the component's ID if possible
+            if hasattr(component, '_component_id'):
+                object.__setattr__(component, '_component_id', component_id)
         
-        # Add new dependencies
-        self._dependency_graph[component_id] = set(metadata.dependencies.keys())
-        for dep_id in metadata.dependencies:
-            self._dependents_graph[dep_id].add(component_id)
-
+        # Fire registration event if event bus available
+        if self._event_bus:
+            try:
+                self._event_bus.publish('COMPONENT_REGISTERED', {
+                    'component_id': component_id,
+                    'component_type': type(component).__name__,
+                    'category': metadata.category,
+                    'timestamp': datetime.now(timezone.utc).isoformat()
+                })
+            except Exception as e:
+                logger.warning(f"Failed to publish registration event: {e}")
+        
+        logger.info(f"Registered component '{component_id}' ({type(component).__name__})")
+    
     def register_service_instance(self, key: Union[str, Type], instance: Any) -> None:
-        """Enhanced service registration with metadata inference."""
-        normalized_key = self.normalize_key(key)
-        if not normalized_key.strip():
-            raise ValueError('Service key cannot resolve to empty or whitespace')
-        
-        with self._lock:
-            if normalized_key in self._components and self._components[normalized_key] is not instance:
-                self._warn_re_register(normalized_key, 'Service (via register_service_instance)')
-            
+        """
+        Register a service instance by string key or type.
+        Used for type-based and alias registrations.
+        """
+        if isinstance(key, type):
+            # Type-based registration
+            self._service_instances[key] = instance
+            normalized_key = self.normalize_key(key)
             self._components[normalized_key] = instance
-            logger.debug(f"Service instance registered: {key} -> '{normalized_key}' (Type: {type(instance).__name__})")
-
-            # Enhanced metadata linking
-            canonical_metadata_to_link: Optional[ComponentMetadata] = None
-            
-            # Check instance-to-metadata mapping first (O(1) lookup)
-            instance_id = id(instance)
-            if instance_id in self._instance_to_metadata:
-                canonical_metadata_to_link = self._instance_to_metadata[instance_id]
-                logger.debug(f"Found canonical metadata via instance mapping (ID: '{canonical_metadata_to_link.id}')")
-            
-            # Check instance's metadata attribute
-            elif hasattr(instance, 'metadata') and isinstance(getattr(instance, 'metadata', None), ComponentMetadata):
-                canonical_metadata_to_link = instance.metadata
-                self._instance_to_metadata[instance_id] = canonical_metadata_to_link
-                if canonical_metadata_to_link.id not in self._metadata:
-                    self._metadata[canonical_metadata_to_link.id] = canonical_metadata_to_link
-                    logger.debug(f"Cached metadata for '{canonical_metadata_to_link.id}' from instance.metadata")
-            
-            # CRITICAL: Link the metadata to the service key
-            if canonical_metadata_to_link:
-                if normalized_key not in self._metadata or self._metadata[normalized_key] != canonical_metadata_to_link:
-                    self._metadata[normalized_key] = canonical_metadata_to_link
-                    logger.debug(f"Linked metadata for service alias '{normalized_key}' to canonical metadata (ID: '{canonical_metadata_to_link.id}')")
-                    
-                # Also ensure type alias has metadata if this is a type registration
-                if isinstance(key, type) and hasattr(key, '__name__'):
-                    type_name = key.__name__
-                    if type_name not in self._metadata:
-                        self._metadata[type_name] = canonical_metadata_to_link
-                        logger.debug(f"Also linked metadata under type name '{type_name}'")
-
-    def get_service_instance(self, key: Union[str, Type]) -> Any:
-        """Get service instance with enhanced error reporting."""
-        normalized_key = self.normalize_key(key)
-        logger.debug(f"[get_service_instance] Looking for: '{normalized_key}'")
+            logger.debug(f"Registered service by type: {key.__name__}")
+        else:
+            # String key registration
+            self._components[str(key)] = instance
+            logger.debug(f"Registered service by key: {key}")
+    
+    def get(self, key: str, default: Any = None) -> Any:
+        """
+        Get a component by its ID.
+        First tries exact match, then normalized key.
+        """
+        # First try exact match - this is critical for manifest IDs
+        if key in self._components:
+            return self._components[key]
         
+        # Then try normalized key (for type-based lookups)
+        normalized = self.normalize_key(key)
+        if normalized != key and normalized in self._components:
+            return self._components[normalized]
+        
+        # If not found and no default, raise error with helpful message
+        if default is None:
+            # Get available keys for error message
+            available = list(self._components.keys())
+            if len(available) > 20:
+                available = available[:20] + [f"... and {len(available) - 20} more"]
+            
+            raise ComponentRegistryMissingError(
+                key,
+                available_components=available
+            )
+        
+        return default
+    
+    def get_service_instance(self, service_type: Type) -> Any:
+        """
+        Get a service instance by its type/interface.
+        """
+        # First check direct type mapping
+        if service_type in self._service_instances:
+            return self._service_instances[service_type]
+        
+        # Then check normalized type key in components
+        normalized_key = self.normalize_key(service_type)
         if normalized_key in self._components:
             return self._components[normalized_key]
         
-        # Type-based fallback
-        if isinstance(key, type):
-            for comp_id, comp_instance in self._components.items():
-                if isinstance(comp_instance, key):
-                    logger.debug(f"Found by type match: '{normalized_key}' -> '{comp_id}'")
-                    return comp_instance
+        # Finally, search all components for instances of the type
+        for comp_id, component in self._components.items():
+            if isinstance(component, service_type):
+                logger.debug(f"Found {service_type.__name__} by instance check: {comp_id}")
+                return component
         
-        # Enhanced error with available components
-        available_keys = sorted(self._components.keys())
         raise ComponentRegistryMissingError(
-            str(key),
-            message=f"Service '{key}' (normalized: '{normalized_key}') not found",
-            available_components=available_keys
+            f"Service of type {service_type.__name__}",
+            available_components=list(self._components.keys())[:10]
         )
-
-    def get(self, key: Union[str, Type], default: Any = None) -> Any:
-        """General get with enhanced lookup and optional default."""
-        normalized_key = self.normalize_key(key)
-        if normalized_key in self._components:
-            return self._components[normalized_key]
-
-        # Type-based fallback
-        if isinstance(key, type):
-            for comp_id, comp_instance in self._components.items():
-                if isinstance(comp_instance, key):
-                    logger.debug(f"Found by type: '{normalized_key}' -> '{comp_id}'")
-                    return comp_instance
-        
-        # Metadata ID fallback
-        if isinstance(key, str):
-             for comp_instance in self._components.values():
-                 if hasattr(comp_instance, 'metadata') and isinstance(getattr(comp_instance, 'metadata', None), ComponentMetadata):
-                     if comp_instance.metadata.id == normalized_key:
-                         logger.debug(f"Found by metadata.id: '{normalized_key}'")
-                         return comp_instance
-                 elif hasattr(comp_instance, 'component_id') and comp_instance.component_id == normalized_key:
-                     logger.debug(f"Found by component_id: '{normalized_key}'")
-                     return comp_instance
-
-        # If default is provided, return it instead of raising exception
-        if default is not None:
-            logger.debug(f"Component '{normalized_key}' not found, returning default")
-            return default
-
-        available_keys = sorted(self._components.keys())
-        raise ComponentRegistryMissingError(normalized_key, available_components=available_keys)
-
-    def get_metadata(self, component_id_or_alias: str) -> ComponentMetadata:
-        """Enhanced metadata retrieval with better alias handling."""
-        normalized_key = self.normalize_key(component_id_or_alias)
-
-        # Direct lookup
-        if normalized_key in self._metadata:
-            return self._metadata[normalized_key]
-
-        # Instance-based lookup
-        if normalized_key in self._components:
-            comp = self._components[normalized_key]
-            instance_id = id(comp)
-            
-            # Check instance mapping
-            if instance_id in self._instance_to_metadata:
-                metadata = self._instance_to_metadata[instance_id]
-                with self._lock:
-                    # Ensure the alias key itself also points to this canonical metadata
-                    if normalized_key not in self._metadata:
-                        self._metadata[normalized_key] = metadata
-                logger.debug(f'Retrieved metadata via instance mapping for key {normalized_key} (points to {metadata.id})')
-                return metadata
-            
-            # If it's a NireonBaseComponent, it MUST have metadata, even if not found via instance_id map yet.
-            # This can happen if it was registered via a different key, and this alias is new.
-            # Its own .metadata property is the source of truth.
-            if hasattr(comp, 'metadata') and isinstance(getattr(comp, 'metadata', None), ComponentMetadata):
-                instance_meta = comp.metadata
-                with self._lock:
-                    self._instance_to_metadata[instance_id] = instance_meta
-                    if instance_meta.id not in self._metadata:
-                        self._metadata[instance_meta.id] = instance_meta
-                    if normalized_key != instance_meta.id and normalized_key not in self._metadata:
-                        # Link the alias key to the canonical metadata from the instance
-                        self._metadata[normalized_key] = instance_meta
-                logger.debug(f'Retrieved metadata from instance attribute for key {normalized_key} (points to {instance_meta.id})')
-                return instance_meta
-
-        available_metadata_keys = sorted(self._metadata.keys())
-        available_component_keys = sorted(self._components.keys())
-        raise ComponentRegistryMissingError(
-            component_id_or_alias,
-            message=f"Metadata for key '{normalized_key}' not found",
-            available_components=available_metadata_keys
-        )
-
-    def get_certification(self, component_id: str) -> Dict[str, Any]:
-        """Get certification data."""
-        return self._certifications.get(component_id, {})
-
-    def register_certification(self, component_id: str, cert: Dict[str, Any]) -> None:
-        """Register certification with validation."""
-        if not isinstance(cert, dict):
-            raise TypeError("Certification data must be a dictionary")
-        with self._lock:
-            self._certifications[component_id] = cert
-            # Update metadata runtime state
-            if component_id in self._metadata:
-                self._metadata[component_id].add_runtime_state("certified", True)
-                self._metadata[component_id].add_runtime_state("certification_timestamp", 
-                                                               datetime.now(timezone.utc).isoformat())
-            logger.debug(f"Certification registered for '{component_id}'")
-
+    
     def list_components(self) -> List[str]:
-        """List all component keys."""
+        """
+        List all registered component IDs.
+        """
         return list(self._components.keys())
-
-    def list_service_instances(self) -> List[str]:
-        """List all service instance keys."""
-        return list(self._components.keys())
-
-    def find_by_category(self, category: str) -> List[str]:
-        """Find components by category."""
-        return [cid for cid, md in self._metadata.items() if md.category == category]
-
-    def find_by_capability(self, capability: str) -> List[str]:
-        """Find components by capability."""
-        return [cid for cid, md in self._metadata.items() if capability in md.capabilities]
-
-    def find_by_epistemic_tag(self, tag: str) -> List[str]:
-        """Find components by epistemic tag."""
-        return [cid for cid, md in self._metadata.items() if tag in md.epistemic_tags]
-
-    def find_satisfying_dependency(self, dependency_id: str, version_spec: str) -> List[str]:
-        """Find components that satisfy a dependency requirement."""
-        results = []
-        for cid, metadata in self._metadata.items():
-            if cid == dependency_id or dependency_id in [cid, metadata.id]:
-                if metadata.satisfies_dependency(version_spec):
-                    results.append(cid)
-        return results
-
-    def get_dependents(self, component_id: str) -> Set[str]:
-        """Get all components that depend on this component."""
-        return self._dependents_graph.get(component_id, set()).copy()
-
-    def get_dependencies(self, component_id: str) -> Set[str]:
-        """Get all dependencies of this component."""
-        return self._dependency_graph.get(component_id, set()).copy()
-
-    def check_dependency_conflicts(self) -> List[str]:
-        """Check for dependency conflicts in the registry."""
-        conflicts = []
+    
+    def get_metadata(self, component_id: str) -> ComponentMetadata:
+        """
+        Get metadata for a component.
+        """
+        if component_id in self._metadata:
+            return self._metadata[component_id]
         
-        for comp_id, dependencies in self._dependency_graph.items():
-            if comp_id not in self._metadata:
-                continue
-                
-            comp_meta = self._metadata[comp_id]
+        # Try to get from component itself
+        component = self.get(component_id)
+        if hasattr(component, 'metadata') and isinstance(component.metadata, ComponentMetadata):
+            return component.metadata
+        
+        raise ComponentRegistryMissingError(
+            f"Metadata for component '{component_id}'",
+            available_components=list(self._metadata.keys())[:10]
+        )
+    
+    def register_certification(self, component_id: str, certification_data: Dict[str, Any]) -> None:
+        """
+        Register certification data for a component.
+        """
+        self._certifications[component_id] = certification_data
+        logger.debug(f"Registered certification for component '{component_id}'")
+
+    def has_component(self, component_id: str) -> bool:
+        return component_id in self._components or self.normalize_key(component_id) in self._components
+    
+    def get_certification(self, component_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get certification data for a component.
+        """
+        return self._certifications.get(component_id)
+    
+    def has_component(self, component_id: str) -> bool:
+        """
+        Check if a component is registered.
+        """
+        return component_id in self._components or self.normalize_key(component_id) in self._components
+    
+    def get_components_by_category(self, category: str) -> List[str]:
+        """
+        Get all component IDs for a given category.
+        """
+        result = []
+        for comp_id, metadata in self._metadata.items():
+            if metadata.category == category:
+                result.append(comp_id)
+        return result
+    
+    def get_components_by_tag(self, tag: str) -> List[str]:
+        """
+        Get all component IDs that have a specific epistemic tag.
+        """
+        result = []
+        for comp_id, metadata in self._metadata.items():
+            if tag in metadata.epistemic_tags:
+                result.append(comp_id)
+        return result
+    
+    def unregister(self, component_id: str) -> None:
+        """
+        Remove a component from the registry.
+        """
+        if component_id in self._components:
+            component = self._components[component_id]
             
-            for dep_id in dependencies:
-                version_spec = comp_meta.dependencies.get(dep_id, "*")
-                
-                # Check if any registered component satisfies this dependency
-                satisfying = self.find_satisfying_dependency(dep_id, version_spec)
-                if not satisfying:
-                    conflicts.append(
-                        f"Component '{comp_id}' requires '{dep_id}' "
-                        f"version '{version_spec}' but none found"
-                    )
-        
-        return conflicts
-
-    def get_version_history(self, component_id: str) -> List[Tuple[str, datetime]]:
-        """Get version history for a component."""
-        return self._version_history.get(component_id, []).copy()
-
-    def get_stats(self) -> Dict[str, Any]:
-        """Enhanced statistics with dependency analysis."""
-        certified_count = len([cid for cid in self._certifications if self._certifications[cid]])
-        categories: Dict[str, int] = {}
-        epistemic_tags: Dict[str, int] = {}
-        
-        unique_metadata = set(id(md) for md in self._metadata.values())
-        
-        for metadata in self._metadata.values():
-            categories[metadata.category] = categories.get(metadata.category, 0) + 1
-            for tag in metadata.epistemic_tags:
-                epistemic_tags[tag] = epistemic_tags.get(tag, 0) + 1
-        
-        unique_instances = set(id(inst) for inst in self._components.values())
-        
-        # Dependency analysis
-        total_dependencies = sum(len(deps) for deps in self._dependency_graph.values())
-        max_dependents = max(len(deps) for deps in self._dependents_graph.values()) if self._dependents_graph else 0
-        
-        return {
-            "total_component_instances": len(unique_instances),
-            "total_registered_keys": len(self._components),
-            "components_with_metadata": len(self._metadata),
-            "unique_metadata_objects": len(unique_metadata),
-            "certified_components": certified_count,
-            "categories": categories,
-            "epistemic_tags": epistemic_tags,
-            "total_dependencies": total_dependencies,
-            "max_dependents": max_dependents,
-            "dependency_conflicts": len(self.check_dependency_conflicts()),
-            "components_with_version_history": len(self._version_history)
-        }
-
-    def cleanup_instance_reference(self, instance: Any) -> None:
-        """Remove instance references to prevent memory leaks."""
-        instance_id = id(instance)
-        if instance_id in self._instance_to_metadata:
-            metadata = self._instance_to_metadata[instance_id]
-            del self._instance_to_metadata[instance_id]
-            # Clear runtime state
-            metadata.clear_runtime_state()
-            logger.debug(f"Cleaned up instance reference for id {instance_id}")
-
-    def export_metadata(self) -> Dict[str, Dict[str, Any]]:
-        """Export all metadata for persistence."""
-        return {
-            comp_id: metadata.to_dict()
-            for comp_id, metadata in self._metadata.items()
-        }
-
-    def import_metadata(self, metadata_dict: Dict[str, Dict[str, Any]]) -> None:
-        """Import metadata from persistence."""
-        with self._lock:
-            for comp_id, meta_data in metadata_dict.items():
-                try:
-                    metadata = ComponentMetadata.from_dict(meta_data)
-                    self._metadata[comp_id] = metadata
-                    self._fingerprint_cache[comp_id] = metadata.fingerprint
-                    self._update_dependency_graphs(comp_id, metadata)
-                    logger.info(f"Imported metadata for component '{comp_id}'")
-                except Exception as e:
-                    logger.error(f"Failed to import metadata for '{comp_id}': {e}")
+            # Remove from main registry
+            del self._components[component_id]
+            
+            # Remove metadata
+            if component_id in self._metadata:
+                del self._metadata[component_id]
+            
+            # Remove certification
+            if component_id in self._certifications:
+                del self._certifications[component_id]
+            
+            # Remove from registration order
+            if component_id in self._registration_order:
+                self._registration_order.remove(component_id)
+            
+            # Remove from service instances if it's there
+            for svc_type, instance in list(self._service_instances.items()):
+                if instance is component:
+                    del self._service_instances[svc_type]
+            
+            logger.info(f"Unregistered component '{component_id}'")
+    
+    def clear(self) -> None:
+        """
+        Clear all registrations.
+        """
+        self._components.clear()
+        self._metadata.clear()
+        self._certifications.clear()
+        self._service_instances.clear()
+        self._registration_order.clear()
+        logger.info("Registry cleared")
+    
+    def get_registration_order(self) -> List[str]:
+        """
+        Get the order in which components were registered.
+        """
+        return list(self._registration_order)
+    
+    def __len__(self) -> int:
+        """
+        Get the number of registered components.
+        """
+        return len(self._components)
+    
+    def __contains__(self, component_id: str) -> bool:
+        """
+        Check if a component is in the registry.
+        """
+        return self.has_component(component_id)

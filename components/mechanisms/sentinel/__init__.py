@@ -1,9 +1,15 @@
-"""
-NIREON V4 Mechanisms Package
+# nireon_v4/components/mechanisms/sentinel/__init__.py
+from .service import SentinelMechanism
+from .metadata import SENTINEL_METADATA # Export metadata
+from .config import SentinelMechanismConfig
+from .errors import SentinelError, SentinelAssessmentError, SentinelScoringError, SentinelLLMParsingError
 
-This package contains the core mechanisms for idea generation, exploration,
-and evolution within the NIREON V4 epistemic system.
-"""
-
-__version__ = '4.0.0'
-__author__ = 'NIREON V4 Team'
+__all__ = [
+    'SentinelMechanism',
+    'SENTINEL_METADATA', # Add to __all__
+    'SentinelMechanismConfig',
+    'SentinelError',
+    'SentinelAssessmentError',
+    'SentinelScoringError',
+    'SentinelLLMParsingError'
+]

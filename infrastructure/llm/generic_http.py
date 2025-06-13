@@ -2,6 +2,7 @@
 import json
 import logging
 import os
+import re
 from typing import Any, Dict, Optional, Mapping
 from string import Template
 import httpx
@@ -99,66 +100,50 @@ class GenericHttpLLM(LLMPort):
                       context: NireonExecutionContext, settings: Dict[str, Any]) -> Dict[str, Any]:
         """Build the request payload using the configured template."""
         try:
-            # Prepare template variables
+            # FIX: JSON-escape the string variables to handle special characters
+            json_safe_prompt = json.dumps(prompt)[1:-1]
+            json_safe_system_prompt = json.dumps(settings.get('system_prompt', 'You are a helpful assistant.'))[1:-1]
             template_vars = {
-                'prompt': prompt,
+                'prompt': json_safe_prompt,
                 'role': role,
                 'stage': stage.value if isinstance(stage, EpistemicStage) else str(stage),
-                'model_name_for_api': self.model_name,  # This should be the API model name, not the internal key
-                'system_prompt': settings.get('system_prompt', 'You are a helpful assistant.'),
+                'model_name_for_api': self.model_name,
+                'system_prompt': json_safe_system_prompt,
                 'temperature': settings.get('temperature', 0.7),
                 'max_tokens': settings.get('max_tokens', 1024),
                 'top_p': settings.get('top_p', 1.0),
-                **settings  # Include all other settings
+                **settings
             }
             
-            # Debug: Check what model_name we're actually using
-            logger.info(f"Internal model name (self.model_name): {self.model_name}")
-            logger.info(f"Template model_name_for_api: {template_vars['model_name_for_api']}")
-            
-            # Log the template and variables for debugging
-            logger.debug(f"Template: {self.payload_template_str}")
-            logger.debug(f"Variables: {template_vars}")
-            
-            # Convert {{ variable }} syntax to $variable syntax for Python Template
             template_str = self.payload_template_str
             
-            # Replace {{ variable }} with $variable
-            import re
             def replace_braces(match):
                 var_name = match.group(1).strip()
-                return f"${var_name}"
+                return f'${var_name}'
             
-            template_str = re.sub(r'\{\{\s*(\w+)\s*\}\}', replace_braces, template_str)
-            logger.debug(f"Converted template: {template_str}")
+            template_str = re.sub('\\{\\{\\s*(\\w+)\\s*\\}\\}', replace_braces, template_str)
             
-            # Use Template for substitution, then parse as JSON
             template = Template(template_str)
             payload_str = template.safe_substitute(**template_vars)
             
-            # Log the final payload string before JSON parsing
-            logger.debug(f"Generated payload string: {payload_str}")
-            
-            # Parse the resulting JSON
             payload = json.loads(payload_str)
             return payload
-            
         except Exception as e:
-            logger.error(f"Error building payload from template: {e}")
-            logger.error(f"Template was: {self.payload_template_str}")
-            logger.error(f"Variables were: {template_vars}")
+            logger.error(f'Error building payload from template: {e}')
+            log_vars = {k: (v[:200] + '...' if isinstance(v, str) and len(v) > 200 else v) for k, v in locals().get('template_vars', {}).items()}
+            logger.error(f'Template was: {self.payload_template_str}')
+            logger.error(f'Variables were: {log_vars}')
             
-            # Fallback to a basic payload that we know works
             fallback_payload = {
-                "model": self.model_name,
-                "messages": [
-                    {"role": "system", "content": settings.get('system_prompt', 'You are a helpful assistant.')},
-                    {"role": "user", "content": prompt}
+                'model': self.model_name,
+                'messages': [
+                    {'role': 'system', 'content': settings.get('system_prompt', 'You are a helpful assistant.')},
+                    {'role': 'user', 'content': prompt}
                 ],
-                "temperature": settings.get('temperature', 0.7),
-                "max_tokens": settings.get('max_tokens', 1024)
+                'temperature': settings.get('temperature', 0.7),
+                'max_tokens': settings.get('max_tokens', 1024),
             }
-            logger.info(f"Using fallback payload: {fallback_payload}")
+            logger.info(f'Using fallback payload: {fallback_payload}')
             return fallback_payload
     
     def _extract_response_text(self, response_data: Dict[str, Any]) -> str:

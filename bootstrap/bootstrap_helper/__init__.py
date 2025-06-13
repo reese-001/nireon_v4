@@ -2,50 +2,32 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Import exceptions first as they have minimal dependencies
+# Import exceptions first to avoid circular imports
 try:
     from ._exceptions import BootstrapError
 except ImportError as e:
-    logger.warning(f"Failed to import BootstrapError: {e}")
+    logger.warning(f'Failed to import BootstrapError: {e}')
     class BootstrapError(RuntimeError):
         pass
 
-# Import metadata with error handling
+# Import metadata utilities
 try:
-    from .metadata import (
-        DEFAULT_COMPONENT_METADATA_MAP, 
-        get_default_metadata, 
-        create_service_metadata
-    )
+    from .metadata import DEFAULT_COMPONENT_METADATA_MAP, get_default_metadata, create_service_metadata
 except ImportError as e:
-    logger.warning(f"Failed to import metadata utilities: {e}")
+    logger.warning(f'Failed to import metadata utilities: {e}')
     DEFAULT_COMPONENT_METADATA_MAP = {}
-    
     def get_default_metadata(key):
         return None
-    
     def create_service_metadata(service_id, service_name, **kwargs):
         from core.lifecycle import ComponentMetadata
-        return ComponentMetadata(
-            id=service_id,
-            name=service_name,
-            version='1.0.0',
-            category='service',
-            **kwargs
-        )
+        return ComponentMetadata(id=service_id, name=service_name, version='1.0.0', category='service', **kwargs)
 
-# Import placeholders with error handling
+# Import placeholder implementations
 try:
-    from .placeholders import (
-        PlaceholderLLMPortImpl,
-        PlaceholderEmbeddingPortImpl, 
-        PlaceholderEventBusImpl,
-        PlaceholderIdeaRepositoryImpl
-    )
+    from .placeholders import PlaceholderLLMPortImpl, PlaceholderEmbeddingPortImpl, PlaceholderEventBusImpl, PlaceholderIdeaRepositoryImpl
 except ImportError as e:
-    logger.warning(f"Failed to import placeholder implementations: {e}")
+    logger.warning(f'Failed to import placeholder implementations: {e}')
     
-    # Create minimal placeholder classes
     class PlaceholderLLMPortImpl:
         def __init__(self, *args, **kwargs):
             pass
@@ -69,10 +51,10 @@ except ImportError as e:
             pass
         
         def publish(self, event_type, payload):
-            logger.debug(f"PlaceholderEventBus: {event_type} - {payload}")
+            logger.debug(f'PlaceholderEventBus: {event_type} - {payload}')
         
         def subscribe(self, event_type, handler):
-            logger.debug(f"PlaceholderEventBus: Subscribed to {event_type}")
+            logger.debug(f'PlaceholderEventBus: Subscribed to {event_type}')
         
         def get_logger(self, component_id):
             return logging.getLogger(f'nireon.{component_id}')
@@ -90,14 +72,16 @@ except ImportError as e:
         def get_all(self):
             return list(self._ideas.values())
 
-# Import service resolver with error handling
-try:
-    from .service_resolver import find_event_bus_service
-except ImportError as e:
-    logger.warning(f"Failed to import service_resolver: {e}")
-    
-    def find_event_bus_service(registry):
-        logger.warning("find_event_bus_service placeholder implementation")
+# Import service resolver functions (delay import to avoid circular dependencies)
+def find_event_bus_service(registry):
+    """Find event bus service - delayed import to avoid circular dependencies."""
+    try:
+        # Import locally to avoid circular imports
+        from bootstrap.processors.service_resolver import find_event_bus_service as _find_event_bus_service
+        return _find_event_bus_service(registry)
+    except ImportError as e:
+        logger.warning(f'Failed to import service_resolver: {e}')
+        logger.warning('find_event_bus_service placeholder implementation')
         return None
 
 __version__ = '1.0.0'
@@ -106,7 +90,7 @@ __author__ = 'Nireon Bootstrap Team V4'
 __all__ = [
     'BootstrapError',
     'DEFAULT_COMPONENT_METADATA_MAP',
-    'get_default_metadata', 
+    'get_default_metadata',
     'create_service_metadata',
     'PlaceholderLLMPortImpl',
     'PlaceholderEmbeddingPortImpl', 

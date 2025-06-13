@@ -1,0 +1,6 @@
+parameters:
+  trust_threshold: 5.5
+  min_axis_score: 4.0
+  weights: [0.4, 0.3, 0.3]
+  enable_length_penalty: true
+  enable_progression_adjustment: false
