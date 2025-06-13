@@ -1,0 +1,13 @@
+application_rate: 0.1
+blend_low: 0.1
+blend_high: 0.3
+max_blend_low: 0.8
+max_blend_high: 0.95
+duplication_check_enabled: false
+duplication_check_probability: 0.05
+duplication_cooldown_steps: 5
+duplication_aggressiveness: 0.5
+anti_constraints_enabled: false
+anti_constraints_count: 3
+anti_constraints_diversity_threshold: 0.15
+prompt_template: null # You can define a custom prompt string here if you want

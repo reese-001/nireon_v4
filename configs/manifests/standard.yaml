@@ -5,6 +5,7 @@ metadata:
   author: NIREON Team
   created_at: '2025-06-05T10:00:00Z'
   updated_at: '2025-06-07T12:00:00Z'
+
 shared_services:
   event_bus_memory:
     enabled: true
@@ -18,15 +19,15 @@ shared_services:
       max_history: 1000
   parameter_service_global:
     enabled: true
-    class: infrastructure.llm.parameter_service:ParameterService # Corrected from a previous potential issue
-    port_type: domain.ports.llm_port:LLMPort # This port_type might be incorrect, but leaving as-is from your file. ParameterService is not an LLMPort. This might be a future error.
-    metadata_definition: infrastructure.llm.parameter_service:PARAMETER_SERVICE_METADATA # Corrected path
+    class: infrastructure.llm.parameter_service:ParameterService
+    port_type: domain.ports.llm_port:LLMPort
+    metadata_definition: infrastructure.llm.parameter_service:PARAMETER_SERVICE_METADATA
     config:
       storage_backend: memory
   frame_factory_service:
     enabled: true
-    class: application.services.frame_factory_service:FrameFactoryService # Corrected path
-    port_type: domain.ports.event_bus_port:EventBusPort # This port_type is likely incorrect. It should probably be a FrameFactoryPort if one exists.
+    class: application.services.frame_factory_service:FrameFactoryService
+    port_type: domain.ports.event_bus_port:EventBusPort
     metadata_definition: application.services.frame_factory_service:FRAME_FACTORY_SERVICE_METADATA
     config:
       default_frame_type: epistemic
@@ -65,7 +66,6 @@ shared_services:
         timeout: 30
       models:
         nano_default:
-          provider: openai
           provider: openai
           model_name_for_api: gpt-4o-mini
           backend: infrastructure.llm.generic_http:GenericHttpLLM
@@ -117,6 +117,7 @@ shared_services:
     enabled: false
   IdeaRepositoryPort:
     enabled: false
+
 composites:
   mechanism_gateway_main:
     class: application.gateway.mechanism_gateway:MechanismGateway
@@ -135,6 +136,7 @@ mechanisms:
     metadata_definition: "components.mechanisms.explorer.service.EXPLORER_METADATA"
     config: "configs/default/mechanisms/{id}.yaml"
     config_override:
+      application_rate: 1.0 # Let's make explorer always run for the test too
       max_depth: 3
       exploration_strategy: "depth_first"
 
@@ -144,6 +146,16 @@ mechanisms:
     config: "configs/default/mechanisms/{id}.yaml"
     config_override:
       trust_threshold: 5.5
+
+  catalyst_instance_01:
+    class: "components.mechanisms.catalyst.service:CatalystMechanism"
+    metadata_definition: "components.mechanisms.catalyst.metadata:CATALYST_METADATA"
+    config: "configs/default/mechanisms/{id}.yaml"
+    config_override:
+      application_rate: 1.0 # <-- THE FIX: Guarantees the mechanism will run
+      blend_high: 0.4
+      anti_constraints_enabled: true
+      duplication_check_enabled: true
 
 observers: {}
 managers: {}

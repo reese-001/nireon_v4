@@ -46,6 +46,7 @@ EXPLORER_METADATA = ComponentMetadata(
 )
 
 class ExplorerMechanism(NireonBaseComponent):
+    METADATA_DEFINITION = EXPLORER_METADATA
     ConfigModel = ExplorerConfig
 
     def __init__(self,
@@ -53,7 +54,7 @@ class ExplorerMechanism(NireonBaseComponent):
                  metadata_definition: ComponentMetadata,
                  gateway: Optional[MechanismGatewayPort] = None,
                  frame_factory: Optional[FrameFactoryService] = None):
-        super().__init__(config=config, metadata_definition=metadata_definition)
+        super().__init__(config=config, metadata_definition=metadata_definition or self.METADATA_DEFINITION) 
         self.cfg: ExplorerConfig = ExplorerConfig(**self.config)
 
         # Dependencies to be resolved in _initialize_impl
@@ -230,20 +231,23 @@ class ExplorerMechanism(NireonBaseComponent):
         # Extract seed information
         seed_input_text = ""
         seed_input_id = f"seed_{task_short_id}"
-        if isinstance(data, str):
+        if isinstance(data, dict) and 'ideas' in data and data['ideas']:
+            # This is the expected V4 format
+            seed_idea_obj = data['ideas'][0]
+            seed_input_text = seed_idea_obj.text
+            seed_input_id = seed_idea_obj.idea_id
+        elif isinstance(data, dict) and 'text' in data:
+            # Handle the old format for backward compatibility if needed
+            seed_input_text = data['text']
+            seed_input_id = data.get('id', seed_input_id)
+        elif isinstance(data, str):
             seed_input_text = data
-        elif isinstance(data, dict) and "text" in data:
-            seed_input_text = data["text"]
-            seed_input_id = data.get("id", seed_input_id)
-        elif isinstance(data, dict) and "seed_idea" in data:
-            seed_input_text = data["seed_idea"].get("text", f"default_seed_for_task_{task_short_id}")
-            seed_input_id = data["seed_idea"].get("id", seed_input_id)
         else:
-            seed_input_text = f"default_seed_for_task_{task_short_id}"
-            context.logger.warning(f"Unrecognized input data structure for Explorer. Using default seed: {seed_input_text}")
+            context.logger.warning(f'Unrecognized input data structure for Explorer. Using default seed.')
+            seed_input_text = f'default_seed_for_task_{task_short_id}'
 
         input_hash = hashlib.sha256(seed_input_text.encode()).hexdigest()[:12]
-        objective_from_data = data.get("objective", "Generate novel idea variations.") if isinstance(data, dict) else "Generate novel idea variations."
+        objective_from_data = data.get('objective', 'Generate novel idea variations.') if isinstance(data, dict) else 'Generate novel idea variations.'
 
         frame_name = f"explorer_task_{task_short_id}_on_seed_{input_hash}"
         frame_description = (
