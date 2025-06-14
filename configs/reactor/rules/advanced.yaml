@@ -1,0 +1,65 @@
+version: "1.0"
+rules:
+  - id: "high_trust_idea_amplification"
+    description: "Amplify ideas with high trust scores"
+    namespace: "trust"
+    priority: 10
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "IdeaGeneratedSignal"
+      - type: "payload_expression"
+        expression: "signal.trust_score > 0.8 and signal.novelty_score > 0.6"
+    actions:
+      - type: "trigger_component"
+        component_id: "catalyst_mechanism"
+        template_id: "AMPLIFY_HIGH_TRUST"
+        input_data_mapping:
+          idea_content: "payload.idea_content"
+          trust_level: "signal.trust_score"
+
+  - id: "stagnation_detection"
+    description: "Detect and intervene on stagnation"
+    namespace: "health"
+    priority: 5
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "ComponentHealthSignal"
+      - type: "payload_expression"
+        expression: |
+          payload.metrics.ideas_generated_rate < 0.1 and 
+          payload.metrics.time_since_last_idea > 300
+    actions:
+      - type: "emit_signal"
+        signal_type: "StagnationDetectedSignal"
+        payload:
+          severity: "medium"
+          suggested_intervention: "increase_exploration"
+      - type: "trigger_component"
+        component_id: "explorer_primary"
+        input_data:
+          exploration_mode: "aggressive"
+          temperature: 0.9
+
+  - id: "cascade_error_handling"
+    description: "Handle cascading errors intelligently"
+    namespace: "error"
+    priority: 1
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "ErrorSignal"
+      - type: "payload_expression"
+        expression: |
+          signal.error_type == 'critical' and 
+          len(signal.parent_signal_ids) > 3
+    actions:
+      - type: "trigger_component"
+        component_id: "error_recovery_manager"
+        template_id: "CASCADE_RECOVERY"
+      - type: "emit_signal"
+        signal_type: "CIRCUIT_BREAKER_TRIGGERED"
+        payload:
+          component_id: "{{ signal.source_node_id }}"
+          cooldown_seconds: 60

@@ -1,0 +1,43 @@
+version: "1.0"
+rules:
+  - id: "stagnation_detection"
+    description: "Detect and intervene on stagnation"
+    namespace: "health"
+    priority: 5
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "ComponentHealthSignal"
+      - type: "payload_expression"
+        expression: |
+          payload.metrics.ideas_generated_rate < 0.1 and 
+          payload.metrics.time_since_last_idea > 300
+    actions:
+      - type: "emit_signal"
+        signal_type: "StagnationDetectedSignal"
+        payload:
+          severity: "medium"
+          suggested_intervention: "increase_exploration"
+      - type: "trigger_component"
+        component_id: "explorer_primary"
+        input_data:
+          exploration_mode: "aggressive"
+          temperature: 0.9
+
+  - id: "memory_pressure_response"
+    description: "Respond to high memory usage"
+    namespace: "health"
+    priority: 1
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "SystemResourceSignal"
+      - type: "payload_expression"
+        expression: "payload.memory_usage_percent > 85"
+    actions:
+      - type: "emit_signal"
+        signal_type: "ResourcePressureSignal"
+        payload:
+          resource_type: "memory"
+          current_usage: "{{ payload.memory_usage_percent }}"
+          action_required: "cleanup"

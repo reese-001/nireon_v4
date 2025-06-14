@@ -144,17 +144,17 @@ class NireonBaseComponent(ComponentLifecycle, ABC):
         else:
             component_logger.warning(f"ComponentRegistry for '{self.component_id}' either missing or does not support register_certification. Skipping self-certification registration.")
 
-    async def process(self, data: Any, context: NireonExecutionContext) -> ProcessResult:
+    async def process(self, data: Any, context: NireonExecutionContext, **kwargs) -> ProcessResult:
         component_logger = context.logger or logger
         if not self._initialized_properly:
             self._error_count += 1
             component_logger.error(f"Component '{self.component_id}' process called before initialization. is_initialized={self.is_initialized}")
             return ProcessResult(success=False, component_id=self.component_id, message='Component not initialized', error_code='NOT_INITIALIZED')
-
         self._process_count += 1
         self._last_process_timestamp = datetime.now(timezone.utc)
         try:
-            return await self._process_impl(data, context)
+            # Pass the kwargs down to the implementation
+            return await self._process_impl(data, context, **kwargs)
         except Exception as e:
             self._error_count += 1
             component_logger.error(f"Component '{self.component_id}' process error: {e}", exc_info=True)

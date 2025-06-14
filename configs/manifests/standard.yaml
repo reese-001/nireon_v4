@@ -4,9 +4,10 @@ metadata:
   description: Manifest to bootstrap core services and Explorer for testing Gateway magic.
   author: NIREON Team
   created_at: '2025-06-05T10:00:00Z'
-  updated_at: '2025-06-07T12:00:00Z'
+  updated_at: '2025-06-07T12:00:00Z' # Note: You may want to update this timestamp
 
 shared_services:
+  # The EventBus is a core system dependency, correctly defined.
   event_bus_memory:
     enabled: true
     class: infrastructure.event_bus.memory_event_bus:MemoryEventBus
@@ -15,22 +16,27 @@ shared_services:
     config:
       max_history: 1000
       enable_persistence: false
-    config_override:
-      max_history: 1000
+    # config_override was redundant and has been removed for clarity.
+
+  # ParameterService provides LLM settings; it doesn't implement LLMPort itself.
+  # The port_type has been removed for clarity as it was potentially confusing.
   parameter_service_global:
     enabled: true
     class: infrastructure.llm.parameter_service:ParameterService
-    port_type: domain.ports.llm_port:LLMPort
     metadata_definition: infrastructure.llm.parameter_service:PARAMETER_SERVICE_METADATA
     config:
-      storage_backend: memory
+      storage_backend: memory # This seems like a placeholder key, ensure it's used by the class.
+
+  # FrameFactoryService is a core service for the A->F->CE model.
+  # Removed confusing port_type as it doesn't implement EventBusPort.
   frame_factory_service:
     enabled: true
     class: application.services.frame_factory_service:FrameFactoryService
-    port_type: domain.ports.event_bus_port:EventBusPort
     metadata_definition: application.services.frame_factory_service:FRAME_FACTORY_SERVICE_METADATA
     config:
       default_frame_type: epistemic
+
+  # The BudgetManager is crucial for resource governance within Frames.
   budget_manager_inmemory:
     enabled: true
     class: application.services.budget_manager:InMemoryBudgetManager
@@ -41,6 +47,8 @@ shared_services:
         llm_calls: 10.0
         event_publishes: 100.0
         embedding_calls: 50.0
+
+  # This LLM Router definition is sophisticated and well-defined. No changes needed.
   llm_router_main:
     enabled: true
     class: infrastructure.llm.router:LLMRouter
@@ -89,7 +97,9 @@ shared_services:
           response_text_path: $.choices[0].message.content
         mock_testing_model:
           provider: mock
-          backend: infrastructure.llm.mock_llm:MockLLM # This path might be wrong based on your file list
+          # <<< NOTE: The file list doesn't show a `mock_llm.py` file.
+          # This path might need to be corrected to a valid mock implementation.
+          backend: infrastructure.llm.mock_llm:MockLLM
           timeout: 5
         openai_gpt4_specific:
           provider: openai
@@ -113,10 +123,30 @@ shared_services:
               "max_tokens": {{ max_tokens }}
             }
           response_text_path: $.choices[0].message.content
+
+  # <<< CHANGE: Enabled EmbeddingPort with a default local implementation.
+  # This is critical for Sentinel and other mechanisms that require semantic analysis.
   EmbeddingPort:
-    enabled: false
+    enabled: true
+    class: "infrastructure.embeddings.embeddings.EmbeddingAdapter"
+    port_type: domain.ports.embedding_port:EmbeddingPort
+    config:
+      provider: "sentence_transformers"
+      model: "all-MiniLM-L6-v2"
+      dimensions: 384
+      cache_size: 1000
+
+  # <<< CHANGE: Enabled IdeaRepositoryPort with a default local SQLite implementation.
+  # This is required for the IdeaService, which is a dependency for Sentinel and others.
   IdeaRepositoryPort:
-    enabled: false
+    enabled: true
+    class: "infrastructure.persistence.idea_repository.IdeaRepository"
+    port_type: domain.ports.idea_repository_port:IdeaRepositoryPort
+    config:
+      provider: "sqlite"
+      db_path: "runtime/nireon_ideas.db"
+      enable_wal_mode: true
+      timeout: 30.0
 
 composites:
   mechanism_gateway_main:
@@ -152,11 +182,12 @@ mechanisms:
     metadata_definition: "components.mechanisms.catalyst.metadata:CATALYST_METADATA"
     config: "configs/default/mechanisms/{id}.yaml"
     config_override:
-      application_rate: 1.0 # <-- THE FIX: Guarantees the mechanism will run
+      application_rate: 1.0
       blend_high: 0.4
       anti_constraints_enabled: true
       duplication_check_enabled: true
 
+# These sections remain empty for this test setup, which is correct.
 observers: {}
 managers: {}
 orchestration_commands: {}

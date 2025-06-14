@@ -1,0 +1,99 @@
+version: "1.0"
+rules:
+  - id: "core_seed_to_explorer_rule"
+    description: "When a SeedSignal is detected, trigger the primary explorer."
+    namespace: "core"
+    priority: 10  # High priority for seed handling
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "SeedSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "explorer_primary"
+        input_data:
+          source: "seed_signal"
+          exploration_depth: 3
+
+  - id: "idea_generated_to_trust_eval"
+    description: "Evaluate trust for newly generated ideas"
+    namespace: "core"
+    priority: 20
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "IdeaGeneratedSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "trust_evaluator"
+        template_id: "EVALUATE_NEW_IDEA_TRUST"
+
+  - id: "high_trust_amplification"
+    description: "Amplify ideas with high trust scores"
+    namespace: "trust"
+    priority: 30
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_value"
+        field: "trust_score"
+        operator: "gt"
+        value: 0.8
+    actions:
+      - type: "trigger_component"
+        component_id: "catalyst_mechanism"
+        template_id: "AMPLIFY_HIGH_TRUST_IDEA"
+      - type: "emit_signal"
+        signal_type: "HIGH_TRUST_DETECTED"
+        payload:
+          alert_level: "info"
+          message: "High trust idea identified for amplification"
+
+  - id: "stagnation_intervention"
+    description: "Trigger intervention when stagnation is detected"
+    namespace: "health"
+    priority: 50
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "StagnationDetectedSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "explorer_diverse"
+        template_id: "BREAK_STAGNATION_EXPLORATION"
+        input_data:
+          exploration_mode: "divergent"
+          temperature: 0.9
+
+  - id: "error_notification"
+    description: "Log and notify on critical errors"
+    namespace: "system"
+    priority: 1  # Highest priority for error handling
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "ErrorSignal"
+      - type: "payload_value"
+        field: "error_type"
+        operator: "eq"
+        value: "critical"
+    actions:
+      - type: "emit_signal"
+        signal_type: "SYSTEM_ALERT"
+        payload:
+          severity: "critical"
+          requires_intervention: true
+
+  # Test rule - disabled by default
+  - id: "looping_rule_for_testing"
+    description: "A rule for testing loop safety. Triggers the looper component."
+    namespace: "test"
+    priority: 100
+    enabled: false  # Disabled in production
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "LoopSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "looper_comp"

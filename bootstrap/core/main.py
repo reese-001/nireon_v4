@@ -15,7 +15,7 @@ from bootstrap.context.bootstrap_context_builder import create_bootstrap_context
 from bootstrap.config.bootstrap_config import BootstrapConfig
 from bootstrap.context.bootstrap_context import BootstrapContext
 from core.registry.component_registry import ComponentRegistry
-
+from bootstrap.phases.reactor_setup_phase import ReactorSetupPhase 
 # Import phases with error handling
 try:
     from bootstrap.phases.abiogenesis_phase import AbiogenesisPhase
@@ -23,6 +23,12 @@ except ImportError as e:
     logger = logging.getLogger(__name__)
     logger.error(f"Failed to import AbiogenesisPhase: {e}")
     AbiogenesisPhase = None
+try:
+    from bootstrap.phases.reactor_setup_phase import ReactorSetupPhase 
+except ImportError as e:
+    logger = logging.getLogger(__name__)
+    logger.error(f'Failed to import ReactorSetupPhase: {e}')
+    ReactorSetupPhase = None  
 
 try:
     from bootstrap.phases.registry_setup_phase import RegistrySetupPhase
@@ -417,6 +423,8 @@ class BootstrapOrchestrator:
                 phases.append(RegistrySetupPhase())
             if FactorySetupPhase:
                 phases.append(FactorySetupPhase())
+            if ReactorSetupPhase:
+                phases.append(ReactorSetupPhase()) 
             if ManifestProcessingPhase:
                 phases.append(ManifestProcessingPhase())
             if ComponentInitializationPhase:
