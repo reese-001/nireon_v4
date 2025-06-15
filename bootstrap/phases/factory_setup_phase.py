@@ -14,8 +14,10 @@ from domain.context import NireonExecutionContext
 from application.services.idea_service import IdeaService
 from application.services.frame_factory_service import FrameFactoryService, FRAME_FACTORY_SERVICE_METADATA
 from application.services.budget_manager import BudgetManagerPort, InMemoryBudgetManager
-from application.gateway.mechanism_gateway import MechanismGateway
-from application.gateway.mechanism_gateway_metadata import MECHANISM_GATEWAY_METADATA
+# --- THIS IS THE CRITICAL SECTION TO VERIFY ---
+from infrastructure.gateway.mechanism_gateway import MechanismGateway
+from infrastructure.gateway.mechanism_gateway_metadata import MECHANISM_GATEWAY_METADATA
+# ----------------------------------------------
 from infrastructure.llm.parameter_service import ParameterService
 from infrastructure.llm.router import LLMRouter
 from .base_phase import BootstrapPhase, PhaseResult
@@ -25,12 +27,7 @@ from bootstrap.validators.interface_validator import InterfaceValidator
 from bootstrap.bootstrap_helper.context_helper import build_execution_context, create_context_builder, SimpleConfigProvider
 from core.lifecycle import ComponentRegistryMissingError
 from bootstrap.processors.service_resolver import _safe_register_service_instance
-from core.lifecycle import ComponentRegistryMissingError
-
-from application.services.budget_manager import BudgetManagerPort, InMemoryBudgetManager, BUDGET_MANAGER_METADATA as BUDGET_MANAGER_CLASS_METADATA
-
-
-
+from application.services.budget_manager import BUDGET_MANAGER_METADATA as BUDGET_MANAGER_CLASS_METADATA
 logger = logging.getLogger(__name__)
 PARAMETER_SERVICE_METADATA = ComponentMetadata(id='parameter_service_global', name='Global LLM Parameter Service', version='1.0.0', category='service_core', description='Centralized service for LLM parameter resolution.', requires_initialize=True, capabilities={'parameter_resolution', 'config_management', 'stage_routing'}, produces=['parameter_set', 'routing_config'])
 class FactorySetupPhase(BootstrapPhase):
@@ -221,26 +218,9 @@ class FactorySetupPhase(BootstrapPhase):
             instance = ParameterService(config=param_service_config, metadata_definition=PARAMETER_SERVICE_METADATA)
             param_context = self._create_component_context(context, 'parameter_service', {'setup_step': 'service_creation', 'config_provider_used': self.config_provider is not None})
             self.phase_contexts['parameter_service'] = param_context
-            # context.registry.register(instance, PARAMETER_SERVICE_METADATA)
-            # context.registry.register_service_instance(ParameterService, instance)
-
-            _safe_register_service_instance(
-                registry=context.registry,
-                service_protocol_type=ParameterService,
-                instance=instance,
-                service_id_for_meta=PARAMETER_SERVICE_METADATA.id,
-                category_for_meta=PARAMETER_SERVICE_METADATA.category,
-                description_for_meta=PARAMETER_SERVICE_METADATA.description,
-                requires_initialize_override=PARAMETER_SERVICE_METADATA.requires_initialize
-            )
-
+            _safe_register_service_instance(registry=context.registry, service_protocol_type=ParameterService, instance=instance, service_id_for_meta=PARAMETER_SERVICE_METADATA.id, category_for_meta=PARAMETER_SERVICE_METADATA.category, description_for_meta=PARAMETER_SERVICE_METADATA.description, requires_initialize_override=PARAMETER_SERVICE_METADATA.requires_initialize)
             if hasattr(context, 'validation_data_store') and context.validation_data_store:
-                context.validation_data_store.store_component_data(
-                    component_id=PARAMETER_SERVICE_METADATA.id,
-                    original_metadata=PARAMETER_SERVICE_METADATA,
-                    resolved_config=param_service_config, # or instance.config if it's processed
-                    manifest_spec={'class': f'{instance.__class__.__module__}:{instance.__class__.__name__}', 'config': param_service_config} # simplified manifest spec
-                )
+                context.validation_data_store.store_component_data(component_id=PARAMETER_SERVICE_METADATA.id, original_metadata=PARAMETER_SERVICE_METADATA, resolved_config=param_service_config, manifest_spec={'class': f'{instance.__class__.__module__}:{instance.__class__.__name__}', 'config': param_service_config})
             result = create_success_result(PARAMETER_SERVICE_METADATA.id, f'{PARAMETER_SERVICE_METADATA.name} created and registered with V2 context', output_data=instance)
             result.set_correlation_id(correlation_id)
             result.add_metric('v2_context_enabled', param_context is not None)
@@ -260,26 +240,9 @@ class FactorySetupPhase(BootstrapPhase):
             frame_factory = FrameFactoryService(config=frame_factory_config, metadata_definition=FRAME_FACTORY_SERVICE_METADATA)
             frame_context = self._create_component_context(context, 'frame_factory_service', {'setup_step': 'service_creation', 'config_provider_used': self.config_provider is not None})
             self.phase_contexts['frame_factory_service'] = frame_context
-            # context.registry.register(frame_factory, FRAME_FACTORY_SERVICE_METADATA)
-            # context.registry.register_service_instance(FrameFactoryService, frame_factory)
-
-            _safe_register_service_instance(
-                registry=context.registry,
-                service_protocol_type=FrameFactoryService,
-                instance=frame_factory,
-                service_id_for_meta=FRAME_FACTORY_SERVICE_METADATA.id,
-                category_for_meta=FRAME_FACTORY_SERVICE_METADATA.category,
-                description_for_meta=FRAME_FACTORY_SERVICE_METADATA.description,
-                requires_initialize_override=FRAME_FACTORY_SERVICE_METADATA.requires_initialize
-            )
-
+            _safe_register_service_instance(registry=context.registry, service_protocol_type=FrameFactoryService, instance=frame_factory, service_id_for_meta=FRAME_FACTORY_SERVICE_METADATA.id, category_for_meta=FRAME_FACTORY_SERVICE_METADATA.category, description_for_meta=FRAME_FACTORY_SERVICE_METADATA.description, requires_initialize_override=FRAME_FACTORY_SERVICE_METADATA.requires_initialize)
             if hasattr(context, 'validation_data_store') and context.validation_data_store:
-                context.validation_data_store.store_component_data(
-                    component_id=FRAME_FACTORY_SERVICE_METADATA.id,
-                    original_metadata=FRAME_FACTORY_SERVICE_METADATA,
-                    resolved_config=frame_factory_config, # or frame_factory.config
-                    manifest_spec={'class': f'{frame_factory.__class__.__module__}:{frame_factory.__class__.__name__}', 'config': frame_factory_config}
-                )
+                context.validation_data_store.store_component_data(component_id=FRAME_FACTORY_SERVICE_METADATA.id, original_metadata=FRAME_FACTORY_SERVICE_METADATA, resolved_config=frame_factory_config, manifest_spec={'class': f'{frame_factory.__class__.__module__}:{frame_factory.__class__.__name__}', 'config': frame_factory_config})
             result = create_success_result(FRAME_FACTORY_SERVICE_METADATA.id, f'{FRAME_FACTORY_SERVICE_METADATA.name} created and registered with V2 context', output_data=frame_factory)
             result.set_correlation_id(correlation_id)
             result.add_metric('v2_context_enabled', frame_context is not None)
@@ -290,61 +253,29 @@ class FactorySetupPhase(BootstrapPhase):
             error_result.set_correlation_id(correlation_id)
             return error_result
     async def _setup_budget_manager(self, context, correlation_id: str) -> ProcessResult:
-        # BUDGET_MANAGER_METADATA = ComponentMetadata(
-        #     id='budget_manager_inmemory_instance',
-        #     name='InMemoryBudgetManager Instance',
-        #     version='1.0.0',
-        #     category='service_core',
-        #     description='In-memory budget manager for resource tracking (V2 enhanced)',
-        #     requires_initialize=False
-        # )
-        
         try:
             try:
                 existing_bm = context.registry.get_service_instance(BudgetManagerPort)
                 logger.info(f'BudgetManagerPort already registered (likely by manifest): {type(existing_bm).__name__}')
-                # Use the imported metadata for the success result
                 return create_success_result(BUDGET_MANAGER_CLASS_METADATA.id, 'BudgetManagerPort already registered.', output_data=existing_bm)
             except ComponentRegistryMissingError:
                 logger.info('BudgetManagerPort not found in registry. Creating default InMemoryBudgetManager.')
-
             if self.config_provider:
                 budget_manager_config = self.config_provider.get_config('budget_manager', 'config', {})
             else:
                 budget_manager_config = context.global_app_config.get('budget_manager_config', {})
-            
-            # Use the imported metadata when creating the instance
             budget_manager = InMemoryBudgetManager(config=budget_manager_config, metadata_definition=BUDGET_MANAGER_CLASS_METADATA)
-
             budget_context = self._create_component_context(context, 'budget_manager', {'setup_step': 'manager_creation', 'config_provider_used': self.config_provider is not None})
             self.phase_contexts['budget_manager'] = budget_context
-
-            _safe_register_service_instance(
-                registry=context.registry,
-                service_protocol_type=BudgetManagerPort,
-                instance=budget_manager,
-                service_id_for_meta=BUDGET_MANAGER_CLASS_METADATA.id, # Use imported
-                category_for_meta=BUDGET_MANAGER_CLASS_METADATA.category, # Use imported
-                description_for_meta=BUDGET_MANAGER_CLASS_METADATA.description, # Use imported
-                requires_initialize_override=BUDGET_MANAGER_CLASS_METADATA.requires_initialize # Use imported
-            )
+            _safe_register_service_instance(registry=context.registry, service_protocol_type=BudgetManagerPort, instance=budget_manager, service_id_for_meta=BUDGET_MANAGER_CLASS_METADATA.id, category_for_meta=BUDGET_MANAGER_CLASS_METADATA.category, description_for_meta=BUDGET_MANAGER_CLASS_METADATA.description, requires_initialize_override=BUDGET_MANAGER_CLASS_METADATA.requires_initialize)
             logger.info(f'✓ {BUDGET_MANAGER_CLASS_METADATA.name} created and registered with V2 integration')
-            
             if hasattr(context, 'validation_data_store') and context.validation_data_store:
-                # Store the single source of truth
-                context.validation_data_store.store_component_data(
-                    component_id=BUDGET_MANAGER_CLASS_METADATA.id,
-                    original_metadata=BUDGET_MANAGER_CLASS_METADATA,
-                    resolved_config=budget_manager_config,
-                    manifest_spec={'class': f'{budget_manager.__class__.__module__}:{budget_manager.__class__.__name__}', 'config': budget_manager_config}
-                )
-
+                context.validation_data_store.store_component_data(component_id=BUDGET_MANAGER_CLASS_METADATA.id, original_metadata=BUDGET_MANAGER_CLASS_METADATA, resolved_config=budget_manager_config, manifest_spec={'class': f'{budget_manager.__class__.__module__}:{budget_manager.__class__.__name__}', 'config': budget_manager_config})
             result = create_success_result(BUDGET_MANAGER_CLASS_METADATA.id, f'{BUDGET_MANAGER_CLASS_METADATA.name} created and registered with V2 context', output_data=budget_manager)
             result.set_correlation_id(correlation_id)
             result.add_metric('v2_context_enabled', budget_context is not None)
             return result
         except Exception as e:
-            # Use the imported metadata for the error result
             error_result = create_error_result(BUDGET_MANAGER_CLASS_METADATA.id, e)
             error_result.set_correlation_id(correlation_id)
             return error_result
@@ -379,26 +310,9 @@ class FactorySetupPhase(BootstrapPhase):
             gateway_metadata_def = MECHANISM_GATEWAY_METADATA
             gateway_metadata_def.dependencies['BudgetManagerPort'] = '*'
             gateway = MechanismGateway(llm_router=llm_router_instance, parameter_service=param_service_instance, frame_factory=frame_factory_instance, budget_manager=budget_manager_instance, event_bus=event_bus_instance, config=gateway_config, metadata_definition=gateway_metadata_def)
-            # context.registry.register(gateway, gateway.metadata)
-            # context.registry.register_service_instance(MechanismGatewayPort, gateway)
-
-            _safe_register_service_instance(
-                registry=context.registry,
-                service_protocol_type=MechanismGatewayPort,
-                instance=gateway,
-                service_id_for_meta=gateway.component_id,
-                category_for_meta=gateway.metadata.category,
-                description_for_meta=gateway.metadata.description,
-                requires_initialize_override=gateway.metadata.requires_initialize
-            )
-
+            _safe_register_service_instance(registry=context.registry, service_protocol_type=MechanismGatewayPort, instance=gateway, service_id_for_meta=gateway.component_id, category_for_meta=gateway.metadata.category, description_for_meta=gateway.metadata.description, requires_initialize_override=gateway.metadata.requires_initialize)
             if hasattr(context, 'validation_data_store') and context.validation_data_store:
-                context.validation_data_store.store_component_data(
-                    component_id=gateway.component_id, # Should be 'mechanism_gateway'
-                    original_metadata=gateway.metadata,
-                    resolved_config=gateway_config, # or gateway.config
-                    manifest_spec={'class': f'{gateway.__class__.__module__}:{gateway.__class__.__name__}', 'config': gateway_config}
-                )
+                context.validation_data_store.store_component_data(component_id=gateway.component_id, original_metadata=gateway.metadata, resolved_config=gateway_config, manifest_spec={'class': f'{gateway.__class__.__module__}:{gateway.__class__.__name__}', 'config': gateway_config})
             result = create_success_result(gateway.component_id, f'{gateway.metadata.name} created and registered with V2 context', output_data=gateway)
             result.set_correlation_id(correlation_id)
             result.add_metric('dependencies_resolved', 4 + (1 if event_bus_instance else 0))

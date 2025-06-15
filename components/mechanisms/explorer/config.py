@@ -253,7 +253,7 @@ class ExplorerConfig(BaseModel):
         extra = "forbid"
         validate_assignment = True
         use_enum_values = True
-        orm_mode = True  # future‑proofing for DB‑backed configs
+        from_attributes = True  # future‑proofing for DB‑backed configs
         json_encoders = {pathlib.Path: str}
         json_schema_extra = {
             "example": {

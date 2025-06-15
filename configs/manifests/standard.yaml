@@ -1,59 +1,21 @@
+# nireon_v4\configs\manifests\standard.yaml
 version: '1.0'
 metadata:
   name: NireonV4 Standard Setup for Explorer Test
   description: Manifest to bootstrap core services and Explorer for testing Gateway magic.
   author: NIREON Team
   created_at: '2025-06-05T10:00:00Z'
-  updated_at: '2025-06-07T12:00:00Z' # Note: You may want to update this timestamp
+  updated_at: '2025-06-07T12:00:00Z'
 
 shared_services:
-  # The EventBus is a core system dependency, correctly defined.
-  event_bus_memory:
-    enabled: true
-    class: infrastructure.event_bus.memory_event_bus:MemoryEventBus
-    port_type: domain.ports.event_bus_port:EventBusPort
-    metadata_definition: infrastructure.event_bus.memory_event_bus:MEMORY_EVENT_BUS_METADATA
-    config:
-      max_history: 1000
-      enable_persistence: false
-    # config_override was redundant and has been removed for clarity.
-
-  # ParameterService provides LLM settings; it doesn't implement LLMPort itself.
-  # The port_type has been removed for clarity as it was potentially confusing.
-  parameter_service_global:
-    enabled: true
-    class: infrastructure.llm.parameter_service:ParameterService
-    metadata_definition: infrastructure.llm.parameter_service:PARAMETER_SERVICE_METADATA
-    config:
-      storage_backend: memory # This seems like a placeholder key, ensure it's used by the class.
-
-  # FrameFactoryService is a core service for the A->F->CE model.
-  # Removed confusing port_type as it doesn't implement EventBusPort.
-  frame_factory_service:
-    enabled: true
-    class: application.services.frame_factory_service:FrameFactoryService
-    metadata_definition: application.services.frame_factory_service:FRAME_FACTORY_SERVICE_METADATA
-    config:
-      default_frame_type: epistemic
-
-  # The BudgetManager is crucial for resource governance within Frames.
-  budget_manager_inmemory:
-    enabled: true
-    class: application.services.budget_manager:InMemoryBudgetManager
-    port_type: domain.ports.budget_manager_port:BudgetManagerPort
-    metadata_definition: application.services.budget_manager:BUDGET_MANAGER_METADATA
-    config:
-      initial_budgets:
-        llm_calls: 10.0
-        event_publishes: 100.0
-        embedding_calls: 50.0
-
-  # This LLM Router definition is sophisticated and well-defined. No changes needed.
+  # Main router instance. It's preloaded and provides the LLMPort interface.
   llm_router_main:
     enabled: true
+    preload: true
     class: infrastructure.llm.router:LLMRouter
-    metadata_definition: infrastructure.llm.router:LLM_ROUTER_METADATA
     port_type: domain.ports.llm_port:LLMPort
+    
+    metadata_definition: infrastructure.llm.router:LLM_ROUTER_METADATA
     config:
       id: llm_router_main
       default: nano_default
@@ -97,8 +59,6 @@ shared_services:
           response_text_path: $.choices[0].message.content
         mock_testing_model:
           provider: mock
-          # <<< NOTE: The file list doesn't show a `mock_llm.py` file.
-          # This path might need to be corrected to a valid mock implementation.
           backend: infrastructure.llm.mock_llm:MockLLM
           timeout: 5
         openai_gpt4_specific:
@@ -124,73 +84,143 @@ shared_services:
             }
           response_text_path: $.choices[0].message.content
 
-  # <<< CHANGE: Enabled EmbeddingPort with a default local implementation.
-  # This is critical for Sentinel and other mechanisms that require semantic analysis.
+  # Alias for the LLMPort interface. The system will link this to llm_router_main.
+  # LLMPort:
+  #   enabled: true
+  #   class: infrastructure.llm.router:LLMRouter
+
   EmbeddingPort:
     enabled: true
-    class: "infrastructure.embeddings.embeddings.EmbeddingAdapter"
+    preload: true
+    class: infrastructure.embeddings.sentence_transformer_adapter:SentenceTransformerAdapter
     port_type: domain.ports.embedding_port:EmbeddingPort
     config:
-      provider: "sentence_transformers"
-      model: "all-MiniLM-L6-v2"
+      model_name: 'all-MiniLM-L6-v2'
       dimensions: 384
       cache_size: 1000
 
-  # <<< CHANGE: Enabled IdeaRepositoryPort with a default local SQLite implementation.
-  # This is required for the IdeaService, which is a dependency for Sentinel and others.
+  # event_bus_memory:
+  #   enabled: true
+  #   preload: true
+  #   class: infrastructure.event_bus.memory_event_bus:MemoryEventBus
+  #   port_type: domain.ports.event_bus_port:EventBusPort
+  #   metadata_definition: infrastructure.event_bus.memory_event_bus:MEMORY_EVENT_BUS_METADATA
+  #   config:
+  #     max_history: 2000
+
+  # Alias for the EventBusPort interface.
+  EventBusPort:
+    enabled: true
+    preload: true
+    class: infrastructure.event_bus.memory_event_bus:MemoryEventBus
+
   IdeaRepositoryPort:
     enabled: true
-    class: "infrastructure.persistence.idea_repository.IdeaRepository"
+    preload: true
+    class: infrastructure.persistence.idea_repository:IdeaRepository
     port_type: domain.ports.idea_repository_port:IdeaRepositoryPort
     config:
-      provider: "sqlite"
-      db_path: "runtime/nireon_ideas.db"
+      provider: 'sqlite'
+      db_path: 'runtime/nireon_ideas.db'
       enable_wal_mode: true
       timeout: 30.0
 
-composites:
-  mechanism_gateway_main:
-    class: application.gateway.mechanism_gateway:MechanismGateway
-    metadata_definition: application.gateway.mechanism_gateway:MECHANISM_GATEWAY_METADATA
+  # Alias for the IdeaService. The actual instance is created programmatically.
+  IdeaService:
+    enabled: false # Must be false to prevent direct instantiation from manifest.
+    class: application.services.idea_service:IdeaService
+    port_type: domain.ports.idea_service_port:IdeaServicePort
+
+  parameter_service_global:
     enabled: true
-    dependencies_override:
-      LLMPort: llm_router_main
-      ParameterService: parameter_service_global
-      FrameFactoryService: frame_factory_service
-      EventBusPort: event_bus_memory
-      BudgetManagerPort: budget_manager_inmemory
+    preload: true
+    class: infrastructure.llm.parameter_service:ParameterService
+    metadata_definition: infrastructure.llm.parameter_service:PARAMETER_SERVICE_METADATA
+    config:
+      storage_backend: memory
+
+  frame_factory_service:
+    enabled: true
+    preload: true
+    class: application.services.frame_factory_service:FrameFactoryService
+    port_type: application.services.frame_factory_service:FrameFactoryService
+    metadata_definition: application.services.frame_factory_service:FRAME_FACTORY_SERVICE_METADATA
+    config:
+      default_frame_type: epistemic
+      log_frame_operations: true
+
+  budget_manager_inmemory:
+    enabled: true
+    preload: true
+    class: application.services.budget_manager:InMemoryBudgetManager
+    port_type: domain.ports.budget_manager_port:BudgetManagerPort
+    metadata_definition: application.services.budget_manager:BUDGET_MANAGER_METADATA
+    config:
+      initial_budgets:
+        llm_calls: 10.0
+        event_publishes: 100.0
+        embedding_calls: 50.0
+
+  mechanism_gateway:
+    enabled: true
+    preload: false # This is a composite service; created later.
+    class: infrastructure.gateway.mechanism_gateway:MechanismGateway
+    metadata_definition: infrastructure.gateway.mechanism_gateway_metadata:MECHANISM_GATEWAY_METADATA
+    config_override:
+      id: 'mechanism_gateway'
+
+composites: {}
 
 mechanisms:
   explorer_instance_01:
-    class: "components.mechanisms.explorer.service.ExplorerMechanism"
-    metadata_definition: "components.mechanisms.explorer.service.EXPLORER_METADATA"
-    config: "configs/default/mechanisms/{id}.yaml"
+    enabled: true
+    class: components.mechanisms.explorer.service:ExplorerMechanism
+    metadata_definition: components.mechanisms.explorer.service:EXPLORER_METADATA
+    config: configs/default/mechanisms/{id}.yaml
     config_override:
-      application_rate: 1.0 # Let's make explorer always run for the test too
+      application_rate: 0.8
       max_depth: 3
-      exploration_strategy: "depth_first"
+      exploration_strategy: depth_first
 
   sentinel_instance_01:
-    class: "components.mechanisms.sentinel.service.SentinelMechanism"
-    metadata_definition: "components.mechanisms.sentinel.metadata.SENTINEL_METADATA"
-    config: "configs/default/mechanisms/{id}.yaml"
+    enabled: true
+    class: components.mechanisms.sentinel.service:SentinelMechanism
+    metadata_definition: components.mechanisms.sentinel.metadata.SENTINEL_METADATA
+    config: configs/default/mechanisms/{id}.yaml
     config_override:
-      trust_threshold: 5.5
+      trust_threshold: 3.5 # Lowered from 6.0 to allow more ideas through in testing.
 
   catalyst_instance_01:
-    class: "components.mechanisms.catalyst.service:CatalystMechanism"
-    metadata_definition: "components.mechanisms.catalyst.metadata:CATALYST_METADATA"
-    config: "configs/default/mechanisms/{id}.yaml"
+    enabled: true
+    class: components.mechanisms.catalyst.service:CatalystMechanism
+    metadata_definition: components.mechanisms.catalyst.metadata:CATALYST_METADATA
+    config: configs/default/mechanisms/{id}.yaml
     config_override:
-      application_rate: 1.0
+      application_rate: 0.5
       blend_high: 0.4
       anti_constraints_enabled: true
       duplication_check_enabled: true
 
-# These sections remain empty for this test setup, which is correct.
 observers: {}
 managers: {}
-orchestration_commands: {}
+
+orchestration_commands:
+  # This virtual component satisfies the InterfaceValidator's check for signal producers.
+  system_orchestrator:
+    enabled: true
+    metadata_definition: bootstrap.bootstrap_helper.metadata:create_orchestration_command_metadata
+    metadata_override:
+      id: system_orchestrator
+      name: System Test Orchestrator
+      description: A virtual component representing the test runner or external caller.
+      produces:
+        - SEED_SIGNAL
+        - EXPLORATION_REQUEST
+        - CATALYSIS_REQUEST
+        - COGNITIVE_EVENT_PUBLISH
+        - COGNITIVE_EVENT_LLM_ASK
+        - FRAME_CREATION_REQUEST
+        - FRAME_UPDATE_REQUEST
 
 environment_overrides:
   development:

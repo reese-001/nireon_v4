@@ -24,78 +24,61 @@ def diagnose_registry(registry):
     for i, comp_id in enumerate(sorted(all_components), 1):
         print(f"  {i:3d}. {comp_id}")
     
-    # Check for specific services we expect
+    # Check for expected services using the correct lookup methods
     print("\n" + "-"*80)
     print("CHECKING FOR EXPECTED SERVICES:")
     print("-"*80)
     
-    expected_services = [
-        'llm_router_main',
-        'LLMPort', 
-        'event_bus_memory',
-        'EventBusPort',
-        'parameter_service_global',
-        'ParameterService',
-        'frame_factory_service',
-        'FrameFactoryService',
-        'budget_manager_inmemory',
-        'BudgetManagerPort',
-        'mechanism_gateway_main',
-        'MechanismGatewayPort'
-    ]
-    
-    for service_id in expected_services:
-        try:
-            component = registry.get(service_id)
-            print(f"✓ {service_id:30} -> {type(component).__name__}")
-            
-            # Check if it has metadata
+    try:
+        from domain.ports.llm_port import LLMPort
+        from domain.ports.event_bus_port import EventBusPort
+        from domain.ports.embedding_port import EmbeddingPort
+        from infrastructure.llm.parameter_service import ParameterService
+        from application.services.frame_factory_service import FrameFactoryService
+        from domain.ports.budget_manager_port import BudgetManagerPort
+        from domain.ports.mechanism_gateway_port import MechanismGatewayPort
+
+        expected_service_types = [
+            (LLMPort, 'LLMPort'),
+            (EventBusPort, 'EventBusPort'),
+            (ParameterService, 'ParameterService'),
+            (FrameFactoryService, 'FrameFactoryService'),
+            (BudgetManagerPort, 'BudgetManagerPort'),
+            (MechanismGatewayPort, 'MechanismGatewayPort')
+        ]
+
+        # Additionally, check for specific named instances
+        expected_named_instances = [
+            'llm_router_main',
+            'event_bus_memory',
+            'parameter_service_global',
+            'frame_factory_service',
+            'budget_manager_inmemory',
+            'mechanism_gateway'  # Check for 'mechanism_gateway' instead of 'mechanism_gateway_main'
+        ]
+
+        print("--- Checking by Service Type (Protocol) ---")
+        for service_type, type_name in expected_service_types:
             try:
-                metadata = registry.get_metadata(service_id)
-                if metadata:
-                    print(f"    Metadata ID: {metadata.id}, Category: {metadata.category}")
-            except:
+                instance = registry.get_service_instance(service_type)
+                instance_id = getattr(instance, 'component_id', 'N/A')
+                print(f"✓ {type_name:<30} -> Found instance of {type(instance).__name__} (ID: {instance_id})")
+            except Exception as e:
+                print(f"✗ {type_name:<30} -> NOT FOUND ({str(e)[:50]}...)")
+
+        print("\n--- Checking by Specific Instance ID ---")
+        for instance_id in expected_named_instances:
+            try:
+                component = registry.get(instance_id)
+                print(f"✓ {instance_id:<30} -> {type(component).__name__}")
                 if hasattr(component, 'metadata'):
                     meta = component.metadata
                     print(f"    Metadata ID: {meta.id}, Category: {meta.category}")
-        except Exception as e:
-            print(f"✗ {service_id:30} -> NOT FOUND ({str(e)[:50]}...)")
-    
-    # Check service instances by type
-    print("\n" + "-"*80)
-    print("CHECKING SERVICE INSTANCES BY TYPE:")
-    print("-"*80)
-    
-    if hasattr(registry, 'get_service_instance'):
-        try:
-            from domain.ports.llm_port import LLMPort
-            from domain.ports.event_bus_port import EventBusPort
-            from domain.ports.embedding_port import EmbeddingPort
-            from infrastructure.llm.parameter_service import ParameterService
-            from application.services.frame_factory_service import FrameFactoryService
-            from application.services.budget_manager import BudgetManagerPort
-            
-            service_types = [
-                (LLMPort, "LLMPort"),
-                (EventBusPort, "EventBusPort"), 
-                (EmbeddingPort, "EmbeddingPort"),
-                (ParameterService, "ParameterService"),
-                (FrameFactoryService, "FrameFactoryService"),
-                (BudgetManagerPort, "BudgetManagerPort")
-            ]
-            
-            for service_type, type_name in service_types:
-                try:
-                    instance = registry.get_service_instance(service_type)
-                    print(f"✓ {type_name:30} -> {type(instance).__name__}")
-                    if hasattr(instance, 'component_id'):
-                        print(f"    Component ID: {instance.component_id}")
-                    elif hasattr(instance, 'metadata') and hasattr(instance.metadata, 'id'):
-                        print(f"    Metadata ID: {instance.metadata.id}")
-                except Exception as e:
-                    print(f"✗ {type_name:30} -> NOT FOUND ({str(e)[:50]}...)")
-        except ImportError as e:
-            print(f"Could not import service types for type checking: {e}")
+            except Exception as e:
+                print(f"✗ {instance_id:<30} -> NOT FOUND ({str(e)[:50]}...)")
+
+    except ImportError as e:
+        print(f"Could not import service types for diagnostic check: {e}")
     
     # Look for components with 'llm' in their ID
     print("\n" + "-"*80)

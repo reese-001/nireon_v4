@@ -7,6 +7,8 @@ from pathlib import Path
 from typing import List, Optional
 import time
 import numpy as np 
+from domain.ports.idea_service_port import IdeaServicePort
+
 
 def find_project_root(marker_dirs=['bootstrap', 'domain', 'core', 'configs']):
     """
@@ -132,10 +134,10 @@ async def main():
     explorer: ExplorerMechanism = registry.get('explorer_instance_01')
     sentinel: SentinelMechanism = registry.get('sentinel_instance_01')
     catalyst: CatalystMechanism = registry.get('catalyst_instance_01')
-    idea_service: IdeaService = registry.get('IdeaService')
-    embed_port: EmbeddingPort = registry.get_service_instance(EmbeddingPort)
-    event_bus: EventBusPort = registry.get('EventBusPort')
-    frame_factory: FrameFactoryService = registry.get('frame_factory_service')
+    idea_service: IdeaService = registry.get_service_instance(IdeaServicePort)  # ✓ FIXED
+    embed_port: EmbeddingPort = registry.get_service_instance(EmbeddingPort)    # ✓ Already correct
+    event_bus: EventBusPort = registry.get_service_instance(EventBusPort)       # ✓ FIXED
+    frame_factory: FrameFactoryService = registry.get('frame_factory_service')  # ✓ Already correct
 
     # Subscribe our handler to the event bus
     event_bus.subscribe('IdeaGeneratedSignal', idea_signal_handler)
