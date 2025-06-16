@@ -26,119 +26,60 @@ def _safe_register_service_instance(
     description_for_meta: Optional[str] = None,
     requires_initialize_override: Optional[bool] = None
 ) -> None:
-    """Safely register a service instance in the registry with proper metadata handling."""
-    
-    STANDARD_SERVICE_IDS = {
-        'LLMPort': 'LLMPort',
-        'EmbeddingPort': 'EmbeddingPort', 
-        'EventBusPort': 'EventBusPort',
-        'IdeaRepositoryPort': 'IdeaRepositoryPort',
-        'IdeaService': 'IdeaService',
-        'FeatureFlagsManager': 'FeatureFlagsManager',
-        'ComponentRegistry': 'ComponentRegistry',
-        'SimpleMechanismFactory': 'MechanismFactory',
-        'InterfaceValidator': 'InterfaceValidator'
-    }
-    
-    service_id = service_id_for_meta
-    
-    # Handle metadata
+    """
+    Registers a component instance against its canonical ID and its primary service protocol type.
+    This simplified version prevents registry pollution from multiple alias keys.
+    """
+    # 1. Prepare the canonical metadata for the component instance.
+    metadata: Optional[ComponentMetadata] = None
     if hasattr(instance, 'metadata') and isinstance(instance.metadata, ComponentMetadata):
         metadata = instance.metadata
-        if metadata.id != service_id:
-            logger.warning(f"Metadata ID '{metadata.id}' doesn't match service ID '{service_id}', updating metadata")
-            metadata = dataclasses.replace(metadata, id=service_id)
+        # Ensure the metadata ID always matches the canonical ID from the manifest/caller
+        if metadata.id != service_id_for_meta:
+            logger.warning(
+                f"Correcting metadata ID mismatch for '{service_id_for_meta}'. "
+                f"Instance has '{metadata.id}', but canonical ID is '{service_id_for_meta}'."
+            )
+            metadata = dataclasses.replace(metadata, id=service_id_for_meta)
+            # Attempt to fix the instance's internal metadata reference as well
             if hasattr(instance, '_metadata_definition'):
                 object.__setattr__(instance, '_metadata_definition', metadata)
     else:
-        # Create metadata if not present
-        final_requires_initialize = False
-        if requires_initialize_override is not None:
-            final_requires_initialize = requires_initialize_override
-        elif isinstance(instance, NireonBaseComponent):
-            final_requires_initialize = True
-            logger.warning(f"NireonBaseComponent '{service_id}' missing .metadata for requires_initialize check.")
-        
-        desc = description_for_meta or f'Service instance for {service_id}'
+        # Create metadata if the component doesn't have it.
+        final_requires_initialize = requires_initialize_override if requires_initialize_override is not None else False
+        desc = description_for_meta or f'Service instance for {service_id_for_meta}'
         metadata = create_service_metadata(
-            service_id=service_id,
-            service_name=service_id,
+            service_id=service_id_for_meta,
+            service_name=service_id_for_meta,
             category=category_for_meta,
             description=desc,
             requires_initialize=final_requires_initialize
         )
-    
-    # Register with manifest ID
+
+    # 2. Register the component instance with its canonical ID and metadata.
+    # This is the primary registration. All lookups by ID (e.g., 'explorer_instance_01') will use this.
     try:
         registry.register(instance, metadata)
-        logger.info(f"✓ Registered service '{service_id}' with metadata (manifest ID)")
+        logger.info(f"✓ Registered component '{service_id_for_meta}' with its canonical ID.")
     except Exception as e:
-        logger.error(f"Failed to register '{service_id}' by manifest ID: {e}", exc_info=True)
+        logger.error(f"Failed to register '{service_id_for_meta}' with its canonical ID: {e}", exc_info=True)
         raise
-    
-    # Register by type if registry supports it
+
+    # 3. Register the instance against its service protocol type for dependency injection.
+    # This allows `registry.get_service_instance(LLMPort)` to work.
     try:
         if hasattr(registry, 'register_service_instance'):
+            # The key here is the *type* object itself (e.g., LLMPort), not its string name.
             registry.register_service_instance(service_protocol_type, instance)
-            logger.debug(f"✓ Registered service '{service_id}' by type {service_protocol_type.__name__}")
+            logger.debug(f"✓ Mapped protocol type {service_protocol_type.__name__} to instance '{service_id_for_meta}'.")
+        else:
+            logger.warning(f"Registry does not support 'register_service_instance'. Type-based lookup for {service_protocol_type.__name__} may fail.")
             
-            # Handle normalized type key
-            if hasattr(registry, 'normalize_key') and callable(registry.normalize_key):
-                normalized_type_key = registry.normalize_key(service_protocol_type)
-                if normalized_type_key and normalized_type_key != service_id:
-                    if hasattr(registry, '_metadata') and isinstance(registry._metadata, dict):
-                        if normalized_type_key not in registry._metadata:
-                            type_metadata = create_service_metadata(
-                                service_id=normalized_type_key,
-                                service_name=f'{service_protocol_type.__name__} (type registration)',
-                                category=category_for_meta,
-                                description=f'Type-based registration for {service_protocol_type.__name__}',
-                                requires_initialize=metadata.requires_initialize
-                            )
-                            registry._metadata[normalized_type_key] = type_metadata
-                            logger.debug(f"✓ Metadata registered for type key '{normalized_type_key}'")
     except Exception as e:
-        logger.error(f"Failed to register '{service_id}' by type {service_protocol_type.__name__}: {e}", exc_info=True)
-    
-    # Register standard ID aliases
-    standard_id = STANDARD_SERVICE_IDS.get(service_protocol_type.__name__, None)
-    if standard_id and standard_id != service_id:
-        try:
-            if hasattr(registry, '_components'):
-                registry._components[standard_id] = instance
-                logger.debug(f"✓ Also registered service by standard ID '{standard_id}' -> '{service_id}'")
-        except Exception as e:
-            logger.debug(f"Could not register standard ID alias '{standard_id}': {e}")
-    
-    # Register normalized ID
-    normalized_id = service_id.lower().replace('-', '_')
-    if normalized_id != service_id:
-        try:
-            if hasattr(registry, '_components'):
-                registry._components[normalized_id] = instance
-                logger.debug(f"✓ Also registered by normalized ID '{normalized_id}'")
-        except Exception:
-            pass
-            
-    # --- START OF MODIFICATION ---
-    # Register by simple class name as well for easier lookup in diagnostics and legacy code
-    simple_class_name = service_protocol_type.__name__
-    if not registry.has_component(simple_class_name):
-        try:
-            # Directly use register_service_instance if available, it's cleaner.
-            if hasattr(registry, 'register_service_instance'):
-                 registry.register_service_instance(simple_class_name, instance)
-                 logger.debug(f"✓ Also registered service by simple class name alias '{simple_class_name}' -> '{service_id_for_meta}'")
-            # Fallback for older registry versions
-            elif hasattr(registry, '_components'):
-                registry._components[simple_class_name] = instance
-                logger.debug(f"✓ Also registered service by simple class name alias '{simple_class_name}' -> '{service_id_for_meta}' (fallback method)")
-        except Exception as e:
-            logger.debug(f"Could not register simple class name alias '{simple_class_name}': {e}")
-    # --- END OF MODIFICATION ---
-    
-    logger.info(f"✓ Service '{service_id}' fully registered (type: {service_protocol_type.__name__}, category: {category_for_meta})")
+        logger.error(f"Failed to register service by type {service_protocol_type.__name__}: {e}", exc_info=True)
+        # Don't re-raise, as the primary registration by ID might be sufficient.
 
+    logger.info(f"✓ Service '{service_id_for_meta}' fully registered (Type: {service_protocol_type.__name__}, Category: {category_for_meta})")
 
 def get_or_create_service(
     registry: ComponentRegistry,
@@ -187,18 +128,69 @@ def get_or_create_service(
     
     service_id_for_meta_placeholder = f"{instance_id_prefix}{service_friendly_name.replace('.', '_').replace(' ', '')}"
     
-    _safe_register_service_instance(
-        registry,
-        service_protocol_type,
-        placeholder_instance,
-        service_id_for_meta_placeholder,
-        category,
-        description_for_meta=f'Placeholder for {service_friendly_name}',
-        requires_initialize_override=requires_initialize_for_placeholder
-    )
-    
-    logger.info(f"Placeholder '{service_friendly_name}' created and registered (ID: {service_id_for_meta_placeholder}).")
-    return placeholder_instance
+    def _safe_register_service_instance(
+        registry: ComponentRegistry,
+        service_protocol_type: Type,
+        instance: Any,
+        service_id_for_meta: str,
+        category_for_meta: str,
+        description_for_meta: Optional[str] = None,
+        requires_initialize_override: Optional[bool] = None
+    ) -> None:
+        """
+        Registers a component instance against its canonical ID and its primary service protocol type.
+        This simplified version prevents registry pollution from multiple alias keys.
+        """
+        # 1. Prepare the canonical metadata for the component instance.
+        metadata: Optional[ComponentMetadata] = None
+        if hasattr(instance, 'metadata') and isinstance(instance.metadata, ComponentMetadata):
+            metadata = instance.metadata
+            # Ensure the metadata ID always matches the canonical ID from the manifest/caller
+            if metadata.id != service_id_for_meta:
+                logger.warning(
+                    f"Correcting metadata ID mismatch for '{service_id_for_meta}'. "
+                    f"Instance has '{metadata.id}', but canonical ID is '{service_id_for_meta}'."
+                )
+                metadata = dataclasses.replace(metadata, id=service_id_for_meta)
+                # Attempt to fix the instance's internal metadata reference as well
+                if hasattr(instance, '_metadata_definition'):
+                    object.__setattr__(instance, '_metadata_definition', metadata)
+        else:
+            # Create metadata if the component doesn't have it.
+            final_requires_initialize = requires_initialize_override if requires_initialize_override is not None else False
+            desc = description_for_meta or f'Service instance for {service_id_for_meta}'
+            metadata = create_service_metadata(
+                service_id=service_id_for_meta,
+                service_name=service_id_for_meta,
+                category=category_for_meta,
+                description=desc,
+                requires_initialize=final_requires_initialize
+            )
+
+        # 2. Register the component instance with its canonical ID and metadata.
+        # This is the primary registration. All lookups by ID (e.g., 'explorer_instance_01') will use this.
+        try:
+            registry.register(instance, metadata)
+            logger.info(f"✓ Registered component '{service_id_for_meta}' with its canonical ID.")
+        except Exception as e:
+            logger.error(f"Failed to register '{service_id_for_meta}' with its canonical ID: {e}", exc_info=True)
+            raise
+
+        # 3. Register the instance against its service protocol type for dependency injection.
+        # This allows `registry.get_service_instance(LLMPort)` to work.
+        try:
+            if hasattr(registry, 'register_service_instance'):
+                # The key here is the *type* object itself (e.g., LLMPort), not its string name.
+                registry.register_service_instance(service_protocol_type, instance)
+                logger.debug(f"✓ Mapped protocol type {service_protocol_type.__name__} to instance '{service_id_for_meta}'.")
+            else:
+                logger.warning(f"Registry does not support 'register_service_instance'. Type-based lookup for {service_protocol_type.__name__} may fail.")
+                
+        except Exception as e:
+            logger.error(f"Failed to register service by type {service_protocol_type.__name__}: {e}", exc_info=True)
+            # Don't re-raise, as the primary registration by ID might be sufficient.
+
+        logger.info(f"✓ Service '{service_id_for_meta}' fully registered (Type: {service_protocol_type.__name__}, Category: {category_for_meta})")
 
 
 def get_or_create_idea_service(registry: ComponentRegistry, idea_repo: IdeaRepositoryPort, event_bus: EventBusPort) -> IdeaService:

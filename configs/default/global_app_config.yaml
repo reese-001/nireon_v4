@@ -7,7 +7,7 @@ bootstrap_strict_mode: true
 feature_flags:
   enable_schema_validation: true 
   enable_self_certification: true
-  enable_rbac_bootstrap: false     # For easier debugging initially
+  enable_rbac_bootstrap: true    
   enable_concurrent_initialization: false # Keep false for easier debugging initially
   enable_component_tracing: false # Typically for dev
 

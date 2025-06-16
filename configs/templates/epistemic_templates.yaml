@@ -6,6 +6,6 @@ templates:
     description: "Triggers primary explorer on a SEED_SIGNAL"
     command_type: "ApplyMechanismCommand" # Should resolve to the class
     default_params:
-      mechanism_id: "explorer_primary" # Matches instance ID in manifest
+      mechanism_id: "explorer_instance_01" # Matches instance ID in manifest
     expected_input_signals: ["SEED_SIGNAL"]
     expected_output_signals: ["IDEA_GENERATED", "EXPLORATION_COMPLETE"]

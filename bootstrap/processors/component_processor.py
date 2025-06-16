@@ -305,165 +305,108 @@ async def _instantiate_simple_component(
 async def instantiate_shared_service(
     service_key_in_manifest: str,
     service_spec_from_manifest: Dict[str, Any],
-    registry: ComponentRegistry,
-    event_bus: EventBusPort,
-    global_app_config: Dict[str, Any],
-    health_reporter: BootstrapHealthReporter,
-    validation_data_store: Any,
+    context: Any  # Accept the full context object
 ) -> None:
-    """
-    Instantiate & register a **shared service** declared in the manifest.
+    # Unpack dependencies from the context
+    registry = context.registry
+    event_bus = context.event_bus
+    global_app_config = context.global_app_config
+    health_reporter = context.health_reporter
+    validation_data_store = getattr(context, 'validation_data_store', None)
+    registry_manager = getattr(context, 'registry_manager', None)
 
-    Logic folded into compact helpers; API unchanged.
-    """
-
-    class_path = service_spec_from_manifest.get("class")
-    enabled: bool = service_spec_from_manifest.get("enabled", True)
-    strict: bool = global_app_config.get("bootstrap_strict_mode", True)
-    port_type = service_spec_from_manifest.get("port_type")
-
+    class_path = service_spec_from_manifest.get('class')
+    enabled: bool = service_spec_from_manifest.get('enabled', True)
+    strict: bool = global_app_config.get('bootstrap_strict_mode', True)
+    port_type = service_spec_from_manifest.get('port_type')
+    
     base_meta = ComponentMetadata(
-        id=service_key_in_manifest,
-        name=(class_path.split(":")[-1] if class_path and ":" in class_path else (class_path or service_key_in_manifest).split(".")[-1]),
-        category="shared_service",
-        version="0.1.0",
+        id=service_key_in_manifest, 
+        name=class_path.split(':')[-1] if class_path and ':' in class_path else (class_path or service_key_in_manifest).split('.')[-1],
+        category='shared_service', 
+        version='0.1.0'
     )
 
-    # ── Early exits --------------------------------------------------------
     if not enabled:
         _mark_disabled(health_reporter, service_key_in_manifest, base_meta)
         return
 
     if not class_path:
-        _def_error(
-            "Shared service definition missing 'class'",
-            health_reporter,
-            service_key_in_manifest,
-            base_meta,
-            strict,
-        )
+        _def_error("Shared service definition missing 'class'", health_reporter, service_key_in_manifest, base_meta, strict)
         return
 
     try:
-        # Already registered?
-        if registry.get(service_key_in_manifest):  # type: ignore[arg-type]
+        if registry.get(service_key_in_manifest, None): # Use default=None to avoid raising KeyError
             logger.info("Service '%s' already registered – skipping.", service_key_in_manifest)
             return
     except (KeyError, ComponentRegistryMissingError):
-        pass  # not present – continue
+        pass
 
     logger.info("→ Instantiating shared service '%s' (%s)", service_key_in_manifest, class_path)
 
     try:
         service_class = import_by_path(class_path)
     except ImportError as exc:
-        _def_error(
-            f"Import error: {exc}",
-            health_reporter,
-            service_key_in_manifest,
-            base_meta,
-            strict,
-        )
+        _def_error(f'Import error: {exc}', health_reporter, service_key_in_manifest, base_meta, strict)
         return
 
-    # Config & metadata -----------------------------------------------------
     pydantic_defaults = get_pydantic_defaults(service_class, base_meta.name)
-    yaml_cfg = _load_config(service_spec_from_manifest.get("config"), service_key_in_manifest)
-    final_cfg = _merge_configs(
-        pydantic_defaults,
-        yaml_cfg,
-        service_spec_from_manifest.get("config_override", {}),
-        service_key_in_manifest,
-    )
+    yaml_cfg = _load_config(service_spec_from_manifest.get('config'), service_key_in_manifest)
+    
+    if _YAML_PARAMETERS_KEY in yaml_cfg:
+        yaml_cfg = yaml_cfg[_YAML_PARAMETERS_KEY]
+        
+    cfg_override = service_spec_from_manifest.get('config_override', {})
+    final_cfg = _merge_configs(pydantic_defaults, yaml_cfg, cfg_override, service_key_in_manifest)
 
-    # Metadata: class‑defined → manifest metadata_definition → overrides
-    meta_obj = (
-        getattr(service_class, "METADATA_DEFINITION", None)
-        if isinstance(getattr(service_class, "METADATA_DEFINITION", None), ComponentMetadata)
-        else base_meta
-    )
-
-    md_path = service_spec_from_manifest.get("metadata_definition")
+    # Metadata resolution logic
+    meta_obj = getattr(service_class, 'METADATA_DEFINITION', None) if isinstance(getattr(service_class, 'METADATA_DEFINITION', None), ComponentMetadata) else base_meta
+    md_path = service_spec_from_manifest.get('metadata_definition')
     if md_path:
         try:
             imported_md = import_by_path(md_path)
             if isinstance(imported_md, ComponentMetadata):
                 meta_obj = imported_md
                 logger.debug("Using metadata from path '%s'", md_path)
-        except Exception as exc:  # pragma: no cover
+        except Exception as exc:
             logger.warning("Could not import metadata_definition '%s': %s", md_path, exc)
-
+    
     meta_obj = dataclasses.replace(meta_obj, id=service_key_in_manifest)
-    meta_obj = _apply_meta_override(meta_obj, service_spec_from_manifest.get("metadata_override", {}))
+    meta_obj = _apply_meta_override(meta_obj, service_spec_from_manifest.get('metadata_override', {}))
+    
+    _store_validation(validation_data_store, component_id=service_key_in_manifest, metadata=meta_obj, config=final_cfg, manifest_spec=service_spec_from_manifest)
 
-    _store_validation(
-        validation_data_store,
-        component_id=service_key_in_manifest,
-        metadata=meta_obj,
-        config=final_cfg,
-        manifest_spec=service_spec_from_manifest,
-    )
-
-    # ------------------------------------------------------------------ #
-    # Instantiation
-    # ------------------------------------------------------------------ #
     try:
-        instance = await _instantiate_shared_service(
-            service_class,
-            service_key_in_manifest,
-            final_cfg,
-            meta_obj,
-            registry,
-            event_bus,
-        )
+        instance = await _instantiate_shared_service(service_class, service_key_in_manifest, final_cfg, meta_obj, registry, event_bus)
     except Exception as exc:
-        _inst_error(
-            f"Instantiation failed: {exc}",
-            health_reporter,
-            service_key_in_manifest,
-            meta_obj,
-            strict,
-            exc,
-        )
+        _inst_error(f'Instantiation failed: {exc}', health_reporter, service_key_in_manifest, meta_obj, strict, exc)
         return
 
-    # ------------------------------------------------------------------ #
-    # Registration
-    # ------------------------------------------------------------------ #
+    # Use the registry manager for certification-aware registration
     try:
-        registry.register(instance, meta_obj)  # by ID
+        if registry_manager:
+            registry_manager.register_with_certification(
+                instance,
+                meta_obj,
+                additional_cert_data={'source_manifest': 'standard.yaml'}
+            )
+        else:
+            registry.register(instance, meta_obj)
+            logger.warning(f"Registered '{service_key_in_manifest}' without certification (RegistryManager not available).")
+        
         _safe_register_service_instance_with_port(
-            registry,
-            service_class,
-            instance,
-            service_key_in_manifest,
-            meta_obj.category,
+            registry, service_class, instance,
+            service_key_in_manifest, meta_obj.category,
             port_type=port_type,
             description_for_meta=meta_obj.description,
-            requires_initialize_override=meta_obj.requires_initialize,
+            requires_initialize_override=meta_obj.requires_initialize
         )
-        health_reporter.add_component_status(
-            service_key_in_manifest,
-            ComponentStatus.INSTANCE_REGISTERED,
-            meta_obj,
-            [],
-        )
+        health_reporter.add_component_status(service_key_in_manifest, ComponentStatus.INSTANCE_REGISTERED, meta_obj, [])
         if not meta_obj.requires_initialize:
-            health_reporter.add_component_status(
-                service_key_in_manifest,
-                ComponentStatus.INITIALIZATION_SKIPPED_NOT_REQUIRED,
-                meta_obj,
-                [],
-            )
-    except Exception as exc:  # pragma: no cover
-        _inst_error(
-            f"Registry error: {exc}",
-            health_reporter,
-            service_key_in_manifest,
-            meta_obj,
-            strict,
-            exc,
-        )
+            health_reporter.add_component_status(service_key_in_manifest, ComponentStatus.INITIALIZATION_SKIPPED_NOT_REQUIRED, meta_obj, [])
+
+    except Exception as exc:
+        _inst_error(f'Registry error: {exc}', health_reporter, service_key_in_manifest, meta_obj, strict, exc)
 
 
 async def _instantiate_shared_service(

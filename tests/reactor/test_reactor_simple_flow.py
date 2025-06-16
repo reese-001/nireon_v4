@@ -34,7 +34,7 @@ async def test_reactor_happy_path_flow():
     
     # Register the mock component
     explorer_metadata = ComponentMetadata(
-        id='explorer_primary',
+        id='explorer_primary_01',
         name='MockExplorer',
         category='mechanism',
         version='1.0.0'
@@ -48,7 +48,7 @@ async def test_reactor_happy_path_flow():
     rule = SignalTypeMatchRule(
         rule_id="test_rule",
         signal_type_to_match="SeedSignal",
-        component_id_to_trigger="explorer_primary",
+        component_id_to_trigger="explorer_instance_01",
         # We can test the new parameters here
         input_data={"source": "from_test_rule"}
     )

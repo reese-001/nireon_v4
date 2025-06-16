@@ -140,14 +140,13 @@ llm:
       frequency_penalty: 0.2
       presence_penalty: 0.2
   
-  # Retry configuration
+
   retry:
     max_attempts: 3
     initial_delay: 1.0
     backoff_factor: 2.0
     max_delay: 10.0
     
-  # Timeout configuration
   timeout:
-    default: 30.0
+    default: 60.0
     max: 120.0

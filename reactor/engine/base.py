@@ -1,20 +1,17 @@
-# nireon_v4/reactor/engine/base.py
+"""Abstract contract for reactor engines."""
 from __future__ import annotations
-from typing import Protocol, TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from signals import EpistemicSignal
+import abc
+from typing import Protocol, runtime_checkable, TYPE_CHECKING
+
+if TYPE_CHECKING:  # no run‑time dependency
+    from signals.base import EpistemicSignal
 
 
+@runtime_checkable
 class ReactorEngine(Protocol):
-    """
-    The public interface for the NIREON Reactor.
-    Its job is to process signals and orchestrate component actions based on rules.
-    """
+    """Minimal contract every engine must satisfy."""
 
+    @abc.abstractmethod
     async def process_signal(self, signal: "EpistemicSignal") -> None:
-        """
-        The main entry point for the reactor. It takes a signal, finds
-        matching rules, and executes the resulting actions.
-        """
-        ...
+        """Process a single signal asynchronously."""

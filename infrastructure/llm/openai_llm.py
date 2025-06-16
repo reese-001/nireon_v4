@@ -1,83 +1,81 @@
-# C:\Users\erees\Documents\development\nireon\infrastructure\llm\openai_llm.py
+"""
+OpenAI LLM Adapter
+──────────────────
+Thin wrapper around the `/chat/completions` endpoint that conforms to
+`LLMPort`.  Sync & async calls share common helpers for payload construction,
+logging, and error handling.
+"""
+
+from __future__ import annotations
+
 import logging
 import os
+from typing import Any, Dict, Mapping, Optional, Tuple
+
 import httpx
-# import json # Not strictly needed if not manually creating JSON
-from typing import Any, Dict, Optional, Mapping # Added Mapping
-from domain.ports.llm_port import LLMPort, LLMResponse # MODIFIED
-from domain.context import NireonExecutionContext # For type hinting if needed by call_llm_async
-from domain.epistemic_stage import EpistemicStage # For type hinting
+
+from domain.ports.llm_port import LLMPort, LLMResponse
+from domain.context import NireonExecutionContext
+from domain.epistemic_stage import EpistemicStage
 
 logger = logging.getLogger(__name__)
 
+
 class OpenAILLMAdapter(LLMPort):
-    def __init__(self, config: Dict[str, Any]=None, model_name: Optional[str] = None): # Added model_name to init
-        self.config = config or {}
-        self.api_key_env = self.config.get('api_key_env', 'OPENAI_API_KEY')
-        self.model = model_name or self.config.get('model', 'gpt-4') # Use provided model_name or config
-        self.timeout = self.config.get('timeout', 30)
-        self.max_retries = self.config.get('max_retries', 3)
-        self.base_url = self.config.get('base_url', 'https://api.openai.com/v1')
-        self.api_key = os.getenv(self.api_key_env) or self.config.get('api_key') # Allow api_key from config
+    # ------------------------------------------------------------------ #
+    # Construction
+    # ------------------------------------------------------------------ #
+    def __init__(self, config: Dict[str, Any] | None = None, model_name: str | None = None) -> None:
+        cfg = config or {}
+
+        self.api_key: Optional[str] = os.getenv(cfg.get("api_key_env", "OPENAI_API_KEY") or "") or cfg.get("api_key")
+        self.model: str = model_name or cfg.get("model", "gpt-4")
+        self.base_url: str = cfg.get("base_url", "https://api.openai.com/v1")
+        self.timeout: float | int = cfg.get("timeout", 30)
+        self.max_retries: int = cfg.get("max_retries", 3)
 
         if not self.api_key:
-            logger.warning(f"OpenAI API key not found in environment variable '{self.api_key_env}' or config. LLM functionality will be limited.")
-        
-        # Client initialization deferred or handled carefully if api_key can be None
-        self.client: Optional[httpx.Client] = None
-        if self.api_key:
-            self.client = httpx.Client(
-                timeout=self.timeout,
-                headers={'Authorization': f'Bearer {self.api_key}', 'Content-Type': 'application/json'}
-            )
-        self.call_count = 0
-        logger.info(f'OpenAI LLM Adapter initialized (model: {self.model})')
+            logger.warning("OpenAI API key not provided; adapter will return mock responses.")
 
+        # Create one sync client for reuse (cheaper sockets); async calls use disposable clients
+        self._sync_client: Optional[httpx.Client] = (
+            httpx.Client(
+                timeout=self.timeout,
+                headers=_build_headers(self.api_key),
+                limits=httpx.Limits(max_keepalive_connections=5, max_connections=10),
+            )
+            if self.api_key
+            else None
+        )
+
+        self.call_count: int = 0
+        logger.info("OpenAI LLM Adapter ready (model=%s)", self.model)
+
+    # ------------------------------------------------------------------ #
+    # LLMPort required methods
+    # ------------------------------------------------------------------ #
     async def call_llm_async(
         self,
         prompt: str,
         *,
-        stage: EpistemicStage, # Added from LLMPort
-        role: str,            # Added from LLMPort
-        context: NireonExecutionContext, # Added from LLMPort
-        settings: Optional[Mapping[str, Any]] = None # Added from LLMPort
+        stage: EpistemicStage,
+        role: str,
+        context: NireonExecutionContext,
+        settings: Optional[Mapping[str, Any]] = None,
     ) -> LLMResponse:
         self.call_count += 1
-        if not self.api_key or not self.client:
-            logger.warning(f'No API key or client, returning mock response for async call #{self.call_count}')
-            return LLMResponse({LLMResponse.TEXT_KEY: f'Mock async OpenAI response to: {prompt[:50]}...'})
+        if not self.api_key:
+            return self._mock_response(prompt, async_mode=True)
 
-        # Merge settings with defaults
-        final_settings = {
-            'temperature': 0.7,
-            'max_tokens': 1024,
-            **(settings or {})
-        }
-        system_prompt = final_settings.pop('system_prompt', 'You are a helpful assistant.')
+        payload = _build_payload(prompt, self.model, settings or {})
+        url = f"{self.base_url}/chat/completions"
 
-
-        payload = {
-            'model': self.model,
-            'messages': [
-                {'role': 'system', 'content': system_prompt},
-                {'role': 'user', 'content': prompt}
-            ],
-            **final_settings # Add remaining settings like temperature, max_tokens
-        }
         try:
-            async with httpx.AsyncClient(
-                timeout=self.timeout,
-                headers={'Authorization': f'Bearer {self.api_key}', 'Content-Type': 'application/json'}
-            ) as async_client:
-                response = await async_client.post(f'{self.base_url}/chat/completions', json=payload)
-                response.raise_for_status()
-                result = response.json()
-                content = result.get('choices', [{}])[0].get('message', {}).get('content', '')
-                logger.debug(f'OpenAI async API call #{self.call_count} successful for model {self.model}')
-                return LLMResponse({LLMResponse.TEXT_KEY: content, **result})
-        except Exception as e:
-            logger.error(f'OpenAI async API call #{self.call_count} for model {self.model} failed: {e}')
-            return LLMResponse({LLMResponse.TEXT_KEY: f'Error calling OpenAI API async: {e}', 'error': str(e)})
+            async with httpx.AsyncClient(timeout=self.timeout, headers=_build_headers(self.api_key)) as client:
+                raw = await _send_request_async(client, url, payload)
+            return _build_llm_response(raw, self.model)
+        except Exception as exc:
+            return _error_response(exc, self.model, async_mode=True)
 
     def call_llm_sync(
         self,
@@ -86,56 +84,98 @@ class OpenAILLMAdapter(LLMPort):
         stage: EpistemicStage,
         role: str,
         context: NireonExecutionContext,
-        settings: Optional[Mapping[str, Any]] = None
+        settings: Optional[Mapping[str, Any]] = None,
     ) -> LLMResponse:
         self.call_count += 1
-        if not self.api_key or not self.client:
-            logger.warning(f'No API key or client, returning mock response for sync call #{self.call_count}')
-            return LLMResponse({LLMResponse.TEXT_KEY: f'Mock sync OpenAI response to: {prompt[:50]}...'})
+        if not self.api_key or not self._sync_client:
+            return self._mock_response(prompt, async_mode=False)
 
-        final_settings = {
-            'temperature': 0.7,
-            'max_tokens': 1024,
-            **(settings or {})
-        }
-        system_prompt = final_settings.pop('system_prompt', 'You are a helpful assistant.')
+        payload = _build_payload(prompt, self.model, settings or {})
+        url = f"{self.base_url}/chat/completions"
 
-        payload = {
-            'model': self.model,
-            'messages': [
-                {'role': 'system', 'content': system_prompt},
-                {'role': 'user', 'content': prompt}
-            ],
-            **final_settings
-        }
         try:
-            response = self.client.post(f'{self.base_url}/chat/completions', json=payload)
-            response.raise_for_status()
-            result = response.json()
-            content = result.get('choices', [{}])[0].get('message', {}).get('content', '')
-            logger.debug(f'OpenAI sync API call #{self.call_count} successful for model {self.model}')
-            return LLMResponse({LLMResponse.TEXT_KEY: content, **result})
-        except Exception as e:
-            logger.error(f'OpenAI sync API call #{self.call_count} for model {self.model} failed: {e}')
-            return LLMResponse({LLMResponse.TEXT_KEY: f'Error calling OpenAI API sync: {e}', 'error': str(e)})
-    
-    # Keep these if they were part of your original design, but ensure they call the Protocol methods
+            raw = _send_request_sync(self._sync_client, url, payload)
+            return _build_llm_response(raw, self.model)
+        except Exception as exc:
+            return _error_response(exc, self.model, async_mode=False)
+
+    # Convenience wrappers (kept for backward compatibility)
     def generate(self, prompt: str, **kwargs) -> str:
-        # This signature doesn't match LLMPort, consider deprecating or adapting
-        # For now, let's assume it's a simplified call that needs context
-        from domain.context import NireonExecutionContext # Local import if not always available
-        from domain.epistemic_stage import EpistemicStage
-        mock_context = NireonExecutionContext(run_id="sync_generate")
-        response = self.call_llm_sync(prompt, stage=EpistemicStage.DEFAULT, role="default", context=mock_context, settings=kwargs)
-        return response.text
+        mock_ctx = NireonExecutionContext(run_id="sync_generate")
+        resp = self.call_llm_sync(
+            prompt, stage=EpistemicStage.DEFAULT, role="default", context=mock_ctx, settings=kwargs
+        )
+        return resp.text
 
     async def generate_async(self, prompt: str, **kwargs) -> str:
-        # This signature doesn't match LLMPort, consider deprecating or adapting
-        from domain.context import NireonExecutionContext # Local import
-        from domain.epistemic_stage import EpistemicStage
-        mock_context = NireonExecutionContext(run_id="async_generate")
-        response = await self.call_llm_async(prompt, stage=EpistemicStage.DEFAULT, role="default", context=mock_context, settings=kwargs)
-        return response.text
+        mock_ctx = NireonExecutionContext(run_id="async_generate")
+        resp = await self.call_llm_async(
+            prompt, stage=EpistemicStage.DEFAULT, role="default", context=mock_ctx, settings=kwargs
+        )
+        return resp.text
 
+    # Metrics
     def get_stats(self) -> Dict[str, Any]:
-        return {'call_count': self.call_count, 'model': self.model, 'has_api_key': bool(self.api_key), 'base_url': self.base_url}
+        return {
+            "call_count": self.call_count,
+            "model": self.model,
+            "has_api_key": bool(self.api_key),
+            "base_url": self.base_url,
+        }
+
+    # ------------------------------------------------------------------ #
+    # Internal helpers
+    # ------------------------------------------------------------------ #
+    def _mock_response(self, prompt: str, *, async_mode: bool) -> LLMResponse:
+        mode = "async" if async_mode else "sync"
+        logger.warning("Returning mock %s response; API key missing.", mode)
+        return LLMResponse({LLMResponse.TEXT_KEY: f"Mock {mode} OpenAI response to: {prompt[:50]}…"})
+
+# --------------------------------------------------------------------------- #
+# Module‑level utility functions
+# --------------------------------------------------------------------------- #
+def _build_headers(api_key: str | None) -> Dict[str, str]:
+    return {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"} if api_key else {}
+
+
+def _build_payload(prompt: str, model: str, settings: Mapping[str, Any]) -> Dict[str, Any]:
+    defaults = {"temperature": 0.7, "max_tokens": 1024}
+    cfg = {**defaults, **settings}
+    sys_prompt = cfg.pop("system_prompt", "You are a helpful assistant.")
+
+    return {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": sys_prompt},
+            {"role": "user", "content": prompt},
+        ],
+        **cfg,
+    }
+
+
+def _send_request_sync(client: httpx.Client, url: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+    resp = client.post(url, json=payload)
+    resp.raise_for_status()
+    return resp.json()
+
+
+async def _send_request_async(client: httpx.AsyncClient, url: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+    resp = await client.post(url, json=payload)
+    resp.raise_for_status()
+    return resp.json()
+
+
+def _extract_content(raw: Dict[str, Any]) -> str:
+    return raw.get("choices", [{}])[0].get("message", {}).get("content", "")
+
+
+def _build_llm_response(raw: Dict[str, Any], model: str) -> LLMResponse:
+    return LLMResponse({LLMResponse.TEXT_KEY: _extract_content(raw), **raw, "model": model})
+
+
+def _error_response(exc: Exception, model: str, *, async_mode: bool) -> LLMResponse:
+    mode = "async" if async_mode else "sync"
+    logger.error("OpenAI %s call failed: %s", mode, exc, exc_info=True)
+    return LLMResponse(
+        {LLMResponse.TEXT_KEY: f"Error calling OpenAI API {mode}: {exc}", "error": str(exc), "model": model}
+    )

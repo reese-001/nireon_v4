@@ -1,90 +1,142 @@
-# nireon_v4/bootstrap/utils/component_utils.py
-from __future__ import annotations # Moved to the top
-from __future__ import absolute_import # Moved to the top
+"""nireon_v4.bootstrap.utils.component_utils
+Utility helpers for dynamic component construction, configuration, and validation.
+
+Public API (stable):
+    - get_pydantic_defaults
+    - create_component_instance
+    - inject_dependencies
+    - validate_component_interfaces
+    - configure_component_logging
+    - prepare_component_metadata
+"""
+from __future__ import annotations
+from __future__ import absolute_import
 
 import dataclasses
-import importlib
+import functools
 import inspect
 import logging
-from typing import Any, Dict, List, Optional, Type, Union, cast, TYPE_CHECKING # Added TYPE_CHECKING
+import types
+from typing import (
+    Any,
+    Dict,
+    List,
+    Optional,
+    Type,
+    Union,
+    cast,
+    TYPE_CHECKING,
+)
 
 from pydantic import BaseModel
 
 from core.base_component import NireonBaseComponent
 from core.lifecycle import ComponentMetadata
 
-# For TYPE_CHECKING to resolve ComponentInstantiationError without runtime circular import
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # Avoid circular import at runtime
     from bootstrap.exceptions import ComponentInstantiationError
-
 
 logger = logging.getLogger(__name__)
 
 __all__ = [
-    'get_pydantic_defaults',
-    'create_component_instance',
-    'inject_dependencies',
-    'validate_component_interfaces',
-    'configure_component_logging',
-    'prepare_component_metadata',
+    "get_pydantic_defaults",
+    "create_component_instance",
+    "inject_dependencies",
+    "validate_component_interfaces",
+    "configure_component_logging",
+    "prepare_component_metadata",
 ]
 
+###############################################################################
+# Internal helpers
+###############################################################################
 
-def get_pydantic_defaults(component_class: Type, component_name: str) -> Dict[str, Any]:
-    """
-    Extracts default configuration values from a component's Pydantic ConfigModel
-    or a legacy DEFAULT_CONFIG attribute.
-    """
-    defaults = {}
+
+def _update_attr_if_different(obj: Any, attr: str, new_value: Any) -> None:
+    """Set ``obj.attr`` to *new_value* only if it differs, bypassing frozen/slots."""
+    current = getattr(obj, attr, dataclasses.MISSING)
+    if current == new_value:
+        return
     try:
-        if hasattr(component_class, 'ConfigModel'):
-            config_model = component_class.ConfigModel
-            if hasattr(config_model, 'model_fields'):  # Pydantic V2
-                for field_name, field_info in config_model.model_fields.items():
-                    if hasattr(field_info, 'default') and field_info.default is not ...:
-                        defaults[field_name] = field_info.default
-                    elif hasattr(field_info, 'default_factory') and field_info.default_factory is not None:
-                        try:
-                            defaults[field_name] = field_info.default_factory()
-                        except Exception:
-                            logger.debug(f"Error calling default_factory for {component_name}.{field_name}")
-                            pass # Keep default as not set
-            elif hasattr(config_model, '__fields__'):  # Pydantic V1
-                for field_name, field in config_model.__fields__.items():
-                    if hasattr(field, 'default') and field.default is not ...: # Pydantic V1
-                        defaults[field_name] = field.default
-                    elif hasattr(field, 'default_factory') and field.default_factory is not None:
-                        try:
-                            defaults[field_name] = field.default_factory()
-                        except Exception:
-                            logger.debug(f"Error calling default_factory for {component_name}.{field_name} (V1)")
-                            pass
-        # Fallback or supplement with DEFAULT_CONFIG for components not fully on Pydantic
-        if hasattr(component_class, 'DEFAULT_CONFIG'):
-            if isinstance(component_class.DEFAULT_CONFIG, dict):
-                # Pydantic defaults should take precedence
-                merged_defaults = component_class.DEFAULT_CONFIG.copy()
-                merged_defaults.update(defaults)
-                defaults = merged_defaults
-            else:
-                logger.warning(
-                    f"Component {component_name} has a DEFAULT_CONFIG attribute that is not a dict. Skipping."
-                )
+        object.__setattr__(obj, attr, new_value)
+    except Exception:
+        # Fallback for non‑dataclass or protected attrs
+        setattr(obj, attr, new_value)
 
-        if defaults:
-            logger.debug(f'Found {len(defaults)} Pydantic/DEFAULT_CONFIG defaults for {component_name}')
-        else:
-            logger.debug(f'No Pydantic/DEFAULT_CONFIG defaults found for {component_name}')
-    except Exception as e:
-        logger.debug(f'Error extracting Pydantic/DEFAULT_CONFIG defaults for {component_name}: {e}')
+
+def _is_pydantic_model(cls: Type) -> bool:
+    return issubclass(cls, BaseModel)
+
+
+###############################################################################
+# 1. Default‑config extraction
+###############################################################################
+
+@functools.lru_cache(maxsize=256)
+def _collect_pydantic_defaults(model_cls: Type[BaseModel]) -> Dict[str, Any]:
+    """Handle both Pydantic v1 (`__fields__`) and v2 (`model_fields`)."""
+    defaults: Dict[str, Any] = {}
+    if hasattr(model_cls, "model_fields"):  # v2
+        for name, info in model_cls.model_fields.items():  # type: ignore[attr-defined]
+            if info.default is not ...:
+                defaults[name] = info.default
+            elif getattr(info, "default_factory", None):
+                try:
+                    defaults[name] = info.default_factory()  # type: ignore[operator]
+                except Exception:  # pragma: no cover
+                    logger.debug("default_factory failed for %s.%s", model_cls.__name__, name)
+    elif hasattr(model_cls, "__fields__"):  # v1
+        for name, field in model_cls.__fields__.items():  # type: ignore[attr-defined]
+            if field.default is not ...:
+                defaults[name] = field.default
+            elif field.default_factory:
+                try:
+                    defaults[name] = field.default_factory()
+                except Exception:  # pragma: no cover
+                    logger.debug("default_factory failed for %s.%s (v1)", model_cls.__name__, name)
     return defaults
 
 
-# Consider making this configurable as suggested
-# Example:
-# DEFAULT_GATEWAY_SENTINEL_PARAMS = ['llm_router', 'parameter_service', 'frame_factory', 'budget_manager', 'event_bus']
-# Can be updated by application config if necessary.
-# For now, keeping it hardcoded as per the provided fix.
+def get_pydantic_defaults(component_class: Type, component_name: str) -> Dict[str, Any]:
+    """Return a merged mapping of configuration defaults for *component_class*.
+
+    Order of precedence (highest → lowest):
+        1. Values explicitly set in the component's Pydantic ConfigModel.
+        2. Values in the legacy ``DEFAULT_CONFIG`` dict.
+    """
+    defaults: Dict[str, Any] = {}
+    try:
+        if hasattr(component_class, "ConfigModel") and _is_pydantic_model(component_class.ConfigModel):
+            defaults.update(_collect_pydantic_defaults(component_class.ConfigModel))  # type: ignore[arg-type]
+
+        if hasattr(component_class, "DEFAULT_CONFIG") and isinstance(component_class.DEFAULT_CONFIG, dict):
+            # Preserve Pydantic preferences
+            merged = component_class.DEFAULT_CONFIG.copy()
+            merged.update(defaults)
+            defaults = merged
+    except Exception as exc:  # pragma: no cover
+        logger.debug("Error extracting defaults from %s: %s", component_name, exc)
+
+    logger.debug(
+        "Resolved %d default(s) for component '%s'",
+        len(defaults),
+        component_name,
+    )
+    return defaults
+
+
+###############################################################################
+# 2. Dynamic instantiation
+###############################################################################
+
+_DEFAULT_GATEWAY_PARAMS: tuple[str, ...] = (
+    "llm_router",
+    "parameter_service",
+    "frame_factory",
+    "budget_manager",
+    "event_bus",
+)
+
 
 async def create_component_instance(
     component_class: Type[NireonBaseComponent],
@@ -92,171 +144,192 @@ async def create_component_instance(
     instance_id: str,
     instance_metadata_object: ComponentMetadata,
     common_deps: Optional[Dict[str, Any]] = None,
-    # extra_sentinel_params_for_gateway: Optional[List[str]] = None # Example for configurability
 ) -> NireonBaseComponent:
-    """
-    Creates an instance of a NireonBaseComponent.
-    This is the canonical version, adapted from processors/enhanced_components.py
-    to handle gateway_params and common_deps as a dictionary.
-    """
+    """Instantiate *component_class* with smart constructor matching."""
+    ctor_sig = inspect.signature(component_class.__init__)
+    ctor_params = ctor_sig.parameters
+    kwargs: Dict[str, Any] = {}
+
+    # Config parameter
+    if "config" in ctor_params:
+        kwargs["config"] = resolved_config_for_instance
+    elif "cfg" in ctor_params:
+        kwargs["cfg"] = resolved_config_for_instance
+
+    # Metadata parameter
+    if "metadata_definition" in ctor_params:
+        kwargs["metadata_definition"] = instance_metadata_object
+    elif "metadata" in ctor_params:
+        kwargs["metadata"] = instance_metadata_object
+
+    # Common dependency bundle
+    for name, dep in (common_deps or {}).items():
+        if name in ctor_params:
+            kwargs[name] = dep
+
+    # Ensure MechanismGateway sentinel params are present
+    if component_class.__name__ == "MechanismGateway":
+        for name in _DEFAULT_GATEWAY_PARAMS:
+            if name in ctor_params and name not in kwargs:
+                kwargs[name] = None
+
+    logger.debug(
+        "Creating component '%s' of type %s with args: %s",
+        instance_id,
+        component_class.__name__,
+        sorted(kwargs),
+    )
     try:
-        ctor_signature = inspect.signature(component_class.__init__)
-        ctor_params = ctor_signature.parameters
-        kwargs: Dict[str, Any] = {}
+        instance = component_class(**kwargs)  # type: ignore[arg-type]
+    except Exception as exc:
+        from bootstrap.exceptions import ComponentInstantiationError  # local import to avoid loops
 
-        if 'config' in ctor_params:
-            kwargs['config'] = resolved_config_for_instance
-        elif 'cfg' in ctor_params: # Support for alternative config naming
-            kwargs['cfg'] = resolved_config_for_instance
+        raise ComponentInstantiationError(
+            f"Instantiation failed for '{instance_id}': {exc}", component_id=instance_id
+        ) from exc
 
-        if 'metadata_definition' in ctor_params:
-            kwargs['metadata_definition'] = instance_metadata_object
-        elif 'metadata' in ctor_params: # Support for alternative metadata naming
-            kwargs['metadata'] = instance_metadata_object
-        
-        # Inject common dependencies if provided and expected by constructor
-        if common_deps:
-            for dep_name, dep_value in common_deps.items():
-                if dep_name in ctor_params:
-                    kwargs[dep_name] = dep_value
-                # Test for **kwargs scenario:
-                # If 'kwargs' (or similar like 'extra_args') is a VAR_KEYWORD parameter,
-                # do not inject individual common_deps that are not explicitly named,
-                # unless a specific strategy for **kwargs is adopted.
-                # Current logic correctly only injects if dep_name is an explicit parameter.
+    # Enforce id / metadata consistency
+    if hasattr(instance, "component_id"):
+        _update_attr_if_different(instance, "component_id", instance_id)
+    else:
+        _update_attr_if_different(instance, "_component_id", instance_id)
 
-        # Special handling for MechanismGateway
-        if component_class.__name__ == 'MechanismGateway':
-            # gateway_params_to_check = DEFAULT_GATEWAY_SENTINEL_PARAMS + (extra_sentinel_params_for_gateway or [])
-            gateway_params_to_check = ['llm_router', 'parameter_service', 'frame_factory', 'budget_manager', 'event_bus']
-            for param_name in gateway_params_to_check:
-                if param_name in ctor_params and param_name not in kwargs:
-                    kwargs[param_name] = None
-                    logger.debug(f"Ensuring '{param_name}' is in kwargs for MechanismGateway, set to None as not in common_deps.")
+    if hasattr(instance, "metadata") and isinstance(instance.metadata, ComponentMetadata):
+        _update_attr_if_different(instance.metadata, "id", instance_id)
+    else:
+        _update_attr_if_different(instance, "_metadata_definition", instance_metadata_object)
+
+    logger.info("Component '%s' (%s) instantiated successfully", instance_id, component_class.__name__)
+    return cast(NireonBaseComponent, instance)
 
 
-        logger.debug(f'Attempting to create component {instance_id} ({component_class.__name__}) with kwargs: {list(kwargs.keys())}')
-        instance = component_class(**kwargs)
+###############################################################################
+# 3. Dependency injection
+###############################################################################
 
-        if hasattr(instance, 'component_id'):
-            if instance.component_id != instance_id:
-                logger.debug(f"Updating component_id on instance from '{instance.component_id}' to '{instance_id}'")
-                object.__setattr__(instance, 'component_id', instance_id) 
-        elif isinstance(instance, NireonBaseComponent):
-             object.__setattr__(instance, '_component_id', instance_id)
-
-
-        if hasattr(instance, 'metadata') and isinstance(instance.metadata, ComponentMetadata):
-            if instance.metadata.id != instance_id:
-                logger.debug(f"Updating metadata.id on instance from '{instance.metadata.id}' to '{instance_id}'")
-                try:
-                    updated_meta = dataclasses.replace(instance.metadata, id=instance_id)
-                    object.__setattr__(instance, '_metadata_definition', updated_meta) 
-                except TypeError: 
-                     instance.metadata.id = instance_id 
-        elif isinstance(instance, NireonBaseComponent): 
-            object.__setattr__(instance, '_metadata_definition', instance_metadata_object)
+def _can_setattr(obj: Any, attr: str) -> bool:
+    """Return ``True`` if *attr* can be set on *obj* without AttributeError."""
+    if hasattr(obj, "__slots__") and attr not in obj.__slots__:  # type: ignore[attr-defined]
+        return False
+    return True
 
 
-        logger.info(f'Successfully created component instance: {instance_id} ({component_class.__name__})')
-        return cast(NireonBaseComponent, instance)
-    except Exception as e:
-        logger.error(f'Failed to create component instance {instance_id} ({component_class.__name__}): {e}', exc_info=True)
-        # Local import for ComponentInstantiationError due to potential import order issues
-        from bootstrap.exceptions import ComponentInstantiationError 
-        raise ComponentInstantiationError(f"Instantiation failed for '{instance_id}': {e}", component_id=instance_id) from e
+def inject_dependencies(
+    instance: NireonBaseComponent,
+    dependency_map: Dict[str, Any],
+    registry: Optional[Any] = None,  # retained for compatibility
+) -> None:
+    """Inject values in *dependency_map* onto *instance* by name."""
+    for name, value in dependency_map.items():
+        target_attr = f"_{name}" if hasattr(instance, f"_{name}") else name
+        if _can_setattr(instance, target_attr):
+            try:
+                setattr(instance, target_attr, value)
+                logger.debug("Injected dependency '%s' into %s", name, instance.component_id)
+            except Exception as exc:  # pragma: no cover
+                logger.warning("Failed to inject '%s' into %s: %s", name, instance.component_id, exc)
+        else:
+            logger.warning(
+                "Dependency '%s' could not be injected into %s (attribute missing or read‑only)",
+                name,
+                instance.component_id,
+            )
 
 
-def inject_dependencies(instance: NireonBaseComponent, dependency_map: Dict[str, Any], registry: Optional[Any]=None) -> None:
-    """
-    Injects dependencies into a component instance.
-    Canonical version from bootstrap_helper/enhanced_components.py.
-    """
-    # TODO: Consider adding _ensure_not_initialized check if component has such a state
-    # if hasattr(instance, 'is_initialized') and instance.is_initialized:
-    #     logger.warning(f"Attempting to inject dependencies into already initialized component {instance.component_id}")
-    #     # Depending on policy, either return or raise an error
-    try:
-        for dep_name, dep_value in dependency_map.items():
-            private_attr_name = f'_{dep_name}'
-            if hasattr(instance, private_attr_name):
-                setattr(instance, private_attr_name, dep_value)
-                logger.debug(f"Injected dependency '{dep_name}' into {instance.component_id} (as {private_attr_name})")
-            elif hasattr(instance, dep_name):
-                setattr(instance, dep_name, dep_value)
-                logger.debug(f"Injected dependency '{dep_name}' into {instance.component_id}")
-            else:
-                logger.warning(f"Component {instance.component_id} does not have an attribute '{dep_name}' or '{private_attr_name}' for dependency injection.")
-    except Exception as e:
-        logger.warning(f'Failed to inject dependencies into {instance.component_id}: {e}')
+###############################################################################
+# 4. Interface validation
+###############################################################################
 
-
-def validate_component_interfaces(instance: NireonBaseComponent, expected_interfaces: List[Type]) -> List[str]:
-    """
-    Validates if a component instance implements expected interfaces.
-    Canonical version from bootstrap_helper/enhanced_components.py.
-    """
+def validate_component_interfaces(
+    instance: NireonBaseComponent,
+    expected_interfaces: List[Type],
+) -> List[str]:
+    """Return a list of error strings if *instance* is not an instance of each protocol."""
     errors: List[str] = []
-    try:
-        for interface_protocol in expected_interfaces:
-            if not isinstance(instance, interface_protocol):
-                errors.append(f'Component {instance.component_id} does not implement {interface_protocol.__name__}')
-    except Exception as e:
-        errors.append(f'Interface validation failed for {instance.component_id}: {e}')
+    for proto in expected_interfaces:
+        try:
+            if not isinstance(instance, proto):
+                errors.append(f"{instance.component_id} does not implement {proto.__name__}")
+        except Exception as exc:  # pragma: no cover
+            errors.append(f"Interface validation failed for {proto}: {exc}")
     return errors
 
 
-def configure_component_logging(instance: NireonBaseComponent, log_level: Optional[str]=None, log_prefix: Optional[str]=None) -> None:
-    """
-    Configures logging for a component instance.
-    Canonical version from bootstrap_helper/enhanced_components.py.
-    """
-    try:
-        if hasattr(instance, '_configure_logging') and callable(instance._configure_logging):
-            instance._configure_logging(log_level=log_level, log_prefix=log_prefix)
-            logger.debug(f"Called _configure_logging for {instance.component_id}")
-        elif hasattr(instance, 'logger') and isinstance(instance.logger, logging.Logger):
-            if log_level:
-                level_to_set = getattr(logging, log_level.upper(), None)
-                if level_to_set:
-                    instance.logger.setLevel(level_to_set)
-                    logger.debug(f"Set log level for {instance.component_id} logger to {log_level.upper()}")
-                else:
-                    logger.warning(f"Invalid log level '{log_level}' for {instance.component_id}")
-            if log_prefix and not (hasattr(instance, '_configure_logging') and callable(instance._configure_logging)):
-                 logger.debug(f"Log prefix '{log_prefix}' provided for {instance.component_id}, but no generic way to apply it without _configure_logging method.")
+###############################################################################
+# 5. Logging helpers
+###############################################################################
 
-    except Exception as e:
-        logger.warning(f'Failed to configure logging for {instance.component_id}: {e}')
+class _PrefixFilter(logging.Filter):
+    """Inject a static prefix into every log record."""
 
+    def __init__(self, prefix: str) -> None:
+        self._prefix = prefix
+        super().__init__()
+
+    def filter(self, record: logging.LogRecord) -> bool:  # noqa: D401
+        record.msg = f"{self._prefix}{record.msg}"
+        return True
+
+
+def configure_component_logging(
+    instance: NireonBaseComponent,
+    log_level: Optional[str] = None,
+    log_prefix: Optional[str] = None,
+) -> None:
+    """Apply runtime log settings to *instance*."""
+    if hasattr(instance, "_configure_logging") and callable(instance._configure_logging):
+        # Delegate to component implementation if provided
+        instance._configure_logging(log_level=log_level, log_prefix=log_prefix)
+        logger.debug("Delegated logging config for %s", instance.component_id)
+        return
+
+    if not hasattr(instance, "logger") or not isinstance(instance.logger, logging.Logger):
+        return  # Component does not expose a logger
+
+    comp_logger: logging.Logger = instance.logger
+    if log_level:
+        level_val = getattr(logging, log_level.upper(), None)
+        if isinstance(level_val, int):
+            comp_logger.setLevel(level_val)
+
+    if log_prefix:
+        # Clear any existing prefix filters to avoid duplication
+        comp_logger.filters = [f for f in comp_logger.filters if not isinstance(f, _PrefixFilter)]
+        comp_logger.addFilter(_PrefixFilter(log_prefix))
+
+
+###############################################################################
+# 6. Metadata preparation
+###############################################################################
 
 def prepare_component_metadata(
     base_metadata: ComponentMetadata,
     instance_id: str,
-    config_overrides: Optional[Dict[str, Any]] = None
+    config_overrides: Optional[Dict[str, Any]] = None,
 ) -> ComponentMetadata:
-    """
-    Prepares the final ComponentMetadata for an instance, applying overrides.
-    Canonical version from bootstrap_helper/enhanced_components.py.
-    """
+    """Return a ComponentMetadata for *instance_id*, applying override dicts if provided."""
     if not isinstance(base_metadata, ComponentMetadata):
-        logger.error(f"Base metadata for {instance_id} is not a ComponentMetadata instance. Type: {type(base_metadata)}")
-        if isinstance(base_metadata, dict) and 'id' in base_metadata and 'name' in base_metadata: 
-             base_metadata = ComponentMetadata(**base_metadata)
+        # Attempt coercion or fallback
+        if isinstance(base_metadata, dict) and {"id", "name"} <= base_metadata.keys():
+            base_metadata = ComponentMetadata(**base_metadata)  # type: ignore[arg-type]
         else:
-            base_metadata = ComponentMetadata(id=instance_id, name=instance_id, version="0.0.0", category="unknown")
+            base_metadata = ComponentMetadata(
+                id=instance_id,
+                name=instance_id,
+                version="0.0.0",
+                category="unknown",
+            )
 
-    instance_metadata = dataclasses.replace(base_metadata, id=instance_id)
+    meta = dataclasses.replace(base_metadata, id=instance_id)
 
     if config_overrides:
-        metadata_overrides_from_config = config_overrides.get('metadata_override', {})
-        if metadata_overrides_from_config:
-            logger.debug(f"Applying metadata_override from config for {instance_id}: {metadata_overrides_from_config}")
+        overrides = config_overrides.get("metadata_override", {})
+        if overrides:
             try:
-                current_meta_dict = dataclasses.asdict(instance_metadata)
-                current_meta_dict.update(metadata_overrides_from_config)
-                instance_metadata = ComponentMetadata(**current_meta_dict)
-            except Exception as e:
-                logger.error(f"Error applying metadata_override for {instance_id}: {e}. Using metadata before override attempt.")
+                meta_dict = dataclasses.asdict(meta)
+                meta_dict.update(overrides)
+                meta = ComponentMetadata(**meta_dict)  # type: ignore[arg-type]
+            except Exception as exc:  # pragma: no cover
+                logger.error("Failed metadata_override for %s: %s", instance_id, exc)
 
-    return instance_metadata
+    return meta

@@ -16,7 +16,7 @@ from events.embedding_events import (
     EMBEDDING_COMPUTED, HIGH_NOVELTY_DETECTED, EMBEDDING_ERROR
 )
 
-from config.embedding_config import EmbeddingConfig
+from application.config.embedding_config import EmbeddingConfig
 
 logger = logging.getLogger(__name__)
 

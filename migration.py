@@ -119,7 +119,7 @@ async def test_component_config_loading():
         # Test component specs that should match your new structure
         component_specs = [
             {
-                'name': 'explorer_primary',
+                'name': 'explorer_primary_01',
                 'spec': {
                     'class': 'components.mechanisms.explorer.service.ExplorerMechanism',
                     'config': 'configs/default/mechanisms/{id}.yaml',

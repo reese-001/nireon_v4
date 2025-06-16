@@ -3,17 +3,18 @@ rules:
   - id: "core_seed_to_explorer_rule"
     description: "When a SeedSignal is detected, trigger the primary explorer."
     namespace: "core"
-    priority: 10  # High priority for seed handling
+    priority: 10
     enabled: true
     conditions:
       - type: "signal_type_match"
         signal_type: "SeedSignal"
     actions:
       - type: "trigger_component"
-        component_id: "explorer_primary"
-        input_data:
-          source: "seed_signal"
-          exploration_depth: 3
+        component_id: "explorer_instance_01"
+        input_data_mapping:
+          text: "payload.text"
+          id: "payload.seed_idea_id"
+          objective: "payload.metadata.objective"
 
   - id: "idea_generated_to_trust_eval"
     description: "Evaluate trust for newly generated ideas"
@@ -25,8 +26,10 @@ rules:
         signal_type: "IdeaGeneratedSignal"
     actions:
       - type: "trigger_component"
-        component_id: "trust_evaluator"
-        template_id: "EVALUATE_NEW_IDEA_TRUST"
+        component_id: "sentinel_instance_01"
+        input_data_mapping:
+          target_idea_id: "payload.id"
+          frame_id: "payload.frame_id"
 
   - id: "high_trust_amplification"
     description: "Amplify ideas with high trust scores"
@@ -36,13 +39,12 @@ rules:
     conditions:
       - type: "signal_type_match"
         signal_type: "TrustAssessmentSignal"
-      - type: "payload_value"
-        field: "trust_score"
-        operator: "gt"
-        value: 0.8
+      - type: "payload_expression"
+        # FIX: Changed 'is not None' to '!= None' for better compatibility
+        expression: "signal.trust_score != None and signal.trust_score > 0.8"
     actions:
       - type: "trigger_component"
-        component_id: "catalyst_mechanism"
+        component_id: "catalyst_instance_01"
         template_id: "AMPLIFY_HIGH_TRUST_IDEA"
       - type: "emit_signal"
         signal_type: "HIGH_TRUST_DETECTED"
@@ -60,7 +62,7 @@ rules:
         signal_type: "StagnationDetectedSignal"
     actions:
       - type: "trigger_component"
-        component_id: "explorer_diverse"
+        component_id: "explorer_diverse" # Note: 'explorer_diverse' is not defined in the manifest. This may cause issues later.
         template_id: "BREAK_STAGNATION_EXPLORATION"
         input_data:
           exploration_mode: "divergent"
@@ -69,15 +71,13 @@ rules:
   - id: "error_notification"
     description: "Log and notify on critical errors"
     namespace: "system"
-    priority: 1  # Highest priority for error handling
+    priority: 1 # Highest priority for error handling
     enabled: true
     conditions:
       - type: "signal_type_match"
         signal_type: "ErrorSignal"
-      - type: "payload_value"
-        field: "error_type"
-        operator: "eq"
-        value: "critical"
+      - type: "payload_expression"
+        expression: "payload.error_type == 'critical'"
     actions:
       - type: "emit_signal"
         signal_type: "SYSTEM_ALERT"
@@ -85,15 +85,30 @@ rules:
           severity: "critical"
           requires_intervention: true
 
-  # Test rule - disabled by default
   - id: "looping_rule_for_testing"
     description: "A rule for testing loop safety. Triggers the looper component."
     namespace: "test"
     priority: 100
-    enabled: false  # Disabled in production
+    enabled: false
     conditions:
       - type: "signal_type_match"
         signal_type: "LoopSignal"
     actions:
       - type: "trigger_component"
         component_id: "looper_comp"
+
+  - id: "test_loop_finisher"
+    description: "Emits a signal to tell the test runner the generative cycle is complete."
+    namespace: "system"
+    priority: 200 # A very low priority, runs after everything else
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+    actions:
+      - type: "emit_signal"
+        signal_type: "GenerativeLoopFinishedSignal"
+        payload:
+          status: "completed_one_cycle"
+          final_signal_id: "{{ signal.signal_id }}"
+          final_trust_score: "{{ signal.trust_score }}"

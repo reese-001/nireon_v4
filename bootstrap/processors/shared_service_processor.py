@@ -35,12 +35,17 @@ logger = logging.getLogger(__name__)
 async def instantiate_shared_service(
     service_key_in_manifest: str,
     service_spec_from_manifest: Dict[str, Any],
-    registry: ComponentRegistry,
-    event_bus: EventBusPort,
-    global_app_config: Dict[str, Any],
-    health_reporter: BootstrapHealthReporter,
-    validation_data_store: Any
+    context: Any # Change to accept the full context
 ) -> None:
+    # --- CHANGE 2: Get services from the context object ---
+    registry = context.registry
+    event_bus = context.event_bus
+    global_app_config = context.global_app_config
+    health_reporter = context.health_reporter
+    validation_data_store = getattr(context, 'validation_data_store', None)
+    registry_manager = getattr(context, 'registry_manager', None)
+    # --- END CHANGE ---
+    
     class_path = service_spec_from_manifest.get('class')
     config_source = service_spec_from_manifest.get('config')
     inline_config_override = service_spec_from_manifest.get('config_override', {})
@@ -208,8 +213,19 @@ async def instantiate_shared_service(
         # CRITICAL: First register with the exact manifest ID
         # This ensures we can look up by 'llm_router_main' etc.
         try:
-            registry.register(service_instance, service_instance_metadata)
-            logger.info(f"✓ Registered '{service_key_in_manifest}' in registry with manifest ID")
+            # --- CHANGE 3: Prefer using the certification-aware manager ---
+            if registry_manager:
+                registry_manager.register_with_certification(
+                    service_instance,
+                    service_instance_metadata,
+                    additional_cert_data={'source_manifest': 'standard.yaml'}
+                )
+                logger.info(f"✓ Registered '{service_key_in_manifest}' in registry with certification")
+            else:
+                # Fallback to direct registration if manager isn't available
+                registry.register(service_instance, service_instance_metadata)
+                logger.warning(f"Registered '{service_key_in_manifest}' without certification (RegistryManager not in context).")
+            # --- END CHANGE ---
         except Exception as e:
             logger.error(f"Failed to register '{service_key_in_manifest}' by manifest ID: {e}")
             raise

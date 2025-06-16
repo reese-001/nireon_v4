@@ -7,9 +7,9 @@ rules:
     enabled: true
     conditions:
       - type: "signal_type_match"
-        signal_type: "IdeaGeneratedSignal"
+        signal_type: "TrustAssessmentSignal"
       - type: "payload_expression"
-        expression: "signal.trust_score > 0.8 and signal.novelty_score > 0.6"
+        expression: "signal.trust_score is not None and signal.novelty_score is not None and signal.trust_score > 0.8 and signal.novelty_score > 0.6"
     actions:
       - type: "trigger_component"
         component_id: "catalyst_mechanism"

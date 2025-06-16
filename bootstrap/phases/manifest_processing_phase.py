@@ -123,15 +123,8 @@ class ManifestProcessingPhase(BootstrapPhase):
                 for service_key, service_spec in shared_services.items():
                     if service_spec.get('enabled', True):
                         try:
-                            await instantiate_shared_service(
-                                service_key,
-                                service_spec,
-                                context.registry,  # Fixed: use .registry instead of .component_registry
-                                context.event_bus,
-                                context.global_app_config,
-                                context.health_reporter,
-                                getattr(context, 'validation_data_store', None)
-                            )
+                            # Pass the entire context object, not its individual parts
+                            await instantiate_shared_service(service_key, service_spec, context)
                             stats['components_instantiated'] += 1
                             logger.debug(f'✓ Instantiated shared service: {service_key}')
                         except Exception as e:

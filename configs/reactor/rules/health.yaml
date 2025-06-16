@@ -19,7 +19,7 @@ rules:
           severity: "medium"
           suggested_intervention: "increase_exploration"
       - type: "trigger_component"
-        component_id: "explorer_primary"
+        component_id: "explorer_instance_01"
         input_data:
           exploration_mode: "aggressive"
           temperature: 0.9

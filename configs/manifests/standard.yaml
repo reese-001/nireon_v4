@@ -8,13 +8,11 @@ metadata:
   updated_at: '2025-06-07T12:00:00Z'
 
 shared_services:
-  # Main router instance. It's preloaded and provides the LLMPort interface.
   llm_router_main:
     enabled: true
     preload: true
     class: infrastructure.llm.router:LLMRouter
     port_type: domain.ports.llm_port:LLMPort
-    
     metadata_definition: infrastructure.llm.router:LLM_ROUTER_METADATA
     config:
       id: llm_router_main
@@ -84,31 +82,39 @@ shared_services:
             }
           response_text_path: $.choices[0].message.content
 
-  # Alias for the LLMPort interface. The system will link this to llm_router_main.
-  # LLMPort:
-  #   enabled: true
-  #   class: infrastructure.llm.router:LLMRouter
-
   EmbeddingPort:
     enabled: true
     preload: true
     class: infrastructure.embeddings.sentence_transformer_adapter:SentenceTransformerAdapter
     port_type: domain.ports.embedding_port:EmbeddingPort
     config:
-      model_name: 'all-MiniLM-L6-v2'
+      model_name: all-MiniLM-L6-v2
       dimensions: 384
       cache_size: 1000
 
-  # event_bus_memory:
-  #   enabled: true
-  #   preload: true
-  #   class: infrastructure.event_bus.memory_event_bus:MemoryEventBus
-  #   port_type: domain.ports.event_bus_port:EventBusPort
-  #   metadata_definition: infrastructure.event_bus.memory_event_bus:MEMORY_EVENT_BUS_METADATA
-  #   config:
-  #     max_history: 2000
+  vector_memory_inmemory:
+    enabled: true
+    preload: true
+    class: infrastructure.vector_memory.inmemory_store:InMemoryVectorStore
+    port_type: domain.ports.vector_memory_port:VectorMemoryPort
+    metadata_definition: infrastructure.vector_memory.inmemory_store:INMEMORY_VECTOR_STORE_METADATA
+    config:
+      dimensions: 384
+      similarity_metric: cosine
+      capacity: 100000
 
-  # Alias for the EventBusPort interface.
+  embedding_service_main:
+    enabled: true
+    preload: true
+    class: application.services.embedding_service:EmbeddingService
+    metadata_definition: application.services.embedding_service:EMBEDDING_SERVICE_METADATA
+    config:
+      provider: sentence_transformers
+      embedding_port_id: EmbeddingPort
+      vector_memory_ref: vector_memory_inmemory # Use the new in-memory store
+      novelty_threshold: 0.75
+      cache_size: 1000
+
   EventBusPort:
     enabled: true
     preload: true
@@ -120,16 +126,19 @@ shared_services:
     class: infrastructure.persistence.idea_repository:IdeaRepository
     port_type: domain.ports.idea_repository_port:IdeaRepositoryPort
     config:
-      provider: 'sqlite'
-      db_path: 'runtime/nireon_ideas.db'
+      provider: sqlite
+      db_path: runtime/nireon_ideas.db
       enable_wal_mode: true
       timeout: 30.0
 
-  # Alias for the IdeaService. The actual instance is created programmatically.
   IdeaService:
-    enabled: false # Must be false to prevent direct instantiation from manifest.
+    enabled: true
+    preload: true
     class: application.services.idea_service:IdeaService
-    port_type: domain.ports.idea_service_port:IdeaServicePort
+    metadata_definition: application.services.idea_service:IDEA_SERVICE_METADATA
+    config:
+      repository_port_id: IdeaRepositoryPort    # ← injects the repo
+      event_bus_port_id: EventBusPort           # ← optional but useful
 
   parameter_service_global:
     enabled: true
@@ -163,11 +172,11 @@ shared_services:
 
   mechanism_gateway:
     enabled: true
-    preload: false # This is a composite service; created later.
+    preload: false
     class: infrastructure.gateway.mechanism_gateway:MechanismGateway
     metadata_definition: infrastructure.gateway.mechanism_gateway_metadata:MECHANISM_GATEWAY_METADATA
     config_override:
-      id: 'mechanism_gateway'
+      id: mechanism_gateway
 
 composites: {}
 
@@ -176,6 +185,8 @@ mechanisms:
     enabled: true
     class: components.mechanisms.explorer.service:ExplorerMechanism
     metadata_definition: components.mechanisms.explorer.service:EXPLORER_METADATA
+    metadata_override:
+      epistemic_tags: ['generator', 'mutator', 'innovator']
     config: configs/default/mechanisms/{id}.yaml
     config_override:
       application_rate: 0.8
@@ -186,14 +197,18 @@ mechanisms:
     enabled: true
     class: components.mechanisms.sentinel.service:SentinelMechanism
     metadata_definition: components.mechanisms.sentinel.metadata.SENTINEL_METADATA
+    metadata_override:
+      epistemic_tags: ['evaluator', 'quality_control', 'gatekeeper']
     config: configs/default/mechanisms/{id}.yaml
     config_override:
-      trust_threshold: 3.5 # Lowered from 6.0 to allow more ideas through in testing.
+      trust_threshold: 3.5
 
   catalyst_instance_01:
     enabled: true
     class: components.mechanisms.catalyst.service:CatalystMechanism
     metadata_definition: components.mechanisms.catalyst.metadata:CATALYST_METADATA
+    metadata_override:
+      epistemic_tags: ['synthesizer', 'cross_pollinator']
     config: configs/default/mechanisms/{id}.yaml
     config_override:
       application_rate: 0.5
@@ -205,7 +220,6 @@ observers: {}
 managers: {}
 
 orchestration_commands:
-  # This virtual component satisfies the InterfaceValidator's check for signal producers.
   system_orchestrator:
     enabled: true
     metadata_definition: bootstrap.bootstrap_helper.metadata:create_orchestration_command_metadata
@@ -221,6 +235,8 @@ orchestration_commands:
         - COGNITIVE_EVENT_LLM_ASK
         - FRAME_CREATION_REQUEST
         - FRAME_UPDATE_REQUEST
+        - NOVELTY_CHECK      
+        - EMBEDDING_REQUEST 
 
 environment_overrides:
   development:

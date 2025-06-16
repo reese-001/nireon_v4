@@ -258,6 +258,12 @@ class AbiogenesisPhase(BootstrapPhase):
 
     async def _create_idea_service_if_possible(self, context, preload_stats: dict) -> None:
         try:
+            # Check if IdeaService is already configured in a manifest, even if disabled.
+            # This prevents creating a fallback that would collide later.
+            if hasattr(context, 'validation_data_store'):
+                if context.validation_data_store.has_component_data('IdeaService'):
+                    logger.debug("IdeaService is defined in a manifest. Skipping Abiogenesis creation.")
+                    return
             from domain.ports.idea_repository_port import IdeaRepositoryPort
             from domain.ports.event_bus_port import EventBusPort
             from application.services.idea_service import IdeaService

@@ -1,4 +1,3 @@
-# nireon_v4\bootstrap\core\main.py
 from __future__ import annotations
 import asyncio
 import logging
@@ -64,6 +63,12 @@ except ImportError as e:
     logger.error(f'Failed to import LateRebindingPhase: {e}')
     LateRebindingPhase = None
 try:
+    from bootstrap.phases.reactor_setup_phase import ReactorSetupPhase
+except ImportError as e:
+    logger = logging.getLogger(__name__)
+    logger.error(f'Failed to import ReactorSetupPhase: {e}')
+    ReactorSetupPhase = None
+try:
     from dotenv import load_dotenv
     load_dotenv()
     logger = logging.getLogger(__name__)
@@ -74,6 +79,7 @@ except ImportError:
 except Exception as e:
     logger = logging.getLogger(__name__)
     logger.warning(f'Error loading dotenv: {e}')
+
 class BootstrapExecutionConfig(BaseModel):
     timeout_seconds: float = Field(default=300.0, ge=1.0, le=3600.0, description='Maximum time allowed for bootstrap execution')
     phase_timeout_seconds: float = Field(default=60.0, ge=1.0, le=300.0, description='Maximum time allowed per bootstrap phase')
@@ -83,6 +89,8 @@ class BootstrapExecutionConfig(BaseModel):
     class Config:
         extra = 'forbid'
         validate_assignment = True
+
+
 class BootstrapOrchestrator:
     def __init__(self, config: BootstrapConfig, execution_config: Optional[BootstrapExecutionConfig]=None):
         self.config = config
@@ -92,12 +100,14 @@ class BootstrapOrchestrator:
         self._phases: Optional[List[Any]] = None
         logger.info(f'BootstrapOrchestrator initialized - run_id: {self.run_id}')
         logger.debug(f'Execution config: {self.execution_config.model_dump_json(indent=2)}')
+
     async def execute_bootstrap(self) -> BootstrapResult:
         self.start_time = datetime.now(timezone.utc)
         logger.info('=== NIREON V4 System Bootstrap Starting (L0 Abiogenesis) ===')
         logger.info(f'Run ID: {self.run_id}')
         logger.info(f'Config Paths: {[str(p) for p in self.config.config_paths]}')
         logger.info(f"Environment: {self.config.env or 'default'}")
+
         try:
             bootstrap_task = self._execute_bootstrap_process()
             return await asyncio.wait_for(bootstrap_task, timeout=self.execution_config.timeout_seconds)
@@ -111,6 +121,7 @@ class BootstrapOrchestrator:
         except Exception as e:
             logger.critical(f'Unhandled exception during bootstrap execution: {e}', exc_info=True)
             return await self._handle_bootstrap_failure(e)
+
     async def _execute_bootstrap_process(self) -> BootstrapResult:
         global_config = await self._load_global_configuration()
         context = await self._create_bootstrap_context(global_config)
@@ -122,6 +133,7 @@ class BootstrapOrchestrator:
             await self._perform_final_health_checks(context)
         await self._signal_bootstrap_completion(context)
         return self._build_result(context)
+
     async def _load_global_configuration(self) -> Dict[str, Any]:
         try:
             logger.debug('Loading global configuration...')
@@ -130,13 +142,16 @@ class BootstrapOrchestrator:
             except ImportError:
                 logger.warning('ConfigLoader not available, using minimal config.')
                 return self._get_minimal_global_config()
+
             config_loader = ConfigLoader()
             loaded_global_config = await config_loader.load_global_config(env=self.config.env, provided_config=self.config.global_app_config)
+
             if self.config.global_app_config is None or self.config.global_app_config != loaded_global_config:
                 if dataclasses.is_dataclass(self.config):
                     self.config = dataclasses.replace(self.config, global_app_config=loaded_global_config)
                 else:
                     self.config.global_app_config = loaded_global_config
+
             logger.info(f"Global configuration loaded for env: {self.config.env or 'default'}")
             logger.debug(f'Config keys: {list(loaded_global_config.keys())}')
             return loaded_global_config
@@ -149,8 +164,23 @@ class BootstrapOrchestrator:
             else:
                 self.config.global_app_config = minimal_cfg
             return minimal_cfg
+
     def _get_minimal_global_config(self) -> Dict[str, Any]:
-        return {'env': self.config.env or 'default', 'bootstrap_strict_mode': self.config.initial_strict_mode_param, 'feature_flags': {'enable_rbac_bootstrap': False, 'enable_schema_validation': False, 'enable_concurrent_initialization': False}, 'llm': {'default_model': 'placeholder', 'timeout_seconds': 30}, 'embedding': {'default_model': 'placeholder', 'dimensions': 384}, 'shared_services': {}, 'mechanisms': {}, 'observers': {}}
+        return {
+            'env': self.config.env or 'default',
+            'bootstrap_strict_mode': self.config.initial_strict_mode_param,
+            'feature_flags': {
+                'enable_rbac_bootstrap': False,
+                'enable_schema_validation': False,
+                'enable_concurrent_initialization': False
+            },
+            'llm': {'default_model': 'placeholder', 'timeout_seconds': 30},
+            'embedding': {'default_model': 'placeholder', 'dimensions': 384},
+            'shared_services': {},
+            'mechanisms': {},
+            'observers': {}
+        }
+
     async def _create_bootstrap_context(self, global_config: Dict[str, Any]) -> BootstrapContext:
         try:
             logger.debug('Creating bootstrap context...')
@@ -160,6 +190,7 @@ class BootstrapOrchestrator:
         except Exception as e:
             logger.error(f'Failed to create bootstrap context: {e}', exc_info=True)
             raise BootstrapError(f'Context creation failed: {e}') from e
+
     async def _signal_bootstrap_started(self, context: BootstrapContext) -> None:
         try:
             if hasattr(context, 'signal_emitter') and context.signal_emitter:
@@ -171,6 +202,7 @@ class BootstrapOrchestrator:
             logger.warning(f'Failed to emit bootstrap started signal: {e}')
             if context.strict_mode:
                 raise BootstrapError(f'Failed to emit bootstrap started signal: {e}') from e
+
     async def _execute_phases(self, context: BootstrapContext) -> None:
         phases = self._get_phases()
         total_phases = len(phases)
@@ -179,6 +211,7 @@ class BootstrapOrchestrator:
             if phase_instance is None:
                 logger.warning(f'Phase {i} is None, skipping.')
                 continue
+
             phase_name = phase_instance.__class__.__name__
             logger.info(f'Executing Phase {i}/{total_phases}: {phase_name}')
             try:
@@ -191,6 +224,7 @@ class BootstrapOrchestrator:
                     if context.strict_mode:
                         raise BootstrapError(f'Phase {phase_name} is not executable.')
                     continue
+
                 from bootstrap.phases.base_phase import PhaseResult
                 result: PhaseResult = await asyncio.wait_for(phase_task, timeout=self.execution_config.phase_timeout_seconds)
                 if not result.success:
@@ -217,16 +251,19 @@ class BootstrapOrchestrator:
                     raise BootstrapError(error_msg) from e
                 else:
                     logger.warning(f'{error_msg} (continuing in non-strict mode)')
+
     async def _perform_final_health_checks(self, context: BootstrapContext) -> None:
         try:
             logger.info('Performing final health checks...')
             component_count = 0
             if context.registry and hasattr(context.registry, 'list_components'):
                 component_count = len(context.registry.list_components())
+
             if component_count == 0:
                 logger.warning('No components registered during bootstrap.')
             else:
                 logger.info(f'Registry contains {component_count} components.')
+
             if hasattr(context, 'health_reporter') and context.health_reporter:
                 health_summary = context.health_reporter.generate_summary()
                 logger.info(f'Final Health Summary:\n{health_summary}')
@@ -237,6 +274,7 @@ class BootstrapOrchestrator:
             logger.warning(f'Health checks failed: {e}', exc_info=True)
             if context.strict_mode:
                 raise BootstrapError(f'Final health checks failed: {e}') from e
+
     async def _signal_bootstrap_completion(self, context: BootstrapContext) -> None:
         try:
             component_count = 0
@@ -252,6 +290,7 @@ class BootstrapOrchestrator:
             logger.warning(f'Failed to signal bootstrap completion: {e}')
             if context.strict_mode:
                 raise BootstrapError(f'Failed to signal completion: {e}') from e
+
     def _build_result(self, context: BootstrapContext) -> BootstrapResult:
         try:
             logger.debug('Building bootstrap result...')
@@ -265,12 +304,14 @@ class BootstrapOrchestrator:
         except Exception as e:
             logger.error(f'Failed to build bootstrap result: {e}', exc_info=True)
             return self._create_minimal_result(e, context_fallback=context)
+
     async def _handle_bootstrap_failure(self, error: Exception) -> BootstrapResult:
         logger.critical(f'Critical bootstrap failure: {error}', exc_info=True)
         if self.config.effective_strict_mode:
             if isinstance(error, (BootstrapError, BootstrapTimeoutError, BootstrapValidationError)):
                 raise error
             raise BootstrapError(f'Bootstrap system failure: {error}') from error
+
         logger.warning('Attempting to create minimal result in non-strict mode due to failure...')
         try:
             return self._create_minimal_result(error)
@@ -279,12 +320,14 @@ class BootstrapOrchestrator:
             final_error = BootstrapError(f'Complete bootstrap failure and recovery failed. Original error: {error}')
             final_error.__cause__ = recovery_error
             raise final_error
+
     def _create_minimal_result(self, original_error: Exception, context_fallback: Optional[BootstrapContext]=None) -> BootstrapResult:
         logger.info(f'Creating minimal bootstrap result due to error: {original_error}')
         registry = self.config.existing_registry or (context_fallback.registry if context_fallback else None) or ComponentRegistry()
         health_reporter = None
         if context_fallback and hasattr(context_fallback, 'health_reporter'):
             health_reporter = context_fallback.health_reporter
+
         if health_reporter is None:
             try:
                 from bootstrap.health.reporter import HealthReporter
@@ -292,13 +335,16 @@ class BootstrapOrchestrator:
             except ImportError:
                 logger.error('Failed to import HealthReporter for minimal result.')
                 health_reporter = None
+
         if health_reporter and hasattr(health_reporter, 'add_phase_result'):
             health_reporter.add_phase_result('BootstrapFailure', 'failed', f'Bootstrap failed critically: {original_error}', errors=[str(original_error)])
             if hasattr(health_reporter, 'mark_bootstrap_complete'):
                 health_reporter.mark_bootstrap_complete()
+
         validation_data = None
         if context_fallback and hasattr(context_fallback, 'validation_data_store'):
             validation_data = context_fallback.validation_data_store
+
         if validation_data is None:
             try:
                 from bootstrap.validation_data import BootstrapValidationData
@@ -306,10 +352,19 @@ class BootstrapOrchestrator:
             except ImportError:
                 logger.error('Failed to import BootstrapValidationData for minimal result.')
                 validation_data = None
-        return BootstrapResult(registry=registry, health_reporter=health_reporter, validation_data=validation_data, run_id=self.run_id, bootstrap_duration=self._get_elapsed_seconds(), global_config=self.config.global_app_config)
+
+        return BootstrapResult(
+            registry=registry,
+            health_reporter=health_reporter,
+            validation_data=validation_data,
+            run_id=self.run_id,
+            bootstrap_duration=self._get_elapsed_seconds(),
+            global_config=self.config.global_app_config
+        )
+
     def _get_phases(self) -> List[Any]:
         if self._phases is None:
-            phase_classes = [AbiogenesisPhase, ContextFormationPhase, RegistrySetupPhase, FactorySetupPhase, ManifestProcessingPhase, ComponentInitializationPhase, InterfaceValidationPhase, RBACSetupPhase, LateRebindingPhase]
+            phase_classes = [AbiogenesisPhase, ContextFormationPhase, RegistrySetupPhase, FactorySetupPhase, ManifestProcessingPhase, ComponentInitializationPhase, InterfaceValidationPhase, RBACSetupPhase, ReactorSetupPhase, LateRebindingPhase]
             self._phases = []
             for phase_cls in phase_classes:
                 if phase_cls is not None:
@@ -324,24 +379,31 @@ class BootstrapOrchestrator:
                     logger.warning(f'A phase class was None during instantiation, likely due to import error.')
             logger.info(f'Initialized {len(self._phases)} bootstrap phase instances.')
         return self._phases
+
     def _generate_run_id(self) -> str:
         timestamp = datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S_%f')
         process_id = os.getpid()
         return f'nireon_bs_{timestamp}_{process_id}'
+
     def _get_elapsed_seconds(self) -> float:
         if self.start_time is None:
             return 0.0
         return (datetime.now(timezone.utc) - self.start_time).total_seconds()
+
+
 async def bootstrap_nireon_system(config_paths: Sequence[Union[str, Path]], **kwargs: Any) -> BootstrapResult:
     try:
         bootstrap_config_fields = BootstrapConfig.__annotations__.keys()
         execution_config_fields = BootstrapExecutionConfig.model_fields.keys()
+
         bs_config_kwargs = {k: v for k, v in kwargs.items() if k in bootstrap_config_fields and k != 'config_paths'}
         exec_config_kwargs = {k: v for k, v in kwargs.items() if k in execution_config_fields}
+
         config = BootstrapConfig.from_params(list(config_paths), **bs_config_kwargs)
         execution_config = None
         if exec_config_kwargs:
             execution_config = BootstrapExecutionConfig(**exec_config_kwargs)
+
         orchestrator = BootstrapOrchestrator(config, execution_config)
         return await orchestrator.execute_bootstrap()
     except ValidationError as e:
@@ -352,7 +414,9 @@ async def bootstrap_nireon_system(config_paths: Sequence[Union[str, Path]], **kw
     except Exception as e:
         logger.error(f'Unexpected error in bootstrap_nireon_system: {e}', exc_info=True)
         raise BootstrapError(f'System bootstrap failed with an unexpected error: {e}') from e
+
 bootstrap = bootstrap_nireon_system
+
 def bootstrap_sync(config_paths: Sequence[Union[str, Path]], **kwargs: Any) -> BootstrapResult:
     logger.debug('Running V4 bootstrap in synchronous mode.')
     current_loop: Optional[asyncio.AbstractEventLoop] = None
@@ -364,6 +428,7 @@ def bootstrap_sync(config_paths: Sequence[Union[str, Path]], **kwargs: Any) -> B
         asyncio.set_event_loop(current_loop)
         new_loop_created = True
         logger.debug('No running event loop, created a new one for sync bootstrap.')
+
     try:
         future = bootstrap_nireon_system(config_paths, **kwargs)
         return current_loop.run_until_complete(future)
@@ -381,7 +446,18 @@ def bootstrap_sync(config_paths: Sequence[Union[str, Path]], **kwargs: Any) -> B
                     asyncio.set_event_loop(None)
             except RuntimeError:
                 pass
-__all__ = ['BootstrapExecutionConfig', 'BootstrapOrchestrator', 'bootstrap_nireon_system', 'bootstrap', 'bootstrap_sync', 'smoke_test', 'validate_bootstrap_config']
+
+
+__all__ = [
+    'BootstrapExecutionConfig',
+    'BootstrapOrchestrator',
+    'bootstrap_nireon_system',
+    'bootstrap',
+    'bootstrap_sync',
+    'smoke_test',
+    'validate_bootstrap_config'
+]
+
 async def smoke_test() -> bool:
     logger.info('Executing bootstrap smoke test...')
     try:
@@ -390,9 +466,14 @@ async def smoke_test() -> bool:
             tmp_manifest.write('version: 1.0\nmetadata:\n  name: SmokeTestManifest\ncomponents: []\n')
             manifest_path = tmp_manifest.name
         logger.debug(f'Smoke test using temporary manifest: {manifest_path}')
-        minimal_global_cfg = {'bootstrap_strict_mode': False, 'feature_flags': {'enable_rbac_bootstrap': False}}
+
+        minimal_global_cfg = {
+            'bootstrap_strict_mode': False,
+            'feature_flags': {'enable_rbac_bootstrap': False}
+        }
         result = await bootstrap_nireon_system([Path(manifest_path)], global_app_config=minimal_global_cfg, strict_mode=False)
         os.remove(manifest_path)
+
         if result.success:
             logger.info(f'Bootstrap smoke test passed. Components: {result.component_count}')
             return True
@@ -402,15 +483,19 @@ async def smoke_test() -> bool:
     except Exception as e:
         logger.error(f'Bootstrap smoke test encountered an exception: {e}', exc_info=True)
         return False
+
+
 async def validate_bootstrap_config(config_paths: List[str]) -> Dict[str, Any]:
     logger.info(f'Validating bootstrap configuration: {config_paths}')
     errors: List[str] = []
     warnings: List[str] = []
     is_valid = True
+
     if not config_paths:
         errors.append('No configuration paths provided for validation.')
         is_valid = False
         return {'valid': is_valid, 'errors': errors, 'warnings': warnings}
+
     from runtime.utils import load_yaml_robust
     for path_str in config_paths:
         path = Path(path_str)
@@ -424,6 +509,7 @@ async def validate_bootstrap_config(config_paths: List[str]) -> Dict[str, Any]:
             continue
         if path.suffix.lower() not in ['.yaml', '.yml']:
             warnings.append(f'File {path} does not have a .yaml/.yml extension, but attempting to parse.')
+
         try:
             data = load_yaml_robust(path)
             if not isinstance(data, dict):
@@ -435,4 +521,5 @@ async def validate_bootstrap_config(config_paths: List[str]) -> Dict[str, Any]:
         except Exception as e:
             errors.append(f'Error loading or parsing manifest {path}: {e}')
             is_valid = False
+
     return {'valid': is_valid, 'errors': errors, 'warnings': warnings}

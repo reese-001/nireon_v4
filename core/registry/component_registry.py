@@ -1,6 +1,7 @@
 import logging
 from typing import Any, Dict, List, Optional, Type, Union
 from datetime import datetime, timezone
+import typing
 
 from core.lifecycle import ComponentMetadata, ComponentRegistryMissingError
 from domain.ports.event_bus_port import EventBusPort
@@ -37,6 +38,17 @@ class ComponentRegistry:
         else:
             # For other objects, use their string representation
             return str(key)
+        
+    ## REMOVE WHEN POSSIBLE: TODO
+    def resolve(self, key: typing.Any):
+        """
+        DEPRECATED – kept only so legacy helpers don’t break.
+        Prefer `get_service_instance()` for protocols or `get()` for IDs.
+        """
+        if isinstance(key, str):
+            return self.get(key)
+        return self.get_service_instance(key)
+    
     
     def register(self, component: Any, metadata: ComponentMetadata) -> None:
         """
