@@ -1,7 +1,8 @@
 # nireon_v4/components/mechanisms/catalyst/errors.py
+"""Custom exceptions for the Catalyst mechanism."""
 
 class CatalystError(Exception):
-    """Base exception for the Catalyst mechanism."""
+    """Base exception for all Catalyst-related errors."""
     pass
 
 class VectorBlendError(CatalystError):
@@ -9,11 +10,11 @@ class VectorBlendError(CatalystError):
     pass
 
 class CatalystLLMError(CatalystError):
-    """Error related to LLM interactions, often wrapping a lower-level error."""
+    """Error during LLM text regeneration."""
     pass
 
 class DuplicationError(CatalystError):
-    """Error related to duplication detection logic."""
+    """Error related to duplication detection."""
     pass
 
 class AntiConstraintError(CatalystError):

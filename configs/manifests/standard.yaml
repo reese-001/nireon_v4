@@ -16,9 +16,11 @@ shared_services:
     metadata_definition: infrastructure.llm.router:LLM_ROUTER_METADATA
     config:
       id: llm_router_main
-      default: nano_default
+      # CORRECTED: The default route is named 'default'.
+      default: default 
       routes:
-        default: nano_default
+        # This defines the route named 'default' and maps it to the 'nano_default' model.
+        default: nano_default 
         chat_fast: nano_default
         research: nano_default
         analysis: nano_default
@@ -190,7 +192,7 @@ mechanisms:
     config: configs/default/mechanisms/{id}.yaml
     config_override:
       application_rate: 0.8
-      max_depth: 3
+      max_depth: 10
       exploration_strategy: depth_first
 
   sentinel_instance_01:

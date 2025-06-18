@@ -1,0 +1,15 @@
+{
+  "seed_idea": {
+    "id": "5e79873e-3227-47ac-ab42-97d573b0bd74",
+    "text": "A detective discovers a parallel universe hidden in a coffee shop.",
+    "trust_score": null,
+    "is_stable": null,
+    "variations": {}
+  },
+  "metadata": {
+    "run_start_time": "2025-06-17T07:52:49.190782",
+    "run_end_time": "2025-06-17T07:54:49.220242",
+    "total_ideas": 1,
+    "total_assessments": 0
+  }
+}

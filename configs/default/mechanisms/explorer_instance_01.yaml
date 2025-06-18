@@ -1,6 +1,43 @@
-parameters:
-  max_depth: 3
-  application_rate: 0.7
-  exploration_strategy: "depth_first"
-  creativity_factor: 0.8
-  enable_llm_enhancement: true
+# nireon_v4\configs\default\mechanisms\explorer_instance_01.yaml
+# --- Complete Default Configuration for Explorer Mechanism ---
+
+# Core exploration logic
+divergence_strength: 0.2
+exploration_timeout_seconds: 60.0
+max_depth: 5
+application_rate: 0.5
+exploration_strategy: "depth_first"
+max_variations_per_level: 3
+
+# LLM Enhancement & Idea Generation
+enable_llm_enhancement: true
+creativity_factor: 0.9
+minimum_idea_length: 10
+maximum_idea_length: 1500 # Increased for more complete ideas
+default_prompt_template: "Generate a creative variation of the following idea: '{seed_idea_text}'. Previous exploration distance: {vector_distance:.3f}. Objective: {objective}."
+
+# Diversity and Novelty Control
+enable_diversity_filter: true
+diversity_threshold: 0.5
+max_retries_for_novelty: 4
+min_novelty_threshold_for_acceptance: 0.1
+reperturb_multiplier: 1.5
+
+# Semantic & Embedding Features
+enable_semantic_exploration: true
+request_embeddings_for_variations: true
+max_pending_embedding_requests: 10
+embedding_response_timeout_s: 30.0
+embedding_request_metadata: {}
+
+# Advanced & System Parameters
+seed_randomness: null
+max_parallel_llm_calls_per_frame: 3
+preferred_gateway_ids: "gw_llm_fast_default,gw_llm_main_backup"
+
+# Note: The following are defined in the Pydantic model but are better suited for global/frame-level config
+# They are included here for completeness but could be removed if managed elsewhere.
+default_resource_budget_for_exploration:
+  llm_calls: 10
+  embedding_calls: 20
+  cpu_seconds: 300
