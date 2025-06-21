@@ -4,7 +4,7 @@ Nireon V4 – In-memory budget manager (thread-safe).
 Implements BudgetManagerPort + NireonBaseComponent.
 Suitable for development / unit tests – NOT durable storage.
 """
-
+# process [math_engine, principia_agent]
 from __future__ import annotations
 
 from asyncio.log import logger
@@ -91,7 +91,11 @@ class InMemoryBudgetManager(NireonBaseComponent, BudgetManagerPort):
             metadata_definition=metadata_definition or self.METADATA_DEFINITION,
         )
 
-        self._budgets: MutableMapping[str, float] = dict(initial_budgets or {})
+        # The bootstrap process passes all configuration via the 'config' dict.
+        # We need to extract 'initial_budgets' from there.
+        # The 'initial_budgets' kwarg is kept for direct instantiation or tests.
+        budgets_from_config = self.config.get('initial_budgets') or {}
+        self._budgets: MutableMapping[str, float] = dict(initial_budgets or budgets_from_config)
         self._lock = threading.RLock()
 
     def initialize_frame_budget(self, frame_id: str, budget: Dict[str, float]) -> None:

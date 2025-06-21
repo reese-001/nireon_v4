@@ -1,5 +1,5 @@
 # nireon/application/services/frame_factory_service.py
-
+# process [math_engine, principia_agent]
 from __future__ import annotations
 
 import asyncio
@@ -155,9 +155,10 @@ class FrameFactoryService(NireonBaseComponent):
                 parent_frame_id=None,
                 epistemic_goals=["SYSTEM_STABILITY", "GLOBAL_CONTEXT"],
                 trust_basis={"system_core": 1.0},
+                # Change 'default_balanced' to 'default' to match the manifest.
                 llm_policy={
                     'default_temperature': 0.5, 
-                    'preferred_route': 'default_balanced'
+                    'preferred_route': 'default'
                 },
                 resource_budget=None,
                 domain_rules=[],

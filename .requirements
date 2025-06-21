@@ -8,3 +8,4 @@ pytest
 coverage
 jsonschema
 jsonpath-ng
+sympy

@@ -1,0 +1,457 @@
+Kernel:
+  description: "The absolute core of the Nireon V4 system. Defines fundamental abstractions, the component lifecycle, the central component registry, and result objects. As the foundational layer, it has no dependencies on other project subsystems."
+  phase: foundational
+  maturity: 5
+  primary_files:
+    - nireon_v4/core/base_component.py
+    - nireon_v4/core/lifecycle.py
+    - nireon_v4/core/registry/component_registry.py
+    - nireon_v4/core/results.py
+    - nireon_v4/core/main.py
+  secondary_files:
+    - nireon_v4/core/__init__.py
+    - nireon_v4/core/registry/__init__.py
+  test_files: []
+  depends_on: []
+  llm_guidance: null
+
+Domain_Model:
+  description: "Defines the core business logic concepts (e.g., Idea, Frame) and the abstract interfaces (Ports) that decouple the application from the infrastructure. This layer ensures the application's core is independent of specific technologies (like a particular database or LLM provider)."
+  phase: foundational
+  maturity: 5
+  primary_files:
+    - nireon_v4/domain/cognitive_events.py
+    - nireon_v4/domain/context.py
+    - nireon_v4/domain/epistemic_stage.py
+    - nireon_v4/domain/evaluation/assessment.py
+    - nireon_v4/domain/frames.py
+    - nireon_v4/domain/ideas/idea.py
+    - nireon_v4/domain/mixins/deterministic_rng_mixin.py
+    - nireon_v4/domain/embeddings/vector.py
+    - nireon_v4/domain/ports/budget_manager_port.py
+    - nireon_v4/domain/ports/embedding_port.py
+    - nireon_v4/domain/ports/event_bus_port.py
+    - nireon_v4/domain/ports/idea_repository_port.py
+    - nireon_v4/domain/ports/idea_service_port.py
+    - nireon_v4/domain/ports/llm_port.py
+    - nireon_v4/domain/ports/math_port.py
+    - nireon_v4/domain/ports/mechanism_gateway_port.py
+    - nireon_v4/domain/ports/reactor_port.py
+    - nireon_v4/domain/ports/vector_memory_port.py
+  secondary_files:
+    - nireon_v4/domain/__init__.py
+    - nireon_v4/domain/embeddings/__init__.py
+    - nireon_v4/domain/ideas/__init__.py
+    - nireon_v4/domain/mixins/__init__.py
+    - nireon_v4/domain/ports/__init__.py
+  test_files:
+    - nireon_v4/tests/domain/mixins/test_deterministic_rng_mixin.py
+  depends_on:
+    - Kernel
+  llm_guidance: null
+
+Event_and_Signal_System:
+  description: "Manages the communication backbone of the system. It defines the hierarchy of signals (`EpistemicSignal`) that flow between components and provides the concrete event bus implementation for asynchronous, pub/sub-style communication."
+  phase: infrastructure_service
+  maturity: 5
+  primary_files:
+    - nireon_v4/signals/__init__.py
+    - nireon_v4/signals/base.py
+    - nireon_v4/signals/core.py
+    - nireon_v4/domain/events/embedding_events.py
+    - nireon_v4/events/embedding_events.py
+    - nireon_v4/infrastructure/event_bus/memory_event_bus.py
+  secondary_files:
+    - nireon_v4/infrastructure/event_bus/__init__.py
+  test_files: []
+  depends_on:
+    - Domain_Model
+  llm_guidance: null
+
+Application_Services:
+  description: "Contains high-level services that orchestrate domain logic and provide core application capabilities. These services act as the connective tissue between the abstract domain model and the concrete mechanisms, often encapsulating business rules that are not specific to any single mechanism."
+  phase: infrastructure_service
+  maturity: 4
+  primary_files:
+    - nireon_v4/application/services/frame_factory_service.py
+    - nireon_v4/application/services/idea_service.py
+    - nireon_v4/application/services/embedding_service.py
+    - nireon_v4/application/services/budget_manager.py
+    - nireon_v4/application/services/stage_evaluation_service.py
+    - nireon_v4/application/config/embedding_config.py
+  secondary_files:
+    - nireon_v4/application/__init__.py
+    - nireon_v4/application/services/__init__.py
+    - nireon_v4/domain/ports/embedding_service.py
+  test_files: []
+  depends_on:
+    - Kernel
+    - Domain_Model
+    - Persistence_and_Storage
+    - Event_and_Signal_System
+  llm_guidance: null
+
+Persistence_and_Storage:
+  description: "The infrastructure layer responsible for persisting and retrieving data. It provides the concrete backends for storing and querying `Idea` objects and their associated vector embeddings, implementing the `IdeaRepositoryPort` and `VectorMemoryPort`."
+  phase: infrastructure_service
+  maturity: 3
+  primary_files:
+    - nireon_v4/infrastructure/persistence/idea_repository.py
+    - nireon_v4/infrastructure/vector_memory/inmemory_store.py
+    - nireon_v4/infrastructure/vector_memory/sqlite_vector_store.py
+  secondary_files:
+    - nireon_v4/infrastructure/persistence/__init__.py
+    - nireon_v4/infrastructure/vector_memory/__init__.py
+  test_files: []
+  depends_on:
+    - Domain_Model
+  llm_guidance: null
+
+LLM_Subsystem:
+  description: "A comprehensive subsystem for managing all interactions with Large Language Models. It is responsible for routing requests to different backends, applying context-specific parameters, handling failures with circuit breakers, and collecting performance metrics. It provides a unified and resilient interface to the rest of the application."
+  phase: infrastructure_service
+  maturity: 5
+  primary_files:
+    - nireon_v4/infrastructure/llm/router.py
+    - nireon_v4/infrastructure/llm/parameter_service.py
+    - nireon_v4/application/services/llm_router.py
+    - nireon_v4/infrastructure/llm/factory.py
+    - nireon_v4/infrastructure/llm/generic_http.py
+    - nireon_v4/infrastructure/llm/openai_llm.py
+    - nireon_v4/infrastructure/llm/router_backed_port.py
+    - nireon_v4/infrastructure/llm/circuit_breaker.py
+    - nireon_v4/infrastructure/llm/config_validator.py
+    - nireon_v4/infrastructure/llm/exceptions.py
+    - nireon_v4/infrastructure/llm/metrics.py
+  secondary_files:
+    - nireon_v4/infrastructure/llm/__init__.py
+    - nireon_v4/infrastructure/llm/backends/__init__.py
+  test_files:
+    - nireon_v4/tests/llm_subsystem/llm_test_cli.py
+    - nireon_v4/tests/llm_subsystem/simple_openai_api_test.py
+    - nireon_v4/tests/llm_subsystem/test_payload_template.py
+  depends_on:
+    - Domain_Model
+    - Kernel
+    - Event_and_Signal_System
+    - Application_Services
+  llm_guidance: "When reasoning about this subsystem, understand that its primary goal is resilience and flexibility. The router abstracts away specific LLM backends, so changes should focus on routing logic, parameter resolution, or circuit-breaking policies, not on hardcoding provider-specific details."
+
+Mechanism_Gateway:
+  description: "A crucial architectural façade that provides a single, controlled entry point for all cognitive mechanisms to interact with core system services. By routing all external calls through this gateway, we can enforce policies (like budgets), manage context (via Frames), and maintain a clean separation between mechanism logic and infrastructure concerns."
+  phase: infrastructure_service
+  maturity: 4
+  primary_files:
+    - nireon_v4/infrastructure/gateway/mechanism_gateway.py
+    - nireon_v4/infrastructure/gateway/mechanism_gateway_metadata.py
+  secondary_files: []
+  test_files: []
+  depends_on:
+    - LLM_Subsystem
+    - Application_Services
+    - Event_and_Signal_System
+    - Domain_Model
+    - Kernel
+  llm_guidance: null
+
+Reactor_Subsystem:
+  description: "A declarative, rule-based engine that forms the central nervous system of Nireon. It listens for all signals on the event bus and triggers component actions based on a set of conditions defined in YAML rule files. This allows for complex, emergent behaviors to be defined and modified without changing core component code."
+  phase: orchestration
+  maturity: 5
+  primary_files:
+    - nireon_v4/reactor/engine/main.py
+    - nireon_v4/reactor/loader.py
+    - nireon_v4/reactor/rules/core_rules.py
+    - nireon_v4/reactor/expressions/rel_engine.py
+    - nireon_v4/reactor/protocols.py
+    - nireon_v4/reactor/models.py
+    - nireon_v4/reactor/engine/base.py
+  secondary_files:
+    - nireon_v4/reactor/__init__.py
+    - nireon_v4/reactor/actions/__init__.py
+    - nireon_v4/reactor/engine/__init__.py
+    - nireon_v4/reactor/rules/__init__.py
+  test_files:
+    - nireon_v4/tests/reactor/test_models.py
+    - nireon_v4/tests/reactor/test_protocols.py
+    - nireon_v4/tests/reactor/test_reactor_simple_flow.py
+    - nireon_v4/tests/reactor/test_yaml_rule_loading.py
+  depends_on:
+    - Event_and_Signal_System
+    - Application_Services
+    - Kernel
+  llm_guidance: null
+
+Explorer_Mechanism:
+  description: "A generative agent focused on creating novel variations of existing ideas. The Explorer's primary goal is to increase the diversity of the idea space by applying mutations and transformations, effectively 'exploring' the conceptual neighborhood around a seed idea. It operates within a `Frame` and uses the `MechanismGateway` for all external interactions."
+  phase: generation
+  maturity: 4
+  primary_files:
+    - nireon_v4/components/mechanisms/explorer/service.py
+    - nireon_v4/components/mechanisms/explorer/config.py
+    - nireon_v4/components/mechanisms/explorer/service_helpers/explorer_event_helper.py
+    - nireon_v4/components/mechanisms/explorer/errors.py
+  secondary_files:
+    - nireon_v4/components/mechanisms/explorer/__init__.py
+  test_files:
+    - nireon_v4/tests/components/mechanisms/explorer/test_explorer_service.py
+    - nireon_v4/tests/components/mechanisms/explorer/fixtures.py
+  depends_on:
+    - Mechanism_Gateway
+    - Application_Services
+    - Event_and_Signal_System
+    - Domain_Model
+    - Kernel
+  llm_guidance: "The core intent is to generate novel and divergent variations. When analyzing or refactoring, prioritize logic that enhances creativity and exploration breadth/depth. Avoid adding logic that is overly critical or evaluative, as that is the Sentinel's role."
+
+Sentinel_Mechanism:
+  description: "An evaluative agent responsible for quality control. The Sentinel assesses ideas against multiple axes—such as alignment with objectives, feasibility, and novelty—to produce a `trust_score`. This score determines whether an idea is 'stable' enough to proceed or should be rejected. It is the primary gatekeeper in the idea lifecycle."
+  phase: evaluation
+  maturity: 4
+  primary_files:
+    - nireon_v4/components/mechanisms/sentinel/service.py
+    - nireon_v4/components/mechanisms/sentinel/config.py
+    - nireon_v4/components/mechanisms/sentinel/assessment_core.py
+    - nireon_v4/components/mechanisms/sentinel/novelty_calculator.py
+    - nireon_v4/components/mechanisms/sentinel/scoring_adjustment.py
+    - nireon_v4/components/mechanisms/sentinel/metadata.py
+    - nireon_v4/components/mechanisms/sentinel/service_helpers/initialization.py
+    - nireon_v4/components/mechanisms/sentinel/service_helpers/processing.py
+    - nireon_v4/components/mechanisms/sentinel/service_helpers/analysis.py
+    - nireon_v4/components/mechanisms/sentinel/service_helpers/adaptation.py
+    - nireon_v4/components/mechanisms/sentinel/service_helpers/events.py
+  secondary_files:
+    - nireon_v4/components/mechanisms/sentinel/__init__.py
+    - nireon_v4/components/mechanisms/sentinel/constants.py
+    - nireon_v4/components/mechanisms/sentinel/errors.py
+    - nireon_v4/components/mechanisms/sentinel/service_helpers/__init__.py
+  test_files: []
+  depends_on:
+    - Mechanism_Gateway
+    - Application_Services
+    - Event_and_Signal_System
+    - Domain_Model
+    - Kernel
+  llm_guidance: "The core intent is critical, objective evaluation against defined axes. When analyzing or refactoring, focus on the correctness of the scoring and the clarity of the rejection reasons. The LLM's role here is to provide structured, parseable JSON output, not creative text."
+
+Catalyst_Mechanism:
+  description: "A synthesis-focused agent designed to foster creativity by blending concepts from different domains. The Catalyst takes an existing idea and 'injects' influence from a specified cross-domain vector, creating a novel, hybrid concept. Its goal is to bridge disciplinary boundaries and spark interdisciplinary thinking."
+  phase: synthesis
+  maturity: 4
+  primary_files:
+    - nireon_v4/components/mechanisms/catalyst/service.py
+    - nireon_v4/components/mechanisms/catalyst/config.py
+    - nireon_v4/components/mechanisms/catalyst/adaptation.py
+    - nireon_v4/components/mechanisms/catalyst/processing.py
+    - nireon_v4/components/mechanisms/catalyst/prompt_builder.py
+    - nireon_v4/components/mechanisms/catalyst/service_helpers/catalyst_event_helper.py
+    - nireon_v4/components/mechanisms/catalyst/vector.py
+    - nireon_v4/components/mechanisms/catalyst/metadata.py
+  secondary_files:
+    - nireon_v4/components/mechanisms/catalyst/__init__.py
+    - nireon_v4/components/mechanisms/catalyst/errors.py
+    - nireon_v4/components/mechanisms/catalyst/types.py
+    - nireon_v4/components/mechanisms/catalyst/service_helpers/__init__.py
+  test_files: []
+  depends_on:
+    - Mechanism_Gateway
+    - Application_Services
+    - Event_and_Signal_System
+    - Domain_Model
+    - Kernel
+  llm_guidance: "The core intent is creative synthesis and the blending of disparate concepts. The goal is a surprising but coherent hybrid idea. When analyzing, focus on the effectiveness of the vector blending and the quality of the LLM-generated hybrid text."
+
+Math_Engine:
+  description: "A specialized subsystem for performing deterministic, symbolic mathematical computations. It is orchestrated by the `PrincipiaAgent`, which receives a `MathQuerySignal`, offloads the computation to a `MathPort` implementation (like the `SymPyAdapter`) via the Mechanism Gateway, and then uses an LLM to generate a human-readable explanation of the result, which is published as a `MathResultSignal`."
+  phase: computation
+  maturity: 3
+  primary_files:
+    - nireon_v4/components/mechanisms/math_agents/principia_agent.py
+    - nireon_v4/infrastructure/math/sympy_adapter.py
+  secondary_files:
+    - nireon_v4/domain/ports/math_port.py
+    - nireon_v4/signals/core.py
+  test_files:
+    - nireon_v4/01_math_runner/run_math_test.py
+    - nireon_v4/01_math_runner/test_with_frame.py
+    - nireon_v4/01_math_runner/unified_math_loader.py
+    - nireon_v4/debug_principia.py
+  depends_on:
+    - Mechanism_Gateway
+    - Event_and_Signal_System
+    - Domain_Model
+    - Kernel
+  llm_guidance: "The LLM's role in this subsystem is strictly for explanation. It translates the structured, symbolic output from the math computation into a clear, human-readable, step-by-step explanation. It should not perform any computation itself."
+
+Security_RBAC:
+  description: "The Role-Based Access Control (RBAC) system for Nireon. It includes the policy engine responsible for evaluating permissions and the decorators used to protect sensitive functions and methods. Policies are defined in `bootstrap_rbac.yaml` and loaded during the bootstrap process."
+  phase: infrastructure_service
+  maturity: 3
+  primary_files:
+    - nireon_v4/security/rbac_engine.py
+    - nireon_v4/security/decorators.py
+    - nireon_v4/security/execution_context.py
+  secondary_files:
+    - nireon_v4/security/__init__.py
+    - nireon_v4/bootstrap/security/rbac_engine.py
+  test_files: []
+  depends_on:
+    - Kernel
+  llm_guidance: null
+
+Observability:
+  description: "This subsystem contains all components related to monitoring system health, managing alerts, and collecting metrics. Its primary role is to provide insight into the system's operational status and performance. It is used heavily by the Bootstrap process but is designed for ongoing runtime monitoring as well."
+  phase: infrastructure_service
+  maturity: 3
+  primary_files:
+    - nireon_v4/bootstrap/health/reporter.py
+    - nireon_v4/monitoring/placeholder_monitor.py
+    - nireon_v4/validation/tach/check_architecture.py
+  secondary_files:
+    - nireon_v4/monitoring/__init__.py
+    - nireon_v4/monitoring/alerts/__init__.py
+    - nireon_v4/monitoring/alerts/alert_manager.py
+    - nireon_v4/monitoring/alerts/notification_handlers.py
+    - nireon_v4/monitoring/dashboards/__init__.py
+    - nireon_v4/monitoring/dashboards/service_dashboard.py
+    - nireon_v4/monitoring/metrics/__init__.py
+    - nireon_v4/monitoring/metrics/bootstrap_metrics.py
+    - nireon_v4/monitoring/metrics/performance_metrics.py
+    - nireon_v4/monitoring/service_health/__init__.py
+    - nireon_v4/monitoring/service_health/dependency_monitor.py
+    - nireon_v4/monitoring/service_health/health_checker.py
+  test_files: []
+  depends_on:
+    - Kernel
+    - Application_Services
+  llm_guidance: null
+
+Configuration_Management:
+  description: "This subsystem is responsible for loading, merging, and providing access to all configuration files. It handles different environments (e.g., default, development), merges configurations in a specific order of precedence, and expands environment variables."
+  phase: foundational
+  maturity: 4
+  primary_files:
+    - nireon_v4/configs/config_loader.py
+    - nireon_v4/configs/config_utils.py
+    - nireon_v4/configs/loader.py
+  secondary_files:
+    - nireon_v4/configs/__init__.py
+    - nireon_v4/bootstrap/config/__init__.py
+    - nireon_v4/bootstrap/config/bootstrap_config.py
+    - nireon_v4/bootstrap/config/env_var_expander.py
+    - nireon_v4/bootstrap/config/pydantic_resolver.py
+  test_files:
+    - nireon_v4/test_llm_config.py
+  depends_on: []
+  llm_guidance: null
+
+Bootstrap_System:
+  description: "This subsystem is responsible for the entire startup sequence of the Nireon application. It orchestrates a series of well-defined phases to load configurations, instantiate all components, wire up their dependencies, and bring the system online in a predictable and reliable state."
+  phase: initialization
+  maturity: 5
+  primary_files:
+    - nireon_v4/bootstrap/core/main.py
+    - nireon_v4/bootstrap/phases/base_phase.py
+    - nireon_v4/bootstrap/phases/abiogenesis_phase.py
+    - nireon_v4/bootstrap/phases/context_formation_phase.py
+    - nireon_v4/bootstrap/phases/registry_setup_phase.py
+    - nireon_v4/bootstrap/phases/factory_setup_phase.py
+    - nireon_v4/bootstrap/phases/manifest_processing_phase.py
+    - nireon_v4/bootstrap/processors/manifest_processor.py
+    - nireon_v4/bootstrap/processors/component_processor.py
+    - nireon_v4/bootstrap/phases/component_initialization_phase.py
+    - nireon_v4/bootstrap/phases/component_validation_phase.py
+    - nireon_v4/bootstrap/phases/rbac_setup_phase.py
+    - nireon_v4/bootstrap/phases/late_rebinding_phase.py
+    - nireon_v4/bootstrap/context/bootstrap_context.py
+    - nireon_v4/bootstrap/context/bootstrap_context_builder.py
+    - nireon_v4/bootstrap/result_builder.py
+    - nireon_v4/bootstrap/registry/registry_manager.py
+    - nireon_v4/bootstrap/validators/interface_validator.py
+    - nireon_v4/bootstrap/bootstrap_helper/context_helper.py
+    - nireon_v4/factories/dependencies.py
+    - nireon_v4/factories/mechanism_factory.py
+  secondary_files:
+    - nireon_v4/bootstrap/__init__.py
+    - nireon_v4/bootstrap/__main__.py
+    - nireon_v4/bootstrap/bootstrap_helper/__init__.py
+    - nireon_v4/bootstrap/bootstrap_helper/_exceptions.py
+    - nireon_v4/bootstrap/bootstrap_helper/enhanced_components.py
+    - nireon_v4/bootstrap/bootstrap_helper/feature_flags.py
+    - nireon_v4/bootstrap/bootstrap_helper/metadata.py
+    - nireon_v4/bootstrap/bootstrap_helper/placeholders.py
+    - nireon_v4/bootstrap/context/__init__.py
+    - nireon_v4/bootstrap/core/__init__.py
+    - nireon_v4/bootstrap/core/phase_executor.py
+    - nireon_v4/bootstrap/core/orchestrator.py
+    - nireon_v4/bootstrap/exceptions.py
+    - nireon_v4/bootstrap/phases/__init__.py
+    - nireon_v4/bootstrap/processors/__init__.py
+    - nireon_v4/bootstrap/processors/enhanced_components.py
+    - nireon_v4/bootstrap/processors/metadata.py
+    - nireon_v4/bootstrap/processors/orchestration_command_processor.py
+    - nireon_v4/bootstrap/processors/service_resolver.py
+    - nireon_v4/bootstrap/processors/shared_service_processor.py
+    - nireon_v4/bootstrap/processors/simple_component_processor.py
+    - nireon_v4/bootstrap/signals/bootstrap_signals.py
+    - nireon_v4/bootstrap/utils/__init__.py
+    - nireon_v4/bootstrap/utils/component_utils.py
+    - nireon_v4/bootstrap/validation_data.py
+    - nireon_v4/infrastructure/embeddings/embeddings.py
+    - nireon_v4/bootstrap/phases/reactor_setup_phase.py
+  test_files:
+    - nireon_v4/bootstrap/tests/test_bootstrap_yaml_integration.py
+    - nireon_v4/test_bootstrap_fix.py
+    - nireon_v4/test_bootstrap_imports.py
+  depends_on:
+    - Kernel
+    - Domain_Model
+    - Configuration_Management
+    - Observability
+    - Application_Services
+    - Security_RBAC
+    - Reactor_Subsystem
+  llm_guidance: null
+
+Testing_and_Runners:
+  description: "A collection of scripts, test cases, and fixtures used for testing, debugging, and running specific parts of the system. This subsystem is not part of the production runtime and contains all developer-facing tools for validation."
+  phase: development_tooling
+  maturity: 4
+  primary_files:
+    - nireon_v4/01_math_runner/run_math_test.py
+    - nireon_v4/01_math_runner/test_with_frame.py
+    - nireon_v4/01_math_runner/unified_math_loader.py
+    - nireon_v4/debug_principia.py
+    - nireon_v4/run_explorer_test.py
+    - nireon_v4/migration.py
+    - nireon_v4/test_bootstrap_fix.py
+    - nireon_v4/test_bootstrap_imports.py
+    - nireon_v4/test_llm_config.py
+    - nireon_v4/scripts/gen_diagram.py
+    - nireon_v4/scripts/inspect_rules.py
+    - nireon_v4/scripts/smoke_run.py
+    - nireon_v4/tests/llm_subsystem/llm_test_cli.py
+    - nireon_v4/tests/llm_subsystem/simple_openai_api_test.py
+    - nireon_v4/tests/llm_subsystem/test_payload_template.py
+    - nireon_v4/tests/reactor/test_models.py
+    - nireon_v4/tests/reactor/test_protocols.py
+    - nireon_v4/tests/reactor/test_reactor_simple_flow.py
+    - nireon_v4/tests/reactor/test_yaml_rule_loading.py
+    - nireon_v4/tests/domain/mixins/test_deterministic_rng_mixin.py
+    - nireon_v4/tests/components/mechanisms/explorer/test_explorer_service.py
+    - nireon_v4/tests/components/mechanisms/explorer/fixtures.py
+    - nireon_v4/bootstrap/tests/test_bootstrap_yaml_integration.py
+  secondary_files:
+    - nireon_v4/infrastructure/embeddings/mock_adapter.py
+    - nireon_v4/tests/__init__.py
+    - nireon_v4/tests/components/__init__.py
+    - nireon_v4/tests/components/mechanisms/__init__.py
+    - nireon_v4/tests/components/mechanisms/explorer/__init__.py
+    - nireon_v4/tests/domain/__init__.py
+    - nireon_v4/tests/domain/mixins/__init__.py
+    - nireon_v4/tests/llm_subsystem/__init__.py
+    - nireon_v4/tests/reactor/__init__.py
+  test_files: []
+  depends_on:
+    - "*"
+  llm_guidance: null

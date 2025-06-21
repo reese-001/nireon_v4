@@ -1,11 +1,13 @@
-# nireon_v4\configs\manifests\standard.yaml
+# nireon_v4/configs/manifests/standard.yaml
+# --- THIS IS THE COMPLETE, CORRECTED FILE ---
+
 version: '1.0'
 metadata:
-  name: NireonV4 Standard Setup for Explorer Test
-  description: Manifest to bootstrap core services and Explorer for testing Gateway magic.
+  name: NireonV4 Standard Setup with Math Agent
+  description: Manifest to bootstrap core services, Explorer, and the new Principia Math Agent.
   author: NIREON Team
   created_at: '2025-06-05T10:00:00Z'
-  updated_at: '2025-06-07T12:00:00Z'
+  updated_at: '2025-06-08T14:00:00Z'
 
 shared_services:
   llm_router_main:
@@ -16,10 +18,8 @@ shared_services:
     metadata_definition: infrastructure.llm.router:LLM_ROUTER_METADATA
     config:
       id: llm_router_main
-      # CORRECTED: The default route is named 'default'.
       default: default 
       routes:
-        # This defines the route named 'default' and maps it to the 'nano_default' model.
         default: nano_default 
         chat_fast: nano_default
         research: nano_default
@@ -61,29 +61,7 @@ shared_services:
           provider: mock
           backend: infrastructure.llm.mock_llm:MockLLM
           timeout: 5
-        openai_gpt4_specific:
-          provider: openai
-          backend: infrastructure.llm.generic_http:GenericHttpLLM
-          method: POST
-          base_url: https://api.openai.com/v1
-          endpoint: /chat/completions
-          auth_style: bearer
-          auth_token_env: OPENAI_API_KEY
-          timeout: 120
-          model_name_for_api: gpt-4o-mini
-          payload_template: |
-            {
-              "model": "{{ model_name_for_api }}",
-              "messages": [
-                {"role": "system", "content": "{{ system_prompt }}"},
-                {"role": "user",   "content": "{{ prompt }}"}
-              ],
-              "temperature": {{ temperature }},
-              "top_p": {{ top_p }},
-              "max_tokens": {{ max_tokens }}
-            }
-          response_text_path: $.choices[0].message.content
-
+          
   EmbeddingPort:
     enabled: true
     preload: true
@@ -105,23 +83,6 @@ shared_services:
       similarity_metric: cosine
       capacity: 100000
 
-  embedding_service_main:
-    enabled: true
-    preload: true
-    class: application.services.embedding_service:EmbeddingService
-    metadata_definition: application.services.embedding_service:EMBEDDING_SERVICE_METADATA
-    config:
-      provider: sentence_transformers
-      embedding_port_id: EmbeddingPort
-      vector_memory_ref: vector_memory_inmemory # Use the new in-memory store
-      novelty_threshold: 0.75
-      cache_size: 1000
-
-  EventBusPort:
-    enabled: true
-    preload: true
-    class: infrastructure.event_bus.memory_event_bus:MemoryEventBus
-
   IdeaRepositoryPort:
     enabled: true
     preload: true
@@ -133,14 +94,38 @@ shared_services:
       enable_wal_mode: true
       timeout: 30.0
 
+  math_port_sympy:
+    enabled: true
+    preload: true
+    class: infrastructure.math.sympy_adapter:SymPyAdapter
+    port_type: domain.ports.math_port:MathPort
+    config: {}
+
+  embedding_service_main:
+    enabled: true
+    preload: true
+    class: application.services.embedding_service:EmbeddingService
+    metadata_definition: application.services.embedding_service:EMBEDDING_SERVICE_METADATA
+    config:
+      provider: sentence_transformers
+      embedding_port_id: EmbeddingPort
+      vector_memory_ref: vector_memory_inmemory
+      novelty_threshold: 0.75
+      cache_size: 1000
+      
+  EventBusPort:
+    enabled: true
+    preload: true
+    class: infrastructure.event_bus.memory_event_bus:MemoryEventBus
+
   IdeaService:
     enabled: true
     preload: true
     class: application.services.idea_service:IdeaService
     metadata_definition: application.services.idea_service:IDEA_SERVICE_METADATA
     config:
-      repository_port_id: IdeaRepositoryPort    # ← injects the repo
-      event_bus_port_id: EventBusPort           # ← optional but useful
+      repository_port_id: IdeaRepositoryPort
+      event_bus_port_id: EventBusPort
 
   parameter_service_global:
     enabled: true
@@ -171,6 +156,7 @@ shared_services:
         llm_calls: 10.0
         event_publishes: 100.0
         embedding_calls: 50.0
+        math_calls: 15.0
 
   mechanism_gateway:
     enabled: true
@@ -198,7 +184,7 @@ mechanisms:
   sentinel_instance_01:
     enabled: true
     class: components.mechanisms.sentinel.service:SentinelMechanism
-    metadata_definition: components.mechanisms.sentinel.metadata.SENTINEL_METADATA
+    metadata_definition: components.mechanisms.sentinel.metadata:SENTINEL_METADATA
     metadata_override:
       epistemic_tags: ['evaluator', 'quality_control', 'gatekeeper']
     config: configs/default/mechanisms/{id}.yaml
@@ -217,6 +203,14 @@ mechanisms:
       blend_high: 0.4
       anti_constraints_enabled: true
       duplication_check_enabled: true
+
+  # CORRECTED PATH: Points to the new 'math_agents' sub-directory
+  principia_agent_primary:
+    enabled: true
+    class: components.mechanisms.math_agents.principia_agent:PrincipiaAgent
+    metadata_definition: components.mechanisms.math_agents.principia_agent:PRINCIPIA_METADATA
+    config_override:
+      max_compute_seconds: 10
 
 observers: {}
 managers: {}
@@ -238,7 +232,8 @@ orchestration_commands:
         - FRAME_CREATION_REQUEST
         - FRAME_UPDATE_REQUEST
         - NOVELTY_CHECK      
-        - EMBEDDING_REQUEST 
+        - EMBEDDING_REQUEST
+        - MATH_QUERY_SIGNAL
 
 environment_overrides:
   development:

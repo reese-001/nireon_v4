@@ -41,32 +41,30 @@ llm:
       base_url: "https://api.anthropic.com/v1"
       default_model: "claude-3-sonnet"
       
-  # Route definitions - CRITICAL: Add EXPLORATION stage support
+  # Route definitions
   routes:
     # Default catch-all route - MUST BE FIRST or have lowest priority
     - id: "default_route"
       name: "Default Fallback Route"
-      stages: ["*"]  # Matches ALL stages including EXPLORATION
+      stages: ["*"]  # Matches ALL stages
       roles: ["*"]   # Matches ALL roles
       model: "gpt-4o-mini"
       temperature: 0.7
       max_tokens: 1000
       priority: 0    # Lowest priority so it's used as fallback
       
-    # Explorer-specific route with higher priority
     - id: "exploration_route"
       name: "Exploration Route"
-      stages: ["EXPLORATION", "exploration", "Exploration"]  # Handle case variations
+      stages: ["EXPLORATION", "exploration", "Exploration"]
       roles: ["idea_generator", "explorer", "*"]
       model: "gpt-4o-mini"
-      temperature: 0.8  # Slightly higher for creativity
+      temperature: 0.8
       max_tokens: 1500
       top_p: 0.95
       frequency_penalty: 0.3
       presence_penalty: 0.3
-      priority: 10  # Higher priority than default
+      priority: 10
       
-    # Add the existing stages that your system uses
     - id: "ideation_route"
       name: "Ideation Route"  
       stages: ["IDEATION", "ideation", "Ideation"]
@@ -79,18 +77,18 @@ llm:
     - id: "synthesis_route"
       name: "Synthesis Route"
       stages: ["SYNTHESIS", "synthesis", "Synthesis"]  
-      roles: ["synthesizer", "*"]
-      model: "gpt-4o"  # Use more powerful model for synthesis
+      roles: ["synthesizer", "*", "math_explainer"] # Added role for PrincipiaAgent
+      model: "gpt-4o"
       temperature: 0.6
       max_tokens: 3000
       priority: 5
       
     - id: "evaluation_route"
       name: "Evaluation Route"
-      stages: ["EVALUATION", "evaluation", "Evaluation"]
-      roles: ["evaluator", "critic", "*"]
+      stages: ["EVALUATION", "evaluation", "Evaluation", "CRITIQUE"] # Added CRITIQUE for Sentinel
+      roles: ["evaluator", "critic", "*", "sentinel_evaluator"] # Added role for Sentinel
       model: "gpt-4o-mini"
-      temperature: 0.3  # Lower temperature for more consistent evaluation
+      temperature: 0.3
       max_tokens: 1000
       priority: 5
       
@@ -103,43 +101,45 @@ llm:
       max_tokens: 1500
       priority: 5
   
-  # Parameter sets that can be referenced by routes
-  parameter_sets:
-    default:
+  # Parameter sets for the ParameterService
+  parameters:
+    defaults:
       temperature: 0.7
       max_tokens: 1000
       top_p: 1.0
       frequency_penalty: 0.0
       presence_penalty: 0.0
-      
-    exploration:
-      temperature: 0.8
-      max_tokens: 1500
-      top_p: 0.95
-      frequency_penalty: 0.3
-      presence_penalty: 0.3
-      
-    creative:
-      temperature: 0.9
-      max_tokens: 2000
-      top_p: 0.95
-      frequency_penalty: 0.5
-      presence_penalty: 0.5
-      
-    analytical:
-      temperature: 0.3
-      max_tokens: 1500
-      top_p: 0.9
-      frequency_penalty: 0.0
-      presence_penalty: 0.0
-      
-    synthesis:
-      temperature: 0.6
-      max_tokens: 3000
-      top_p: 0.9
-      frequency_penalty: 0.2
-      presence_penalty: 0.2
-  
+    by_stage:
+      exploration:
+        temperature: 0.8
+        max_tokens: 1500
+        top_p: 0.95
+        frequency_penalty: 0.3
+        presence_penalty: 0.3
+      creative:
+        temperature: 0.9
+        max_tokens: 2000
+        top_p: 0.95
+        frequency_penalty: 0.5
+        presence_penalty: 0.5
+      analytical:
+        temperature: 0.3
+        max_tokens: 1500
+        top_p: 0.9
+        frequency_penalty: 0.0
+        presence_penalty: 0.0
+      synthesis:
+        temperature: 0.6
+        max_tokens: 3000
+        top_p: 0.9
+        frequency_penalty: 0.2
+        presence_penalty: 0.2
+      critique:
+        temperature: 0.2
+        max_tokens: 1000
+        top_p: 1.0
+        frequency_penalty: 0.0
+        presence_penalty: 0.0
 
   retry:
     max_attempts: 3

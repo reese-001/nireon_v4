@@ -1,0 +1,14 @@
+[
+  {
+    "type": "differentiate",
+    "variable": "x"
+  },
+  {
+    "type": "integrate",
+    "variable": "x"
+  },
+  {
+    "type": "evaluate",
+    "at": {"x": 2}
+  }
+]

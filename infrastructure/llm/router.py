@@ -4,6 +4,7 @@ import asyncio
 import logging
 import time
 import uuid
+import os  # Added for environment variable checking
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional, Mapping, List
 from core.base_component import NireonBaseComponent
@@ -177,28 +178,56 @@ class LLMRouter(NireonBaseComponent, LLMPort):
             health = self._backend_health.get(backend_key)
             if health and (not health.is_healthy):
                 component_logger.warning(f"Backend '{backend_key}' is marked as unhealthy, attempting anyway")
+        
+        # Enhanced backend retrieval logging
         try:
+            component_logger.info(f"LLMRouter '{self.component_id}': Attempting to get backend '{backend_key}'")
             backend = await self._lazy_get_backend(backend_key)
+            component_logger.info(f"LLMRouter '{self.component_id}': Successfully got backend '{backend_key}' of type {type(backend).__name__}")
         except KeyError as e:
             component_logger.error(f"LLMRouter '{self.component_id}': Backend key '{backend_key}' (from route '{logical_route}') not found or failed to load. {e}")
             raise LLMBackendNotAvailableError(f"LLM backend '{backend_key}' not available.", details={'backend_key': backend_key}) from e
+        
         if 'route' in final_llm_params:
             del final_llm_params['route']
         if 'ce_event_id' in final_llm_params:
             del final_llm_params['ce_event_id']
+        
+        # Enhanced logging for the actual LLM call
+        component_logger.debug(f"LLMRouter '{self.component_id}': Calling backend with prompt (first 200 chars): {prompt[:200]}")
+        component_logger.debug(f"LLMRouter '{self.component_id}': LLM settings: {final_llm_params}")
+        component_logger.info(f"LLMRouter '{self.component_id}': Starting LLM call to backend '{backend_key}' for stage='{stage}', role='{role}'")
+        
         response_text = 'Error: LLM call failed.'
         error_details = None
         llm_response_obj: LLMResponse
         try:
+            # Add timeout tracking
+            call_start = time.time()
+            
+            # Log right before the actual call
+            component_logger.info(f"LLMRouter '{self.component_id}': About to call backend.call_llm_async() at {call_start}")
+            
             llm_response_obj = await backend.call_llm_async(prompt, stage=stage, role=role, context=context, settings=final_llm_params)
+            
+            call_duration = time.time() - call_start
+            component_logger.info(f"LLMRouter '{self.component_id}': LLM call completed successfully in {call_duration:.2f}s")
+            
+            # Log response details
             response_text = llm_response_obj.text
+            component_logger.debug(f"LLMRouter '{self.component_id}': Response length: {len(response_text)} chars")
+            
             if self._enable_metrics and ENHANCEMENTS_AVAILABLE:
                 duration_ms = (time.time() - start_time) * 1000
                 model_def = self._model_defs.get(backend_key)
                 record_llm_call_metrics(call_id=call_id, model=model_def.name if model_def else backend_key, provider=model_def.provider if model_def else 'unknown', stage=stage.value if isinstance(stage, EpistemicStage) else str(stage), role=role, prompt_length=len(prompt), response_length=len(response_text), duration_ms=duration_ms, success=not llm_response_obj.get('error'))
             return llm_response_obj
+        except asyncio.TimeoutError as e:
+            component_logger.error(f"LLMRouter '{self.component_id}': TIMEOUT calling backend '{backend_key}' after {time.time() - call_start:.2f}s")
+            raise
         except Exception as e:
-            component_logger.error(f"LLMRouter '{self.component_id}': Error calling backend '{backend_key}': {e}", exc_info=True)
+            call_duration = time.time() - call_start
+            component_logger.error(f"LLMRouter '{self.component_id}': Error calling backend '{backend_key}' after {call_duration:.2f}s: {type(e).__name__}: {e}", exc_info=True)
             error_details = str(e)
             if self._enable_metrics and ENHANCEMENTS_AVAILABLE:
                 duration_ms = (time.time() - start_time) * 1000
@@ -278,9 +307,35 @@ class LLMRouter(NireonBaseComponent, LLMPort):
                     raise KeyError(f"LLM model definition or route alias '{model_key}' not found.")
             if not model_def.backend_class:
                 raise ValueError(f"Backend class not defined for model '{model_def.name}'.")
-            logger.debug(f"LLMRouter '{self.component_id}': Creating backend '{model_def.name}' via factory: {model_def.backend_class}")
+            
+            # Enhanced backend configuration logging
+            logger.info(f"LLMRouter '{self.component_id}': Creating new backend for model '{model_def.name}'")
+            logger.info(f"LLMRouter '{self.component_id}': Backend class: {model_def.backend_class}")
+            logger.info(f"LLMRouter '{self.component_id}': Backend provider: {model_def.provider}")
+            
+            # Log sensitive config without exposing secrets
+            safe_config = {k: ('***' if 'key' in k.lower() or 'token' in k.lower() else v) 
+                          for k, v in model_def.kwargs.items()}
+            logger.debug(f"LLMRouter '{self.component_id}': Backend config: {safe_config}")
+            
+            # Check for API key presence
+            if model_def.provider == 'openai':
+                api_key_env = model_def.kwargs.get('auth_token_env', 'OPENAI_API_KEY')
+                has_api_key = bool(os.environ.get(api_key_env))
+                logger.info(f"LLMRouter '{self.component_id}': OpenAI API key '{api_key_env}' present: {has_api_key}")
+                if not has_api_key:
+                    logger.error(f"LLMRouter '{self.component_id}': WARNING - OpenAI API key '{api_key_env}' not found in environment!")
+            
             backend_config_for_factory = {'backend': model_def.backend_class, **model_def.kwargs}
-            base_backend = create_llm_instance(model_def.name, backend_config_for_factory)
+            
+            try:
+                logger.info(f"LLMRouter '{self.component_id}': Calling create_llm_instance...")
+                base_backend = create_llm_instance(model_def.name, backend_config_for_factory)
+                logger.info(f"LLMRouter '{self.component_id}': Successfully created backend instance of type {type(base_backend).__name__}")
+            except Exception as e:
+                logger.error(f"LLMRouter '{self.component_id}': Failed to create backend: {type(e).__name__}: {e}", exc_info=True)
+                raise
+                
             if self._enable_circuit_breakers and ENHANCEMENTS_AVAILABLE:
                 circuit_breaker = CircuitBreaker(**model_def.circuit_breaker_config)
                 protected_backend = CircuitBreakerLLMAdapter(base_backend, {})

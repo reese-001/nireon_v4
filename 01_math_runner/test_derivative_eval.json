@@ -1,0 +1,10 @@
+[
+  {
+    "type": "differentiate",
+    "variable": "x"
+  },
+  {
+    "type": "evaluate",
+    "at": {"x": 1}
+  }
+]
