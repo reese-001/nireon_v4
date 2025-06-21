@@ -1,0 +1,36 @@
+schema_version: proto/1.0
+id: proto_math_plot_sine_wave
+eidos: math
+description: "Generates and saves a plot of a sine wave."
+objective: "Visualize the sine function over one period."
+function_name: plot_sine_wave
+inputs:
+  output_filename: "sine_wave.png"
+code: |
+  import numpy as np
+  import matplotlib.pyplot as plt
+  def plot_sine_wave(output_filename: str):
+      x = np.linspace(0, 2 * np.pi, 400)
+      y = np.sin(x)
+      plt.figure(figsize=(10, 6))
+      plt.plot(x, y)
+      plt.title("Sine Wave from 0 to 2*pi")
+      plt.xlabel("Angle [rad]")
+      plt.ylabel("sin(x)")
+      plt.grid(True)
+      plt.savefig(output_filename)
+      plt.close() # Important to free memory
+      return {
+          "status": "success",
+          "message": f"Plot saved to {output_filename}",
+          "data_points": len(x)
+      }
+requirements:
+  - numpy
+  - matplotlib
+limits:
+  timeout_sec: 15
+  memory_mb: 256
+  allowed_imports:
+    - numpy
+    - matplotlib.pyplot

@@ -4,7 +4,7 @@
 
 NIREON V4 operates on two complementary execution planes:
 - **Mechanism Plane**: The existing MechanismGateway handles in-process components (Explorer, Catalyst, etc.) for static, trusted operations
-- **Proto Plane**: The new ProtoEngine introduces out-of-process execution for dynamic, declarative tasks requiring isolation and security boundaries
+- **Proto Plane**: The new ProtoEngine introduces out-of-process, sandboxed execution for dynamic, declarative tasks requiring high security and isolation
 
 This guide focuses on implementing the Proto Plane while maintaining clean integration with the existing Mechanism infrastructure.
 
@@ -16,33 +16,118 @@ This engine is **domain-agnostic** — it is not a math engine, proof engine, or
 
 ### What It Does
 
-- Accepts Proto YAML (structured declarations of task, input, limits, intent)
+- Accepts ProtoBlock YAML (structured declarations of task, input, limits, intent)
 - Validates the block against schema and security rules
-- Generates executable code (e.g., Python) via templates or LLMs
-- Executes the code inside a Docker container with resource limits
+- Executes the code inside a secure Docker container with resource limits derived from the active NIREON Frame
 - Emits structured result output, including artifacts if applicable
 
 ### Naming Clarification
 
 - `ProtoBlock`: A raw declarative unit (YAML) before typing
-- `ProtoEngine`: The container executor for Proto blocks
+- `ProtoGenerator`: An LLM-powered component that translates natural language into a ProtoBlock
+- `ProtoGateway`: A component that routes ProtoTaskSignals to the correct engine based on the `eidos` dialect
+- `ProtoEngine`: The NIREON component responsible for orchestrating the execution of a ProtoBlock in a sandboxed environment (e.g., a Docker container)
 - `ProtoResultSignal`: The response from container execution
 - `eidos`: Dialect label for the Proto, e.g. `math`, `graph`, `simulation`
 
 ### Example Dialect Specializations
 
-| Dialect (`eidos`) | Container Name | Entry Class |
-|------------------|----------------|-------------|
-| `math` | `nireon-proto-math-runner` | `ProtoMathEngine` |
-| `graph` | `nireon-proto-graph-runner` | `ProtoGraphEngine` |
-| `simulate` | `nireon-proto-sim-runner` | `ProtoSimEngine` |
+| Dialect (`eidos`) | Orchestrating Component | Docker Image Name |
+|------------------|-------------------------|-------------------|
+| `math` | `proto_engine_math` | `nireon-proto-math-runner` |
+| `graph` | `proto_engine_graph` | `nireon-proto-graph-runner` |
+| `simulate` | `proto_engine_simulate` | `nireon-proto-sim-runner` |
 
-This pattern is extensible and declarative. New Proto engines can be added by plugging in validators, code generators, and Docker images — no changes to the core system required.
+This pattern is extensible and declarative. New Proto engines can be added by plugging in validators and Docker images — no changes to the core system required.
+
+## Phase 0: Prerequisite NIREON Subsystems (Frame & Budget)
+
+The ProtoEngine relies heavily on two existing NIREON subsystems for context and resource management.
+
+### FrameFactoryService (Policy & Context Layer)
+
+This service manages the "rules of engagement" for any given task by creating Frame objects. Its key functions are:
+
+- `create_frame()`: Instantiates a new, scoped context for a task, defining its `epistemic_goals`, `llm_policy`, and `resource_budget`
+- `spawn_sub_frame()`: Creates a child task that inherits context from a parent, crucial for multi-step reasoning
+- `get_frame_by_id()`: Retrieves the policy context for a given task ID, allowing the ProtoEngine to look up the rules for the task it's executing
+- `update_frame_status()`: Manages the lifecycle of a task (active, completed_ok, error, etc.)
+
+### BudgetManager (Resource Accounting & Enforcement Layer)
+
+This service ensures that the resource policies defined in a Frame are enforced.
+
+- `initialize_frame_budget()`: Loads the resource limits from a Frame into the active budget pool
+- `consume_resource_or_raise()`: The core enforcement function. The ProtoEngine must call this before launching an external process to decrement the budget for resources like `proto_cpu_seconds` or `proto_executions`. If the budget is insufficient, this raises an error, preventing the task from running
 
 ## Prerequisites
-- NIREON V4 system with working ComponentRegistry, EventBus, and Reactor
-- Python 3.12+ environment with subprocess capabilities (or Docker for containerized execution)
+- NIREON V4 system with working ComponentRegistry, EventBus, Reactor, FrameFactoryService, and BudgetManager
+- Python 3.12+ environment with Docker support
+- Docker installed and running for containerized execution
 - Understanding of NIREON's signal-based architecture and Proto-based epistemic model
+
+## Docker Image Setup
+
+Before deploying the ProtoEngine with Docker execution mode, you need to build the container images for each dialect.
+
+### Base Proto Runner Image
+
+**Location:** `docker/proto-base/Dockerfile`
+
+```dockerfile
+# Use a slim, secure base image
+FROM python:3.12-slim
+
+# Security: Create a non-root user for execution
+RUN useradd -m -u 1000 protorunner
+
+# Install a small set of common, trusted packages
+RUN pip install --no-cache-dir \
+    numpy==1.26.4 \
+    pandas==2.2.2 \
+    matplotlib==3.8.4 \
+    scipy==1.13.0
+
+# Create and set permissions for the app directory
+WORKDIR /app
+RUN chown protorunner:protorunner /app
+
+# Switch to the non-root user
+USER protorunner
+
+# Default entrypoint for the container
+CMD ["python", "-I", "/app/execute.py"]
+```
+
+### Math Dialect Image
+
+**Location:** `docker/proto-math/Dockerfile`
+
+```dockerfile
+# Layer on top of the base image
+FROM nireon-proto-base:latest
+
+# Install additional math-specific packages
+RUN pip install --no-cache-dir \
+    sympy==1.12 \
+    statsmodels==0.14.1 \
+    seaborn==0.13.2
+
+# Optional: Environment variable for introspection
+ENV PROTO_DIALECT=math
+```
+
+### Build Commands
+
+```bash
+# Build the base image first
+docker build -t nireon-proto-base:latest -f docker/proto-base/Dockerfile .
+
+# Build dialect-specific images
+docker build -t nireon-proto-math:latest -f docker/proto-math/Dockerfile .
+# docker build -t nireon-proto-graph:latest -f docker/proto-graph/Dockerfile .
+# docker build -t nireon-proto-simulate:latest -f docker/proto-simulate/Dockerfile .
+```
 
 ## Implementation Phases
 
@@ -315,6 +400,7 @@ class ProtoTaskSignal(EpistemicSignal):
     proto_block: Dict[str, Any] = Field(description="The Proto block to execute")
     execution_priority: int = Field(default=5, description="Execution priority (1-10)")
     dialect: str = Field(description="Proto dialect (eidos value)")
+    context_tags: Dict[str, Any] = Field(default_factory=dict, description="Context metadata including frame_id")
 
 class ProtoResultSignal(EpistemicSignal):
     """Signal carrying execution results from any Proto dialect."""
@@ -356,8 +442,8 @@ from pathlib import Path
 class ProtoEngineConfig(BaseModel):
     """Configuration for the ProtoEngine mechanism."""
     
-    # Execution environment
-    execution_mode: str = Field(default="subprocess", description="Execution mode: subprocess or docker")
+    # Execution environment - Default to Docker for robust, cross-platform sandboxing
+    execution_mode: str = Field(default="docker", description="Execution mode: docker or subprocess")
     python_executable: str = Field(default="python", description="Python executable for subprocess mode")
     docker_image_prefix: str = Field(default="nireon-proto", description="Docker image prefix for containers")
     
@@ -417,9 +503,215 @@ class ProtoMathEngineConfig(ProtoEngineConfig):
         }
 ```
 
-### Phase 2: ProtoEngine Component (Week 2-3)
+### Phase 2: The ProtoBlock Generator (Week 2)
 
-#### 2.1 Core ProtoEngine Implementation
+This component is the human-to-machine interface for the ProtoPlane.
+
+**Location:** `nireon_v4/proto_generator/service.py`
+
+```python
+from typing import Dict, Any, List
+import yaml
+import json
+
+from nireon_v4.application.components.base import NireonBaseComponent
+from nireon_v4.application.context import ExecutionContext
+from nireon_v4.application.components.lifecycle import ProcessResult
+from nireon_v4.signals.core import ProtoTaskSignal
+from nireon_v4.domain.proto.base_schema import ProtoBlock
+from nireon_v4.domain.proto.validation import get_validator_for_dialect
+
+class ProtoGenerator(NireonBaseComponent):
+    """
+    Generates Proto blocks from natural language requests using LLM.
+    
+    This component can generate Proto blocks for any supported dialect,
+    making it the entry point for declarative task specification.
+    """
+    
+    PROTO_GENERATION_PROMPT = """
+You are a Proto block generator for the NIREON ProtoEngine system.
+Generate executable Proto blocks based on the user's request.
+
+Proto blocks are declarative specifications that get executed in secure containers.
+The 'eidos' field determines the dialect and execution environment.
+
+Available dialects:
+- math: Mathematical computations, plotting, numerical analysis
+- graph: Network analysis, graph algorithms, visualization
+- simulate: Discrete event simulation, Monte Carlo methods
+
+Proto Block Schema:
+```yaml
+schema_version: proto/1.0
+eidos: {dialect}
+id: UNIQUE_ID_HERE
+description: "Brief description"
+objective: "What this analysis achieves"
+function_name: main_function
+inputs:
+  param1: value1
+  param2: value2
+code: |
+  # Import statements based on dialect
+  
+  def main_function(param1, param2):
+      # Your implementation here
+      return result
+
+requirements: []  # Optional: additional packages needed
+limits:
+  timeout_sec: 10
+  memory_mb: 256
+```
+
+Dialect-specific guidelines:
+- math: Use numpy, scipy, matplotlib. Can include equation_latex field.
+- graph: Use networkx for graph operations. Return graph metrics or visualizations.
+- simulate: Use simpy or custom logic. Return simulation results.
+
+User Request: {user_request}
+Suggested Dialect: {suggested_dialect}
+
+Generate a complete Proto block:
+"""
+
+    def __init__(self, instance_id: str, config: Dict[str, Any], **kwargs):
+        super().__init__(instance_id, config, **kwargs)
+        self.supported_dialects = config.get('supported_dialects', ['math', 'graph', 'simulate'])
+        self.default_dialect = config.get('default_dialect', 'math')
+    
+    async def process(self, data: Any, context: ExecutionContext) -> ProcessResult:
+        """Generate Proto block from natural language request."""
+        
+        try:
+            user_request = data.get('natural_language_request', '')
+            suggested_dialect = data.get('dialect', self._infer_dialect(user_request))
+            
+            # IMPORTANT: Capture the frame_id from the context of the incoming request
+            originating_frame_id = context.metadata.get('frame_id')
+            
+            if not user_request:
+                return ProcessResult(
+                    success=False,
+                    message="No natural language request provided",
+                    component_id=self.instance_id
+                )
+            
+            # Get LLM service
+            llm_service = context.component_registry.get_service_instance("llm_router")
+            if not llm_service:
+                return ProcessResult(
+                    success=False,
+                    message="LLM service not available",
+                    component_id=self.instance_id
+                )
+            
+            # Generate Proto block
+            prompt = self.PROTO_GENERATION_PROMPT.format(
+                dialect=suggested_dialect,
+                user_request=user_request,
+                suggested_dialect=suggested_dialect
+            )
+            
+            llm_response = await llm_service.call_llm_async(
+                prompt=prompt,
+                temperature=0.3,  # Lower temperature for more consistent code
+                max_tokens=2000
+            )
+            
+            # Parse YAML response
+            try:
+                proto_data = yaml.safe_load(llm_response.text)
+            except yaml.YAMLError as e:
+                return ProcessResult(
+                    success=False,
+                    message=f"Failed to parse LLM response as YAML: {e}",
+                    component_id=self.instance_id
+                )
+            
+            # Type expansion and validation
+            typed_proto = self._expand_proto_type(proto_data, suggested_dialect)
+            if isinstance(typed_proto, str):  # Error message
+                return ProcessResult(
+                    success=False,
+                    message=typed_proto,
+                    component_id=self.instance_id
+                )
+            
+            # Validate generated Proto block
+            validator = get_validator_for_dialect(suggested_dialect)
+            validation_errors = validator.validate(typed_proto)
+            
+            if validation_errors:
+                return ProcessResult(
+                    success=False,
+                    message=f"Generated Proto block failed validation: {'; '.join(validation_errors)}",
+                    component_id=self.instance_id
+                )
+            
+            # Emit Proto task signal
+            proto_signal = ProtoTaskSignal(
+                source_node_id=self.instance_id,
+                proto_block=proto_data,
+                dialect=suggested_dialect,
+                execution_priority=5,
+                # CRITICAL: Pass the frame_id along for budget and context tracking
+                context_tags={'frame_id': originating_frame_id} if originating_frame_id else {}
+            )
+            
+            await context.event_bus.publish(proto_signal.signal_type, proto_signal.dict())
+            
+            return ProcessResult(
+                success=True,
+                message=f"Generated and queued Proto block: {proto_data['id']} (dialect: {suggested_dialect})",
+                component_id=self.instance_id,
+                output_data={"proto_block": proto_data}
+            )
+            
+        except Exception as e:
+            self.logger.error(f"Error in Proto generation: {e}", exc_info=True)
+            return ProcessResult(
+                success=False,
+                message=f"Proto generation failed: {e}",
+                component_id=self.instance_id
+            )
+    
+    def _infer_dialect(self, request: str) -> str:
+        """Infer the most appropriate dialect from the request."""
+        request_lower = request.lower()
+        
+        # Simple keyword-based inference
+        if any(word in request_lower for word in ['plot', 'graph', 'visualize', 'equation', 'calculate', 'integral']):
+            return 'math'
+        elif any(word in request_lower for word in ['network', 'nodes', 'edges', 'shortest path', 'connected']):
+            return 'graph'
+        elif any(word in request_lower for word in ['simulate', 'simulation', 'monte carlo', 'random']):
+            return 'simulate'
+        
+        return self.default_dialect
+    
+    def _expand_proto_type(self, proto_data: Dict[str, Any], dialect: str) -> Union[ProtoBlock, str]:
+        """Expand raw Proto data into typed Proto based on dialect."""
+        try:
+            if dialect == 'math':
+                from nireon_v4.domain.proto.base_schema import ProtoMathBlock
+                return ProtoMathBlock(**proto_data)
+            elif dialect == 'graph':
+                from nireon_v4.domain.proto.base_schema import ProtoGraphBlock
+                return ProtoGraphBlock(**proto_data)
+            else:
+                # Generic Proto block for unknown dialects
+                return ProtoBlock(**proto_data)
+        except Exception as e:
+            return f"Proto type expansion failed for dialect '{dialect}': {e}"
+```
+
+### Phase 3: The ProtoEngine Component (Week 3-4)
+
+This phase implements the "Project Manager" component that lives inside NIREON and orchestrates the sandboxed execution.
+
+#### 3.1 ProtoGateway Implementation
 
 **Location:** `nireon_v4/proto_engine/service.py`
 
@@ -431,16 +723,17 @@ import uuid
 import json
 import shutil
 import time
-import resource
+import docker  # Add this dependency
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Type
+from typing import Dict, Any, List, Optional, Type, Union
 from concurrent.futures import ProcessPoolExecutor, TimeoutError
 from abc import ABC, abstractmethod
 
 from nireon_v4.application.components.base import NireonBaseComponent
 from nireon_v4.application.context import ExecutionContext
 from nireon_v4.application.components.lifecycle import ProcessResult, ComponentHealth
-from nireon_v4.signals.core import ProtoResultSignal, ProtoErrorSignal, MathProtoResultSignal
+from nireon_v4.application.services.budget_manager import BudgetExceededError
+from nireon_v4.signals.core import ProtoResultSignal, ProtoErrorSignal, MathProtoResultSignal, ProtoTaskSignal
 from nireon_v4.domain.proto.base_schema import ProtoBlock, ProtoMathBlock
 from nireon_v4.domain.proto.validation import get_validator_for_dialect
 
@@ -502,7 +795,8 @@ class ProtoGateway:
 
 class ProtoEngine(NireonBaseComponent):
     """
-    NIREON component for executing typed Proto blocks.
+    NIREON component for orchestrating the execution of typed Proto blocks
+    in a secure, sandboxed environment. This is the "Project Manager".
     
     This is a domain-agnostic execution engine that can handle any Proto dialect
     by routing to appropriate executors and validators.
@@ -513,6 +807,9 @@ class ProtoEngine(NireonBaseComponent):
         self.config: ProtoEngineConfig = config
         self._executors: Dict[str, Any] = {}
         self._initialize_executors()
+        # These will be injected by the system
+        self.frame_factory = None
+        self.budget_manager = None
     
     def _initialize_executors(self):
         """Initialize execution backends based on configuration."""
@@ -532,13 +829,22 @@ class ProtoEngine(NireonBaseComponent):
         Path(self.config.work_directory).mkdir(parents=True, exist_ok=True)
         Path(self.config.artifacts_directory).mkdir(parents=True, exist_ok=True)
         
-        self.logger.info(f"ProtoEngine {self.instance_id} initialized in {self.config.execution_mode} mode")
+        # Get references to Frame and Budget services during initialization
+        self.frame_factory = context.component_registry.get_service_instance("frame_factory")
+        self.budget_manager = context.component_registry.get_service_instance("budget_manager")
+        
+        if not self.frame_factory:
+            self.logger.warning("FrameFactoryService not available - budget enforcement will be skipped")
+        if not self.budget_manager:
+            self.logger.warning("BudgetManager not available - resource limits will not be enforced")
+        
+        self.logger.info(f"ProtoEngine '{self.instance_id}' initialized in {self.config.execution_mode} mode and linked to core services")
     
     async def process(self, data: Any, context: ExecutionContext) -> ProcessResult:
-        """Process a ProtoTaskSignal - performs type expansion and execution."""
+        """Process a ProtoTaskSignal - performs type expansion, budget enforcement, and execution."""
         
         try:
-            # Extract Proto block
+            # --- 1. Receive and Validate Task ---
             if isinstance(data, dict) and 'proto_block' in data:
                 proto_data = data['proto_block']
                 dialect = data.get('dialect') or proto_data.get('eidos', 'unknown')
@@ -565,7 +871,47 @@ class ProtoEngine(NireonBaseComponent):
                     component_id=self.instance_id
                 )
             
-            # Validation using dialect-specific validator
+            # --- 2. Get Frame context and Enforce Budget ---
+            # The originating frame_id should be in the signal's context_tags
+            frame_id = None
+            if hasattr(context, 'signal') and context.signal:
+                frame_id = context.signal.context_tags.get('frame_id')
+            if not frame_id:
+                frame_id = context.metadata.get('frame_id')  # Fallback
+                
+            if frame_id and self.frame_factory and self.budget_manager:
+                frame = await self.frame_factory.get_frame_by_id(context, frame_id)
+                if not frame:
+                    return ProcessResult(
+                        success=False,
+                        message=f"Frame {frame_id} not found.",
+                        component_id=self.instance_id
+                    )
+                
+                try:
+                    # Consume resources BEFORE execution
+                    timeout = typed_proto.limits.get('timeout_sec', self.config.default_timeout_sec)
+                    await self.budget_manager.consume_resource_or_raise(frame.id, 'proto_executions', 1)
+                    await self.budget_manager.consume_resource_or_raise(frame.id, 'proto_cpu_seconds', timeout)
+                except BudgetExceededError as e:
+                    await self._emit_error_signal(
+                        typed_proto.id,
+                        dialect,
+                        'budget_exceeded',
+                        str(e),
+                        context
+                    )
+                    return ProcessResult(
+                        success=False,
+                        message=f"Budget exceeded: {e}",
+                        component_id=self.instance_id
+                    )
+                except KeyError:
+                    self.logger.warning(f"No proto budget defined for frame {frame.id}. Proceeding without check.")
+            else:
+                self.logger.warning("No frame_id provided or Frame/Budget services unavailable. Proceeding without budget enforcement.")
+            
+            # --- 3. Run Validator ---
             validator = get_validator_for_dialect(dialect)
             validation_errors = validator.validate(typed_proto)
             
@@ -584,10 +930,11 @@ class ProtoEngine(NireonBaseComponent):
                     component_id=self.instance_id
                 )
             
-            # Execute the typed proto using appropriate executor
+            # --- 4. Launch Sandboxed Worker ---
             executor = self._get_executor_for_dialect(dialect)
             result = await executor.execute(typed_proto, context)
             
+            # --- 5. Process Results & Emit Signals ---
             if result['success']:
                 # Emit dialect-specific result signal
                 await self._emit_result_signal(typed_proto, result, context)
@@ -708,6 +1055,17 @@ class ProtoEngine(NireonBaseComponent):
                     message="No executors available"
                 )
             
+            # Check Docker if using Docker mode
+            if self.config.execution_mode == "docker":
+                try:
+                    docker_client = docker.from_env()
+                    docker_client.ping()
+                except Exception as e:
+                    return ComponentHealth(
+                        status="unhealthy",
+                        message=f"Docker not available: {e}"
+                    )
+            
             return ComponentHealth(
                 status="healthy",
                 message=f"ProtoEngine ready ({self.config.execution_mode} mode)"
@@ -727,6 +1085,8 @@ class ProtoEngine(NireonBaseComponent):
         await super().cleanup()
 ```
 
+#### 3.2 Executor Implementations
+
 **Location:** `nireon_v4/proto_engine/executors.py`
 
 ```python
@@ -738,8 +1098,9 @@ import json
 import time
 import shutil
 import platform
+import docker
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from concurrent.futures import ProcessPoolExecutor
 
 from nireon_v4.domain.proto.base_schema import ProtoBlock
@@ -813,23 +1174,130 @@ class DockerExecutor(ExternalExecutor):
     
     def __init__(self, config: ProtoEngineConfig):
         self.config = config
+        # Use try-except block for environments where Docker might not be installed/running
+        try:
+            self.docker_client = docker.from_env()
+            self.docker_client.ping()  # Verify connection
+        except Exception as e:
+            raise RuntimeError(f"Docker is not available or configured correctly: {e}")
     
     async def execute(self, proto: ProtoBlock, context: ExecutionContext) -> Dict[str, Any]:
         """Execute Proto in Docker container."""
         
-        # TODO: Register DockerExecutor in manifest once image 'nireon-proto-{dialect}-runner' is built
-        # Docker implementation will provide cross-platform resource limits replacing Linux-specific
-        # resource module constraints, ensuring consistent behavior across all environments.
-        # Implementation steps:
-        # 1. Select appropriate image based on proto.eidos
-        # 2. Mount code and inputs as volumes
-        # 3. Run container with resource limits
-        # 4. Capture output and artifacts
-        return {
-            "success": False,
-            "error": "Docker execution not yet implemented",
-            "error_type": "NotImplementedError"
-        }
+        image_name = f"{self.config.docker_image_prefix}-{proto.eidos}:latest"
+        
+        # Prepare workspace
+        exec_id = str(uuid.uuid4())
+        work_dir = Path(self.config.work_directory) / exec_id
+        work_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Write the execution script
+        script_content = _generate_execution_script(proto.dict(), work_dir)
+        script_path = work_dir / "execute.py"
+        script_path.write_text(script_content)
+        
+        # Write inputs separately for better isolation
+        inputs_path = work_dir / "inputs.json"
+        inputs_path.write_text(json.dumps(proto.inputs))
+        
+        # Get resource limits from the Proto block, capped by system config
+        memory_limit = min(
+            proto.limits.get('memory_mb', self.config.default_memory_mb),
+            self.config.default_memory_mb
+        )
+        timeout = proto.limits.get('timeout_sec', self.config.default_timeout_sec)
+        
+        try:
+            # Run container with strict security settings
+            container = self.docker_client.containers.run(
+                image=image_name,
+                # Pass inputs file as an argument
+                command=["python", "-I", "/app/execute.py", "/app/inputs.json"],
+                volumes={str(work_dir): {'bind': '/app', 'mode': 'rw'}},
+                mem_limit=f"{memory_limit}m",
+                nano_cpus=int(0.5 * 1e9),  # 0.5 CPU cores
+                network_mode='none',  # Disable networking for security
+                detach=True,
+                remove=False,  # Don't auto-remove so we can get logs
+                environment={
+                    'PYTHONPATH': '/app',
+                    'PROTO_EXECUTION': 'true'
+                }
+            )
+            
+            # Wait for container to finish with timeout
+            start_time = time.time()
+            exit_status = container.wait(timeout=timeout)
+            execution_time = time.time() - start_time
+            
+            # Retrieve logs
+            logs = container.logs().decode('utf-8')
+            
+            # Parse result
+            result_json = _parse_execution_output(logs)
+            
+            if result_json is None:
+                return {
+                    "success": False,
+                    "error": "No result JSON found in output",
+                    "stdout": logs,
+                    "exit_code": exit_status['StatusCode']
+                }
+            
+            # Handle artifacts
+            if result_json.get("success") and result_json.get("artifacts"):
+                result_json["artifacts"] = _move_artifacts(
+                    result_json["artifacts"], 
+                    work_dir, 
+                    self.config.artifacts_directory,
+                    exec_id
+                )
+            
+            result_json["execution_time_sec"] = execution_time
+            result_json["container_exit_code"] = exit_status['StatusCode']
+            
+            return result_json
+            
+        except docker.errors.ContainerError as e:
+            return {
+                "success": False,
+                "error": f"Container error: {e.stderr.decode() if e.stderr else str(e)}",
+                "error_type": "ContainerError"
+            }
+        except docker.errors.ImageNotFound:
+            return {
+                "success": False,
+                "error": f"Docker image not found: {image_name}. Please build the image first.",
+                "error_type": "ImageNotFound"
+            }
+        except docker.errors.APIError as e:
+            return {
+                "success": False,
+                "error": f"Docker API error: {e}",
+                "error_type": "DockerAPIError"
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "error_type": type(e).__name__
+            }
+        finally:
+            # Cleanup
+            if 'container' in locals():
+                try:
+                    container.remove(force=True)
+                except:
+                    pass
+            if self.config.cleanup_after_execution and work_dir.exists():
+                shutil.rmtree(work_dir, ignore_errors=True)
+    
+    async def cleanup(self):
+        """Cleanup Docker resources."""
+        try:
+            self.docker_client.close()
+        except:
+            pass
 
 def _execute_in_subprocess(execution_data: Dict[str, Any]) -> Dict[str, Any]:
     """Execute Proto block in isolated subprocess. Must be top-level for pickling."""
@@ -934,8 +1402,15 @@ os.chdir("{exec_dir}")
 # Execute the function
 if __name__ == "__main__":
     try:
-        # Call the main function
-        inputs = {json.dumps(proto_data['inputs'])}
+        # Read inputs file path from command line argument
+        if len(sys.argv) > 1:
+            inputs_file_path = sys.argv[1]
+            with open(inputs_file_path, 'r') as f:
+                inputs = json.load(f)
+        else:
+            # Fallback for subprocess mode
+            inputs = {json.dumps(proto_data['inputs'])}
+        
         result = {proto_data['function_name']}(**inputs)
         
         # Look for generated files
@@ -990,9 +1465,9 @@ def _move_artifacts(artifacts: List[str], exec_dir: Path, artifacts_dir: str, ex
     return final_artifacts
 ```
 
-### Phase 3: Integration & Reactor Rules (Week 3-4)
+### Phase 4: Integration & Reactor Rules (Week 4)
 
-#### 3.1 Reactor Rules for Proto Routing
+#### 4.1 Reactor Rules for Proto Routing
 
 **Location:** `config/reactor_rules/proto_engine_rules.yaml`
 
@@ -1047,9 +1522,19 @@ rules_definitions:
           signal_type: "ResourceAlert"
           payload_static:
             resource_type: "execution_timeout"
+      - type: "conditional_action"
+        condition:
+          field: "error_type"
+          operator: "eq"
+          value: "budget_exceeded"
+        action:
+          type: "emit_signal"
+          signal_type: "BudgetAlert"
+          payload_static:
+            alert_type: "proto_budget_exhausted"
 ```
 
-#### 3.2 Component Registration in Manifest
+#### 4.2 Component Registration in Manifest
 
 **Location:** `config/manifests/proto_engine.yaml`
 
@@ -1070,12 +1555,28 @@ shared_services:
     provider: "memory"
     config:
       max_history: 2000
+  
+  frame_factory:
+    class: "nireon_v4.application.services.frame_factory.FrameFactoryService"
+    config:
+      max_frames: 1000
+      default_budget:
+        proto_executions: 10
+        proto_cpu_seconds: 300
+  
+  budget_manager:
+    class: "nireon_v4.application.services.budget_manager.BudgetManager"
+    config:
+      enforce_strict: true
+      log_violations: true
 
 proto_engines:
   - id: "proto_engine_math"
     class: "nireon_v4.proto_engine.service.ProtoEngine"
+    description: "Executes math dialect Proto blocks in sandboxed containers"
     config:
-      execution_mode: "${PROTO_EXECUTION_MODE:-subprocess}"  # or "docker"
+      execution_mode: "${PROTO_EXECUTION_MODE:-docker}"  # Default to Docker
+      docker_image_prefix: "${DOCKER_IMAGE_PREFIX:-nireon-proto}"
       work_directory: "${PROTO_WORK_DIR:-runtime/proto/math/workspace}"
       artifacts_directory: "${PROTO_ARTIFACTS_DIR:-runtime/proto/math/artifacts}"
       default_timeout_sec: 15
@@ -1090,6 +1591,8 @@ proto_engines:
             - "pandas"
             - "scipy"
             - "sympy"
+            - "seaborn"
+            - "statsmodels"
           enable_latex: true
           plot_dpi: 150
 
@@ -1097,6 +1600,8 @@ proto_engines:
   # - id: "proto_engine_graph"
   #   class: "nireon_v4.proto_engine.service.ProtoEngine"
   #   config:
+  #     execution_mode: "${PROTO_EXECUTION_MODE:-docker}"
+  #     docker_image_prefix: "${DOCKER_IMAGE_PREFIX:-nireon-proto}"
   #     work_directory: "${PROTO_WORK_DIR:-runtime/proto/graph/workspace}"
   #     artifacts_directory: "${PROTO_ARTIFACTS_DIR:-runtime/proto/graph/artifacts}"
   #     dialect_configs:
@@ -1109,6 +1614,7 @@ proto_engines:
 services:
   - id: "proto_gateway_main"
     class: "nireon_v4.proto_engine.service.ProtoGateway"
+    description: "Routes Proto blocks to appropriate engines based on dialect"
     init_args:
       dialect_to_component:
         math: "proto_engine_math"
@@ -1117,6 +1623,7 @@ services:
 
   - id: "proto_generator"
     class: "nireon_v4.proto_generator.service.ProtoGenerator"
+    description: "Generates Proto blocks from natural language via LLM"
     config:
       supported_dialects:
         - "math"
@@ -1125,14 +1632,16 @@ services:
       default_dialect: "math"
 
   - id: "explorer_primary"
-    class: "Explorer"
+    class: "nireon_v4.mechanisms.explorer.Explorer"
+    description: "Primary exploration mechanism"
     config:
       max_depth: 3
       exploration_strategy: "breadth_first"
       confidence_threshold: 0.6
 
   - id: "catalyst_main" 
-    class: "Catalyst"
+    class: "nireon_v4.mechanisms.catalyst.Catalyst"
+    description: "Amplifies insights from Proto executions"
     config:
       amplification_factor: 1.5
       min_trust_score: 0.7
@@ -1146,193 +1655,7 @@ observers:
       monitor_proto_executions: true
 ```
 
-### Phase 4: LLM Integration for Proto Generation (Week 4-5)
-
-#### 4.1 Proto Generator Component
-
-**Location:** `nireon_v4/proto_generator/service.py`
-
-```python
-from typing import Dict, Any, List
-import yaml
-import json
-
-from nireon_v4.application.components.base import NireonBaseComponent
-from nireon_v4.application.context import ExecutionContext
-from nireon_v4.application.components.lifecycle import ProcessResult
-from nireon_v4.signals.core import ProtoTaskSignal
-from nireon_v4.domain.proto.base_schema import ProtoBlock
-from nireon_v4.domain.proto.validation import get_validator_for_dialect
-
-class ProtoGenerator(NireonBaseComponent):
-    """
-    Generates Proto blocks from natural language requests using LLM.
-    
-    This component can generate Proto blocks for any supported dialect,
-    making it the entry point for declarative task specification.
-    """
-    
-    PROTO_GENERATION_PROMPT = """
-You are a Proto block generator for the NIREON ProtoEngine system.
-Generate executable Proto blocks based on the user's request.
-
-Proto blocks are declarative specifications that get executed in secure containers.
-The 'eidos' field determines the dialect and execution environment.
-
-Available dialects:
-- math: Mathematical computations, plotting, numerical analysis
-- graph: Network analysis, graph algorithms, visualization
-- simulate: Discrete event simulation, Monte Carlo methods
-
-Proto Block Schema:
-```yaml
-schema_version: proto/1.0
-eidos: {dialect}
-id: UNIQUE_ID_HERE
-description: "Brief description"
-objective: "What this analysis achieves"
-function_name: main_function
-inputs:
-  param1: value1
-  param2: value2
-code: |
-  # Import statements based on dialect
-  
-  def main_function(param1, param2):
-      # Your implementation here
-      return result
-
-requirements: []  # Optional: additional packages needed
-limits:
-  timeout_sec: 10
-  memory_mb: 256
-```
-
-Dialect-specific guidelines:
-- math: Use numpy, scipy, matplotlib. Can include equation_latex field.
-- graph: Use networkx for graph operations. Return graph metrics or visualizations.
-- simulate: Use simpy or custom logic. Return simulation results.
-
-User Request: {user_request}
-Suggested Dialect: {suggested_dialect}
-
-Generate a complete Proto block:
-"""
-
-    def __init__(self, instance_id: str, config: Dict[str, Any], **kwargs):
-        super().__init__(instance_id, config, **kwargs)
-        self.supported_dialects = config.get('supported_dialects', ['math', 'graph', 'simulate'])
-        self.default_dialect = config.get('default_dialect', 'math')
-    
-    async def process(self, data: Any, context: ExecutionContext) -> ProcessResult:
-        """Generate Proto block from natural language request."""
-        
-        try:
-            user_request = data.get('natural_language_request', '')
-            suggested_dialect = data.get('dialect', self._infer_dialect(user_request))
-            
-            if not user_request:
-                return ProcessResult(
-                    success=False,
-                    message="No natural language request provided",
-                    component_id=self.instance_id
-                )
-            
-            # Get LLM service
-            llm_service = context.component_registry.get_service_instance("llm_router")
-            if not llm_service:
-                return ProcessResult(
-                    success=False,
-                    message="LLM service not available",
-                    component_id=self.instance_id
-                )
-            
-            # Generate Proto block
-            prompt = self.PROTO_GENERATION_PROMPT.format(
-                dialect=suggested_dialect,
-                user_request=user_request,
-                suggested_dialect=suggested_dialect
-            )
-            
-            llm_response = await llm_service.call_llm_async(
-                prompt=prompt,
-                temperature=0.3,  # Lower temperature for more consistent code
-                max_tokens=2000
-            )
-            
-            # Parse YAML response
-            try:
-                proto_data = yaml.safe_load(llm_response.text)
-            except yaml.YAMLError as e:
-                return ProcessResult(
-                    success=False,
-                    message=f"Failed to parse LLM response as YAML: {e}",
-                    component_id=self.instance_id
-                )
-            
-            # Validate generated Proto block
-            dialect = proto_data.get('eidos', 'unknown')
-            validator = get_validator_for_dialect(dialect)
-            
-            try:
-                proto_block = ProtoBlock(**proto_data)
-                validation_errors = validator.validate(proto_block)
-                
-                if validation_errors:
-                    return ProcessResult(
-                        success=False,
-                        message=f"Generated Proto block failed validation: {'; '.join(validation_errors)}",
-                        component_id=self.instance_id
-                    )
-                
-            except Exception as e:
-                return ProcessResult(
-                    success=False,
-                    message=f"Generated Proto block schema validation failed: {e}",
-                    component_id=self.instance_id
-                )
-            
-            # Emit Proto task signal
-            proto_signal = ProtoTaskSignal(
-                source_node_id=self.instance_id,
-                proto_block=proto_data,
-                dialect=dialect,
-                execution_priority=5
-            )
-            
-            await context.event_bus.publish(proto_signal.signal_type, proto_signal.dict())
-            
-            return ProcessResult(
-                success=True,
-                message=f"Generated and queued Proto block: {proto_block.id} (dialect: {dialect})",
-                component_id=self.instance_id,
-                output_data={"proto_block": proto_data}
-            )
-            
-        except Exception as e:
-            self.logger.error(f"Error in Proto generation: {e}", exc_info=True)
-            return ProcessResult(
-                success=False,
-                message=f"Proto generation failed: {e}",
-                component_id=self.instance_id
-            )
-    
-    def _infer_dialect(self, request: str) -> str:
-        """Infer the most appropriate dialect from the request."""
-        request_lower = request.lower()
-        
-        # Simple keyword-based inference
-        if any(word in request_lower for word in ['plot', 'graph', 'visualize', 'equation', 'calculate', 'integral']):
-            return 'math'
-        elif any(word in request_lower for word in ['network', 'nodes', 'edges', 'shortest path', 'connected']):
-            return 'graph'
-        elif any(word in request_lower for word in ['simulate', 'simulation', 'monte carlo', 'random']):
-            return 'simulate'
-        
-        return self.default_dialect
-```
-
-### Phase 5: Testing & Validation (Week 5-6)
+### Phase 5: Testing & Validation (Week 5)
 
 #### 5.1 Integration Test Suite
 
@@ -1343,6 +1666,7 @@ import pytest
 import asyncio
 import tempfile
 from pathlib import Path
+from unittest.mock import Mock, AsyncMock
 
 from nireon_v4.bootstrap import bootstrap_nireon_system
 from nireon_v4.signals.core import ProtoTaskSignal, ProtoResultSignal, MathProtoResultSignal
@@ -1356,11 +1680,24 @@ async def nireon_system():
         test_manifest = Path(temp_dir) / "test_manifest.yaml"
         test_manifest.write_text("""
 version: "1.0"
+shared_services:
+  frame_factory:
+    class: "nireon_v4.application.services.frame_factory.FrameFactoryService"
+    config:
+      default_budget:
+        proto_executions: 10
+        proto_cpu_seconds: 100
+  
+  budget_manager:
+    class: "nireon_v4.application.services.budget_manager.BudgetManager"
+    config:
+      enforce_strict: true
+
 proto_engines:
   - id: "proto_engine_test"
     class: "nireon_v4.proto_engine.service.ProtoEngine"
     config:
-      execution_mode: "subprocess"
+      execution_mode: "subprocess"  # Use subprocess for tests
       work_directory: "{temp_dir}/work"
       artifacts_directory: "{temp_dir}/artifacts"
       dialect_configs:
@@ -1379,8 +1716,8 @@ proto_engines:
         yield boot_result
 
 @pytest.mark.asyncio
-async def test_math_proto_execution(nireon_system):
-    """Test execution of a math dialect Proto block."""
+async def test_math_proto_execution_with_budget(nireon_system):
+    """Test execution of a math dialect Proto block with budget enforcement."""
     
     proto_block = ProtoMathBlock(
         id="TEST_MATH_PROTO",
@@ -1402,13 +1739,26 @@ def compute(x, n):
     proto_engine = registry.get_service_instance("proto_engine_test")
     assert proto_engine is not None
     
-    # Create execution context
+    # Create execution context with frame_id
     from nireon_v4.application.context import NireonExecutionContext
+    
+    # Create a frame for budget tracking
+    frame_factory = registry.get_service_instance("frame_factory")
+    frame = await frame_factory.create_frame(
+        context=None,
+        epistemic_goals=["test_math_computation"],
+        resource_budget={
+            "proto_executions": 5,
+            "proto_cpu_seconds": 50
+        }
+    )
+    
     context = NireonExecutionContext(
         run_id="test_run",
         component_id="test",
         component_registry=registry,
-        event_bus=registry.get_service_instance("event_bus")
+        event_bus=registry.get_service_instance("event_bus"),
+        metadata={"frame_id": frame.id}
     )
     
     # Execute
@@ -1420,6 +1770,58 @@ def compute(x, n):
     assert result.success
     assert result.output_data["success"] is True
     assert result.output_data["result"] == 31.0  # 2^0 + 2^1 + 2^2 + 2^3 + 2^4
+    
+    # Check budget was consumed
+    budget_manager = registry.get_service_instance("budget_manager")
+    remaining = budget_manager.get_remaining_budget(frame.id)
+    assert remaining["proto_executions"] == 4  # Started with 5, used 1
+    assert remaining["proto_cpu_seconds"] < 50  # Some CPU seconds consumed
+
+@pytest.mark.asyncio
+async def test_budget_exceeded_error(nireon_system):
+    """Test that Proto execution fails when budget is exceeded."""
+    
+    registry = nireon_system.registry
+    proto_engine = registry.get_service_instance("proto_engine_test")
+    
+    # Create a frame with minimal budget
+    frame_factory = registry.get_service_instance("frame_factory")
+    frame = await frame_factory.create_frame(
+        context=None,
+        epistemic_goals=["test_budget_limit"],
+        resource_budget={
+            "proto_executions": 0,  # No executions allowed
+            "proto_cpu_seconds": 0
+        }
+    )
+    
+    proto_block = ProtoBlock(
+        id="TEST_BUDGET_EXCEED",
+        eidos="generic",
+        description="Test budget enforcement",
+        objective="Should fail due to budget",
+        function_name="test",
+        code="def test(): return 'should not run'",
+        inputs={}
+    )
+    
+    from nireon_v4.application.context import NireonExecutionContext
+    context = NireonExecutionContext(
+        run_id="test_run",
+        component_id="test",
+        component_registry=registry,
+        event_bus=registry.get_service_instance("event_bus"),
+        metadata={"frame_id": frame.id}
+    )
+    
+    # Execute - should fail due to budget
+    result = await proto_engine.process(
+        {"proto_block": proto_block.dict()},
+        context
+    )
+    
+    assert not result.success
+    assert "Budget exceeded" in result.message
 
 @pytest.mark.asyncio
 async def test_dialect_routing(nireon_system):
@@ -1492,12 +1894,65 @@ def evil():
         assert any("Blocked import" in error for error in errors)
 
 @pytest.mark.asyncio
-async def test_proto_generator_dialect_inference(nireon_system):
-    """Test Proto generator can infer appropriate dialects."""
+async def test_proto_generator_integration(nireon_system):
+    """Test Proto generator can create valid Proto blocks."""
     
-    # This would test the ProtoGenerator component
-    # Implementation depends on ProtoGenerator being in the test system
-    pass
+    registry = nireon_system.registry
+    
+    # Mock LLM service
+    mock_llm = AsyncMock()
+    mock_llm.call_llm_async.return_value = Mock(text="""
+schema_version: proto/1.0
+eidos: math
+id: GENERATED_MATH_PROTO
+description: "Calculate factorial"
+objective: "Compute factorial of a number"
+function_name: factorial
+code: |
+  def factorial(n):
+      if n <= 1:
+          return 1
+      return n * factorial(n - 1)
+inputs:
+  n: 5
+limits:
+  timeout_sec: 10
+  memory_mb: 256
+""")
+    
+    # Temporarily replace LLM service
+    original_llm = registry.get_service_instance("llm_router")
+    registry._services["llm_router"] = mock_llm
+    
+    try:
+        # Create proto generator
+        from nireon_v4.proto_generator.service import ProtoGenerator
+        generator = ProtoGenerator(
+            instance_id="test_generator",
+            config={"supported_dialects": ["math"], "default_dialect": "math"}
+        )
+        
+        from nireon_v4.application.context import NireonExecutionContext
+        context = NireonExecutionContext(
+            run_id="test_run",
+            component_id="test_generator",
+            component_registry=registry,
+            event_bus=registry.get_service_instance("event_bus")
+        )
+        
+        # Generate Proto from natural language
+        result = await generator.process(
+            {"natural_language_request": "Calculate the factorial of 5"},
+            context
+        )
+        
+        assert result.success
+        assert "GENERATED_MATH_PROTO" in result.message
+        
+    finally:
+        # Restore original LLM service
+        if original_llm:
+            registry._services["llm_router"] = original_llm
 
 @pytest.mark.asyncio
 async def test_concurrent_multi_dialect_execution(nireon_system):
@@ -1547,58 +2002,40 @@ async def test_concurrent_multi_dialect_execution(nireon_system):
     assert all(r.success for r in results)
     assert results[0].output_data["result"] == 42
     assert results[1].output_data["result"] == 5
-```
 
-## Deployment Checklist
-
-### Pre-Deployment Validation
-- [ ] All unit tests pass for core ProtoEngine
-- [ ] Dialect-specific validators are implemented and tested
-- [ ] Security validation works across all dialects
-- [ ] Subprocess/Docker executors function correctly
-- [ ] Proto schema validation works for all dialects
-- [ ] File system permissions are correctly set
-- [ ] Event bus integration functions correctly
-
-### Production Configuration
-- [ ] Configure execution mode (subprocess vs Docker)
-- [ ] Set appropriate timeout limits per dialect
-- [ ] Configure memory limits per dialect
-- [ ] Set up dialect-specific Docker images (if using Docker mode)
-- [ ] Configure artifact cleanup policies
-- [ ] Set up monitoring and alerting
-- [ ] Configure rate limiting per dialect if needed
-
-### Adding New Dialects
-1. Define ProtoBlock subclass in `base_schema.py`
-2. Implement dialect-specific validator in `validation.py`
-3. Register validator in `DIALECT_VALIDATORS`
-4. Add dialect configuration to manifests
-5. Register new dialect in ProtoGateway map
-6. (Optional) Create specialized executor
-7. (Optional) Create dialect-specific result signal
-8. Update ProtoGenerator prompt with dialect guidelines
-
-### Monitoring & Maintenance
-- [ ] Monitor execution times per dialect
-- [ ] Track success/failure rates by dialect
-- [ ] Monitor resource usage patterns
-- [ ] Set up alerts for security violations
-- [ ] Regular cleanup of old artifacts
-- [ ] Performance analysis per dialect
-- [ ] Track most-used dialects for optimization
-
-## Conclusion
-
-The ProtoEngine provides a flexible, secure, and extensible foundation for declarative task execution in NIREON V4. By treating execution as a dialect-agnostic concern, we enable:
-
-- **Easy addition of new cognitive dialects** without core system changes
-- **Consistent security and validation** across all execution types  
-- **Flexible execution backends** (subprocess, Docker, cloud functions)
-- **Clear separation** between declaration (Proto) and execution (Engine)
-- **Epistemic integration** through standardized result signals
-- **Pairs cleanly with existing MechanismGateway**, enabling dual-plane execution (static vs. dynamic)
-
-Long-term, as the Mechanism plane adopts container execution, the two gateways may converge into a single unified Cognitive Execution Gateway, providing a consistent interface for all computational tasks regardless of their execution model.
-
-This architecture positions NIREON to handle any computational task that can be expressed declaratively, from mathematical analysis to graph algorithms to simulations and beyond.
+@pytest.mark.asyncio
+async def test_docker_executor_health_check(nireon_system):
+    """Test Docker executor health check."""
+    
+    # Create a ProtoEngine with Docker mode
+    from nireon_v4.proto_engine.service import ProtoEngine
+    from nireon_v4.proto_engine.config import ProtoEngineConfig
+    
+    config = ProtoEngineConfig(
+        execution_mode="docker",
+        docker_image_prefix="nireon-proto"
+    )
+    
+    engine = ProtoEngine(
+        instance_id="docker_test",
+        config=config
+    )
+    
+    from nireon_v4.application.context import NireonExecutionContext
+    context = NireonExecutionContext(
+        run_id="test_run",
+        component_id="docker_test",
+        component_registry=nireon_system.registry,
+        event_bus=nireon_system.registry.get_service_instance("event_bus")
+    )
+    
+    # Initialize the engine
+    await engine.initialize(context)
+    
+    # Check health
+    health = await engine.health_check(context)
+    
+    # If Docker is available, should be healthy; otherwise unhealthy
+    assert health.status in ["healthy", "unhealthy"]
+    if health.status == "unhealthy":
+        assert "Docker" in health.message

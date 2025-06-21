@@ -1,0 +1,17 @@
+version: "1.0"
+rules:
+  - id: "route_proto_task_to_gateway"
+    description: "When a ProtoTaskSignal is detected, trigger the main ProtoGateway to handle it."
+    namespace: "proto_plane_routing"
+    priority: 10 # High priority to ensure tasks are routed quickly.
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "ProtoTaskSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "proto_gateway_main" # Matches the ID in the manifest.
+        # Pass the entire signal object to the gateway's process method.
+        # This gives the gateway full context about the task.
+        input_data_mapping:
+          signal: "signal"

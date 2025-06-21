@@ -1,14 +1,14 @@
-# nireon_v4/configs/manifests/standard.yaml
-# --- THIS IS THE COMPLETE, CORRECTED FILE ---
-
 version: '1.0'
 metadata:
-  name: NireonV4 Standard Setup with Math Agent
-  description: Manifest to bootstrap core services, Explorer, and the new Principia Math Agent.
+  name: NireonV4 Standard Setup with Math and Proto Engines
+  description: Manifest to bootstrap core services, mechanisms, and the new Proto-Plane.
   author: NIREON Team
   created_at: '2025-06-05T10:00:00Z'
-  updated_at: '2025-06-08T14:00:00Z'
+  updated_at: '2025-06-10T11:00:00Z'
 
+# ==============================================================================
+#  SHARED SERVICES & GATEWAYS
+# ==============================================================================
 shared_services:
   llm_router_main:
     enabled: true
@@ -18,9 +18,9 @@ shared_services:
     metadata_definition: infrastructure.llm.router:LLM_ROUTER_METADATA
     config:
       id: llm_router_main
-      default: default 
+      default: default
       routes:
-        default: nano_default 
+        default: nano_default
         chat_fast: nano_default
         research: nano_default
         analysis: nano_default
@@ -59,9 +59,9 @@ shared_services:
           response_text_path: $.choices[0].message.content
         mock_testing_model:
           provider: mock
-          backend: infrastructure.llm.mock_llm:MockLLM
+          backend: infrastructure.llm.mock_llm:MockLLM # Assumes this file will be created
           timeout: 5
-          
+
   EmbeddingPort:
     enabled: true
     preload: true
@@ -112,7 +112,7 @@ shared_services:
       vector_memory_ref: vector_memory_inmemory
       novelty_threshold: 0.75
       cache_size: 1000
-      
+
   EventBusPort:
     enabled: true
     preload: true
@@ -153,10 +153,12 @@ shared_services:
     metadata_definition: application.services.budget_manager:BUDGET_MANAGER_METADATA
     config:
       initial_budgets:
-        llm_calls: 10.0
-        event_publishes: 100.0
-        embedding_calls: 50.0
-        math_calls: 15.0
+        llm_calls: 100.0
+        event_publishes: 200.0
+        embedding_calls: 100.0
+        math_calls: 50.0
+        proto_executions: 10.0
+        proto_cpu_seconds: 300.0
 
   mechanism_gateway:
     enabled: true
@@ -166,27 +168,57 @@ shared_services:
     config_override:
       id: mechanism_gateway
 
-composites: {}
+  # --- [NEW] Proto-Plane Services ---
+  proto_gateway_main:
+    enabled: true
+    preload: false # Initialized later
+    class: proto_engine.service:ProtoGateway # This path is now correct
+    config:
+      dialect_map:
+        math: "proto_engine_math"
 
+  proto_generator_main:
+    enabled: true
+    preload: false
+    class: proto_generator.service:ProtoGenerator # This path is now correct
+    metadata_definition: proto_generator.service:PROTO_GENERATOR_METADATA
+    config:
+      supported_dialects: ["math", "graph"]
+      default_dialect: "math"
+  # --- [END NEW] ---
+
+# ==============================================================================
+#  PROTO ENGINES
+# ==============================================================================
+proto_engines:
+  # --- [NEW] Proto-Plane Engines ---
+  proto_engine_math:
+    enabled: true
+    class: proto_engine.service:ProtoEngine # This path is now correct
+    metadata_definition: proto_engine.service:PROTO_ENGINE_METADATA
+    config:
+      execution_mode: "${PROTO_EXECUTION_MODE:docker}"
+      docker_image_prefix: "${DOCKER_IMAGE_PREFIX:nireon-proto}"
+      work_directory: "${PROTO_WORK_DIR:-runtime/proto/math/workspace}"
+      artifacts_directory: "${PROTO_ARTIFACTS_DIR:-runtime/proto/math/artifacts}"
+      default_timeout_sec: 20
+      default_memory_mb: 512
+  # --- [END NEW] ---
+
+# ==============================================================================
+#  MECHANISMS
+# ==============================================================================
 mechanisms:
   explorer_instance_01:
     enabled: true
     class: components.mechanisms.explorer.service:ExplorerMechanism
     metadata_definition: components.mechanisms.explorer.service:EXPLORER_METADATA
-    metadata_override:
-      epistemic_tags: ['generator', 'mutator', 'innovator']
     config: configs/default/mechanisms/{id}.yaml
-    config_override:
-      application_rate: 0.8
-      max_depth: 10
-      exploration_strategy: depth_first
 
   sentinel_instance_01:
     enabled: true
     class: components.mechanisms.sentinel.service:SentinelMechanism
     metadata_definition: components.mechanisms.sentinel.metadata:SENTINEL_METADATA
-    metadata_override:
-      epistemic_tags: ['evaluator', 'quality_control', 'gatekeeper']
     config: configs/default/mechanisms/{id}.yaml
     config_override:
       trust_threshold: 3.5
@@ -195,16 +227,8 @@ mechanisms:
     enabled: true
     class: components.mechanisms.catalyst.service:CatalystMechanism
     metadata_definition: components.mechanisms.catalyst.metadata:CATALYST_METADATA
-    metadata_override:
-      epistemic_tags: ['synthesizer', 'cross_pollinator']
     config: configs/default/mechanisms/{id}.yaml
-    config_override:
-      application_rate: 0.5
-      blend_high: 0.4
-      anti_constraints_enabled: true
-      duplication_check_enabled: true
 
-  # CORRECTED PATH: Points to the new 'math_agents' sub-directory
   principia_agent_primary:
     enabled: true
     class: components.mechanisms.math_agents.principia_agent:PrincipiaAgent
@@ -212,33 +236,11 @@ mechanisms:
     config_override:
       max_compute_seconds: 10
 
+# ==============================================================================
+#  ORCHESTRATION & OTHER
+# ==============================================================================
+composites: {}
 observers: {}
 managers: {}
-
-orchestration_commands:
-  system_orchestrator:
-    enabled: true
-    metadata_definition: bootstrap.bootstrap_helper.metadata:create_orchestration_command_metadata
-    metadata_override:
-      id: system_orchestrator
-      name: System Test Orchestrator
-      description: A virtual component representing the test runner or external caller.
-      produces:
-        - SEED_SIGNAL
-        - EXPLORATION_REQUEST
-        - CATALYSIS_REQUEST
-        - COGNITIVE_EVENT_PUBLISH
-        - COGNITIVE_EVENT_LLM_ASK
-        - FRAME_CREATION_REQUEST
-        - FRAME_UPDATE_REQUEST
-        - NOVELTY_CHECK      
-        - EMBEDDING_REQUEST
-        - MATH_QUERY_SIGNAL
-
-environment_overrides:
-  development:
-    shared_services: {}
-  testing:
-    shared_services: {}
-  production:
-    shared_services: {}
+orchestration_commands: {}
+environment_overrides: {}

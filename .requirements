@@ -9,3 +9,4 @@ coverage
 jsonschema
 jsonpath-ng
 sympy
+docker

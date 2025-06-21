@@ -73,8 +73,8 @@ def _file_matches_keywords(file_path: Path, required_keywords: Set[str]) -> bool
         return True  # No filtering requested
     
     # Only check Python files for process comments
-    if file_path.suffix.lower() != '.py':
-        return False  # Non-Python files are excluded when keywords are specified
+    if file_path.suffix.lower() not in (".py", ".md"):
+        return False  
     
     file_keywords = _extract_process_keywords(file_path)
     
@@ -344,7 +344,7 @@ def process_and_write_files(
     for p in files_to_process:
         try:
             raw_content = _read_text(p)
-            if not raw_content.strip() and p.suffix.lower() != ".py": # Skip empty non-python files
+            if not raw_content.strip() and p.suffix.lower() not in (".py", ".md"): # Skip empty non-python files
                 print(f"ℹ️  Skipping empty file: {p.relative_to(project_root_for_headers)}")
                 continue
 
