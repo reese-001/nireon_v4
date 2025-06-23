@@ -1,14 +1,6 @@
-"""Reactor engines.
-
-`MainReactorEngine` is the default asynchronous rule‑evaluation loop; alternate
-engines can live beside it and be selected via configuration.
-
-Example
--------
->>> from reactor.engine import MainReactorEngine
-"""
+# reactor/engine/__init__.py
 from __future__ import annotations
 
-from .main import MainReactorEngine  # re‑export
+from .main import MainReactorEngine
 
-__all__ = ["MainReactorEngine"]
+__all__: list[str] = ["MainReactorEngine"]

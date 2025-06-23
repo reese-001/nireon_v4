@@ -1,3 +1,4 @@
+# nireon_v4\proto_engine\service.py
 from __future__ import annotations
 import logging
 import asyncio
@@ -35,14 +36,14 @@ class ProtoEngine(NireonBaseComponent):
     METADATA_DEFINITION = PROTO_ENGINE_METADATA
     ConfigModel = ProtoEngineConfig
 
-    def __init__(self, config: Dict[str, Any], metadata_definition: Optional[ComponentMetadata] = None, **kwargs):
+    def __init__(self, config: Dict[str, Any], metadata_definition: Optional[ComponentMetadata]=None, **kwargs):
         super().__init__(config=config, metadata_definition=metadata_definition or self.METADATA_DEFINITION)
         self.proto_engine_cfg: ProtoEngineConfig = self.ConfigModel(**self.config)
         self._executor = self._initialize_executor()
         self.frame_factory: Optional[FrameFactoryService] = None
         self.budget_manager: Optional[BudgetManagerPort] = None
         logger.info(f"ProtoEngine '{self.component_id}' created in '{self.proto_engine_cfg.execution_mode}' mode.")
-
+    
     def _initialize_executor(self):
         if self.proto_engine_cfg.execution_mode == 'docker':
             return DockerExecutor(self.proto_engine_cfg)
@@ -53,16 +54,16 @@ class ProtoEngine(NireonBaseComponent):
         self.frame_factory = context.component_registry.get_service_instance(FrameFactoryService)
         self.budget_manager = context.component_registry.get_service_instance(BudgetManagerPort)
         context.logger.info(f"ProtoEngine '{self.component_id}' linked to FrameFactory and BudgetManager.")
-
+    
     async def _process_impl(self, data: Any, context: NireonExecutionContext) -> ProcessResult:
         if not isinstance(data, dict) or 'proto_block' not in data:
             return ProcessResult(success=False, message="Invalid input: expected dict with 'proto_block'.", component_id=self.component_id)
 
         proto_data = data['proto_block']
         dialect = proto_data.get('eidos', 'unknown')
+        
         typed_proto = self._expand_proto_type(proto_data)
-
-        if isinstance(typed_proto, str): # Error message was returned
+        if isinstance(typed_proto, str):
             await self._emit_error_signal(proto_data.get('id', 'unknown'), dialect, 'validation', typed_proto, context)
             return ProcessResult(success=False, message=typed_proto, component_id=self.component_id)
 
@@ -79,16 +80,16 @@ class ProtoEngine(NireonBaseComponent):
                 return ProcessResult(success=False, message='Budget exceeded.', component_id=self.component_id)
         else:
             context.logger.warning('No frame_id or core services. Skipping budget enforcement for proto %s.', typed_proto.id)
-
+        
         result_data = await self._executor.execute(typed_proto, context)
-
+        
         if result_data.get('success'):
             await self._emit_result_signal(typed_proto, result_data, context)
             return ProcessResult(success=True, message=f'Successfully executed Proto block {typed_proto.id}', output_data=result_data, component_id=self.component_id)
         else:
             await self._emit_error_signal(typed_proto.id, dialect, 'execution', result_data.get('error', 'Unknown error'), context)
             return ProcessResult(success=False, message=f"Execution failed: {result_data.get('error')}", output_data=result_data, component_id=self.component_id)
-
+    
     def _expand_proto_type(self, proto_data: Dict[str, Any]) -> Union[AnyProtoBlock, str]:
         dialect = proto_data.get('eidos')
         if not dialect:
@@ -99,7 +100,7 @@ class ProtoEngine(NireonBaseComponent):
             return ProtoBlock(**proto_data)
         except Exception as e:
             return f"Proto type expansion failed for dialect '{dialect}': {e}"
-
+        
     async def _enforce_budget(self, proto: ProtoBlock, frame_id: str, context: NireonExecutionContext) -> bool:
         try:
             timeout = proto.limits.get('timeout_sec', self.proto_engine_cfg.default_timeout_sec)
@@ -123,7 +124,7 @@ class ProtoEngine(NireonBaseComponent):
         bus = context.event_bus
         if not bus:
             return
-
+        
         base_data = {
             'source_node_id': self.component_id,
             'proto_block_id': proto.id,
@@ -133,34 +134,30 @@ class ProtoEngine(NireonBaseComponent):
             'artifacts': result.get('artifacts', []),
             'execution_time_sec': result.get('execution_time_sec', 0.0)
         }
-
+        
         if proto.eidos == 'math' and isinstance(proto, ProtoMathBlock):
-            # --- FIX: Extract numeric result if possible, otherwise pass None ---
             raw_result = result.get('result')
             numeric_res = None
             if isinstance(raw_result, (float, int)):
                 numeric_res = float(raw_result)
             elif isinstance(raw_result, list) and all(isinstance(x, (float, int)) for x in raw_result):
-                 numeric_res = [float(x) for x in raw_result]
+                numeric_res = [float(x) for x in raw_result]
             elif isinstance(raw_result, dict) and all(isinstance(v, (float, int)) for v in raw_result.values()):
-                numeric_res = {k: float(v) for k,v in raw_result.items()}
-            # --- END OF FIX ---
+                numeric_res = {k: float(v) for k, v in raw_result.items()}
             
-            signal = MathProtoResultSignal(
-                **base_data, 
-                equation_latex=proto.equation_latex, 
-                numeric_result=numeric_res # Pass the extracted (or None) numeric result
-            )
+            signal = MathProtoResultSignal(**base_data, equation_latex=proto.equation_latex, numeric_result=numeric_res)
         else:
             signal = ProtoResultSignal(**base_data)
-
+        
+        # LOGGING: Add a log just before publishing
+        logger.info(f"[{self.component_id}] Preparing to publish signal '{signal.signal_type}' for proto_id '{signal.proto_block_id}'.")
         await asyncio.to_thread(bus.publish, signal.signal_type, signal)
-
-
+    
     async def _emit_error_signal(self, proto_id: str, dialect: str, error_type: str, msg: str, context: NireonExecutionContext):
         bus = context.event_bus
         if not bus:
             return
+        
         signal = ProtoErrorSignal(
             source_node_id=self.component_id,
             proto_block_id=proto_id,
@@ -168,8 +165,10 @@ class ProtoEngine(NireonBaseComponent):
             error_type=error_type,
             error_message=msg
         )
+        logger.info(f"[{self.component_id}] Preparing to publish error signal '{signal.signal_type}' for proto_id '{proto_id}'.")
         await asyncio.to_thread(bus.publish, signal.signal_type, signal)
 
+# ... (ProtoGateway class remains the same)
 class ProtoGateway(NireonBaseComponent):
     METADATA_DEFINITION = ComponentMetadata(
         id='proto_gateway_main',
@@ -180,7 +179,6 @@ class ProtoGateway(NireonBaseComponent):
         epistemic_tags=['router', 'gateway', 'proto_plane'],
         requires_initialize=True
     )
-
     def __init__(self, config: Dict[str, Any], metadata_definition: Optional[ComponentMetadata]=None, **kwargs):
         super().__init__(config, metadata_definition or self.METADATA_DEFINITION)
         self.dialect_map = self.config.get('dialect_map', {})
@@ -188,31 +186,38 @@ class ProtoGateway(NireonBaseComponent):
 
     async def _process_impl(self, data: Any, context: NireonExecutionContext) -> ProcessResult:
         signal: ProtoTaskSignal | None = data.get('signal')
-
+        logger.info(f"[{self.component_id}] Received process call. Data keys: {(data.keys() if isinstance(data, dict) else 'N/A')}")
+        
         if not isinstance(signal, ProtoTaskSignal):
+            logger.error(f"[{self.component_id}] Invalid data type. Expected ProtoTaskSignal in data['signal'], got {type(signal).__name__}.")
             return ProcessResult(success=False, message=f'ProtoGateway only processes ProtoTaskSignal, got {type(data).__name__}.', component_id=self.component_id)
 
         proto = signal.proto_block
         dialect = proto.get('eidos', 'unknown')
         component_id_to_trigger = self.dialect_map.get(dialect)
         
+        logger.info(f"[{self.component_id}] Routing Proto task '{proto.get('id')}' with dialect '{dialect}' to component '{component_id_to_trigger}'.")
+
         if not component_id_to_trigger:
             msg = f"No engine configured for dialect '{dialect}'."
+            logger.error(f'[{self.component_id}] {msg}')
             await self._emit_error_signal(proto.get('id', 'unknown'), dialect, 'routing_error', msg, context)
             return ProcessResult(success=False, message=msg, component_id=self.component_id)
 
         try:
             engine = context.component_registry.get(component_id_to_trigger)
             engine_context = context.with_component_scope(component_id_to_trigger)
-            
+
             if hasattr(signal, 'context_tags'):
                 frame_id = signal.context_tags.get('frame_id')
                 if frame_id:
                     engine_context = engine_context.with_metadata(current_frame_id=frame_id)
-            
+
             engine_input_payload = {'proto_block': proto, 'dialect': dialect}
-            return await engine.process(engine_input_payload, engine_context)
-            
+            logger.info(f"[{self.component_id}] Triggering engine '{component_id_to_trigger}' process method.")
+            result = await engine.process(engine_input_payload, engine_context)
+            logger.info(f"[{self.component_id}] Engine '{component_id_to_trigger}' process method returned. Success: {result.success}")
+            return result
         except Exception as e:
             msg = f"Failed to route or process task for dialect '{dialect}': {e}"
             logger.error(f'Error in ProtoGateway: {msg}', exc_info=True)
@@ -223,11 +228,5 @@ class ProtoGateway(NireonBaseComponent):
         bus = context.event_bus
         if not bus:
             return
-        signal = ProtoErrorSignal(
-            source_node_id=self.component_id,
-            proto_block_id=proto_id,
-            dialect=dialect,
-            error_type=error_type,
-            error_message=msg
-        )
+        signal = ProtoErrorSignal(source_node_id=self.component_id, proto_block_id=proto_id, dialect=dialect, error_type=error_type, error_message=msg)
         await asyncio.to_thread(bus.publish, signal.signal_type, signal.model_dump())

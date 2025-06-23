@@ -1,0 +1,36 @@
+version: "1.0"
+rules:
+  # Test 1: Does ANY TrustAssessmentSignal trigger work?
+  - id: "test_any_trust_signal"
+    description: "TEST: Trigger on ANY TrustAssessmentSignal to verify mechanism works"
+    namespace: "test"
+    priority: 1
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+    actions:
+      - type: "emit_signal"
+        signal_type: "TestSignal"
+        payload:
+          test_message: "TrustAssessmentSignal received successfully"
+          timestamp: "{{ now }}"
+
+  # Test 2: Ultra simple quantifier trigger
+  - id: "ultra_simple_quantifier"
+    description: "TEST: Trigger quantifier with no conditions except signal type"
+    namespace: "test"
+    priority: 5
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "quantifier_agent_primary"
+        input_data:
+          idea_id: "test_idea_12345"
+          idea_text: "Test business idea"
+          assessment_details: 
+            trust_score: 7.5
+            is_stable: true

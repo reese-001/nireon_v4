@@ -7,6 +7,8 @@ from pathlib import Path
 
 from .base_phase import BootstrapPhase, PhaseResult
 from runtime.utils import load_yaml_robust, import_by_path
+from bootstrap.bootstrap_helper.metadata import create_service_metadata
+from core.lifecycle import ComponentMetadata
 
 logger = logging.getLogger(__name__)
 

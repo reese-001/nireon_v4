@@ -40,6 +40,9 @@ class ProcessingHelper:
         ctx = context.with_metadata(current_frame_id=frame_id) if frame_id else context
 
         target_idea_id: str = data.get('target_idea_id') or ''
+
+        objective: str = data.get('objective')
+
         if not target_idea_id:
             return self._error("'target_idea_id' cannot be empty.", 'MISSING_TARGET_IDEA_ID')
 
@@ -53,7 +56,10 @@ class ProcessingHelper:
 
         try:
             assessment = await self.sentinel.assessment_core.perform_assessment(
-                idea_to_assess, ref_ideas, ctx
+                idea_to_assess, 
+                ref_ideas,
+                ctx,
+                objective
             )
             analysis_result, full_data = (
                 await self.sentinel._analysis_helper.prepare_analysis_result(

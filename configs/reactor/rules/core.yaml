@@ -1,4 +1,3 @@
-# nireon_v4\configs\reactor\rules\core.yaml
 version: "1.0"
 rules:
   - id: "core_seed_to_explorer_rule"
@@ -30,58 +29,32 @@ rules:
       - type: "trigger_component"
         component_id: "sentinel_instance_01"
         input_data_mapping:
-          target_idea_id: "payload.id"
-          frame_id: "payload.frame_id"
-  - id: "high_trust_recursive_exploration"
-    description: "Take a high-trust idea and feed it back into the explorer for deeper exploration."
-    namespace: "core_loop"
-    priority: 30
-    enabled: true
-    conditions:
-      - type: "signal_type_match"
-        signal_type: "TrustAssessmentSignal"
-      - type: "payload_expression"
-        expression: "payload.assessment_details.is_stable == True and payload.assessment_details.metadata.depth < 4"
-    actions:
-      # This is the existing action that continues the loop
-      - type: "trigger_component"
-        component_id: "explorer_instance_01"
-        input_data_mapping:
-          text: "payload.assessment_details.metadata.idea_text"
-          id: "payload.assessment_details.idea_id"
-          objective: "payload.assessment_details.metadata.objective"
-          metadata:
-            depth: "{{ payload.assessment_details.metadata.depth + 1 }}"
-      # This is the NEW action to unblock the test script
-      - type: "emit_signal"
-        signal_type: "GenerativeLoopFinishedSignal"
-        payload:
-          status: "completed_one_branch_and_recursing"
-          final_idea_id: "{{ payload.idea_id }}"
-          final_trust_score: "{{ payload.trust_score }}"
-          final_depth: "{{ payload.assessment_details.metadata.depth }}"
-  - id: "test_loop_finisher"
-    description: "Emits a signal to tell the test runner the generative cycle is complete."
+          target_idea_id: "signal.payload.id"
+          frame_id: "signal.payload.frame_id"
+          objective: "signal.payload.objective"
+  - id: "simple_test_loop_finisher"
+    description: "Complete the loop after trust assessment. Acts as a fallback."
     namespace: "system"
-    priority: 200 # A very low priority, runs after everything else
+    priority: 100 
     enabled: true
     conditions:
       - type: "signal_type_match"
         signal_type: "TrustAssessmentSignal"
       - type: "payload_expression"
-        expression: "payload.assessment_details.is_stable == False or (exists(payload.assessment_details.metadata.depth) and payload.assessment_details.metadata.depth >= 4)"
+        expression: "payload.is_stable == False or signal.trust_score <= 6.0"
     actions:
       - type: "emit_signal"
         signal_type: "GenerativeLoopFinishedSignal"
         payload:
           status: "completed_one_branch"
           final_idea_id: "{{ payload.idea_id }}"
-          final_trust_score: "{{ payload.trust_score }}"
-          final_depth: "{{ payload.assessment_details.metadata.depth }}"
+          final_trust_score: "{{ signal.trust_score }}"
+          final_depth: "{{ payload.assessment_details.metadata.depth | default(1) }}" 
+          reason: "assessment_complete_fallback"
   - id: "error_notification"
     description: "Log and notify on critical errors"
     namespace: "system"
-    priority: 1 # Highest priority for error handling
+    priority: 1
     enabled: true
     conditions:
       - type: "signal_type_match"

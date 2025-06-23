@@ -11,7 +11,89 @@ rules:
     actions:
       - type: "trigger_component"
         component_id: "proto_gateway_main" # Matches the ID in the manifest.
-        # Pass the entire signal object to the gateway's process method.
-        # This gives the gateway full context about the task.
         input_data_mapping:
           signal: "signal"
+
+  - id: "handle_proto_result_completion"
+    description: "Handle successful ProtoResultSignal completion by emitting a GenerativeLoopFinishedSignal."
+    namespace: "proto_plane_completion"
+    priority: 15 # Higher priority to ensure results are processed quickly
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "ProtoResultSignal"
+      - type: "payload_expression"
+        expression: "signal.success == True"
+    actions:
+      - type: "emit_signal"
+        signal_type: "GenerativeLoopFinishedSignal"
+        payload:
+          status: "proto_execution_completed"
+          final_proto_id: "{{ signal.proto_block_id }}"
+          execution_time_sec: "{{ signal.execution_time_sec }}"
+          artifacts: "{{ signal.artifacts }}"
+          result: "{{ signal.result }}"
+          reason: "proto_execution_successful"
+
+  - id: "handle_math_proto_result_completion"
+    description: "Handle successful MathProtoResultSignal completion by emitting a GenerativeLoopFinishedSignal."
+    namespace: "proto_plane_completion"
+    priority: 15 # Higher priority to ensure results are processed quickly
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "MathProtoResultSignal"
+      - type: "payload_expression"
+        expression: "signal.success == True"
+    actions:
+      - type: "emit_signal"
+        signal_type: "GenerativeLoopFinishedSignal"
+        payload:
+          status: "math_proto_execution_completed"
+          final_proto_id: "{{ signal.proto_block_id }}"
+          execution_time_sec: "{{ signal.execution_time_sec }}"
+          artifacts: "{{ signal.artifacts }}"
+          result: "{{ signal.result }}"
+          reason: "math_proto_execution_successful"
+
+  - id: "handle_proto_error"
+    description: "Handle ProtoErrorSignal by emitting appropriate completion signal."
+    namespace: "proto_plane_error_handling"
+    priority: 5 # High priority for error handling
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "ProtoErrorSignal"
+    actions:
+      - type: "emit_signal"
+        signal_type: "GenerativeLoopFinishedSignal"
+        payload:
+          status: "proto_execution_failed"
+          final_proto_id: "{{ signal.proto_block_id }}"
+          error_type: "{{ signal.error_type }}"
+          error_message: "{{ signal.error_message }}"
+          reason: "proto_execution_error"
+
+  - id: "analyze_fractal_boundary_complexity"
+    description: "When Mandelbrot boundary analysis is complete, trigger an explorer to investigate the implications of its complexity."
+    namespace: "fractal_analysis"
+    priority: 50
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "MathProtoResultSignal"
+      - type: "payload_expression"
+        expression: "exists(signal.result.boundary_stats.std_dev_iterations) and signal.proto_block_id.startswith('proto_mandelbrot')"
+    actions:
+      - type: "emit_signal"
+        signal_type: "SeedSignal"
+        payload:
+          seed_idea_id: "fractal_complexity_seed_{{ signal.proto_block_id }}"
+          text: >
+            The boundary of the Mandelbrot set exhibits extreme complexity, with a standard deviation of 
+            {{ "%.2f"|format(signal.result.boundary_stats.std_dev_iterations) }} iterations in the escape-time algorithm.
+            This fractal, self-similar nature at all scales suggests that simple rules can lead to infinitely complex outcomes.
+          metadata:
+            objective: "Explore the philosophical and computational implications of the Mandelbrot set's boundary complexity. Relate it to concepts like undecidability, chaos theory, or the limits of formal systems."
+            source_proto_id: "{{ signal.proto_block_id }}"
+            source_artifacts: "{{ signal.artifacts }}"

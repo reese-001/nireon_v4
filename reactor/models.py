@@ -1,29 +1,21 @@
-"""Typed Pydantic models for rule evaluation."""
-
+# reactor/models.py
 from __future__ import annotations
 
 from typing import Any, Dict
-from pydantic import BaseModel, Field, ConfigDict
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class RuleContext(BaseModel):
-    """Runtime context passed to rule evaluation and execution."""
-
     signal: Any
     run_id: str
     component_registry: Any
     logger: Any
-    recursion_depth: int = Field(0, description="Depth in the signal chain.")
-    rule_params: Dict[str, Any] = Field(
-        default_factory=dict, description="Arbitrary per‑rule scratch‑space."
-    )
+    recursion_depth: int = Field(0, description="Depth in the signal chain")
+    rule_params: Dict[str, Any] = Field(default_factory=dict)
 
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
-
-# ------------------------------------------------------------------ #
-# Actions
-# ------------------------------------------------------------------ #
 
 class TriggerComponentAction(BaseModel):
     component_id: str

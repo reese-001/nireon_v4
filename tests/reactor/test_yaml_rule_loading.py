@@ -23,7 +23,7 @@ try:
     from core.lifecycle import ComponentMetadata
     from reactor.loader import RuleLoader
     from reactor.engine.main import MainReactorEngine
-    from reactor.rules.core_rules import ConditionalRule
+    from reactor.core_rules import ConditionalRule
     # Updated import from our previous fix
     from signals import IdeaGeneratedSignal, EpistemicSignal
 except ImportError as e:

@@ -216,10 +216,10 @@ class InterfaceValidationPhase(BootstrapPhase):
             
             # Debug logging for frame_factory_service
             if component_id.lower() == 'frame_factory_service':
-                logger.critical(f"CRITICAL DEBUG for {component_id}: validation_data_obj is {'NOT None' if validation_data_obj else 'None'}")
+                logger.debug(f"CRITICAL DEBUG for {component_id}: validation_data_obj is {'NOT None' if validation_data_obj else 'None'}")
                 if validation_data_obj:
-                    logger.critical(f"CRITICAL DEBUG for {component_id}: validation_data_obj.original_metadata.epistemic_tags = {validation_data_obj.original_metadata.epistemic_tags}")
-                    logger.critical(f"CRITICAL DEBUG for {component_id}: actual_runtime_metadata.epistemic_tags = {metadata.epistemic_tags}")
+                    logger.debug(f"CRITICAL DEBUG for {component_id}: validation_data_obj.original_metadata.epistemic_tags = {validation_data_obj.original_metadata.epistemic_tags}")
+                    logger.debug(f"CRITICAL DEBUG for {component_id}: actual_runtime_metadata.epistemic_tags = {metadata.epistemic_tags}")
             
             # Validate the component
             if isinstance(component, NireonBaseComponent):

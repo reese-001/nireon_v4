@@ -1,3 +1,4 @@
+# nireon_v4\configs\manifests\standard.yaml
 version: '1.0'
 metadata:
   name: NireonV4 Standard Setup with Math and Proto Engines
@@ -127,6 +128,13 @@ shared_services:
       repository_port_id: IdeaRepositoryPort
       event_bus_port_id: EventBusPort
 
+  stage_evaluation_service:
+    enabled: true
+    preload: true
+    class: application.services.stage_evaluation_service:StageEvaluationService
+    metadata_definition: application.services.stage_evaluation_service:STAGE_EVALUATION_SERVICE_METADATA
+    config: {}
+
   parameter_service_global:
     enabled: true
     preload: true
@@ -168,7 +176,6 @@ shared_services:
     config_override:
       id: mechanism_gateway
 
-  # --- [NEW] Proto-Plane Services ---
   proto_gateway_main:
     enabled: true
     preload: false # Initialized later
@@ -185,13 +192,11 @@ shared_services:
     config:
       supported_dialects: ["math", "graph"]
       default_dialect: "math"
-  # --- [END NEW] ---
 
 # ==============================================================================
 #  PROTO ENGINES
 # ==============================================================================
 proto_engines:
-  # --- [NEW] Proto-Plane Engines ---
   proto_engine_math:
     enabled: true
     class: proto_engine.service:ProtoEngine # This path is now correct
@@ -203,7 +208,6 @@ proto_engines:
       artifacts_directory: "${PROTO_ARTIFACTS_DIR:-runtime/proto/math/artifacts}"
       default_timeout_sec: 20
       default_memory_mb: 512
-  # --- [END NEW] ---
 
 # ==============================================================================
 #  MECHANISMS
@@ -214,6 +218,10 @@ mechanisms:
     class: components.mechanisms.explorer.service:ExplorerMechanism
     metadata_definition: components.mechanisms.explorer.service:EXPLORER_METADATA
     config: configs/default/mechanisms/{id}.yaml
+    epistemic_tags:
+      - "generator"
+      - "mutator"
+      - "explorer"
 
   sentinel_instance_01:
     enabled: true
@@ -222,6 +230,7 @@ mechanisms:
     config: configs/default/mechanisms/{id}.yaml
     config_override:
       trust_threshold: 3.5
+      min_axis_score: 1.0
 
   catalyst_instance_01:
     enabled: true
@@ -235,6 +244,15 @@ mechanisms:
     metadata_definition: components.mechanisms.math_agents.principia_agent:PRINCIPIA_METADATA
     config_override:
       max_compute_seconds: 10
+
+  # --- [NEW] Quantifier Agent for bridging qualitative ideas to quantitative models ---
+  quantifier_agent_primary:
+    enabled: true
+    # NOTE: You will need to create this file as per the previous response
+    class: components.mechanisms.analyst_agents.quantifier_agent:QuantifierAgent
+    metadata_definition: components.mechanisms.analyst_agents.quantifier_agent:QUANTIFIER_METADATA
+    config_override: {}
+  # --- [END NEW] ---
 
 # ==============================================================================
 #  ORCHESTRATION & OTHER

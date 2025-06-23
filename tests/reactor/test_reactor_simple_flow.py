@@ -17,7 +17,7 @@ setup_path()
 from core.registry import ComponentRegistry
 from signals import SeedSignal, LoopSignal
 from reactor.engine.main import MainReactorEngine
-from reactor.rules.core_rules import SignalTypeMatchRule
+from reactor.core_rules import SignalTypeMatchRule
 from reactor.models import RuleContext
 from core.lifecycle import ComponentMetadata
 

@@ -1,152 +1,185 @@
-# process [math_engine, principia_agent]
-
+# nireon_v4\reactor\engine\main.py
 from __future__ import annotations
 import asyncio
 import logging
-from collections import deque
-from typing import List, Optional, TYPE_CHECKING, Final, Iterable
-
-from reactor.protocols import ReactorRule
-from reactor.models import RuleContext, TriggerComponentAction, EmitSignalAction, Action
-from core.registry import ComponentRegistry
+from datetime import datetime, timezone
+from typing import Any, Final, Iterable, List, Optional, TYPE_CHECKING
 from core.lifecycle import ComponentRegistryMissingError
+from core.registry import ComponentRegistry
 from domain.context import NireonExecutionContext
 from domain.ports.event_bus_port import EventBusPort
+from ..models import Action, EmitSignalAction, RuleContext, TriggerComponentAction
+from ..protocols import ReactorRule
 
 if TYPE_CHECKING:
     from signals.base import EpistemicSignal
 
 logger = logging.getLogger(__name__)
+_RECURSION_LIMIT: Final = 25
 
-_RECURSION_LIMIT: Final[int] = 25
 
 class MainReactorEngine:
-
-    def __init__(self, registry: ComponentRegistry, *, rules: Optional[Iterable[ReactorRule]] = None, max_recursion_depth: int = 10, loop: Optional[asyncio.AbstractEventLoop] = None) -> None:
+    def __init__(self, registry: ComponentRegistry, *, rules: Optional[Iterable[ReactorRule]]=None, max_recursion_depth: int=10, loop: Optional[asyncio.AbstractEventLoop]=None) -> None:
         self.registry = registry
-        self.rules: list[ReactorRule] = list(rules) if rules else []
-        self.max_recursion_depth: int = min(max_recursion_depth, _RECURSION_LIMIT)
-        self._loop = loop or asyncio.get_running_loop()
-        # FIX: Get a reference to the event bus during initialization
-        self._event_bus: Optional[EventBusPort] = None
+        # Sort rules by priority during initialization
+        self.rules: List[ReactorRule] = sorted(list(rules) if rules else [], key=lambda r: getattr(r, 'priority', 100))
+        self.max_recursion_depth = min(max_recursion_depth, _RECURSION_LIMIT)
+        self._loop = loop or asyncio.get_event_loop()
         try:
-            self._event_bus = self.registry.get_service_instance(EventBusPort)
+            self._event_bus: Optional[EventBusPort] = self.registry.get_service_instance(EventBusPort)
         except ComponentRegistryMissingError:
-            logger.warning("Reactor could not find an EventBusPort in the registry. Emitted signals will not be broadcast.")
-        
-        logger.info('MainReactorEngine ready – %d rule(s), max_depth=%d', len(self.rules), self.max_recursion_depth)
+            self._event_bus = None
+            logger.warning('Reactor could not find an EventBusPort – emitted signals will not be broadcast.')
+        logger.info('MainReactorEngine ready – %d rule(s) sorted by priority, max_depth=%d', len(self.rules), self.max_recursion_depth)
 
     def add_rule(self, rule: ReactorRule) -> None:
         self.rules.append(rule)
-        logger.debug("Rule '%s' added (total=%d)", rule.rule_id, len(self.rules))
+        self.rules.sort(key=lambda r: getattr(r, 'priority', 100))
+        logger.debug("Rule '%s' added and rules re-sorted (total=%d)", rule.rule_id, len(self.rules))
 
-    async def process_signal(self, signal: 'EpistemicSignal', *, _depth: int = 0) -> None:
+    async def process_signal(self, signal: 'EpistemicSignal', *, _depth: int=0) -> None:
+        logger.debug("REACTOR RECEIVED SIGNAL:\n%s", signal.model_dump_json(indent=2))
         if _depth >= self.max_recursion_depth:
-            logger.error('Recursion limit (%d) exceeded for signal %s – chain halted', self.max_recursion_depth, signal.signal_type)
+            logger.error('Recursion limit (%d) exceeded for signal %s', self.max_recursion_depth, signal.signal_type)
             return
 
-        run_id: str = getattr(signal, 'run_id', 'unknown_run')
-        context = RuleContext(signal=signal, run_id=run_id, component_registry=self.registry,
-                              logger=logger, recursion_depth=_depth)
+        run_id = getattr(signal, 'run_id', 'unknown_run')
+        context = RuleContext(
+            signal=signal,
+            run_id=run_id,
+            component_registry=self.registry,
+            logger=logger,
+            recursion_depth=_depth
+        )
+        logger.info('[Depth:%d] Processing signal %s from %s', _depth, signal.signal_type, signal.source_node_id)
 
-        logger.debug('[Depth:%d] Processing signal %s', _depth, signal.signal_type)
-
-        matching_actions: list[Action] = []
+        matched_actions: List[Action] = []
         for rule in self.rules:
             try:
-                if await rule.matches(signal, context):
-                    logger.info('Rule %s matched signal %s', rule.rule_id, signal.signal_type)
-                    acts = await rule.execute(signal, context)
-                    matching_actions.extend(acts)
+                # Use a helper to encapsulate matching logic and add detailed logging
+                is_match, reason = await self._evaluate_rule(rule, signal, context)
+                if is_match:
+                    logger.info("✅ Rule '%s' MATCHED signal '%s'.", rule.rule_id, signal.signal_type)
+                    actions = await rule.execute(signal, context)
+                    matched_actions.extend(actions)
                 else:
-                    logger.debug('Rule %s skipped for signal %s', rule.rule_id, signal.signal_type)
-            except Exception as exc:
-                logger.exception('Rule %s failed: %s', rule.rule_id, exc)
+                    # This debug log is invaluable for seeing why a rule didn't fire
+                    logger.debug("  Rule '%s' skipped for signal '%s'. Reason: %s", rule.rule_id, signal.signal_type, reason)
 
-        if matching_actions:
-            await self._execute_actions(matching_actions, context)
+            except Exception as exc:
+                logger.exception("Rule '%s' failed during evaluation: %s", rule.rule_id, exc)
+
+        if matched_actions:
+            logger.info("Found %d action(s) to execute from matched rules.", len(matched_actions))
+            await self._execute_actions(matched_actions, context)
         else:
-            logger.debug('No actions produced for %s', signal.signal_type)
+            logger.debug('No rules matched signal %s', signal.signal_type)
+
+    async def _evaluate_rule(self, rule: ReactorRule, signal: 'EpistemicSignal', context: 'RuleContext') -> tuple[bool, str]:
+        """Evaluates a rule against a signal, providing a reason for failure."""
+        if not hasattr(rule, 'signal_type') or signal.signal_type != rule.signal_type:
+            return False, f"Signal type mismatch (Rule wants '{getattr(rule, 'signal_type', 'N/A')}', got '{signal.signal_type}')"
+        
+        # This assumes rules now have a `conditions` attribute, which our YAML-loaded rules do.
+        if not hasattr(rule, 'conditions'):
+             # Fallback for simple rule types that don't use the condition list structure
+            if await rule.matches(signal, context):
+                return True, "Simple match successful"
+            else:
+                return False, "Simple match failed"
+
+        for i, condition in enumerate(rule.conditions):
+            cond_type = condition.get('type')
+            if cond_type == 'signal_type_match':
+                continue # Already checked this
+
+            if cond_type == 'payload_expression':
+                expression = condition.get('expression', 'False')
+                try:
+                    # Re-use the evaluation logic from ConditionalRule for consistency
+                    from ..core_rules import _substitute, _resolve_path, RELEngine
+                    rel_engine = RELEngine()
+                    # Build a rich context for the expression evaluator
+                    rel_context = {
+                        'signal': signal, 'context': context, 'payload': signal.payload,
+                        'metadata': getattr(signal, 'metadata', {}),
+                        'now': datetime.now(timezone.utc),
+                        'trust_score': getattr(signal, 'trust_score', None),
+                        'novelty_score': getattr(signal, 'novelty_score', None),
+                        # Add helper functions to the expression context
+                        'exists': lambda x: x is not None,
+                        'lower': lambda s: s.lower() if isinstance(s, str) else s
+                    }
+                    result = bool(rel_engine.evaluate(expression, rel_context))
+                    if not result:
+                        return False, f"Condition #{i+1} (expression) failed: '{expression}' evaluated to False."
+                except Exception as e:
+                    return False, f"Condition #{i+1} (expression) failed with error: {e}"
+            else:
+                return False, f"Unknown condition type '{cond_type}' in rule '{rule.rule_id}'"
+
+        return True, "All conditions met"
 
     async def _execute_actions(self, actions: List[Action], context: RuleContext) -> None:
-        for action in actions:
-            if isinstance(action, TriggerComponentAction):
-                await self._handle_trigger_component(action, context)
-            elif isinstance(action, EmitSignalAction):
-                await self._handle_emit_signal(action, context)
+        for act in actions:
+            if isinstance(act, TriggerComponentAction):
+                await self._handle_trigger_component(act, context)
+            elif isinstance(act, EmitSignalAction):
+                await self._handle_emit_signal(act, context)
             else:
-                logger.warning('Unknown Action type: %s', type(action).__name__)
+                logger.warning('Unknown Action type: %s', type(act).__name__)
 
     async def _handle_trigger_component(self, action: TriggerComponentAction, context: RuleContext) -> None:
-        component_id_to_trigger = action.component_id
-        logger.info('Rule requests triggering component %s (template=%s)', component_id_to_trigger, action.template_id)
-        component = None
+        comp_id = action.component_id
+        logger.info('Triggering component %s (template=%s)', comp_id, action.template_id)
         try:
-            component = self.registry.get(component_id_to_trigger)
-        except ComponentRegistryMissingError as e:
-            logger.warning("Component '%s' not found. Attempting to resolve common aliases.", component_id_to_trigger)
-            potential_aliases = []
-            if component_id_to_trigger.endswith("_primary") or component_id_to_trigger.endswith("_main") or component_id_to_trigger.endswith("_default"):
-                 potential_aliases.append(component_id_to_trigger.rsplit('_', 1)[0])
+            component = self.registry.get(comp_id)
+        except ComponentRegistryMissingError as exc:
+            logger.error("Component '%s' not found: %s", comp_id, exc)
+            return
+        if not callable(getattr(component, 'process', None)):
+            logger.error("Component %s lacks an async 'process' method", comp_id)
+            return
 
-            for alias in potential_aliases:
-                try:
-                    component = self.registry.get(alias)
-                    if component:
-                        logger.info("ALIAS RESOLVED: Found component '%s' for rule target '%s'. Proceeding.", alias, component_id_to_trigger)
-                        component_id_to_trigger = alias
-                        break
-                except ComponentRegistryMissingError:
-                    continue
-            
-            if not component:
-                logger.error("TriggerComponentAction failed: %s", e, exc_info=True)
-                return
+        exec_ctx = NireonExecutionContext(
+            run_id=context.run_id,
+            component_id=comp_id,
+            component_registry=self.registry,
+            event_bus=self._event_bus,
+            logger=context.logger,
+            metadata={
+                'source_rule_id': context.signal.signal_id,
+                'triggering_signal_type': context.signal.signal_type
+            }
+        )
+
+        kwargs = {
+            'data': action.input_data,
+            'context': exec_ctx,
+        }
+        if action.template_id:
+            kwargs['template_id'] = action.template_id
 
         try:
-            if component is None:
-                raise ComponentRegistryMissingError(component_id_to_trigger)
-
-            if not callable(getattr(component, 'process', None)):
-                raise AttributeError(f"Component {component_id_to_trigger!r} lacks a 'process' coroutine")
-
-            exec_context = NireonExecutionContext(
-                run_id=context.run_id,
-                component_id=component_id_to_trigger,
-                component_registry=self.registry,
-                event_bus=self.registry.get_service_instance(EventBusPort),
-                logger=context.logger,
-                metadata={'source_rule_id': context.signal.source_node_id, 'triggering_signal_type': context.signal.signal_type}
-            )
-
-            kwargs = {'data': action.input_data, 'context': exec_context}
-            if action.template_id:
-                kwargs['template_id'] = action.template_id
-
             await component.process(**kwargs)
-
         except Exception as exc:
             logger.exception('TriggerComponentAction failed: %s', exc)
 
     async def _handle_emit_signal(self, action: EmitSignalAction, context: RuleContext) -> None:
-        logger.info('Emitting signal %s (depth=%d)', action.signal_type, context.recursion_depth + 1)
-        try:
-            from signals.base import EpistemicSignal
-            new_signal = EpistemicSignal(
-                signal_type=action.signal_type,
-                source_node_id=action.source_node_id_override or context.signal.source_node_id,
-                payload=action.payload
-            )
-            
-            # FIX: Publish the signal to the external event bus so listeners (like the test runner) can hear it.
-            if self._event_bus:
-                logger.debug(f"Publishing emitted signal '{new_signal.signal_type}' to external event bus.")
-                self._event_bus.publish(new_signal.signal_type, new_signal)
-            else:
-                logger.warning(f"Cannot publish emitted signal '{new_signal.signal_type}' externally: event bus not available.")
+        logger.info('Emitting signal %s (depth %d)', action.signal_type, context.recursion_depth + 1)
+        from signals.base import EpistemicSignal
+        # Reconstruct the signal properly
+        new_sig = EpistemicSignal(
+            signal_type=action.signal_type,
+            source_node_id=action.source_node_id_override or context.signal.source_node_id,
+            payload=action.payload
+        )
 
-            # Also process it internally for chaining rules.
-            await self.process_signal(new_signal, _depth=context.recursion_depth + 1)
+        if self._event_bus:
+            # The event bus expects a dict payload, not the Pydantic model itself
+            self._event_bus.publish(new_sig.signal_type, new_sig.model_dump(mode='json'))
+        else:
+            logger.debug('Event bus unavailable – signal not broadcast externally')
 
-        except Exception as exc:
-            logger.exception('EmitSignalAction failed: %s', exc)
+        # Recurse into the reactor with the new signal
+        await self.process_signal(new_sig, _depth=context.recursion_depth + 1)
