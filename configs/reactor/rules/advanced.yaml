@@ -64,6 +64,7 @@ rules:
           component_id: "{{ signal.source_node_id }}"
           cooldown_seconds: 60
 
+# In configs/reactor/rules/advanced.yaml, update the route_business_idea_to_quantifier_fixed rule:
   - id: "route_business_idea_to_quantifier_fixed"
     description: "When a high-trust idea about business or finance is stable, send it to the QuantifierAgent for modeling."
     namespace: "synthesis_loop"
@@ -75,10 +76,11 @@ rules:
       - type: "payload_expression"
         expression: >
           payload.is_stable == True and
+          payload.trust_score != None and
           payload.trust_score > 6.0 and
           (
             (exists(payload.idea_text) and 
-             ('tariff' in lower(payload.idea_text) or 
+            ('tariff' in lower(payload.idea_text) or 
               'business' in lower(payload.idea_text) or 
               'margin' in lower(payload.idea_text) or 
               'supply chain' in lower(payload.idea_text) or
@@ -90,7 +92,7 @@ rules:
               'store' in lower(payload.idea_text)))
             or
             (exists(payload.objective) and
-             ('business' in lower(payload.objective) or
+            ('business' in lower(payload.objective) or
               'strategy' in lower(payload.objective) or
               'Best Buy' in payload.objective))
           )

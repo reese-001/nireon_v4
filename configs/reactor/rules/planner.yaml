@@ -1,0 +1,136 @@
+# C:\Users\erees\Documents\development\nireon_v4\configs\reactor\rules\planner.yaml
+# FIXED VERSION 2
+
+version: "1.0"
+rules:
+  # This rule now ONLY matches a SeedSignal that does NOT come from the planner.
+  # This makes it specific to the initial trigger.
+  - id: "on_seed_trigger_planner"
+    description: "When a new seed is introduced from an external source, trigger the planner."
+    namespace: "planner_loop"
+    priority: 5
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "SeedSignal"
+      - type: "payload_expression"
+        # This is the key change: ensure the signal is not from the planner itself.
+        expression: "signal.source_node_id != 'active_planner'"
+    actions:
+      - type: "emit_signal"
+        signal_type: "PlanNextStepSignal"
+        source_node_id_override: "reactor"
+        session_id: "{{ signal.run_id }}_{{ signal.signal_id }}"
+        current_idea_id: "{{ payload.seed_idea_id }}"
+        current_idea_text: "{{ payload.text }}"
+        current_trust_score: 10.0 # Seed ideas start with maximum trust.
+        current_depth: 0
+        objective: "{{ payload.objective }}"
+
+  # This rule triggers the planner component itself. No changes are needed here.
+  - id: "on_plan_next_step_trigger_planner"
+    description: "When a PlanNextStepSignal is detected, trigger the planner component to decide the next action."
+    namespace: "planner_loop"
+    priority: 8
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "PlanNextStepSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "active_planner"
+        input_data_mapping:
+          source_node_id: "signal.source_node_id"
+          session_id: "signal.session_id"
+          current_idea_id: "signal.current_idea_id"
+          current_trust_score: "signal.current_trust_score"
+          current_depth: "signal.current_depth"
+          objective: "signal.objective"
+          current_idea_text: "signal.current_idea_text"
+
+  # This rule now ONLY matches a SeedSignal that DOES come from the planner.
+  # This ensures it triggers the correct mechanism (e.g., Explorer).
+  - id: "on_planner_seed_trigger_mechanism"
+    description: "When the planner emits a SeedSignal, trigger the specified mechanism."
+    namespace: "planner_loop"
+    priority: 4
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "SeedSignal"
+      - type: "payload_expression"
+        # This is the key change: ensure the signal IS from the planner.
+        expression: "signal.source_node_id == 'active_planner'"
+    actions:
+      - type: "trigger_component"
+        component_id: "{{ payload.target_component_id }}"
+        input_data_mapping:
+          id: "{{ payload.seed_idea_id }}"
+          text: "{{ payload.text }}"
+          objective: "{{ payload.objective }}"
+          metadata: "{{ payload }}"
+
+  # This rule had a bug from the previous fix attempt. It now correctly
+  # accesses the nested metadata from the assessment object.
+  - id: "on_assessment_assemble_trace_and_plan_next"
+    description: "After an idea is assessed, assembles a trace and triggers the planner for the next step."
+    namespace: "planner_loop"
+    priority: 15
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_expression"
+        # The session_id is inside the 'metadata' dict of the assessment_details object.
+        expression: "exists(payload.assessment_details.metadata.session_id)"
+    actions:
+      - type: "emit_signal"
+        signal_type: "TraceEmittedSignal"
+        source_node_id_override: "reactor_trace_assembler"
+        trace:
+          session_id: "{{ payload.assessment_details.metadata.session_id }}"
+          parent_idea_id: "{{ payload.assessment_details.idea_parent_id }}"
+          parent_trust_score: "{{ payload.assessment_details.metadata.parent_trust_score }}"
+          parent_depth: "{{ payload.assessment_details.metadata.depth | default(0) - 1 }}"
+          planner_policy_id: "bandit_v1"
+          chosen_action: "{{ payload.assessment_details.metadata.planner_action }}"
+          chosen_mechanism_id: "{{ payload.assessment_details.metadata.target_component_id }}"
+          generated_idea_id: "{{ signal.target_id }}"
+          generated_trust_score: "{{ signal.trust_score }}"
+          duration_ms: "{{ payload.assessment_details.metadata.duration_ms | default(1000) }}"
+          llm_calls: 1
+          frame_id: "{{ signal.context_tags.frame_id }}"
+          interpreter_set: "{{ payload.assessment_details.metadata.interpreter_set | default(None) }}"
+          trace_metadata:
+            frame_variance: "{{ payload.assessment_details.metadata.frame_variance | default(0.0) }}"
+      - type: "emit_signal"
+        signal_type: "PlanNextStepSignal"
+        source_node_id_override: "reactor"
+        session_id: "{{ payload.assessment_details.metadata.session_id }}"
+        current_idea_id: "{{ signal.target_id }}"
+        current_idea_text: "{{ payload.idea_text }}"
+        current_trust_score: "{{ signal.trust_score }}"
+        current_depth: "{{ payload.assessment_details.metadata.depth }}"
+        objective: "{{ payload.assessment_details.metadata.objective }}"
+
+  # This rule remains unchanged as it is disabled.
+  - id: "planner_circuit_breaker"
+    description: "If average reward is too low, fall back to a default action."
+    namespace: "planner_safety"
+    priority: 1
+    enabled: false
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TraceEmittedSignal"
+      - type: "payload_expression"
+        expression: "context.component_registry.get('reward_monitor').get_average_reward() < -0.2"
+    actions:
+      - type: "emit_signal"
+        signal_type: "SystemAlert"
+        payload:
+          severity: "high"
+          message: "Planner circuit breaker triggered due to poor performance. Falling back to default."
+      - type: "emit_signal"
+        signal_type: "GenerativeLoopFinishedSignal"
+        payload:
+          status: "aborted_by_safety_circuit"

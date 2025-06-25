@@ -14,7 +14,6 @@ rules:
         signal_type: "TestSignal"
         payload:
           test_message: "TrustAssessmentSignal received successfully"
-          timestamp: "{{ now }}"
 
   # Test 2: Ultra simple quantifier trigger
   - id: "ultra_simple_quantifier"

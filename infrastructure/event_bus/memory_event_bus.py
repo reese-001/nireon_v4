@@ -61,12 +61,12 @@ class MemoryEventBus(EventBusPort):
             logger.debug(f"[{self.component_id}] No subscribers for '{signal_name}', publish is a no-op.")
             return
 
-        # Check if we are inside a running event loop to decide how to dispatch
+         
+        # The reconstruction logic is now handled by the subscriber if needed.
         if self._inside_running_loop():
-            # If so, create a task to avoid blocking
             asyncio.create_task(self._dispatch(signal_name, payload, handlers))
         else:
-            # Otherwise, run a new loop to completion for this dispatch
+            # For sync calls, create a new loop to run the dispatch
             asyncio.run(self._dispatch(signal_name, payload, handlers))
 
     async def _dispatch(self, signal_name: str, payload: Any, handlers: Sequence[Callable[[Any], Any | Coroutine]]) -> None:

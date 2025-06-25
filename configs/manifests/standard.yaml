@@ -178,8 +178,8 @@ shared_services:
 
   proto_gateway_main:
     enabled: true
-    preload: false # Initialized later
-    class: proto_engine.service:ProtoGateway # This path is now correct
+    preload: false 
+    class: proto_engine.service:ProtoGateway 
     config:
       dialect_map:
         math: "proto_engine_math"
@@ -187,11 +187,19 @@ shared_services:
   proto_generator_main:
     enabled: true
     preload: false
-    class: proto_generator.service:ProtoGenerator # This path is now correct
+    class: proto_generator.service:ProtoGenerator
     metadata_definition: proto_generator.service:PROTO_GENERATOR_METADATA
     config:
       supported_dialects: ["math", "graph"]
       default_dialect: "math"
+  
+  trace_sink_main:
+    enabled: true
+    preload: false
+    class: "infrastructure.sinks.trace_sink:TraceSink"
+    metadata_definition: "infrastructure.sinks.metadata:TRACE_SINK_METADATA"
+    config:
+      db_path: "runtime/training_traces.db"
 
 # ==============================================================================
 #  PROTO ENGINES
@@ -253,6 +261,23 @@ mechanisms:
     metadata_definition: components.mechanisms.analyst_agents.quantifier_agent:QUANTIFIER_METADATA
     config_override: {}
   # --- [END NEW] ---
+
+# ==============================================================================
+#  PLANNERS
+# ==============================================================================
+planners:
+  active_planner:
+    enabled: true
+    class: "components.planners.bandit_planner.service:BanditPlanner"
+    metadata_definition: "components.planners.bandit_planner.metadata:BANDIT_PLANNER_METADATA"
+    config:
+      model_path: "runtime/models/bandit_planner_v1.pkl"
+      exploration_epsilon: 1.0  # Always explore (random choice)
+      available_actions: ["EXPLORE"]  # Only allow EXPLORE action initially
+      default_action: "EXPLORE"
+      action_to_mechanism_map:
+        EXPLORE: "explorer_instance_01"
+        SYNTHESIZE: "catalyst_instance_01"
 
 # ==============================================================================
 #  ORCHESTRATION & OTHER

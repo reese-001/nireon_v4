@@ -175,6 +175,31 @@ class ManifestProcessingPhase(BootstrapPhase):
                             stats['instantiation_failures'] += 1
                             logger.error(error_msg, exc_info=True)
                 
+                # --- Planners ---
+                planners = manifest_data.get('planners', {})
+                for planner_id, planner_spec in planners.items():
+                    if planner_spec.get('enabled', True):
+                        try:
+                            # Planners can be treated like other simple components
+                            simple_comp_def = {
+                                'component_id': planner_id,
+                                'class': planner_spec.get('class'),
+                                'type': 'planner', # Important for metadata
+                                'config': planner_spec.get('config', {}),
+                                'config_override': planner_spec.get('config_override', {}),
+                                'enabled': planner_spec.get('enabled', True),
+                                'metadata_definition': planner_spec.get('metadata_definition'),
+                                'epistemic_tags': planner_spec.get('epistemic_tags', [])
+                            }
+                            await process_simple_component(simple_comp_def, context.registry, getattr(context, 'mechanism_factory', None), context.health_reporter, context.run_id, context.global_app_config, getattr(context, 'validation_data_store', None))
+                            stats['components_instantiated'] += 1
+                            logger.debug(f'✓ Instantiated planner: {planner_id}')
+                        except Exception as e:
+                            error_msg = f'Failed to instantiate planner {planner_id}: {e}'
+                            errors.append(error_msg)
+                            stats['instantiation_failures'] += 1
+                            logger.error(error_msg, exc_info=True)
+                
                 # --- Orchestration Commands ---
                 orch_commands = manifest_data.get('orchestration_commands', {})
                 for cmd_id, cmd_spec in orch_commands.items():
@@ -191,7 +216,7 @@ class ManifestProcessingPhase(BootstrapPhase):
                 
                 stats['manifests_processed'] += 1
                 # Update stats to include the new section
-                stats['components_discovered'] += len(shared_services) + len(proto_engines) + len(composites) + len(mechanisms) + len(orch_commands)
+                stats['components_discovered'] += len(shared_services) + len(proto_engines) + len(composites) + len(mechanisms) + len(planners) + len(orch_commands)
 
             except Exception as e:
                 error_msg = f'Exception processing manifest {manifest_path}: {e}'

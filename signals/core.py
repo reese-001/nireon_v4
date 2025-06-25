@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Literal, Optional, Union
 from pydantic import Field, field_validator
 
 from .base import EpistemicSignal
-
+from core.tracing import BlockTrace
 
 # ---------------------------------------------------------------------- #
 # Reusable enums (optional, but safer than string Literals everywhere)
@@ -154,3 +154,25 @@ class MathProtoResultSignal(ProtoResultSignal):
     dialect: Literal["math"] = "math"
     equation_latex: Optional[str] = None
     numeric_result: Optional[Union[float, List[float], Dict[str, float]]] = None
+
+# Tracing Signals
+class PlanNextStepSignal(EpistemicSignal):
+    """
+    Signal to instruct the active planner to choose the next action.
+    This is the entry point to the learning-driven part of the loop.
+    """
+    signal_type: Literal['PlanNextStepSignal'] = 'PlanNextStepSignal'
+    session_id: str
+    current_idea_id: str
+    current_idea_text: str
+    current_trust_score: float
+    current_depth: int
+    objective: str
+
+
+class TraceEmittedSignal(EpistemicSignal):
+    """
+    Broadcasts a completed BlockTrace for sinks and monitoring components.
+    """
+    signal_type: Literal['TraceEmittedSignal'] = 'TraceEmittedSignal'
+    trace: BlockTrace

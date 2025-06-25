@@ -1,4 +1,4 @@
-# nireon_v4\reactor\engine\main.py
+# nireon_v4/reactor/engine/main.py
 from __future__ import annotations
 import asyncio
 import logging
@@ -8,6 +8,9 @@ from core.lifecycle import ComponentRegistryMissingError
 from core.registry import ComponentRegistry
 from domain.context import NireonExecutionContext
 from domain.ports.event_bus_port import EventBusPort
+# FIX: Use the private _signal_class_map for programmatic instantiation
+from signals import _signal_class_map, EpistemicSignal
+
 from ..models import Action, EmitSignalAction, RuleContext, TriggerComponentAction
 from ..protocols import ReactorRule
 
@@ -97,7 +100,7 @@ class MainReactorEngine:
                 expression = condition.get('expression', 'False')
                 try:
                     # Re-use the evaluation logic from ConditionalRule for consistency
-                    from ..core_rules import _substitute, _resolve_path, RELEngine
+                    from ..expressions.rel_engine import RELEngine
                     rel_engine = RELEngine()
                     # Build a rich context for the expression evaluator
                     rel_context = {
@@ -106,7 +109,6 @@ class MainReactorEngine:
                         'now': datetime.now(timezone.utc),
                         'trust_score': getattr(signal, 'trust_score', None),
                         'novelty_score': getattr(signal, 'novelty_score', None),
-                        # Add helper functions to the expression context
                         'exists': lambda x: x is not None,
                         'lower': lambda s: s.lower() if isinstance(s, str) else s
                     }
@@ -167,19 +169,36 @@ class MainReactorEngine:
 
     async def _handle_emit_signal(self, action: EmitSignalAction, context: RuleContext) -> None:
         logger.info('Emitting signal %s (depth %d)', action.signal_type, context.recursion_depth + 1)
-        from signals.base import EpistemicSignal
-        # Reconstruct the signal properly
-        new_sig = EpistemicSignal(
-            signal_type=action.signal_type,
-            source_node_id=action.source_node_id_override or context.signal.source_node_id,
-            payload=action.payload
-        )
+        
+        # --- START OF FIX ---
+        
+        # 1. Look up the specific signal class (e.g., PlanNextStepSignal) from the map.
+        # Fallback to the generic EpistemicSignal if not found.
+        SignalClass = _signal_class_map.get(action.signal_type, EpistemicSignal)
+        
+        # 2. Prepare the data for the signal's constructor.
+        constructor_data = action.payload.copy()
+        constructor_data['signal_type'] = action.signal_type
+        
+        # 3. Add the required source_node_id, using an override if the rule specifies one.
+        constructor_data['source_node_id'] = action.source_node_id_override or context.signal.source_node_id
+        
+ 
+        
+        try:
+            # The 'constructor_data' now directly contains the fields needed by the specific signal class.
+            new_sig = SignalClass(**constructor_data)
+        except Exception as e:
+            logger.error(f"Failed to construct signal '{action.signal_type}': {e}", exc_info=True)
+            logger.error(f"Constructor data that failed validation: {constructor_data}")
+            return
+        
+        # --- END OF FIX ---
 
         if self._event_bus:
-            # The event bus expects a dict payload, not the Pydantic model itself
-            self._event_bus.publish(new_sig.signal_type, new_sig.model_dump(mode='json'))
+            # Publishing now uses the created signal object to ensure consistency
+            self._event_bus.publish(new_sig.signal_type, new_sig)
         else:
             logger.debug('Event bus unavailable – signal not broadcast externally')
-
-        # Recurse into the reactor with the new signal
+        # Recurse with the newly created and validated signal object
         await self.process_signal(new_sig, _depth=context.recursion_depth + 1)

@@ -30,7 +30,7 @@ class EmitSignalAction(BaseModel):
     payload: Dict[str, Any]
     source_node_id_override: str | None = None
 
-    model_config = ConfigDict(extra="forbid")
-
+    # model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra='allow')
 
 Action = TriggerComponentAction | EmitSignalAction

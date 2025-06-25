@@ -4,7 +4,7 @@ rules:
     description: "When a SeedSignal is detected, trigger the primary explorer."
     namespace: "core"
     priority: 10
-    enabled: true
+    enabled: false
     conditions:
       - type: "signal_type_match"
         signal_type: "SeedSignal"

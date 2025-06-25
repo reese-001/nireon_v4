@@ -151,25 +151,45 @@ class ConditionalRule(ReactorRule):
             return False
 
     # ----------------- action builders -------------- #
-    def _create_action(
-        self, cfg: Dict[str, Any], signal: "EpistemicSignal", _: "RuleContext"
-    ) -> Optional[Action]:
-        act_type = cfg.get("type")
-        if act_type == "trigger_component":
+    def _create_action(self, cfg: Dict[str, Any], signal: 'EpistemicSignal', _: 'RuleContext') -> Optional[Action]:
+        act_type = cfg.get('type')
+        if act_type == 'trigger_component':
+            # Fix: Substitute template variables in component_id
+            component_id = cfg['component_id']
+            if isinstance(component_id, str) and '{{' in component_id:
+                component_id = _substitute(component_id, signal)
+            
+            # Also substitute template_id if present
+            template_id = cfg.get('template_id')
+            if template_id and isinstance(template_id, str) and '{{' in template_id:
+                template_id = _substitute(template_id, signal)
+            
             data = self._build_input_data(cfg, signal)
             return TriggerComponentAction(
-                component_id=cfg["component_id"],
-                template_id=cfg.get("template_id"),
-                input_data=data,
+                component_id=component_id, 
+                template_id=template_id, 
+                input_data=data
             )
-        if act_type == "emit_signal":
-            payload = _substitute(cfg.get("payload", {}), signal)
+        if act_type == 'emit_signal':
+            if 'payload' in cfg:
+                payload = _substitute(cfg.get('payload', {}), signal)
+            else:
+                payload = {}
+                payload_keys = set(cfg.keys()) - {'type', 'signal_type', 'source_node_id_override'}
+                for key in payload_keys:
+                    payload[key] = _substitute(cfg.get(key), signal)
+            
+            # Also substitute source_node_id_override if it contains templates
+            source_override = cfg.get('source_node_id_override')
+            if source_override and isinstance(source_override, str) and '{{' in source_override:
+                source_override = _substitute(source_override, signal)
+                
             return EmitSignalAction(
-                signal_type=cfg["signal_type"],
-                payload=payload,
-                source_node_id_override=cfg.get("source_node_id_override"),
+                signal_type=cfg['signal_type'], 
+                payload=payload, 
+                source_node_id_override=source_override
             )
-        logger.warning("Rule %s unknown action type %s", self.rule_id, act_type)
+        logger.warning('Rule %s unknown action type %s', self.rule_id, act_type)
         return None
 
     # ------------------------------------------------ #

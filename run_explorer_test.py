@@ -95,11 +95,26 @@ async def wait_for_signal(event_bus: EventBusPort, *, signal_name: str, timeout:
 class ResultCapturer:
     def __init__(self, seed_idea_id: str, seed_text: str, event_bus: EventBusPort):
         self.event_bus = event_bus
-        self.run_data: Dict[str, Any] = {'seed_idea': {'id': seed_idea_id, 'text': seed_text, 'trust_score': None, 'is_stable': None, 'variations': {}}, 'metadata': {'run_start_time': datetime.now().isoformat(), 'run_end_time': None, 'total_ideas': 1, 'total_assessments': 0}}
+        self.run_data: Dict[str, Any] = {
+            'seed_idea': {
+                'id': seed_idea_id,
+                'text': seed_text,
+                'trust_score': None,
+                'is_stable': None,
+                'variations': {}
+            },
+            'metadata': {
+                'run_start_time': datetime.now().isoformat(),
+                'run_end_time': None,
+                'total_ideas': 1,
+                'total_assessments': 0
+            }
+        }
         self.idea_map: Dict[str, Dict] = {seed_idea_id: self.run_data['seed_idea']['variations']}
         self._idea_to_parent_map: Dict[str, str] = {}
         self.generated_idea_ids: Set[str] = set()  # Track all generated ideas
-        self.assessed_idea_ids: Set[str] = set()    # Track all assessed ideas
+        self.assessed_idea_ids: Set[str] = set()    
+        self.loop_finished_event = asyncio.Event()
         self.proto_task_detected = False
         self.proto_task_signal = None
         
@@ -113,16 +128,28 @@ class ResultCapturer:
         
         logger.info('[ResultCapturer] Subscribed to IdeaGenerated, TrustAssessment, ProtoTask, and GenerativeLoopFinished signals.')
     
-    def _handle_generative_loop_finished(self, raw_payload: Dict[str, Any]):
+    def _handle_generative_loop_finished(self, raw_payload: Any):
         """Detect when QuantifierAgent completes (meaning it was triggered)."""
         try:
-            signal_payload = raw_payload.get('payload', raw_payload)
-            quantifier_triggered = signal_payload.get('quantifier_triggered', False)
+            # Handle both dict and signal object formats
+            if isinstance(raw_payload, dict):
+                signal_payload = raw_payload.get('payload', raw_payload)
+                quantifier_triggered = signal_payload.get('quantifier_triggered', False)
+            else:
+                # It's a signal object - access attributes directly
+                if hasattr(raw_payload, 'payload'):
+                    quantifier_triggered = raw_payload.payload.get('quantifier_triggered', False) if isinstance(raw_payload.payload, dict) else False
+                else:
+                    # Try to access as attribute
+                    quantifier_triggered = getattr(raw_payload, 'quantifier_triggered', False)
             
             if quantifier_triggered:
                 logger.info(f"[ResultCapturer] QuantifierAgent was triggered! Proto generation initiated.")
                 self.proto_task_detected = True
-                self.proto_task_signal = raw_payload
+                
+            # Mark that we received the signal regardless
+            self.loop_finished_event.set()
+            self.proto_task_signal = raw_payload
         except Exception as e:
             logger.error(f'[ResultCapturer] Error handling GenerativeLoopFinishedSignal: {e}', exc_info=True)
         
@@ -136,24 +163,211 @@ class ResultCapturer:
         self.proto_task_detected = True
         self.proto_task_signal = raw_payload
             
-    def _handle_idea_generated(self, payload: Dict[str, Any]):
+    def _handle_idea_generated(self, payload: Any):
         try:
-            signal_payload = payload.get('payload', payload)
-            parent_id = signal_payload.get('parent_id')
-            idea_id = signal_payload.get('id') or payload.get('idea_id')
+            # Handle both dict and signal object formats
+            if hasattr(payload, 'payload'):
+                # It's a signal object
+                signal_payload = payload.payload if isinstance(payload.payload, dict) else {}
+                parent_id = signal_payload.get('parent_id') or getattr(payload, 'parent_id', None)
+                idea_id = signal_payload.get('id') or getattr(payload, 'idea_id', None) or getattr(payload, 'target_id', None)
+                text = signal_payload.get('text') or getattr(payload, 'idea_content', None) or getattr(payload, 'text', None)
+                source = signal_payload.get('source_mechanism') or getattr(payload, 'source_node_id', None)
+            else:
+                # It's a dict
+                signal_payload = payload.get('payload', payload)
+                parent_id = signal_payload.get('parent_id')
+                idea_id = signal_payload.get('id') or payload.get('idea_id')
+                text = signal_payload.get('text') or payload.get('idea_content')
+                source = signal_payload.get('source_mechanism') or payload.get('source_node_id')
             
             # Track this generated idea
             if idea_id:
                 self.generated_idea_ids.add(idea_id)
+                logger.info(f"[ResultCapturer] Tracked generated idea: {idea_id}")
                 
-            if not parent_id or parent_id not in self.idea_map:
-                logger.warning(f"[ResultCapturer] Received idea '{idea_id}' with an unknown parent '{parent_id}'. Cannot place in tree.")
-                return
-            new_idea_node = {'id': idea_id, 'text': signal_payload.get('text') or payload.get('idea_content'), 'source_mechanism': signal_payload.get('source_mechanism') or payload.get('source_node_id'), 'trust_score': None, 'is_stable': None, 'variations': {}}
-            self.idea_map[parent_id][idea_id] = new_idea_node
-            self.idea_map[idea_id] = new_idea_node['variations']
-            self._idea_to_parent_map[idea_id] = parent_id
-            self.run_data['metadata']['total_ideas'] += 1
+            if not parent_id:
+                # If no parent, it might be a root variation of the seed
+                parent_id = self.run_data['seed_idea']['id']
+                logger.info(f"[ResultCapturer] No parent_id for idea '{idea_id}', assuming it's a child of seed")
+                
+            if parent_id not in self.idea_map:
+                logger.warning(f"[ResultCapturer] Parent '{parent_id}' not in idea_map. Current map keys: {list(self.idea_map.keys())}")
+                # Try to create a placeholder parent
+                if parent_id != self.run_data['seed_idea']['id']:
+                    self.idea_map[parent_id] = {}
+                    logger.info(f"[ResultCapturer] Created placeholder for missing parent '{parent_id}'")
+                
+            new_idea_node = {
+                'id': idea_id,
+                'text': text or 'No text provided',
+                'source_mechanism': source or 'unknown',
+                'trust_score': None,
+                'is_stable': None,
+                'variations': {}
+            }
+            
+            if parent_id in self.idea_map:
+                self.idea_map[parent_id][idea_id] = new_idea_node
+                self.idea_map[idea_id] = new_idea_node['variations']
+                self._idea_to_parent_map[idea_id] = parent_id
+                self.run_data['metadata']['total_ideas'] += 1
+                logger.info(f"[ResultCapturer] Added idea '{idea_id}' under parent '{parent_id}'")
+            else:
+                logger.error(f"[ResultCapturer] Failed to add idea '{idea_id}' - parent '{parent_id}' not found")
+                
+        except Exception as e:
+            logger.error(f'[ResultCapturer] Error handling IdeaGeneratedSignal: {e}', exc_info=True)
+            
+    def _handle_trust_assessment(self, payload: Dict[str, Any]):
+        try:
+            idea_id = payload.get('target_id') or payload.get('idea_id') # Handle both signal structures
+            trust_score = payload.get('trust_score')
+            
+            # Track this assessment
+            if idea_id:
+                self.assessed_idea_ids.add(idea_id)
+                
+            # Handle flattened and nested payload structures
+            if 'assessment_details' in payload.get('payload', {}):
+                is_stable = payload.get('payload', {}).get('is_stable')
+            else:
+                 is_stable = payload.get('is_stable')
+
+            node_to_update = self._find_idea_node(idea_id)
+            if node_to_update:
+                node_to_update['trust_score'] = trust_score
+                node_to_update['is_stable'] = is_stable
+                self.run_data['metadata']['total_assessments'] += 1
+                
+                # Log high trust scores
+                if trust_score and trust_score > 6.0:
+                    logger.info(f"[ResultCapturer] High trust score detected: Idea {idea_id} = {trust_score:.2f} (meets quantifier threshold)")
+                    
+            else:
+                logger.warning(f'[ResultCapturer] Could not find idea {idea_id} in the tree to update its assessment.')
+        except Exception as e:
+            logger.error(f'[ResultCapturer] Error handling TrustAssessmentSignal: {e}', exc_info=True)
+            
+    def _find_idea_node(self, idea_id: str) -> Optional[Dict]:
+        if idea_id == self.run_data['seed_idea']['id']:
+            return self.run_data['seed_idea']
+        path = []
+        curr_id = idea_id
+        while curr_id in self._idea_to_parent_map:
+            path.insert(0, curr_id)
+            curr_id = self._idea_to_parent_map[curr_id]
+        if curr_id != self.run_data['seed_idea']['id']:
+            return None
+        node = self.run_data['seed_idea']
+        for step_id in path:
+            node = node['variations'].get(step_id)
+            if node is None:
+                return None
+        return node
+        
+    def save_results(self):
+        self.run_data['metadata']['run_end_time'] = datetime.now().isoformat()
+        runtime_dir = PROJECT_ROOT / 'runtime'
+        runtime_dir.mkdir(exist_ok=True)
+        timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        filename = runtime_dir / f'idea_evolution_{timestamp}.json'
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(self.run_data, f, indent=2, ensure_ascii=False)
+            logger.info(f'✅ Successfully saved evolution results to: {filename}')
+        except Exception as e:
+            logger.error(f'❌ Failed to save results to file: {e}')
+    
+    
+def _handle_generative_loop_finished(self, raw_payload: Any):
+    """Detect when QuantifierAgent completes (meaning it was triggered)."""
+    try:
+        # Handle both dict and signal object formats
+        if isinstance(raw_payload, dict):
+            signal_payload = raw_payload.get('payload', raw_payload)
+            quantifier_triggered = signal_payload.get('quantifier_triggered', False)
+        else:
+            # It's a signal object - access attributes directly
+            if hasattr(raw_payload, 'payload'):
+                quantifier_triggered = raw_payload.payload.get('quantifier_triggered', False) if isinstance(raw_payload.payload, dict) else False
+            else:
+                # Try to access as attribute
+                quantifier_triggered = getattr(raw_payload, 'quantifier_triggered', False)
+        
+        if quantifier_triggered:
+            logger.info(f"[ResultCapturer] QuantifierAgent was triggered! Proto generation initiated.")
+            self.proto_task_detected = True
+            
+        # Mark that we received the signal regardless
+        self.loop_finished_event.set()
+        self.proto_task_signal = raw_payload
+    except Exception as e:
+        logger.e
+        
+    def all_ideas_assessed(self) -> bool:
+        """Check if all generated ideas have been assessed."""
+        return len(self.generated_idea_ids) > 0 and self.generated_idea_ids == self.assessed_idea_ids
+        
+    def _handle_proto_task(self, raw_payload: Dict[str, Any]):
+        """Detect when a ProtoTaskSignal is published (meaning QuantifierAgent was triggered)."""
+        logger.info(f"[ResultCapturer] ProtoTaskSignal detected! QuantifierAgent has been triggered.")
+        self.proto_task_detected = True
+        self.proto_task_signal = raw_payload
+            
+    def _handle_idea_generated(self, payload: Any):
+        try:
+            # Handle both dict and signal object formats
+            if hasattr(payload, 'payload'):
+                # It's a signal object
+                signal_payload = payload.payload if isinstance(payload.payload, dict) else {}
+                parent_id = signal_payload.get('parent_id') or getattr(payload, 'parent_id', None)
+                idea_id = signal_payload.get('id') or getattr(payload, 'idea_id', None) or getattr(payload, 'target_id', None)
+                text = signal_payload.get('text') or getattr(payload, 'idea_content', None) or getattr(payload, 'text', None)
+                source = signal_payload.get('source_mechanism') or getattr(payload, 'source_node_id', None)
+            else:
+                # It's a dict
+                signal_payload = payload.get('payload', payload)
+                parent_id = signal_payload.get('parent_id')
+                idea_id = signal_payload.get('id') or payload.get('idea_id')
+                text = signal_payload.get('text') or payload.get('idea_content')
+                source = signal_payload.get('source_mechanism') or payload.get('source_node_id')
+            
+            # Track this generated idea
+            if idea_id:
+                self.generated_idea_ids.add(idea_id)
+                logger.info(f"[ResultCapturer] Tracked generated idea: {idea_id}")
+                
+            if not parent_id:
+                # If no parent, it might be a root variation of the seed
+                parent_id = self.run_data['seed_idea']['id']
+                logger.info(f"[ResultCapturer] No parent_id for idea '{idea_id}', assuming it's a child of seed")
+                
+            if parent_id not in self.idea_map:
+                logger.warning(f"[ResultCapturer] Parent '{parent_id}' not in idea_map. Current map keys: {list(self.idea_map.keys())}")
+                # Try to create a placeholder parent
+                if parent_id != self.run_data['seed_idea']['id']:
+                    self.idea_map[parent_id] = {}
+                    logger.info(f"[ResultCapturer] Created placeholder for missing parent '{parent_id}'")
+                
+            new_idea_node = {
+                'id': idea_id,
+                'text': text or 'No text provided',
+                'source_mechanism': source or 'unknown',
+                'trust_score': None,
+                'is_stable': None,
+                'variations': {}
+            }
+            
+            if parent_id in self.idea_map:
+                self.idea_map[parent_id][idea_id] = new_idea_node
+                self.idea_map[idea_id] = new_idea_node['variations']
+                self._idea_to_parent_map[idea_id] = parent_id
+                self.run_data['metadata']['total_ideas'] += 1
+                logger.info(f"[ResultCapturer] Added idea '{idea_id}' under parent '{parent_id}'")
+            else:
+                logger.error(f"[ResultCapturer] Failed to add idea '{idea_id}' - parent '{parent_id}' not found")
+                
         except Exception as e:
             logger.error(f'[ResultCapturer] Error handling IdeaGeneratedSignal: {e}', exc_info=True)
             
@@ -306,20 +520,14 @@ async def main(iterations: int, timeout: float):
             # Publish directly to event bus - the reactor rules should pick it up
             logger.info("Publishing SeedSignal to event bus...")
             event_bus.publish(SeedSignal.__name__, seed_signal)
-            # Give the reactor time to process
-            await asyncio.sleep(1)
-
-        # Wait for all assessments to complete
-        logger.info("Waiting for all ideas to be assessed...")
-        start_time = time.time()
-        while time.time() - start_time < 30:  # Wait up to 30 seconds
-            await asyncio.sleep(1)
-            if capturer.all_ideas_assessed():
-                logger.info(f"All {len(capturer.generated_idea_ids)} ideas have been assessed!")
-                break
-            else:
-                logger.debug(f"Still waiting... Generated: {len(capturer.generated_idea_ids)}, Assessed: {len(capturer.assessed_idea_ids)}")
-                
+        try:
+            logger.info('Waiting for the generative loop to finish (or timeout)...')
+            await asyncio.wait_for(capturer.loop_finished_event.wait(), timeout=timeout)
+            logger.info('✅ GenerativeLoopFinishedSignal received. Proceeding to analysis.')
+        except asyncio.TimeoutError:
+            logger.warning(f"Timed out after {timeout} seconds waiting for GenerativeLoopFinishedSignal.")
+            logger.warning("This may mean the loop is stuck or taking too long. Check reactor rules for issues.")
+               
         # Give a bit more time for the quantifier rule to trigger if applicable
         await asyncio.sleep(15)
         

@@ -40,7 +40,13 @@ DEFAULT_PROTO_REQUEST: Final = (
     "assuming a starting Cost of Goods Sold (COGS) of 70% of revenue. "
     "The function should calculate the new gross margin if the business passes 0%, 50%, "
     "and 100% of the tariff cost onto the consumer. "
-    "Visualize the three margin scenarios as a bar chart named 'tariff_impact.png'. "
+    "Create a bar chart visualization saved as 'tariff_impact.png'. "
+    "IMPORTANT for the bar chart: "
+    "1. Use x_positions = np.arange(len(scenarios)) for x-axis positions "
+    "2. Use plt.bar(x_positions, margin_values) "
+    "3. Set labels with plt.xticks(x_positions, ['0% passed', '50% passed', '100% passed']) "
+    "4. Do NOT pass string labels directly to plt.bar() "
+    "5. Include plt.tight_layout() before saving "
     "The function should return a dictionary summarizing the three margin results."
 )
 
@@ -269,6 +275,32 @@ class QuantifierAgent(NireonBaseComponent):
         idea_lower = idea_text.lower()
         
         if any(keyword in idea_lower for keyword in PROTO_TRIGGER_KEYWORDS):
-            return DEFAULT_PROTO_REQUEST
+            # Return an improved request with explicit matplotlib instructions
+            return (
+                "Create a Python function called 'calculate_tariff_impact' that models the impact of a 25% tariff "
+                "on a retail business's gross margin. Parameters: "
+                "- cogs_percentage: Cost of Goods Sold as percentage of revenue (use 70) "
+                "- tariff_percentage: Tariff rate (use 25) "
+                "- scenarios: List of percentages of tariff cost passed to consumer (use [0, 0.5, 1]) "
+                "\n\n"
+                "The function should: "
+                "1. Calculate new gross margins for each scenario "
+                "2. Create a bar chart visualization with this exact pattern: "
+                "   ```python\n"
+                "   labels = ['0% passed', '50% passed', '100% passed']\n"
+                "   x_positions = np.arange(len(labels))\n"
+                "   plt.figure(figsize=(10, 6))\n"
+                "   plt.bar(x_positions, margin_values, color=['blue', 'orange', 'green'])\n"
+                "   plt.xticks(x_positions, labels)\n"
+                "   plt.title('Impact of 25% Tariff on Gross Margin')\n"
+                "   plt.ylabel('Gross Margin (%)')\n"
+                "   plt.xlabel('Percentage of Tariff Cost Passed to Consumer')\n"
+                "   plt.ylim(0, max(margin_values) * 1.2)\n"
+                "   plt.tight_layout()\n"
+                "   plt.savefig('tariff_impact.png')\n"
+                "   plt.close()\n"
+                "   ```\n"
+                "3. Return a dictionary with keys '0%_passed', '50%_passed', '100%_passed' and margin values"
+            )
             
         return None

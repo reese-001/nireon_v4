@@ -1,7 +1,7 @@
 from __future__ import annotations
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 import reactor
 from .base_phase import BootstrapPhase, PhaseResult
 from reactor.engine.main import MainReactorEngine
@@ -99,22 +99,25 @@ class ReactorSetupPhase(BootstrapPhase):
                 continue
 
             def create_handler(cls):
-                async def handler(payload: dict):
+                async def handler(payload: Any): # The payload is now the object or a dict
                     try:
-                        # The payload from the memory_event_bus is the signal object itself,
-                        # not a dictionary that needs reconstruction.
+                        # FIX: This logic now correctly handles receiving either a
+                        # full signal object or a dictionary to reconstruct from.
                         if isinstance(payload, EpistemicSignal):
                             reconstructed_signal = payload
+                        elif isinstance(payload, dict):
+                            # When coming from an external source or a JSON dump,
+                            # the entire payload is the data for the constructor.
+                            reconstructed_signal = cls(**payload)
                         else:
-                            # Fallback for other event bus implementations
-                            signal_data_to_reconstruct = payload.get('event_data', payload)
-                            reconstructed_signal = cls(**signal_data_to_reconstruct)
+                            logger.error(f"Cannot process payload of type {type(payload)} for signal '{signal_type_str}'")
+                            return
+
                         await engine.process_signal(reconstructed_signal)
                     except Exception as e:
                         logger.error(f"Error handling event bus signal '{signal_type_str}': {e}", exc_info=True)
                         logger.error(f'Failed payload was: {payload}')
-
                 return handler
-
+            
             event_bus.subscribe(signal_type_str, create_handler(SignalClass))
             logger.info(f"Reactor is now subscribed to '{signal_type_str}' signals on the EventBus.")
