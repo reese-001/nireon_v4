@@ -1,0 +1,51 @@
+version: "1.0"
+rules:
+  - id: "catalyst_test_any_assessment"
+    description: "Trigger Catalyst on every Nth assessment for testing"
+    namespace: "catalyst_testing"
+    priority: 90  # High priority
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_expression" 
+        expression: "signal.trust_score > 3.0"  # Very low threshold
+    actions:
+      - type: "trigger_component"
+        component_id: "catalyst_instance_01"
+        template_id: "BLEND_IDEAS"
+        input_data_mapping:
+          target_idea_id: "payload.idea_id"
+          objective: "payload.assessment_details.metadata.objective"
+  - id: "catalyst_moderate_trust"
+    description: "Trigger Catalyst for moderately good ideas"
+    namespace: "catalyst_moderate"
+    priority: 85
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_expression"
+        expression: "signal.trust_score > 5.0"  # Much lower threshold
+    actions:
+      - type: "trigger_component"
+        component_id: "catalyst_instance_01"
+        input_data_mapping:
+          target_idea_id: "payload.idea_id"
+          objective: "payload.assessment_details.metadata.objective"
+  - id: "catalyst_from_high_trust_db"
+    description: "Periodically trigger Catalyst using high-trust ideas from database"
+    namespace: "catalyst_periodic"
+    priority: 75
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_expression"
+        expression: "signal.trust_score > 4.5 and payload.assessment_details and payload.assessment_details.metadata and payload.assessment_details.metadata.depth is not None and payload.assessment_details.metadata.depth < 3"
+    actions:
+      - type: "trigger_component"
+        component_id: "catalyst_instance_01"
+        input_data_mapping:
+          target_idea_id: "payload.idea_id"
+          objective: "payload.assessment_details.metadata.objective"

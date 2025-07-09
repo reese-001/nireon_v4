@@ -1,0 +1,61 @@
+# config.yaml for inducing stagnation
+
+# Bootstrap configuration
+bootstrap:
+  manifest: "configs/manifests/standard.yaml"
+  strict_mode: false
+
+# Execution settings
+execution:
+  timeout: 120 
+  iterations: 1
+  parallel_execution: false
+  completion_condition:
+    type: 'timeout' # Changed from 'all_assessed'
+
+# Debug settings
+debug:
+  log_level: "INFO"
+  enable_reactor_rules_check: true
+  enable_quantifier_check: true
+  quiet_loggers:
+    - "httpx"
+    - "httpcore"
+    - "openai"
+    - "anthropic"
+
+# DAG Logging Configuration
+dag_logging:
+  enabled: true
+  output_dir: "./dag_logs"
+  visualization:
+    auto_generate: true
+    formats: [ "graphviz", "mermaid", "json" ]
+  performance:
+    buffer_size: 1000
+    async_write: true
+
+# Reporting configuration
+reporting:
+  report_dir: "./reports"
+  generate_json: true
+  generate_html: true
+  generate_csv_summary: true
+  include_dag_visualization: true
+
+
+criteria:
+  min_trust_score_for_quantifier: 6.0
+  max_depth: 6
+
+# Test seeds (your original seed is perfect for this)
+seeds:
+  - id: "prime counting"
+    text: "Develop a comprehensive and innovative philisophical proof that Mormonism cannot be true."
+    objective: "Do not focus on the religious aspects, but rather on the philosophical implications and logical structure of the belief system. Insist on a novel approach that challenges conventional reasoning and creates a new understanding of the topic."
+    tags: ["math", "philosophy", "theory"]
+
+  # - id: "test"
+  #   text: "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence."
+  #   objective: "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors."
+  #   tags: ["analysis_query", "mystery"]

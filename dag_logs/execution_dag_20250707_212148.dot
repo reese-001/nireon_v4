@@ -1,0 +1,15 @@
+digraph ExecutionDAG {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    "BOOTSTRAP" [label="BOOTSTRA...\nSYSTEM", fillcolor=lavender, style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifi...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "SEED_EXEC_test_iter1" [label="SEED_EXE...\nSEED_EXECUTION", fillcolor=khaki, style="rounded,filled"];
+    "5fc40f76-021a-48b8-8a93-e4ffa3291099" [label="5fc40f76...\nSEED_IDEA", fillcolor=lightgreen, style="rounded,filled"];
+    "91e7de86-f5c6-4f42-8293-2f84b0f44d70" [label="91e7de86...\nGENERATED_IDEA\n**Title: The Curious Case of t...", fillcolor=lightblue, style="rounded,filled"];
+    "f636c89d-cb07-469f-9af6-3929317491d9" [label="f636c89d...\nGENERATED_IDEA\nTitle: "The Case of the Myster...", fillcolor=lightblue, style="rounded,filled"];
+    "bb81583f-c126-4465-8188-1fb30a8e617c" [label="bb81583f...\nGENERATED_IDEA\nSure! Here’s a creative variat...", fillcolor=lightblue, style="rounded,filled"];
+    "5fc40f76-021a-48b8-8a93-e4ffa3291099" -> "91e7de86-f5c6-4f42-8293-2f84b0f44d70" [label="GENERATES\ndepth=0"];
+    "5fc40f76-021a-48b8-8a93-e4ffa3291099" -> "f636c89d-cb07-469f-9af6-3929317491d9" [label="GENERATES\ndepth=0"];
+    "5fc40f76-021a-48b8-8a93-e4ffa3291099" -> "bb81583f-c126-4465-8188-1fb30a8e617c" [label="GENERATES\ndepth=0"];
+}

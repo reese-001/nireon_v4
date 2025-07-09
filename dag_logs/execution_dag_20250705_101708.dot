@@ -1,0 +1,18 @@
+digraph ExecutionDAG {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    "BOOTSTRAP" [label="BOOTSTRA...\nSYSTEM", fillcolor=lavender, style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifi...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "SEED_EXEC_prime counting" [label="SEED_EXE...\nSEED_EXECUTION", fillcolor=khaki, style="rounded,filled"];
+    "08d8342f-9488-486b-bff5-4bd64668fdbf" [label="08d8342f...\nSEED_IDEA", fillcolor=lightgreen, style="rounded,filled"];
+    "46cbcddd-1d9e-48cd-9782-381c8c2bb1f5" [label="46cbcddd...\nGENERATED_IDEA\nCertainly! Here’s a creative v...", fillcolor=lightblue, style="rounded,filled"];
+    "ed1c4c61-e9f9-484f-860c-8fd5fdc6c334" [label="ed1c4c61...\nGENERATED_IDEA\nTo explore the improvement of ...", fillcolor=lightblue, style="rounded,filled"];
+    "aed8b826-b43a-4e29-a96e-0ca34ad5e05d" [label="aed8b826...\nGENERATED_IDEA\nTo enhance the efficiency of c...", fillcolor=lightblue, style="rounded,filled"];
+    "proto_count_and_visualize_primes" [label="proto_co...\nPROTO_TASK", fillcolor=orange, style="rounded,filled"];
+    "proto_count_primes_and_visualize" [label="proto_co...\nPROTO_TASK", fillcolor=orange, style="rounded,filled"];
+    "proto_prime_counting_analysis" [label="proto_pr...\nPROTO_TASK", fillcolor=orange, style="rounded,filled"];
+    "08d8342f-9488-486b-bff5-4bd64668fdbf" -> "46cbcddd-1d9e-48cd-9782-381c8c2bb1f5" [label="GENERATES\ndepth=0"];
+    "08d8342f-9488-486b-bff5-4bd64668fdbf" -> "ed1c4c61-e9f9-484f-860c-8fd5fdc6c334" [label="GENERATES\ndepth=0"];
+    "08d8342f-9488-486b-bff5-4bd64668fdbf" -> "aed8b826-b43a-4e29-a96e-0ca34ad5e05d" [label="GENERATES\ndepth=0"];
+}

@@ -1,0 +1,19 @@
+# configs/reactor/rules/basic_explorer.yaml
+version: "1.0"
+rules:
+  # Single rule: Trigger Explorer when SeedSignal is received
+  - id: "basic_seed_to_explorer"
+    description: "When a SeedSignal is detected, trigger the primary explorer for one round"
+    namespace: "basic_exploration"
+    priority: 10
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "SeedSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "explorer_instance_01"
+        input_data_mapping:
+          text: "payload.text"
+          id: "payload.seed_idea_id"
+          objective: "payload.metadata.objective"

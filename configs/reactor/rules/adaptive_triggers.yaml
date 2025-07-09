@@ -1,0 +1,17 @@
+# configs/reactor/rules/adaptive_triggers.yaml
+
+version: "1.0"
+rules:
+  - id: "route_assessment_to_stagnation_detector"
+    description: "When a trust assessment is complete, send it to the Stagnation Detector to monitor for low novelty."
+    namespace: "adaptive_feedback"
+    priority: 40 # A medium priority, after the main evaluation is done.
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "stagnation_detector_main" # Must match the ID in the manifest
+        input_data_mapping:
+          signal: "signal" # The detector expects the whole signal object in a 'signal' key

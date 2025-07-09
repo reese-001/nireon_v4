@@ -1,0 +1,15 @@
+digraph ExecutionDAG {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    "BOOTSTRAP" [label="BOOTSTRA...\nSYSTEM", fillcolor=lavender, style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifi...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "SEED_EXEC_prime counting" [label="SEED_EXE...\nSEED_EXECUTION", fillcolor=khaki, style="rounded,filled"];
+    "73f19e72-6f2e-4d4b-a4e5-23f8d41815b4" [label="73f19e72...\nSEED_IDEA", fillcolor=lightgreen, style="rounded,filled"];
+    "e5f5f4b5-feb6-4b06-8831-bd25af132381" [label="e5f5f4b5...\nGENERATED_IDEA\nTo enhance the efficiency of t...", fillcolor=lightblue, style="rounded,filled"];
+    "18bb3cce-20f8-4be1-9214-8fbc5c04c119" [label="18bb3cce...\nGENERATED_IDEA\nTo enhance the efficiency of c...", fillcolor=lightblue, style="rounded,filled"];
+    "70265add-0462-46f5-85fd-2e2553ae3dd7" [label="70265add...\nGENERATED_IDEA\n**Title: "Optimizing Prime Cou...", fillcolor=lightblue, style="rounded,filled"];
+    "73f19e72-6f2e-4d4b-a4e5-23f8d41815b4" -> "e5f5f4b5-feb6-4b06-8831-bd25af132381" [label="GENERATES\ndepth=0"];
+    "73f19e72-6f2e-4d4b-a4e5-23f8d41815b4" -> "18bb3cce-20f8-4be1-9214-8fbc5c04c119" [label="GENERATES\ndepth=0"];
+    "73f19e72-6f2e-4d4b-a4e5-23f8d41815b4" -> "70265add-0462-46f5-85fd-2e2553ae3dd7" [label="GENERATES\ndepth=0"];
+}

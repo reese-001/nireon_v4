@@ -1,0 +1,19 @@
+digraph ExecutionDAG {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    "BOOTSTRAP" [label="BOOTSTRA...\nSYSTEM", fillcolor=lavender, style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifi...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "SEED_EXEC_prime counting" [label="SEED_EXE...\nSEED_EXECUTION", fillcolor=khaki, style="rounded,filled"];
+    "2adbc92c-3734-4698-ae1e-64c7905baec9" [label="2adbc92c...\nSEED_IDEA", fillcolor=lightgreen, style="rounded,filled"];
+    "03eb7fe8-59bb-4082-99f3-aa041de13e46" [label="03eb7fe8...\nGENERATED_IDEA\nTo enhance the efficiency of c...", fillcolor=lightblue, style="rounded,filled"];
+    "46d01bf4-1f9f-497e-a966-2aa05a52a219" [label="46d01bf4...\nGENERATED_IDEA\nTo explore advanced mathematic...", fillcolor=lightblue, style="rounded,filled"];
+    "89e4aa13-4be9-44c6-8911-7a237ced7ee8" [label="89e4aa13...\nGENERATED_IDEA\nTitle: "Enhancing the Efficien...", fillcolor=lightblue, style="rounded,filled"];
+    "proto_prime_counting_analysis" [label="proto_pr...\nPROTO_TASK", fillcolor=orange, style="rounded,filled"];
+    "proto_prime_counting_function_analysis" [label="proto_pr...\nPROTO_TASK", fillcolor=orange, style="rounded,filled"];
+    "proto_count_primes" [label="proto_co...\nPROTO_TASK", fillcolor=orange, style="rounded,filled"];
+    "proto_prime_counting_visualization" [label="proto_pr...\nPROTO_TASK", fillcolor=orange, style="rounded,filled"];
+    "2adbc92c-3734-4698-ae1e-64c7905baec9" -> "03eb7fe8-59bb-4082-99f3-aa041de13e46" [label="GENERATES\ndepth=0"];
+    "2adbc92c-3734-4698-ae1e-64c7905baec9" -> "46d01bf4-1f9f-497e-a966-2aa05a52a219" [label="GENERATES\ndepth=0"];
+    "2adbc92c-3734-4698-ae1e-64c7905baec9" -> "89e4aa13-4be9-44c6-8911-7a237ced7ee8" [label="GENERATES\ndepth=0"];
+}

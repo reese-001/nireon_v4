@@ -1,0 +1,15 @@
+digraph ExecutionDAG {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    "BOOTSTRAP" [label="BOOTSTRA...\nSYSTEM", fillcolor=lavender, style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifi...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "SEED_EXEC_prime counting" [label="SEED_EXE...\nSEED_EXECUTION", fillcolor=khaki, style="rounded,filled"];
+    "70d5d1a1-ab0f-442f-a30c-8e6dc35d51c8" [label="70d5d1a1...\nSEED_IDEA", fillcolor=lightgreen, style="rounded,filled"];
+    "ca0d68e0-68b7-48bd-b73a-1f0289596d50" [label="ca0d68e0...\nGENERATED_IDEA\nCertainly! Here’s a creative v...", fillcolor=lightblue, style="rounded,filled"];
+    "8343a85c-a95d-4606-bb53-5181193518b9" [label="8343a85c...\nGENERATED_IDEA\nCertainly! Let's explore the i...", fillcolor=lightblue, style="rounded,filled"];
+    "6b0edef1-5f45-4810-96d0-67c6bd224656" [label="6b0edef1...\nGENERATED_IDEA\n**Title: Enhancing Prime Count...", fillcolor=lightblue, style="rounded,filled"];
+    "70d5d1a1-ab0f-442f-a30c-8e6dc35d51c8" -> "ca0d68e0-68b7-48bd-b73a-1f0289596d50" [label="GENERATES\ndepth=0"];
+    "70d5d1a1-ab0f-442f-a30c-8e6dc35d51c8" -> "8343a85c-a95d-4606-bb53-5181193518b9" [label="GENERATES\ndepth=0"];
+    "70d5d1a1-ab0f-442f-a30c-8e6dc35d51c8" -> "6b0edef1-5f45-4810-96d0-67c6bd224656" [label="GENERATES\ndepth=0"];
+}

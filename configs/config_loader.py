@@ -37,6 +37,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
 # --- START OF FIX: ADDED REGEX AND EXPANSION FUNCTIONS ---
 _RE_ENV_DEFAULT: Final[re.Pattern[str]] = re.compile('\\$\\{([A-Za-z_][A-Za-z0-9_]*)[:-](.*?)\\}')
 
+
 def _interpolate_env(value: str) -> str:
     if not isinstance(value, str):
         return value

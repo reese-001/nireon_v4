@@ -47,11 +47,8 @@ class SecurityValidator(ProtoValidator):
 
 
 class MathProtoValidator(ProtoValidator):
-    # FIX: Define the allowed imports as a constant within the validator itself.
-    # This makes the validator the single source of truth for the 'math' dialect's security policy.
-    ALLOWED_MATH_IMPORTS = {
-        'matplotlib.pyplot', 'numpy', 'pandas', 'scipy', 'sympy', 'math', 'statistics'
-    }
+
+    ALLOWED_MATH_IMPORTS = {'matplotlib.pyplot', 'numpy', 'pandas', 'scipy', 'sympy', 'math', 'statistics', 'pathlib', 'seaborn', 'sklearn', 'plotly', 'networkx', 'statsmodels', 'time', 'memory_profiler', 'typing'}
 
     def __init__(self):
         self.security_validator = SecurityValidator()

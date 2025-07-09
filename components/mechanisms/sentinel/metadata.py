@@ -27,5 +27,6 @@ SENTINEL_METADATA = ComponentMetadata(
         'EmbeddingPort': '*',
         'IdeaService': '*',
         'EventBusPort': '>=1.0.0'
-    }
+    },
+    interaction_pattern='processor'
 )

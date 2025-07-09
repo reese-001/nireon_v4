@@ -1,0 +1,23 @@
+digraph ExecutionDAG {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    "BOOTSTRAP" [label="BOOTSTRA...\nSYSTEM", fillcolor=lavender, style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifi...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "SEED_EXEC_prime counting" [label="SEED_EXE...\nSEED_EXECUTION", fillcolor=khaki, style="rounded,filled"];
+    "c31f1700-236a-44c8-a93d-70b447ea822d" [label="c31f1700...\nSEED_IDEA", fillcolor=lightgreen, style="rounded,filled"];
+    "036f8163-5d4d-4e46-bde6-dd5e41fd3e18" [label="036f8163...\nGENERATED_IDEA\nCertainly! Here’s a creative v...", fillcolor=lightblue, style="rounded,filled"];
+    "e46b8ae4-e549-4283-b087-c40a0d2b805e" [label="e46b8ae4...\nGENERATED_IDEA\n**Title: "Optimizing the Prime...", fillcolor=lightblue, style="rounded,filled"];
+    "d06d8ac3-7ad5-49d8-9025-e580c2c86fe8" [label="d06d8ac3...\nGENERATED_IDEA\nCertainly! Here’s a creative v...", fillcolor=lightblue, style="rounded,filled"];
+    "27c21696-94a7-448e-b69f-c2d62fcc7ddf" [label="27c21696...\nGENERATED_IDEA\nCertainly! Here's a creative v...", fillcolor=lightblue, style="rounded,filled"];
+    "c90ee4b9-88ab-4edd-a6e9-761055152bae" [label="c90ee4b9...\nGENERATED_IDEA\nCertainly! Here’s a creative v...", fillcolor=lightblue, style="rounded,filled"];
+    "8191f897-9aea-4184-8a34-5360c55bd67b" [label="8191f897...\nGENERATED_IDEA\nCertainly! Here’s a creative v...", fillcolor=lightblue, style="rounded,filled"];
+    "proto_enhanced_prime_counting" [label="proto_en...\nPROTO_TASK", fillcolor=orange, style="rounded,filled"];
+    "proto_prime_accumulator_with_adaptive_sieve" [label="proto_pr...\nPROTO_TASK", fillcolor=orange, style="rounded,filled"];
+    "c31f1700-236a-44c8-a93d-70b447ea822d" -> "036f8163-5d4d-4e46-bde6-dd5e41fd3e18" [label="GENERATES\ndepth=0"];
+    "c31f1700-236a-44c8-a93d-70b447ea822d" -> "e46b8ae4-e549-4283-b087-c40a0d2b805e" [label="GENERATES\ndepth=0"];
+    "c31f1700-236a-44c8-a93d-70b447ea822d" -> "d06d8ac3-7ad5-49d8-9025-e580c2c86fe8" [label="GENERATES\ndepth=0"];
+    "c31f1700-236a-44c8-a93d-70b447ea822d" -> "27c21696-94a7-448e-b69f-c2d62fcc7ddf" [label="GENERATES\ndepth=0"];
+    "c31f1700-236a-44c8-a93d-70b447ea822d" -> "c90ee4b9-88ab-4edd-a6e9-761055152bae" [label="GENERATES\ndepth=0"];
+    "c31f1700-236a-44c8-a93d-70b447ea822d" -> "8191f897-9aea-4184-8a34-5360c55bd67b" [label="GENERATES\ndepth=0"];
+}

@@ -55,14 +55,8 @@ class DockerExecutor(ExternalExecutor):
         inputs_path = work_dir / 'inputs.json'
         inputs_path.write_text(json.dumps(proto.inputs))
 
-        if proto.requirements:
-            logger.info(f"Installing {len(proto.requirements)} requirements for Proto '{proto.id}': {proto.requirements}")
-            req_path = work_dir / 'requirements.txt'
-            req_path.write_text('\n'.join(proto.requirements))
-            command = ['sh', '-c', 'pip install --no-cache-dir -r /app/requirements.txt && python -I /app/execute.py /app/inputs.json']
-        else:
-            logger.debug(f"No extra requirements for Proto '{proto.id}'.")
-            command = ['python', '-I', '/app/execute.py', '/app/inputs.json']
+        # Simplify the command, as installation is now handled inside the script
+        command = ['python', '-I', '/app/execute.py', '/app/inputs.json']
         
         memory_limit_mb = min(proto.limits.get('memory_mb', self.config.default_memory_mb), self.config.default_memory_mb)
         
@@ -71,7 +65,7 @@ class DockerExecutor(ExternalExecutor):
         
         # FIX: This is the timeout for our Python script waiting on the Docker API call.
         # We'll make it slightly longer than the internal timeout to prevent race conditions.
-        api_wait_timeout = internal_timeout_sec + 10
+        api_wait_timeout = internal_timeout_sec + 30
 
         container = None
         start_time = time.time()

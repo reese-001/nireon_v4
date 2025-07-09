@@ -1,0 +1,23 @@
+version: "1.0"
+rules:
+  - id: "trigger_quantifier_on_high_trust"
+    enabled: true
+    namespace: "quantification"
+    priority: 80
+    conditions:
+      - type: signal_type_match
+        signal_type: TrustAssessmentSignal
+      - type: payload_expression
+        expression: |
+          signal.trust_score > 6.0 and payload.is_stable == True
+    actions:
+      - type: trigger_component
+        component_id: quantifier_agent_primary
+        input_data_mapping:
+          # Map all necessary fields from the signal to the component's input
+          target_idea_id: "payload.idea_id"
+          idea_id: "payload.idea_id"
+          idea_text: "payload.idea_text"
+          trust_score: "signal.trust_score"
+          objective: "payload.assessment_details.metadata.objective"
+          assessment_details: "payload.assessment_details"

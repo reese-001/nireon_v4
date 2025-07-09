@@ -1,0 +1,15 @@
+digraph ExecutionDAG {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    "BOOTSTRAP" [label="BOOTSTRA...\nSYSTEM", fillcolor=lavender, style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifi...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "SEED_EXEC_test_iter1" [label="SEED_EXE...\nSEED_EXECUTION", fillcolor=khaki, style="rounded,filled"];
+    "d50c407a-e895-43a0-94c2-d6d66f2b5bad" [label="d50c407a...\nSEED_IDEA", fillcolor=lightgreen, style="rounded,filled"];
+    "c1a41843-40ee-4609-884e-3b571bfba31e" [label="c1a41843...\nGENERATED_IDEA\n**Title: The Curious Case of t...", fillcolor=lightblue, style="rounded,filled"];
+    "bef049cf-86a1-479f-8cd0-4238a85cfaef" [label="bef049cf...\nGENERATED_IDEA\n**Title: The Lost Lobster's Jo...", fillcolor=lightblue, style="rounded,filled"];
+    "eeaa5980-7888-46e0-8b62-8bfe081394f9" [label="eeaa5980...\nGENERATED_IDEA\n**Title: The Lobster's Journey...", fillcolor=lightblue, style="rounded,filled"];
+    "d50c407a-e895-43a0-94c2-d6d66f2b5bad" -> "c1a41843-40ee-4609-884e-3b571bfba31e" [label="GENERATES\ndepth=0"];
+    "d50c407a-e895-43a0-94c2-d6d66f2b5bad" -> "bef049cf-86a1-479f-8cd0-4238a85cfaef" [label="GENERATES\ndepth=0"];
+    "d50c407a-e895-43a0-94c2-d6d66f2b5bad" -> "eeaa5980-7888-46e0-8b62-8bfe081394f9" [label="GENERATES\ndepth=0"];
+}

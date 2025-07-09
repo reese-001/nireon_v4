@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NIREON Reactor Rules Schema",
+  "type": "object",
+  "required": [
+    "version",
+    "rules"
+  ],
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "description",
+          "namespace",
+          "priority",
+          "enabled",
+          "conditions",
+          "actions"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "integer"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "signal_type": {
+                  "type": "string"
+                },
+                "expression": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "component_id": {
+                  "type": "string"
+                },
+                "template_id": {
+                  "type": "string"
+                },
+                "signal_type": {
+                  "type": "string"
+                },
+                "payload": {
+                  "type": "object"
+                },
+                "input_data": {
+                  "type": "object"
+                },
+                "input_data_mapping": {
+                  "type": "object"
+                }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  }
+}

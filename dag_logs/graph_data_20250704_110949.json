@@ -1,0 +1,117 @@
+{
+  "nodes": [
+    "36ae596c-c5a0-48b5-94fd-3e185e797014",
+    "sentinel_instance_01",
+    "7d28bb3e-79f0-4488-9b44-1e64759b1b03",
+    "04656d3c-3e86-4058-9071-dcc73f93e228",
+    "quantifier_agent_primary",
+    "SEED_EXEC_prime counting",
+    "ab32a433-9e3f-4732-9589-cadd46cfc8da",
+    "BOOTSTRAP"
+  ],
+  "edges": [
+    {
+      "source": "ab32a433-9e3f-4732-9589-cadd46cfc8da",
+      "target": "36ae596c-c5a0-48b5-94fd-3e185e797014",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "ab32a433-9e3f-4732-9589-cadd46cfc8da",
+      "target": "04656d3c-3e86-4058-9071-dcc73f93e228",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "ab32a433-9e3f-4732-9589-cadd46cfc8da",
+      "target": "7d28bb3e-79f0-4488-9b44-1e64759b1b03",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    }
+  ],
+  "signals": [
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-04T11:09:19.036440",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "ab32a433-9e3f-4732-9589-cadd46cfc8da",
+      "payload": {
+        "seed_idea_id": "ab32a433-9e3f-4732-9589-cadd46cfc8da",
+        "text": "How can we improve on the Pi(x) function to count the number of primes less than x more efficiently without using machine learning?",
+        "metadata": {
+          "iteration": 1,
+          "objective": "Explore advanced mathematical techniques to optimize the counting of prime numbers below a given threshold x. Focus on closed form solutions and algorithmic improvements. Do not consider machine learning or neural networks!",
+          "depth": 0,
+          "seed_config_id": "prime counting"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-04T11:09:37.744182",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "36ae596c-c5a0-48b5-94fd-3e185e797014",
+      "payload": {
+        "parent_id": "ab32a433-9e3f-4732-9589-cadd46cfc8da",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-04T11:09:37.744182",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "04656d3c-3e86-4058-9071-dcc73f93e228",
+      "payload": {
+        "parent_id": "ab32a433-9e3f-4732-9589-cadd46cfc8da",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-04T11:09:37.744182",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "7d28bb3e-79f0-4488-9b44-1e64759b1b03",
+      "payload": {
+        "parent_id": "ab32a433-9e3f-4732-9589-cadd46cfc8da",
+        "depth": 0
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-04T11:09:19.036440",
+      "event_type": "BOOTSTRAP_COMPLETE",
+      "node_id": "BOOTSTRAP",
+      "details": {
+        "component_count": 59,
+        "run_id": "explorer_run_1751645359"
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-04T11:09:49.044378",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 30.007938,
+        "total_ideas": 4,
+        "total_assessed": 0,
+        "coverage_percent": 0.0
+      }
+    }
+  ]
+}

@@ -1,0 +1,1887 @@
+{
+  "nodes": [
+    "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+    "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+    "6e19fba9-2d44-4f7a-af5c-bac20cf2e50d",
+    "4f48847b-c269-44f1-bd59-52fedfbb32e4",
+    "31968c0d-7d28-46b7-8f01-812d15de90dc",
+    "71b94296-c0ab-45f1-a9ae-a9db5a484765",
+    "sentinel_instance_01",
+    "BOOTSTRAP",
+    "afbb49bd-f8ca-4140-b07a-033c1fac4bac",
+    "quantifier_agent_primary",
+    "SEED_EXEC_prime counting_iter2",
+    "SEED_EXEC_prime counting_iter5",
+    "SEED_EXEC_prime counting_iter4",
+    "35695b9f-1f53-4277-89c3-f6603cd54b0b",
+    "1bb43e35-3dd5-4362-9a09-6774965ca512",
+    "SEED_EXEC_prime counting_iter1",
+    "62764afe-2ad0-4ddb-be55-958c8a915d29",
+    "e35fc58b-e643-4d03-b97a-0eb0b24d855a",
+    "bb4ba0d2-9820-43d8-bdda-78bc27082622",
+    "d5f50b63-e572-4c13-be64-294e4a2c97b2",
+    "SEED_EXEC_prime counting_iter3",
+    "5cb938ff-bec7-4726-bfdc-c0d31a69cf5a",
+    "29396ee8-ac79-4c32-9414-f80833a78977",
+    "9d148017-7bdc-47cb-bc51-9b2b3aa48ea2",
+    "9822bae8-1108-4ceb-b76a-6aae4e698cf6"
+  ],
+  "edges": [
+    {
+      "source": "d5f50b63-e572-4c13-be64-294e4a2c97b2",
+      "target": "afbb49bd-f8ca-4140-b07a-033c1fac4bac",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "d5f50b63-e572-4c13-be64-294e4a2c97b2",
+      "target": "1bb43e35-3dd5-4362-9a09-6774965ca512",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "d5f50b63-e572-4c13-be64-294e4a2c97b2",
+      "target": "71b94296-c0ab-45f1-a9ae-a9db5a484765",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "29396ee8-ac79-4c32-9414-f80833a78977",
+      "target": "62764afe-2ad0-4ddb-be55-958c8a915d29",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "29396ee8-ac79-4c32-9414-f80833a78977",
+      "target": "62764afe-2ad0-4ddb-be55-958c8a915d29",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "29396ee8-ac79-4c32-9414-f80833a78977",
+      "target": "62764afe-2ad0-4ddb-be55-958c8a915d29",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "29396ee8-ac79-4c32-9414-f80833a78977",
+      "target": "62764afe-2ad0-4ddb-be55-958c8a915d29",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "29396ee8-ac79-4c32-9414-f80833a78977",
+      "target": "e35fc58b-e643-4d03-b97a-0eb0b24d855a",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "29396ee8-ac79-4c32-9414-f80833a78977",
+      "target": "e35fc58b-e643-4d03-b97a-0eb0b24d855a",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "29396ee8-ac79-4c32-9414-f80833a78977",
+      "target": "e35fc58b-e643-4d03-b97a-0eb0b24d855a",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "29396ee8-ac79-4c32-9414-f80833a78977",
+      "target": "e35fc58b-e643-4d03-b97a-0eb0b24d855a",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "29396ee8-ac79-4c32-9414-f80833a78977",
+      "target": "5cb938ff-bec7-4726-bfdc-c0d31a69cf5a",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "29396ee8-ac79-4c32-9414-f80833a78977",
+      "target": "5cb938ff-bec7-4726-bfdc-c0d31a69cf5a",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "29396ee8-ac79-4c32-9414-f80833a78977",
+      "target": "5cb938ff-bec7-4726-bfdc-c0d31a69cf5a",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "29396ee8-ac79-4c32-9414-f80833a78977",
+      "target": "5cb938ff-bec7-4726-bfdc-c0d31a69cf5a",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+      "target": "bb4ba0d2-9820-43d8-bdda-78bc27082622",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+      "target": "bb4ba0d2-9820-43d8-bdda-78bc27082622",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+      "target": "bb4ba0d2-9820-43d8-bdda-78bc27082622",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+      "target": "bb4ba0d2-9820-43d8-bdda-78bc27082622",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+      "target": "6e19fba9-2d44-4f7a-af5c-bac20cf2e50d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+      "target": "6e19fba9-2d44-4f7a-af5c-bac20cf2e50d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+      "target": "6e19fba9-2d44-4f7a-af5c-bac20cf2e50d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+      "target": "6e19fba9-2d44-4f7a-af5c-bac20cf2e50d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+      "target": "9822bae8-1108-4ceb-b76a-6aae4e698cf6",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+      "target": "9822bae8-1108-4ceb-b76a-6aae4e698cf6",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+      "target": "9822bae8-1108-4ceb-b76a-6aae4e698cf6",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+      "target": "9822bae8-1108-4ceb-b76a-6aae4e698cf6",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+      "target": "9d148017-7bdc-47cb-bc51-9b2b3aa48ea2",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+      "target": "9d148017-7bdc-47cb-bc51-9b2b3aa48ea2",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+      "target": "9d148017-7bdc-47cb-bc51-9b2b3aa48ea2",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+      "target": "9d148017-7bdc-47cb-bc51-9b2b3aa48ea2",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+      "target": "35695b9f-1f53-4277-89c3-f6603cd54b0b",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+      "target": "35695b9f-1f53-4277-89c3-f6603cd54b0b",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+      "target": "35695b9f-1f53-4277-89c3-f6603cd54b0b",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+      "target": "35695b9f-1f53-4277-89c3-f6603cd54b0b",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+      "target": "31968c0d-7d28-46b7-8f01-812d15de90dc",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+      "target": "31968c0d-7d28-46b7-8f01-812d15de90dc",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+      "target": "31968c0d-7d28-46b7-8f01-812d15de90dc",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+      "target": "31968c0d-7d28-46b7-8f01-812d15de90dc",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    }
+  ],
+  "signals": [
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:30:57.577015",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "d5f50b63-e572-4c13-be64-294e4a2c97b2",
+      "payload": {
+        "seed_idea_id": "d5f50b63-e572-4c13-be64-294e4a2c97b2",
+        "text": "How can we improve on the Pi(x) function to count the number of primes less than x more efficiently without using machine learning?",
+        "metadata": {
+          "iteration": 1,
+          "total_iterations": 5,
+          "original_seed_id": "prime counting",
+          "objective": "Explore advanced mathematical techniques to optimize the counting of prime numbers below a given threshold x. Focus on closed form solutions and algorithmic improvements. Do not consider machine learning or neural networks!",
+          "depth": 0,
+          "seed_config_id": "prime counting_iter1"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:08.215179",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "afbb49bd-f8ca-4140-b07a-033c1fac4bac",
+      "payload": {
+        "parent_id": "d5f50b63-e572-4c13-be64-294e4a2c97b2",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:08.215695",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "1bb43e35-3dd5-4362-9a09-6774965ca512",
+      "payload": {
+        "parent_id": "d5f50b63-e572-4c13-be64-294e4a2c97b2",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:08.216207",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "71b94296-c0ab-45f1-a9ae-a9db5a484765",
+      "payload": {
+        "parent_id": "d5f50b63-e572-4c13-be64-294e4a2c97b2",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:23.824709",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "29396ee8-ac79-4c32-9414-f80833a78977",
+      "payload": {
+        "seed_idea_id": "29396ee8-ac79-4c32-9414-f80833a78977",
+        "text": "How can we improve on the Pi(x) function to count the number of primes less than x more efficiently without using machine learning?",
+        "metadata": {
+          "iteration": 2,
+          "total_iterations": 5,
+          "original_seed_id": "prime counting",
+          "objective": "Explore advanced mathematical techniques to optimize the counting of prime numbers below a given threshold x. Focus on closed form solutions and algorithmic improvements. Do not consider machine learning or neural networks!",
+          "depth": 0,
+          "seed_config_id": "prime counting_iter2"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:28.026039",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+      "payload": {
+        "seed_idea_id": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+        "text": "How can we improve on the Pi(x) function to count the number of primes less than x more efficiently without using machine learning?",
+        "metadata": {
+          "iteration": 3,
+          "total_iterations": 5,
+          "original_seed_id": "prime counting",
+          "objective": "Explore advanced mathematical techniques to optimize the counting of prime numbers below a given threshold x. Focus on closed form solutions and algorithmic improvements. Do not consider machine learning or neural networks!",
+          "depth": 0,
+          "seed_config_id": "prime counting_iter3"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:32.031391",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+      "payload": {
+        "seed_idea_id": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+        "text": "How can we improve on the Pi(x) function to count the number of primes less than x more efficiently without using machine learning?",
+        "metadata": {
+          "iteration": 4,
+          "total_iterations": 5,
+          "original_seed_id": "prime counting",
+          "objective": "Explore advanced mathematical techniques to optimize the counting of prime numbers below a given threshold x. Focus on closed form solutions and algorithmic improvements. Do not consider machine learning or neural networks!",
+          "depth": 0,
+          "seed_config_id": "prime counting_iter4"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:37.642134",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "62764afe-2ad0-4ddb-be55-958c8a915d29",
+      "payload": {
+        "parent_id": "29396ee8-ac79-4c32-9414-f80833a78977",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:37.642134",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "62764afe-2ad0-4ddb-be55-958c8a915d29",
+      "payload": {
+        "parent_id": "29396ee8-ac79-4c32-9414-f80833a78977",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:37.643203",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "62764afe-2ad0-4ddb-be55-958c8a915d29",
+      "payload": {
+        "parent_id": "29396ee8-ac79-4c32-9414-f80833a78977",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:37.643203",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "62764afe-2ad0-4ddb-be55-958c8a915d29",
+      "payload": {
+        "parent_id": "29396ee8-ac79-4c32-9414-f80833a78977",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:37.643203",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "e35fc58b-e643-4d03-b97a-0eb0b24d855a",
+      "payload": {
+        "parent_id": "29396ee8-ac79-4c32-9414-f80833a78977",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:37.643203",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "e35fc58b-e643-4d03-b97a-0eb0b24d855a",
+      "payload": {
+        "parent_id": "29396ee8-ac79-4c32-9414-f80833a78977",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:37.643203",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "e35fc58b-e643-4d03-b97a-0eb0b24d855a",
+      "payload": {
+        "parent_id": "29396ee8-ac79-4c32-9414-f80833a78977",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:37.644708",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "e35fc58b-e643-4d03-b97a-0eb0b24d855a",
+      "payload": {
+        "parent_id": "29396ee8-ac79-4c32-9414-f80833a78977",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:37.644708",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "5cb938ff-bec7-4726-bfdc-c0d31a69cf5a",
+      "payload": {
+        "parent_id": "29396ee8-ac79-4c32-9414-f80833a78977",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:37.645219",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "5cb938ff-bec7-4726-bfdc-c0d31a69cf5a",
+      "payload": {
+        "parent_id": "29396ee8-ac79-4c32-9414-f80833a78977",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:37.646092",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "5cb938ff-bec7-4726-bfdc-c0d31a69cf5a",
+      "payload": {
+        "parent_id": "29396ee8-ac79-4c32-9414-f80833a78977",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:37.646092",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "5cb938ff-bec7-4726-bfdc-c0d31a69cf5a",
+      "payload": {
+        "parent_id": "29396ee8-ac79-4c32-9414-f80833a78977",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:38.656059",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "bb4ba0d2-9820-43d8-bdda-78bc27082622",
+      "payload": {
+        "parent_id": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:38.656059",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "bb4ba0d2-9820-43d8-bdda-78bc27082622",
+      "payload": {
+        "parent_id": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:38.657065",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "bb4ba0d2-9820-43d8-bdda-78bc27082622",
+      "payload": {
+        "parent_id": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:38.657065",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "bb4ba0d2-9820-43d8-bdda-78bc27082622",
+      "payload": {
+        "parent_id": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:38.658210",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "6e19fba9-2d44-4f7a-af5c-bac20cf2e50d",
+      "payload": {
+        "parent_id": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:38.658210",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "6e19fba9-2d44-4f7a-af5c-bac20cf2e50d",
+      "payload": {
+        "parent_id": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:38.658210",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "6e19fba9-2d44-4f7a-af5c-bac20cf2e50d",
+      "payload": {
+        "parent_id": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:38.659219",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "6e19fba9-2d44-4f7a-af5c-bac20cf2e50d",
+      "payload": {
+        "parent_id": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:38.659219",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "9822bae8-1108-4ceb-b76a-6aae4e698cf6",
+      "payload": {
+        "parent_id": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:38.659219",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "9822bae8-1108-4ceb-b76a-6aae4e698cf6",
+      "payload": {
+        "parent_id": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:38.659219",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "9822bae8-1108-4ceb-b76a-6aae4e698cf6",
+      "payload": {
+        "parent_id": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:38.659219",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "9822bae8-1108-4ceb-b76a-6aae4e698cf6",
+      "payload": {
+        "parent_id": "d045dd88-ee4f-4314-9ae1-04cdfe2f05f8",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:45.747080",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "9d148017-7bdc-47cb-bc51-9b2b3aa48ea2",
+      "payload": {
+        "parent_id": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:45.748465",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "9d148017-7bdc-47cb-bc51-9b2b3aa48ea2",
+      "payload": {
+        "parent_id": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:45.750200",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "9d148017-7bdc-47cb-bc51-9b2b3aa48ea2",
+      "payload": {
+        "parent_id": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:45.751584",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "9d148017-7bdc-47cb-bc51-9b2b3aa48ea2",
+      "payload": {
+        "parent_id": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:45.752901",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "35695b9f-1f53-4277-89c3-f6603cd54b0b",
+      "payload": {
+        "parent_id": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:45.754184",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "35695b9f-1f53-4277-89c3-f6603cd54b0b",
+      "payload": {
+        "parent_id": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:45.755258",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "35695b9f-1f53-4277-89c3-f6603cd54b0b",
+      "payload": {
+        "parent_id": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:45.756566",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "35695b9f-1f53-4277-89c3-f6603cd54b0b",
+      "payload": {
+        "parent_id": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:45.758174",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "31968c0d-7d28-46b7-8f01-812d15de90dc",
+      "payload": {
+        "parent_id": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:45.759174",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "31968c0d-7d28-46b7-8f01-812d15de90dc",
+      "payload": {
+        "parent_id": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:45.761173",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "31968c0d-7d28-46b7-8f01-812d15de90dc",
+      "payload": {
+        "parent_id": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:45.762167",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "31968c0d-7d28-46b7-8f01-812d15de90dc",
+      "payload": {
+        "parent_id": "88aaa42d-885d-4fef-9157-cdf278b8e71c",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:31:54.020380",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "4f48847b-c269-44f1-bd59-52fedfbb32e4",
+      "payload": {
+        "seed_idea_id": "4f48847b-c269-44f1-bd59-52fedfbb32e4",
+        "text": "How can we improve on the Pi(x) function to count the number of primes less than x more efficiently without using machine learning?",
+        "metadata": {
+          "iteration": 5,
+          "total_iterations": 5,
+          "original_seed_id": "prime counting",
+          "objective": "Explore advanced mathematical techniques to optimize the counting of prime numbers below a given threshold x. Focus on closed form solutions and algorithmic improvements. Do not consider machine learning or neural networks!",
+          "depth": 0,
+          "seed_config_id": "prime counting_iter5"
+        }
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:30:57.558531",
+      "event_type": "BOOTSTRAP_COMPLETE",
+      "node_id": "BOOTSTRAP",
+      "details": {
+        "component_count": 61,
+        "run_id": "explorer_run_1752006657"
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:08.216207",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:10.389752",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "afbb49bd-f8ca-4140-b07a-033c1fac4bac",
+      "details": {
+        "trust_score": 6.555083084809725,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:10.788086",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "1bb43e35-3dd5-4362-9a09-6774965ca512",
+      "details": {
+        "trust_score": 6.762858831235741,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:11.197517",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "71b94296-c0ab-45f1-a9ae-a9db5a484765",
+      "details": {
+        "trust_score": 6.563583084809725,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:21.808765",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:21.808765",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 24.23175,
+        "total_ideas": 4,
+        "total_assessed": 3,
+        "coverage_percent": 75.0
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:22.310318",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:22.731549",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:23.748965",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:26.012850",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:26.012850",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:26.014441",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 2.191237,
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "coverage_percent": 0.0
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:30.025041",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:30.025041",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:30.025811",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:30.025811",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 2.000755,
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "coverage_percent": 0.0
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:37.646092",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:37.646092",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:37.646092",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:37.646092",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:38.660408",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:38.660408",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:38.660408",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:38.660408",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:39.593183",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "e35fc58b-e643-4d03-b97a-0eb0b24d855a",
+      "details": {
+        "trust_score": 6.691032059958189,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:39.594184",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "e35fc58b-e643-4d03-b97a-0eb0b24d855a",
+      "details": {
+        "trust_score": 6.691032059958189,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:39.594184",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "e35fc58b-e643-4d03-b97a-0eb0b24d855a",
+      "details": {
+        "trust_score": 6.691032059958189,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:39.594184",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "e35fc58b-e643-4d03-b97a-0eb0b24d855a",
+      "details": {
+        "trust_score": 6.691032059958189,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:40.129239",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "5cb938ff-bec7-4726-bfdc-c0d31a69cf5a",
+      "details": {
+        "trust_score": 6.753947634523447,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:40.130245",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "5cb938ff-bec7-4726-bfdc-c0d31a69cf5a",
+      "details": {
+        "trust_score": 6.753947634523447,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:40.131244",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "5cb938ff-bec7-4726-bfdc-c0d31a69cf5a",
+      "details": {
+        "trust_score": 6.753947634523447,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:40.132244",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "5cb938ff-bec7-4726-bfdc-c0d31a69cf5a",
+      "details": {
+        "trust_score": 6.753947634523447,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:41.148751",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "62764afe-2ad0-4ddb-be55-958c8a915d29",
+      "details": {
+        "trust_score": 6.663047634523448,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:41.149759",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "62764afe-2ad0-4ddb-be55-958c8a915d29",
+      "details": {
+        "trust_score": 6.663047634523448,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:41.150771",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "62764afe-2ad0-4ddb-be55-958c8a915d29",
+      "details": {
+        "trust_score": 6.663047634523448,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:41.150771",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "62764afe-2ad0-4ddb-be55-958c8a915d29",
+      "details": {
+        "trust_score": 6.663047634523448,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:41.152760",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "bb4ba0d2-9820-43d8-bdda-78bc27082622",
+      "details": {
+        "trust_score": 6.442486405587536,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:41.152760",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "bb4ba0d2-9820-43d8-bdda-78bc27082622",
+      "details": {
+        "trust_score": 6.442486405587536,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:41.152760",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "bb4ba0d2-9820-43d8-bdda-78bc27082622",
+      "details": {
+        "trust_score": 6.442486405587536,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:41.154394",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "bb4ba0d2-9820-43d8-bdda-78bc27082622",
+      "details": {
+        "trust_score": 6.442486405587536,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:41.156482",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "9822bae8-1108-4ceb-b76a-6aae4e698cf6",
+      "details": {
+        "trust_score": 6.224849998068488,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:41.156482",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "9822bae8-1108-4ceb-b76a-6aae4e698cf6",
+      "details": {
+        "trust_score": 6.224849998068488,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:41.157230",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "9822bae8-1108-4ceb-b76a-6aae4e698cf6",
+      "details": {
+        "trust_score": 6.224849998068488,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:41.157230",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "9822bae8-1108-4ceb-b76a-6aae4e698cf6",
+      "details": {
+        "trust_score": 6.224849998068488,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:42.157062",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "6e19fba9-2d44-4f7a-af5c-bac20cf2e50d",
+      "details": {
+        "trust_score": 6.300986405587537,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:42.159072",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "6e19fba9-2d44-4f7a-af5c-bac20cf2e50d",
+      "details": {
+        "trust_score": 6.300986405587537,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:42.159072",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "6e19fba9-2d44-4f7a-af5c-bac20cf2e50d",
+      "details": {
+        "trust_score": 6.300986405587537,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:42.160560",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "6e19fba9-2d44-4f7a-af5c-bac20cf2e50d",
+      "details": {
+        "trust_score": 6.300986405587537,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:45.763166",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:45.763166",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:45.763166",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:45.765216",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:47.845236",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "31968c0d-7d28-46b7-8f01-812d15de90dc",
+      "details": {
+        "trust_score": 6.57154349994385,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:47.846243",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "31968c0d-7d28-46b7-8f01-812d15de90dc",
+      "details": {
+        "trust_score": 6.57154349994385,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:47.846243",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "31968c0d-7d28-46b7-8f01-812d15de90dc",
+      "details": {
+        "trust_score": 6.57154349994385,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:47.847415",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "31968c0d-7d28-46b7-8f01-812d15de90dc",
+      "details": {
+        "trust_score": 6.57154349994385,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:48.621900",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "35695b9f-1f53-4277-89c3-f6603cd54b0b",
+      "details": {
+        "trust_score": 6.595318671584854,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:48.622790",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "35695b9f-1f53-4277-89c3-f6603cd54b0b",
+      "details": {
+        "trust_score": 6.595318671584854,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:48.623417",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "35695b9f-1f53-4277-89c3-f6603cd54b0b",
+      "details": {
+        "trust_score": 6.595318671584854,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:48.624776",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "35695b9f-1f53-4277-89c3-f6603cd54b0b",
+      "details": {
+        "trust_score": 6.595318671584854,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:48.625736",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "9d148017-7bdc-47cb-bc51-9b2b3aa48ea2",
+      "details": {
+        "trust_score": 6.56934349994385,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:48.626321",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "9d148017-7bdc-47cb-bc51-9b2b3aa48ea2",
+      "details": {
+        "trust_score": 6.56934349994385,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:48.627069",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "9d148017-7bdc-47cb-bc51-9b2b3aa48ea2",
+      "details": {
+        "trust_score": 6.56934349994385,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:48.627069",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "9d148017-7bdc-47cb-bc51-9b2b3aa48ea2",
+      "details": {
+        "trust_score": 6.56934349994385,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:52.014012",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:52.014520",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:52.015027",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:52.016002",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:52.016002",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 19.985611,
+        "total_ideas": 10,
+        "total_assessed": 9,
+        "coverage_percent": 90.0
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:52.212962",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:52.213509",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:52.213509",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:52.213509",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:52.645201",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:52.645201",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:52.645201",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:52.646169",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:53.550132",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:53.551441",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:53.551441",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:53.551441",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:53.819873",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:53.821586",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:53.822091",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:53.822091",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:55.029040",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:55.030071",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:55.030071",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:55.031071",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:55.032079",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:31:55.032079",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 1.012718,
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "coverage_percent": 0.0
+      }
+    }
+  ]
+}

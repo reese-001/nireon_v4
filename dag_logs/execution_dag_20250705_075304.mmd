@@ -1,0 +1,21 @@
+graph TD
+    BOOTSTRAP[BOOTSTRA...<br/>SYSTEM]
+    sentinel_instance_01[sentinel...<br/>COMPONENT]:::component
+    quantifier_agent_primary[quantifi...<br/>COMPONENT]:::component
+    SEED_EXEC_prime counting[SEED_EXE...<br/>SEED_EXECUTION]
+    147df6e3_d6eb_4e8e_85cb_a889035ed278[147df6e3...<br/>SEED_IDEA]:::seed
+    6168965c_9b79_48d4_8ca9_34bb496ab664[6168965c...<br/>GENERATED_IDEA]:::idea
+    8fba8a5c_eb08_4380_9199_25f3c5dd8158[8fba8a5c...<br/>GENERATED_IDEA]:::idea
+    0efeb800_f124_424f_8535_fa3d07f749ee[0efeb800...<br/>GENERATED_IDEA]:::idea
+    proto_prime_counting_analysis[proto_pr...<br/>PROTO_TASK]:::proto
+    proto_prime_counting_visualization[proto_pr...<br/>PROTO_TASK]:::proto
+    proto_enhanced_prime_counting[proto_en...<br/>PROTO_TASK]:::proto
+    proto_count_primes_below_threshold[proto_co...<br/>PROTO_TASK]:::proto
+    147df6e3_d6eb_4e8e_85cb_a889035ed278 -->|GENERATES| 6168965c_9b79_48d4_8ca9_34bb496ab664
+    147df6e3_d6eb_4e8e_85cb_a889035ed278 -->|GENERATES| 8fba8a5c_eb08_4380_9199_25f3c5dd8158
+    147df6e3_d6eb_4e8e_85cb_a889035ed278 -->|GENERATES| 0efeb800_f124_424f_8535_fa3d07f749ee
+
+    classDef seed fill:#90EE90,stroke:#333,stroke-width:2px;
+    classDef idea fill:#ADD8E6,stroke:#333,stroke-width:2px;
+    classDef proto fill:#FFA500,stroke:#333,stroke-width:2px;
+    classDef component fill:#FFB6C1,stroke:#333,stroke-width:2px;

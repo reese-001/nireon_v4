@@ -1,0 +1,249 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-08T11:32:28.765818",
+    "version": "1.0",
+    "config": {
+      "bootstrap": {
+        "manifest": "configs/manifests/standard.yaml",
+        "strict_mode": false
+      },
+      "execution": {
+        "timeout": 60,
+        "iterations": 1,
+        "parallel_execution": false,
+        "completion_condition": {
+          "type": "all_assessed"
+        }
+      },
+      "debug": {
+        "log_level": "INFO",
+        "enable_reactor_rules_check": true,
+        "enable_quantifier_check": true,
+        "quiet_loggers": [
+          "httpx",
+          "httpcore",
+          "openai",
+          "anthropic"
+        ]
+      },
+      "dag_logging": {
+        "enabled": true,
+        "output_dir": "./dag_logs",
+        "capture": {
+          "nodes": true,
+          "edges": true,
+          "signals": true,
+          "events": true
+        },
+        "visualization": {
+          "auto_generate": true,
+          "formats": [
+            "graphviz",
+            "mermaid",
+            "json"
+          ]
+        },
+        "performance": {
+          "buffer_size": 1000,
+          "async_write": true
+        }
+      },
+      "reporting": {
+        "report_dir": "./reports",
+        "generate_json": true,
+        "generate_html": true,
+        "generate_csv_summary": true,
+        "include_dag_visualization": true
+      },
+      "criteria": {
+        "min_trust_score_for_quantifier": 6.0,
+        "max_depth": 5
+      },
+      "seeds": [
+        {
+          "id": "test",
+          "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+          "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+          "tags": [
+            "analysis_query",
+            "mystery"
+          ]
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_runs": 1,
+    "successful_runs": 1,
+    "failed_runs": 0,
+    "success_rate": 100.0,
+    "total_ideas": 4,
+    "total_assessed": 3,
+    "total_high_trust": 3,
+    "proto_triggered_count": 0,
+    "avg_ideas_per_run": 4.0,
+    "avg_assessment_coverage": 75.0
+  },
+  "results": [
+    {
+      "seed_id": "test_iter1",
+      "seed_text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+      "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+      "test_passed": true,
+      "failure_reason": null,
+      "start_time": "2025-07-08T11:32:01.302464",
+      "end_time": "2025-07-08T11:32:28.765818",
+      "duration_seconds": 27.463354,
+      "run_data": {
+        "seed_idea": {
+          "id": "4af6126b-061f-43de-a8a4-24b76299e6de",
+          "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+          "trust_score": null,
+          "is_stable": null,
+          "variations": {
+            "22e18136-7eb5-4568-8086-a7ec9a81c29a": {
+              "id": "22e18136-7eb5-4568-8086-a7ec9a81c29a",
+              "text": "**Title: The Lobster Conundrum: An Intriguing Discovery 15 Miles from the Sea**\n\n**Hypothesis 1: The Great Lobster Escape**\nIn a bizarre twist of fate, a lobster was inadvertently transported from a seafood market or a fishing vessel. Perhaps it was placed in a cooler that was later discarded or left unguarded in a backyard during a summer barbecue. After a day or two in the sun, the lobster succumbed to heat stress and dehydration, ultimately ending up on the lawn.\n\n**Hypothesis 2: A Marine Migrant's Journey**\nUnlikely as it sounds, the lobster could have been carried inland by a powerful storm surge. Heavy rain and flooding could have transported marine life from coastal areas to inland locations. This scenario could include the lobster being swept into a waterway that feeds into a larger river system, later ending up abandoned on the suburban lawn after the waters receded.\n\n**Hypothesis 3: The Scavenger's Delight**\nA local animal, such as a raccoon or a domestic pet, might have scavenged the lobster from a nearby source—like a trash bin or a fishmonger’s waste—and brought it home. The lobster may have been discarded after a seafood feast or simply left behind in a dumpster. The scavenger could have then dropped it on the lawn, resulting in the peculiar sight.\n\n**Hypothesis 4: An Unusual Weather Event**\nConsider the possibility of an unusual meteorological phenomenon, such as a tornado or a waterspout that formed over the ocean. This weather event could have lifted the lobster into the air and deposited it inland. Though rare, such occurrences can happen, and the presence of the lobster could be the remnant of a freak occurrence that defied explanation.\n\n**Hypothesis 5: Local Aquaculture Gone Awry**\nThere may be a small aquaculture facility or a home aquarium setup nearby. A lobster could have escaped its confines during transport or maintenance activities. Perhaps it was released into a local pond or stream, only to find itself struggling to survive in a non-saline environment, ultimately leading to its demise far from the ocean.\n\n**Hypothesis 6: A Marketing Gimmick Gone Wrong**\nIn an odd twist of human behavior, the lobster might be part of a promotional stunt gone awry. A local restaurant or seafood vendor could have staged a publicity stunt to draw attention, only for the lobster to end up forgotten and lifeless on a suburban lawn. This hypothesis could be examined further by investigating local businesses and their marketing strategies.\n\n**Conclusion**\nWhile the presence of a dead lobster 15 miles inland raises eyebrows, these hypotheses illustrate a variety of plausible explanations grounded in biology, meteorology, and human factors. Further investigation into local activities, weather patterns, and ecological connections may provide more clarity on this intriguing mystery.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 6.783409808469651,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            },
+            "3c390c43-17a7-4cf3-bea1-431b4cb3fc0a": {
+              "id": "3c390c43-17a7-4cf3-bea1-431b4cb3fc0a",
+              "text": "**Title: The Mysterious Lobster on Maple Street**\n\n**Concept**: A dead lobster appears mysteriously on a suburban lawn, 15 miles from the nearest coastline. Residents are baffled, and various theories abound as to how it ended up so far from its natural habitat. \n\n**Hypotheses**:\n\n1. **Floodwaters and Displacement**: Recent heavy rains caused localized flooding that may have led to water from a nearby river or creek overflowing into the area. The lobster could have been swept inland during the flooding, carried by the current, and deposited on the lawn as waters receded.\n\n2. **Illegal Seafood Dumping**: An illegal dumping incident may have occurred. A nearby seafood restaurant, looking to dispose of unsold or expired seafood, might have irresponsibly discarded the lobster in a nearby wooded area or park. Animals or scavengers could have moved it to the lawn, or it may have simply been left there.\n\n3. **Aerodynamic Anomaly**: A rare meteorological phenomenon involving a strong updraft could have lifted the lobster from a fishing vessel or dock and carried it overland. This could happen during a storm where intense winds create unusual air movements, potentially lifting lightweight objects and dropping them in unexpected places.\n\n4. **Backyard Aquaculture Gone Wrong**: A resident might have attempted to raise lobsters in a backyard aquaculture setup (e.g., a home aquarium or pond) and failed to maintain proper conditions, leading to the lobster's death. The deceased lobster could then have been disposed of improperly, resulting in it ending up on the lawn.\n\n5. **Mysterious Cargo Spill**: A truck transporting seafood from the coast to a distribution center might have experienced an accident or spillage along the route, leading to the lobster tumbling out onto the suburban street. The driver could have been unaware of the loss and continued on their way, leaving the lobster to be discovered later.\n\n6. **Animal Transport**: A local animal, such as a raccoon or large bird, might have scavenged the lobster from a nearby dumpster or dock and carried it a considerable distance before dropping it on the lawn. This behavior is not uncommon as animals often transport food to safer or more secluded locations.\n\n7. **Cultural Installation**: A local artist or a group of high school students might have staged an environmental awareness installation, placing the dead lobster on the lawn as a provocative statement about climate change, pollution in the oceans, or the impact of human activity on marine life. The project could have been left unattended after the initial setup.\n\n8. **Genetic Mutation and Migration**: In a bizarre twist of nature, a mutation could allow a lobster to survive in freshwater environments, enabling it to wander further inland. This would be an unprecedented case, raising questions about evolutionary adaptability, but it could lead to new research on aquatic species and their habitats.\n\nBy exploring these diverse hypotheses, the community can engage in discussions about environmental issues, the peculiarities of nature, and the influence of human actions on wildlife. The lobster's presence serves as a catalyst for curiosity and investigation, fostering a deeper connection to the surrounding ecosystem.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 6.357647979473896,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            },
+            "62059619-4b0f-4414-aa3b-3d86dc530b8c": {
+              "id": "62059619-4b0f-4414-aa3b-3d86dc530b8c",
+              "text": "Here’s a creative variation of the idea, along with distinct hypotheses to explain the presence of the dead lobster on a suburban lawn:\n\n### Concept: \"The Lobster Mystery: A Suburban Enigma\"\n\n**Situation**: A vibrant red lobster, lifeless and seemingly out of place, was discovered on a well-manicured suburban lawn, 15 miles away from the nearest coastline. The curious find raises questions about how such a creature could arrive in a landlocked area.\n\n### Hypotheses:\n\n1. **Unusual Weather Phenomenon**: A powerful storm may have caused a freak water spout or tornado to form over the ocean, pulling marine life, including lobsters, into the air and depositing them miles inland. Meteorological data may reveal extreme weather conditions coinciding with the time of the lobster's arrival.\n\n2. **Aquarium Escape or Release**: The lobster could have escaped from a local aquarium or seafood restaurant. A disgruntled employee or an environmentalist might have released it, believing it would thrive in the wild. Investigating nearby businesses and local aquarium ownership could provide insights into this possibility.\n\n3. **Flooding and Habitat Displacement**: Recent flooding in the region might have washed the lobster from its habitat, such as a nearby river or creek, where it was likely introduced as part of an ecological experiment or due to careless aquarium dumping. An investigation of waterways could reveal unusual marine species presence.\n\n4. **Food Chain Disruption**: The lobster may have been part of a migratory or ecological disruption, where it was carried into a new environment due to changes in habitat caused by human activities, such as pollution or development. This could include accidental transportation via construction materials or landscaping supplies that were sourced from coastal areas.\n\n5. **Culinary Arts Gone Awry**: A local chef, known for their avant-garde cooking, might have used the lobster for a unique dish and, after the event, discarded it improperly. The lobster could have been left in a container that inadvertently tipped over onto the lawn, creating confusion about its origins.\n\n6. **Research Experiment Gone Wrong**: A nearby university or research facility studying marine biology might have inadvertently released the lobster during a transport mishap, leading to the creature's unexpected arrival. Collaborating with local institutions could provide clarity on any studies involving live specimens.\n\n7. **Alien Intervention**: In a more fantastical hypothesis, some locals might entertain the idea that the lobster is an extraterrestrial entity that has crash-landed in suburban America. This could spark interest in the community, leading to humorous theories and stories about intergalactic seafood.\n\n8. **Local Mythology or Folklore**: The presence of the lobster might tie into local folklore or urban legends about creatures appearing in strange places, possibly linked to community events or festivals. Engaging with local historians could uncover fascinating narratives around this bizarre find.\n\nBy exploring these hypotheses, the community can investigate the lobster's presence thoroughly, fostering collaboration among scientists, environmentalists, and local residents, while also igniting curiosity and creativity within the suburban landscape.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 6.352747979473896,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            }
+          }
+        },
+        "metadata": {
+          "run_start_time": "2025-07-08T11:32:01.303928",
+          "run_end_time": "2025-07-08T11:32:28.764814",
+          "total_ideas": 4,
+          "total_assessments": 3,
+          "high_trust_ideas": [
+            {
+              "idea_id": "62059619-4b0f-4414-aa3b-3d86dc530b8c",
+              "trust_score": 6.352747979473896
+            },
+            {
+              "idea_id": "3c390c43-17a7-4cf3-bea1-431b4cb3fc0a",
+              "trust_score": 6.357647979473896
+            },
+            {
+              "idea_id": "22e18136-7eb5-4568-8086-a7ec9a81c29a",
+              "trust_score": 6.783409808469651
+            }
+          ],
+          "max_depth_reached": 0,
+          "signals_received": {
+            "IdeaGeneratedSignal": 3,
+            "TrustAssessmentSignal": 3,
+            "ProtoTaskSignal": 0,
+            "GenerativeLoopFinishedSignal": 2
+          },
+          "duration_seconds": 27.460886,
+          "ideas_per_second": 0.14566172409732156,
+          "assessment_coverage": 75.0
+        },
+        "events": [
+          {
+            "timestamp": "2025-07-08T11:32:13.264225",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "22e18136-7eb5-4568-8086-a7ec9a81c29a",
+              "parent_id": "4af6126b-061f-43de-a8a4-24b76299e6de",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T11:32:13.267259",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "3c390c43-17a7-4cf3-bea1-431b4cb3fc0a",
+              "parent_id": "4af6126b-061f-43de-a8a4-24b76299e6de",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T11:32:13.267779",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "62059619-4b0f-4414-aa3b-3d86dc530b8c",
+              "parent_id": "4af6126b-061f-43de-a8a4-24b76299e6de",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T11:32:15.791286",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "62059619-4b0f-4414-aa3b-3d86dc530b8c",
+              "trust_score": 6.352747979473896,
+              "is_stable": true,
+              "high_trust": true
+            }
+          },
+          {
+            "timestamp": "2025-07-08T11:32:16.189416",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "3c390c43-17a7-4cf3-bea1-431b4cb3fc0a",
+              "trust_score": 6.357647979473896,
+              "is_stable": true,
+              "high_trust": true
+            }
+          },
+          {
+            "timestamp": "2025-07-08T11:32:16.594185",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "22e18136-7eb5-4568-8086-a7ec9a81c29a",
+              "trust_score": 6.783409808469651,
+              "is_stable": true,
+              "high_trust": true
+            }
+          },
+          {
+            "timestamp": "2025-07-08T11:32:28.764814",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          }
+        ]
+      },
+      "summary_stats": {
+        "total_ideas": 4,
+        "total_assessed": 3,
+        "high_trust_count": 3,
+        "max_depth": 0,
+        "proto_triggered": false,
+        "signals_received": {
+          "IdeaGeneratedSignal": 3,
+          "TrustAssessmentSignal": 3,
+          "ProtoTaskSignal": 0,
+          "GenerativeLoopFinishedSignal": 2
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,342 @@
+{
+  "nodes": [
+    "quantifier_agent_primary",
+    "63b95e78-a9f5-413f-88c5-eab386572b95",
+    "BOOTSTRAP",
+    "1ef9b14f-8752-441e-9770-02747a9b9c94",
+    "7a742fb1-f66a-421b-a369-2cf6f1bf4ffc",
+    "proto_mermaid_segmented_sieve",
+    "sentinel_instance_01",
+    "f04df24d-5d10-40e2-bf5d-3894f603856f",
+    "3842b028-1650-4cee-9f3b-1384a25dd584",
+    "SEED_EXEC_prime counting",
+    "f33538e0-da4b-423e-b878-2c1019694964",
+    "e6fbe302-acbb-4206-8703-b5ef6991a491"
+  ],
+  "edges": [
+    {
+      "source": "f33538e0-da4b-423e-b878-2c1019694964",
+      "target": "7a742fb1-f66a-421b-a369-2cf6f1bf4ffc",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "f33538e0-da4b-423e-b878-2c1019694964",
+      "target": "f04df24d-5d10-40e2-bf5d-3894f603856f",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "f33538e0-da4b-423e-b878-2c1019694964",
+      "target": "3842b028-1650-4cee-9f3b-1384a25dd584",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "f33538e0-da4b-423e-b878-2c1019694964",
+      "target": "e6fbe302-acbb-4206-8703-b5ef6991a491",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "f33538e0-da4b-423e-b878-2c1019694964",
+      "target": "1ef9b14f-8752-441e-9770-02747a9b9c94",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "f33538e0-da4b-423e-b878-2c1019694964",
+      "target": "63b95e78-a9f5-413f-88c5-eab386572b95",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    }
+  ],
+  "signals": [
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-06-28T17:13:24.473386",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "f33538e0-da4b-423e-b878-2c1019694964",
+      "payload": {
+        "seed_idea_id": "f33538e0-da4b-423e-b878-2c1019694964",
+        "text": "How can we improve on the Pi(x) function to count the number of primes less than x more efficiently without using machine learning?",
+        "metadata": {
+          "iteration": 1,
+          "objective": "Explore advanced mathematical techniques to optimize the counting of prime numbers below a given threshold x. Focus on closed form solutions and algorithmic improvements. Do not consider machine learning or neural networks!",
+          "depth": 0,
+          "seed_config_id": "prime counting"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-06-28T17:13:32.754194",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "7a742fb1-f66a-421b-a369-2cf6f1bf4ffc",
+      "payload": {
+        "parent_id": "f33538e0-da4b-423e-b878-2c1019694964",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-06-28T17:13:32.754194",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "f04df24d-5d10-40e2-bf5d-3894f603856f",
+      "payload": {
+        "parent_id": "f33538e0-da4b-423e-b878-2c1019694964",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-06-28T17:13:32.755194",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "3842b028-1650-4cee-9f3b-1384a25dd584",
+      "payload": {
+        "parent_id": "f33538e0-da4b-423e-b878-2c1019694964",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-06-28T17:13:34.686861",
+      "signal_type": "TrustAssessmentSignal",
+      "source": "sentinel_instance_01",
+      "target": "7a742fb1-f66a-421b-a369-2cf6f1bf4ffc",
+      "payload": {
+        "trust_score": 6.630814735237197
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-06-28T17:13:34.898507",
+      "signal_type": "TrustAssessmentSignal",
+      "source": "sentinel_instance_01",
+      "target": "3842b028-1650-4cee-9f3b-1384a25dd584",
+      "payload": {
+        "trust_score": 6.719131533664212
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-06-28T17:13:35.110413",
+      "signal_type": "TrustAssessmentSignal",
+      "source": "sentinel_instance_01",
+      "target": "f04df24d-5d10-40e2-bf5d-3894f603856f",
+      "payload": {
+        "trust_score": 6.650614735237197
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-06-28T17:13:35.333201",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "e6fbe302-acbb-4206-8703-b5ef6991a491",
+      "payload": {
+        "parent_id": "f33538e0-da4b-423e-b878-2c1019694964",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-06-28T17:13:35.334197",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "1ef9b14f-8752-441e-9770-02747a9b9c94",
+      "payload": {
+        "parent_id": "f33538e0-da4b-423e-b878-2c1019694964",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-06-28T17:13:35.335196",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "63b95e78-a9f5-413f-88c5-eab386572b95",
+      "payload": {
+        "parent_id": "f33538e0-da4b-423e-b878-2c1019694964",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-06-28T17:13:37.003322",
+      "signal_type": "TrustAssessmentSignal",
+      "source": "sentinel_instance_01",
+      "target": "63b95e78-a9f5-413f-88c5-eab386572b95",
+      "payload": {
+        "trust_score": 6.464440238394303
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-06-28T17:13:37.212985",
+      "signal_type": "TrustAssessmentSignal",
+      "source": "sentinel_instance_01",
+      "target": "e6fbe302-acbb-4206-8703-b5ef6991a491",
+      "payload": {
+        "trust_score": 6.106754275505592
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-06-28T17:13:37.413852",
+      "signal_type": "TrustAssessmentSignal",
+      "source": "sentinel_instance_01",
+      "target": "1ef9b14f-8752-441e-9770-02747a9b9c94",
+      "payload": {
+        "trust_score": 6.2995546477992646
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-06-28T17:13:59.274572",
+      "signal_type": "ProtoTaskSignal",
+      "source": "quantifier_agent",
+      "target": "proto_mermaid_segmented_sieve",
+      "payload": {
+        "source_idea": null,
+        "eidos": "math"
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "EVENT",
+      "timestamp": "2025-06-28T17:13:24.453333",
+      "event_type": "BOOTSTRAP_COMPLETE",
+      "node_id": "BOOTSTRAP",
+      "details": {
+        "component_count": 59,
+        "run_id": "explorer_run_1751148804"
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-06-28T17:13:34.686861",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "7a742fb1-f66a-421b-a369-2cf6f1bf4ffc",
+      "details": {
+        "trust_score": 6.630814735237197,
+        "is_stable": null,
+        "assessment_source": "sentinel_instance_01"
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-06-28T17:13:34.898237",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "3842b028-1650-4cee-9f3b-1384a25dd584",
+      "details": {
+        "trust_score": 6.719131533664212,
+        "is_stable": null,
+        "assessment_source": "sentinel_instance_01"
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-06-28T17:13:35.109368",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "f04df24d-5d10-40e2-bf5d-3894f603856f",
+      "details": {
+        "trust_score": 6.650614735237197,
+        "is_stable": null,
+        "assessment_source": "sentinel_instance_01"
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-06-28T17:13:37.002317",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "63b95e78-a9f5-413f-88c5-eab386572b95",
+      "details": {
+        "trust_score": 6.464440238394303,
+        "is_stable": null,
+        "assessment_source": "sentinel_instance_01"
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-06-28T17:13:37.212985",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "e6fbe302-acbb-4206-8703-b5ef6991a491",
+      "details": {
+        "trust_score": 6.106754275505592,
+        "is_stable": null,
+        "assessment_source": "sentinel_instance_01"
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-06-28T17:13:37.413852",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "1ef9b14f-8752-441e-9770-02747a9b9c94",
+      "details": {
+        "trust_score": 6.2995546477992646,
+        "is_stable": null,
+        "assessment_source": "sentinel_instance_01"
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-06-28T17:13:59.275572",
+      "event_type": "SEED_COMPLETION",
+      "node_id": "SEED_EXEC_prime counting",
+      "details": {
+        "status": "success",
+        "all_assessed": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-06-28T17:14:00.207613",
+      "event_type": "PROTO_EXECUTION_SUCCESS",
+      "node_id": "proto_mermaid_segmented_sieve",
+      "details": {
+        "success": true,
+        "proto_id": "proto_mermaid_segmented_sieve",
+        "artifacts": [
+          "C:\\Users\\erees\\Documents\\development\\nireon_v4\\runtime\\proto\\math\\artifacts\\proto_mermaid_segmented_sieve-5676b920_diagram.mmd",
+          "C:\\Users\\erees\\Documents\\development\\nireon_v4\\runtime\\proto\\math\\artifacts\\proto_mermaid_segmented_sieve-5676b920_mermaid_output.txt"
+        ]
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-06-28T17:14:00.208317",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 35.736444,
+        "total_ideas": 7,
+        "total_assessed": 6,
+        "coverage_percent": 85.71428571428571
+      }
+    }
+  ]
+}

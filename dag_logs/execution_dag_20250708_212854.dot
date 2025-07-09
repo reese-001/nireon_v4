@@ -1,0 +1,15 @@
+digraph ExecutionDAG {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    "BOOTSTRAP" [label="BOOTSTRA...\nSYSTEM", fillcolor=lavender, style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifi...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "SEED_EXEC_prime counting_iter1" [label="SEED_EXE...\nSEED_EXECUTION", fillcolor=khaki, style="rounded,filled"];
+    "7b2185bf-dc6d-4f21-bea5-1ea526e1baf8" [label="7b2185bf...\nSEED_IDEA", fillcolor=lightgreen, style="rounded,filled"];
+    "0d40ca43-1cf4-48d7-992c-f480638a6195" [label="0d40ca43...\nGENERATED_IDEA\n**Title: The Paradox of Divine...", fillcolor=lightblue, style="rounded,filled"];
+    "8f5bb04f-c55a-42dd-9454-c7b8db546b04" [label="8f5bb04f...\nGENERATED_IDEA\n**Title: "The Paradox of Belie...", fillcolor=lightblue, style="rounded,filled"];
+    "65965334-1f11-44af-8932-350cf231d3f3" [label="65965334...\nGENERATED_IDEA\n**Title: The Paradox of Plural...", fillcolor=lightblue, style="rounded,filled"];
+    "7b2185bf-dc6d-4f21-bea5-1ea526e1baf8" -> "0d40ca43-1cf4-48d7-992c-f480638a6195" [label="GENERATES\ndepth=1"];
+    "7b2185bf-dc6d-4f21-bea5-1ea526e1baf8" -> "8f5bb04f-c55a-42dd-9454-c7b8db546b04" [label="GENERATES\ndepth=1"];
+    "7b2185bf-dc6d-4f21-bea5-1ea526e1baf8" -> "65965334-1f11-44af-8932-350cf231d3f3" [label="GENERATES\ndepth=1"];
+}

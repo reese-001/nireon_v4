@@ -1,0 +1,160 @@
+{
+  "nodes": [
+    "da4c48c9-32b8-4148-9795-eac121e5b72c",
+    "SEED_EXEC_test_iter1",
+    "9edd3874-971d-4737-ae56-09b282e2795e",
+    "quantifier_agent_primary",
+    "BOOTSTRAP",
+    "sentinel_instance_01",
+    "8be85e2b-d2a1-4aeb-97fb-f7787d267300",
+    "b07559b0-b0fa-4851-80f1-577f14016053"
+  ],
+  "edges": [
+    {
+      "source": "b07559b0-b0fa-4851-80f1-577f14016053",
+      "target": "8be85e2b-d2a1-4aeb-97fb-f7787d267300",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 1
+      }
+    },
+    {
+      "source": "b07559b0-b0fa-4851-80f1-577f14016053",
+      "target": "da4c48c9-32b8-4148-9795-eac121e5b72c",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 1
+      }
+    },
+    {
+      "source": "b07559b0-b0fa-4851-80f1-577f14016053",
+      "target": "9edd3874-971d-4737-ae56-09b282e2795e",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 1
+      }
+    }
+  ],
+  "signals": [
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-07T17:23:27.622431",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "b07559b0-b0fa-4851-80f1-577f14016053",
+      "payload": {
+        "seed_idea_id": "b07559b0-b0fa-4851-80f1-577f14016053",
+        "text": "How does a dead lobster find its way into a suburban yard inland from an ocean?",
+        "metadata": {
+          "iteration": 1,
+          "total_iterations": 1,
+          "original_seed_id": "test",
+          "objective": "This is a true story and I am looking for logical explanations. A lobster was found in a 2 acre lawn at least 15 miles from the ocean. There are no resturants in the vicinity nor abnormal human or animal presence. The lobster was likely alive within the past 24 hours of being found on the lawn. Its body was fully intact. FHow did this happen?",
+          "depth": 0,
+          "seed_config_id": "test_iter1"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-07T17:23:40.332699",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "8be85e2b-d2a1-4aeb-97fb-f7787d267300",
+      "payload": {
+        "parent_id": "b07559b0-b0fa-4851-80f1-577f14016053",
+        "depth": 1
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-07T17:23:40.333705",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "da4c48c9-32b8-4148-9795-eac121e5b72c",
+      "payload": {
+        "parent_id": "b07559b0-b0fa-4851-80f1-577f14016053",
+        "depth": 1
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-07T17:23:40.334703",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "9edd3874-971d-4737-ae56-09b282e2795e",
+      "payload": {
+        "parent_id": "b07559b0-b0fa-4851-80f1-577f14016053",
+        "depth": 1
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T17:23:27.614896",
+      "event_type": "BOOTSTRAP_COMPLETE",
+      "node_id": "BOOTSTRAP",
+      "details": {
+        "component_count": 59,
+        "run_id": "explorer_run_1751927007"
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T17:23:40.334703",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T17:23:42.812176",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "da4c48c9-32b8-4148-9795-eac121e5b72c",
+      "details": {
+        "trust_score": 5.6142448795564714,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T17:23:42.821328",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "9edd3874-971d-4737-ae56-09b282e2795e",
+      "details": {
+        "trust_score": 5.909044879556471,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T17:23:44.114253",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "8be85e2b-d2a1-4aeb-97fb-f7787d267300",
+      "details": {
+        "trust_score": 5.670697756216332,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T17:24:27.618652",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 59.996221,
+        "total_ideas": 4,
+        "total_assessed": 3,
+        "coverage_percent": 75.0
+      }
+    }
+  ]
+}

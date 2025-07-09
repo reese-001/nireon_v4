@@ -1,0 +1,171 @@
+{
+  "nodes": [
+    "BOOTSTRAP",
+    "sentinel_instance_01",
+    "04b52f54-1eac-41ed-84c1-b6fb5f4689bc",
+    "40ef27e1-aace-41fb-9a16-5550fb4ba10f",
+    "quantifier_agent_primary",
+    "edacdee0-f1d3-4887-a3f6-9176a2c5f727",
+    "SEED_EXEC_test_iter1",
+    "79a1b50b-aaeb-4647-b331-54f923ef9767"
+  ],
+  "edges": [
+    {
+      "source": "40ef27e1-aace-41fb-9a16-5550fb4ba10f",
+      "target": "04b52f54-1eac-41ed-84c1-b6fb5f4689bc",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "40ef27e1-aace-41fb-9a16-5550fb4ba10f",
+      "target": "edacdee0-f1d3-4887-a3f6-9176a2c5f727",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "40ef27e1-aace-41fb-9a16-5550fb4ba10f",
+      "target": "79a1b50b-aaeb-4647-b331-54f923ef9767",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    }
+  ],
+  "signals": [
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-07T21:25:22.537839",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "40ef27e1-aace-41fb-9a16-5550fb4ba10f",
+      "payload": {
+        "seed_idea_id": "40ef27e1-aace-41fb-9a16-5550fb4ba10f",
+        "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+        "metadata": {
+          "iteration": 1,
+          "total_iterations": 1,
+          "original_seed_id": "test",
+          "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+          "depth": 0,
+          "seed_config_id": "test_iter1"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-07T21:25:42.359440",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "04b52f54-1eac-41ed-84c1-b6fb5f4689bc",
+      "payload": {
+        "parent_id": "40ef27e1-aace-41fb-9a16-5550fb4ba10f",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-07T21:25:42.364735",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "edacdee0-f1d3-4887-a3f6-9176a2c5f727",
+      "payload": {
+        "parent_id": "40ef27e1-aace-41fb-9a16-5550fb4ba10f",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-07T21:25:42.370487",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "79a1b50b-aaeb-4647-b331-54f923ef9767",
+      "payload": {
+        "parent_id": "40ef27e1-aace-41fb-9a16-5550fb4ba10f",
+        "depth": 0
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T21:25:22.537839",
+      "event_type": "BOOTSTRAP_COMPLETE",
+      "node_id": "BOOTSTRAP",
+      "details": {
+        "component_count": 59,
+        "run_id": "explorer_run_1751941522"
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T21:25:42.372861",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T21:25:47.840541",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "79a1b50b-aaeb-4647-b331-54f923ef9767",
+      "details": {
+        "trust_score": 6.6902865410059915,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T21:25:48.927222",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "edacdee0-f1d3-4887-a3f6-9176a2c5f727",
+      "details": {
+        "trust_score": 6.716893279312476,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T21:25:48.929109",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "04b52f54-1eac-41ed-84c1-b6fb5f4689bc",
+      "details": {
+        "trust_score": 6.712293279312476,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T21:26:07.085240",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T21:26:07.085240",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 44.547401,
+        "total_ideas": 4,
+        "total_assessed": 3,
+        "coverage_percent": 75.0
+      }
+    }
+  ]
+}

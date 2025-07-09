@@ -1,0 +1,21 @@
+# configs/reactor/rules/core.yaml
+version: "1.0"
+rules:
+  - id: "route_idea_to_sentinel"
+    description: "When a new idea is generated, send it to the Sentinel for evaluation."
+    namespace: "core_assessment"
+    priority: 50
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "IdeaGeneratedSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "sentinel_instance_01"
+        # This mapping is crucial. It takes data from the signal's payload
+        # and passes it as the `data` dictionary to the Sentinel's process() method.
+        input_data_mapping:
+          target_idea_id: "payload.id"
+          objective: "payload.objective"
+          # Sentinel is smart enough to find reference ideas (parents/siblings)
+          # on its own using the IdeaService, so we don't need to pass them.

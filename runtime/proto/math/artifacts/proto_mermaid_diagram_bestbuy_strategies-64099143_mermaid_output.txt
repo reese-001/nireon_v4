@@ -1,0 +1,1 @@
+To render the diagram, use a Mermaid live editor or integrate Mermaid.js into your web application.

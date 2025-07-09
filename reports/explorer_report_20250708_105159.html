@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIREON Explorer Report - 20250708_105159</title>
+    <style>
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #1a1a2e, #0f0f1e);
+            border-radius: 1rem;
+            border: 1px solid #2a2a3e;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(45deg, #00ff88, #0088ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .timestamp {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        section {
+            margin-bottom: 3rem;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #00ff88;
+        }
+        
+        h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #0088ff;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .stat-card {
+            background: #1a1a2e;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            border: 1px solid #2a2a3e;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+        
+        .stat-card.success {
+            border-color: #00ff88;
+        }
+        
+        .stat-card.failure {
+            border-color: #ff4444;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: #888;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .metric-card {
+            background: #1a1a2e;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #2a2a3e;
+        }
+        
+        .metric-card h3 {
+            color: #0088ff;
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+        
+        .metric-detail {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+        }
+        
+        .chart-container {
+            background: #1a1a2e;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #2a2a3e;
+        }
+        
+        .result-card {
+            background: #1a1a2e;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #2a2a3e;
+            margin-bottom: 1rem;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            cursor: pointer;
+        }
+        
+        .result-header:hover {
+            opacity: 0.8;
+        }
+        
+        .result-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .result-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        
+        .status-success {
+            background: #00ff88;
+            color: #000;
+        }
+        
+        .status-failure {
+            background: #ff4444;
+            color: #fff;
+        }
+        
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            color: #888;
+            font-size: 0.85rem;
+        }
+        
+        .detail-value {
+            font-weight: bold;
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #00ff88, #0088ff);
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+        
+        /* New styles for collapsible content */
+        .collapsible {
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            max-height: 0;
+        }
+        
+        .collapsible.expanded {
+            max-height: none;
+        }
+        
+        .expand-indicator {
+            margin-left: 0.5rem;
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+            display: inline-block;
+        }
+        
+        .expanded .expand-indicator {
+            transform: rotate(180deg);
+        }
+        
+        .idea-container {
+            background: #0f0f1e;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid #2a2a3e;
+        }
+        
+        .idea-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+        
+        .idea-title {
+            font-weight: bold;
+            color: #00ff88;
+            flex: 1;
+            margin-right: 1rem;
+        }
+        
+        .idea-text {
+            font-size: 0.9rem;
+            color: #ccc;
+            line-height: 1.5;
+            max-height: 100px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+        
+        .trust-score {
+            font-weight: bold;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        
+        .high-trust {
+            background: #00ff88;
+            color: #000;
+        }
+        
+        .low-trust {
+            background: #ff4444;
+            color: #fff;
+        }
+        
+        .seed-objective {
+            background: #1a1a3e;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-style: italic;
+            color: #aaa;
+        }
+        
+        .proto-tasks {
+            background: #1a2a3e;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            border: 1px solid #0088ff;
+        }
+        
+        .proto-task-item {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background: #0a1a2e;
+            border-radius: 0.25rem;
+        }
+        
+        .proto-task-id {
+            font-family: monospace;
+            color: #0088ff;
+            font-weight: bold;
+        }
+        
+        .event-timeline {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #0f0f1e;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            font-family: monospace;
+            margin-top: 1rem;
+        }
+        
+        .event-item {
+            margin-bottom: 0.25rem;
+            color: #888;
+        }
+        
+        .event-type {
+            color: #00ff88;
+            font-weight: bold;
+        }
+        
+        .failure-reason {
+            background: #ff444433;
+            border: 1px solid #ff4444;
+            color: #ff8888;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        /* Scrollbar styling for dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1a1a2e;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #2a2a3e;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3a3a4e;
+        }
+        
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧠 NIREON Explorer Test Report</h1>
+            <div class="timestamp">Generated: 2025-07-08 10:51:59</div>
+        </header>
+        
+        <section class="summary">
+            <h2>📊 Executive Summary</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">1</div>
+                    <div class="stat-label">Total Runs</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-value">1</div>
+                    <div class="stat-label">Successful</div>
+                </div>
+                <div class="stat-card failure">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Failed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">100.0%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="metrics">
+            <h2>📈 Key Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h3>Ideas Generated</h3>
+                    <div class="metric-value">4</div>
+                    <div class="metric-detail">Avg: 4.0 per run</div>
+                </div>
+                <div class="metric-card">
+                    <h3>Assessment Coverage</h3>
+                    <div class="metric-value">75.0%</div>
+                    <div class="metric-detail">Of all generated ideas</div>
+                </div>
+                <div class="metric-card">
+                    <h3>High Trust Ideas</h3>
+                    <div class="metric-value">3</div>
+                    <div class="metric-detail">Trust score > 6.0</div>
+                </div>
+                <div class="metric-card">
+                    <h3>Proto Tasks</h3>
+                    <div class="metric-value">0</div>
+                    <div class="metric-detail">Quantifier activations</div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="charts">
+            <h2>📊 Visualizations</h2>
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <canvas id="successChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="ideasChart"></canvas>
+                </div>
+            </div>
+        </section>
+        
+        <section class="results">
+            <h2>🔍 Detailed Results</h2>
+            
+            <div class="result-card">
+                <div class="result-header" onclick="toggleCollapse('test_iter1_details')">
+                    <div class="result-title">test_iter1</div>
+                    <div>
+                        <span class="result-status status-success">✅ PASSED</span>
+                        <span class="expand-indicator">▼</span>
+                    </div>
+                </div>
+                <div class="result-text">A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explana...</div>
+                <div class="result-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Duration</span>
+                        <span class="detail-value">32.61s</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Ideas</span>
+                        <span class="detail-value">4</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Assessed</span>
+                        <span class="detail-value">3</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">High Trust</span>
+                        <span class="detail-value">3</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Max Depth</span>
+                        <span class="detail-value">0</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Proto</span>
+                        <span class="detail-value">No</span>
+                    </div>
+                </div>
+                
+                
+                <div id="test_iter1_details" class="collapsible">
+                    
+            <div class="seed-objective">
+                <strong>Objective:</strong> Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.
+            </div>
+            
+
+                <h3>Generated Ideas (3 Total)</h3>
+                
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Title: The Curious Case of the Lobster on Dry Land</div>
+                    <span class="trust-score high-trust">Trust: 6.49</span>
+                </div>
+                <div class="idea-text">**Title: The Curious Case of the Lobster on Dry Land**
+
+In the heart of a suburban neighborhood, a bewildering discovery has baffled residents: a deceased lobster was found nestled among the blades of grass on a lawn, a staggering 15 miles from the nearest ocean. This peculiar event has sparked a flurry of speculation, leading to several plausible hypotheses drawn from biology, meteorology, and human activity.
+
+### Hypothesis 1: The Aquatic Escape Artist
+**Biological Explanation:** A local aquarium, perhaps in the process of relocating or cleaning its tanks, inadvertently released a live lobster into a nearby river or stream. After being swept downstream during a heavy rain, the lobster could have been transported through drainage systems or floodwaters, ultimately ending up on the suburban lawn. This scenario highlights the adaptability of certain crustaceans, though survival out of water would be brief.
+
+### Hypothesis 2: The Meteorological Marvel
+**Meteorological Explanation:** A recent severe storm could have created an unusual weather phenomenon known as a &quot;waterspout,&quot; which is capable of lifting marine life from the ocean and depositing it miles inland. If such a waterspout formed over the ocean, it could have picked up the lobster and carried it over land, eventually releasing it onto the unsuspecting lawn. This theory emphasizes the power of meteorological events to transport sea life far beyond its natural habitat.
+
+### Hypothesis 3: The Culinary Catastrophe
+**Human Factors Explanation:** An adventurous chef or seafood enthusiast might have procured the lobster from a coastal market, only to accidentally drop it while unloading their vehicle. The lobster could have then been left on the lawn while the owner went inside to retrieve something, and unbeknownst to them, it became a meal left abandoned. This scenario raises questions about the often-overlooked journeys of our food before it reaches our plates.
+
+### Hypothesis 4: The Unlikely Pet Escape
+**Biological/Environmental Explanation:** A household pet, perhaps a clever raccoon or a mischievous dog, could have unearthed the lobster from a nearby seafood restaurant&#x27;s trash or a home where it was kept as a temporary pet. This scenario underscores the interactions between wildlife and urban environments, where animals often scavenge for food, leading to unexpected discoveries in suburban settings.
+
+### Hypothesis 5: The Artistic Installation Gone Awry
+**Human Factors/Artistic Explanation:** An avant-garde artist might have chosen to create a provocative installation piece using marine life to comment on the impact of pollution and climate change on ocean ecosystems. The lobster could have been deliberately placed there as part of a larger environmental statement but was forgotten or left behind, highlighting the interplay between art, community, and nature.
+
+### Hypothesis 6: The Phantom Lobster
+**Paranormal/Mystical Explanation:** For those with a flair for the fantastic, one might consider the lobster as a part of local folklore or a supernatural event. Perhaps it is a manifestation of a local legend about a guardian spirit of the sea, symbolizing a message or warning to the land-dwellers about their environmental responsibilities. This theory invites an exploration of cultural narratives surrounding nature.
+
+Each of these hypotheses provides a unique lens through which to view the bewildering occurrence of a lobster found far from its aquatic home. Whether grounded in biological facts, meteorological phenomena, human behavior, or even artistic expression, the mystery invites further investigation and reflection on the interconnectedness of our ecosystems.</div>
+            </div>
+            
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Certainly! Here’s a creative variation on the idea, along with a set of distinct and scientifical...</div>
+                    <span class="trust-score high-trust">Trust: 6.72</span>
+                </div>
+                <div class="idea-text">Certainly! Here’s a creative variation on the idea, along with a set of distinct and scientifically-grounded hypotheses to explain the phenomenon:
+
+### Variation:
+**Title: &quot;The Mystery of the Lost Lobster: A Coastal Conundrum in Suburbia&quot;**
+
+In a quiet suburban neighborhood, approximately 15 miles from the nearest coastline, a perplexing scene unfolded when a bright red, deceased lobster was discovered nestled amidst the grass of a front lawn. This oddity sparked intrigue among local residents and raised numerous questions about how such a creature ended up so far from its natural habitat.
+
+### Hypotheses:
+
+1. **Unusual Weather Events:**
+   - A powerful storm system could have caused significant flooding or high winds, displacing marine life from the ocean and carrying it inland. This lobster might have been swept away in a storm surge and left stranded when the waters receded.
+
+2. **Human Transportation:**
+   - The lobster could have been part of a seafood delivery or a local seafood restaurant&#x27;s order. An accidental spill from a delivery truck, or perhaps a playful prank gone wrong, could explain how it ended up on a lawn far from the coast.
+
+3. **Environmental Impact:**
+   - Changes in ocean currents or water temperature due to climate change might cause lobsters to migrate farther than they typically would. This lobster could represent an aberrant migration pattern, leading it to travel inland in search of new habitats or food sources.
+
+4. **Aquarium Escape:**
+   - A local home aquarium might have housed the lobster as a pet. If the aquarium was improperly maintained or damaged, the lobster could have escaped and wandered into the yard, leading to its untimely demise.
+
+5. **Wildlife Scavenging:**
+   - A predatory bird or mammal could have caught the lobster during a fishing expedition at the shoreline and then inadvertently dropped it while flying over suburban areas. This could explain the presence of the lobster in such an unexpected location.
+
+6. **Cultural or Festival Context:**
+   - The discovery could be linked to a local festival or event celebrating seafood, where lobsters are featured prominently. This lobster might have been discarded or left behind after a local lobster cook-off, leading to its lonely resting place on the lawn.
+
+7. **Biological Oddity:**
+   - A rare genetic mutation or abnormality could have caused a lobster to exhibit unusual behaviors or physical traits, prompting it to venture away from the ocean in search of food, leading to its unfortunate demise.
+
+These hypotheses explore the intersection of biology, meteorology, and human factors, each providing a plausible explanation for the unexpected appearance of the lobster on a suburban lawn.</div>
+            </div>
+            
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Title: The Curious Case of the Suburban Lobster</div>
+                    <span class="trust-score high-trust">Trust: 6.57</span>
+                </div>
+                <div class="idea-text">**Title: The Curious Case of the Suburban Lobster**
+
+On a quiet suburban lawn, 15 miles from the nearest ocean, a peculiar discovery stirs curiosity: a dead lobster, seemingly out of place and without explanation. Here are several creative and scientifically-grounded hypotheses to unravel this marine mystery:
+
+1. **Extreme Weather Event**: A rare meteorological phenomenon, such as an intense storm or waterspout, could have swept the lobster from the ocean and carried it inland. Waterspouts can pull marine life into the air and deposit them far from their natural habitats. Perhaps this lobster was caught in a waterspout during a coastal storm and dropped onto the lawn during its descent.
+
+2. **Pet Escape Artist**: The lobster could be a former exotic pet. In a suburban neighborhood, it’s not uncommon for people to keep unusual pets. If a homeowner was caring for a lobster in a home aquarium, it may have escaped or been intentionally released. Following a mishap, the lobster might have ended up on the lawn, either from the owner’s backyard or a neighboring home.
+
+3. **Environmental Changes**: Climate change and oceanic shifts could lead to unusual migration patterns in marine life. The lobster may have ventured further inland due to changing ocean temperatures or altered currents. An influx of lobsters could occur if the local habitat was disrupted, causing them to seek new environments. 
+
+4. **Human Prank or Art Installation**: The dead lobster might be a deliberate prank or a piece of environmental art. Local artists could be using the lobster to comment on issues like pollution or marine life loss. This hypothesis could be supported by a small sign nearby or other artistic elements in the vicinity.
+
+5. **Ecological Study Gone Awry**: Researchers studying the impact of climate change or invasive species might have conducted a tagging or release project that went wrong. Perhaps the lobster was meant to be returned to the ocean, but due to an error, it ended up in this suburban area. 
+
+6. **Culinary Mishap**: A local seafood market or restaurant might have experienced a mishap, where a delivery truck carrying lobsters overturned or was involved in an accident. The lobster could have escaped or been discarded, finding its way to the lawn. 
+
+7. **Biodiversity Experiment**: A local university or ecological group could be testing the resilience of marine species in new environments. They may have released lobsters into various locations to study how they adapt or survive outside their native habitat, leading to an unintended landing on the suburban lawn.
+
+Each of these hypotheses offers a glimpse into the intersection of biology, human activity, and environmental science, providing intriguing avenues for exploration into the unexpected presence of a dead lobster in a suburban neighborhood.</div>
+            </div>
+            
+                
+
+            <h3>Event Timeline</h3>
+            <div class="event-timeline">
+                
+            <div class="event-item">
+                [10:51:42] <span class="event-type">idea_generated</span> idea_id: 931038cd...
+            </div>
+            
+
+            <div class="event-item">
+                [10:51:42] <span class="event-type">idea_generated</span> idea_id: 23964456...
+            </div>
+            
+
+            <div class="event-item">
+                [10:51:42] <span class="event-type">idea_generated</span> idea_id: 9debd859...
+            </div>
+            
+
+            <div class="event-item">
+                [10:51:44] <span class="event-type">trust_assessment</span> score: 6.574577025813722
+            </div>
+            
+
+            <div class="event-item">
+                [10:51:44] <span class="event-type">trust_assessment</span> score: 6.718104439670554
+            </div>
+            
+
+            <div class="event-item">
+                [10:51:45] <span class="event-type">trust_assessment</span> score: 6.489577025813722
+            </div>
+            
+
+            <div class="event-item">
+                [10:51:59] <span class="event-type">branch_completed</span> 
+            </div>
+              <!-- Limit to first 20 events -->
+            </div>
+            
+                </div>
+            </div>
+            
+        </section>
+        
+        <section class="timeline">
+            <h2>⏱️ Execution Timeline</h2>
+            <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-time">10:51:26</div>
+                <div class="timeline-content">
+                    <strong>test_iter1</strong> - 
+                    ✅ Completed 
+                    in 32.61s
+                </div>
+            </div>
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        
+        // Success/Failure Chart
+        const successCtx = document.getElementById('successChart').getContext('2d');
+        new Chart(successCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Successful', 'Failed'],
+                datasets: [{
+                    data: [1, 0],
+                    backgroundColor: ['#00ff88', '#ff4444'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Test Results',
+                        color: '#e0e0e0'
+                    },
+                    legend: {
+                        labels: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Ideas per Run Chart
+        const ideasData = [4];
+        const seedLabels = ["test_iter1"];
+        
+        const ideasCtx = document.getElementById('ideasChart').getContext('2d');
+        new Chart(ideasCtx, {
+            type: 'bar',
+            data: {
+                labels: seedLabels,
+                datasets: [{
+                    label: 'Ideas Generated',
+                    data: ideasData,
+                    backgroundColor: '#0088ff',
+                    borderColor: '#0088ff',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Ideas Generated per Seed',
+                        color: '#e0e0e0'
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#e0e0e0'
+                        },
+                        grid: {
+                            color: '#2a2a3e'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: '#e0e0e0'
+                        },
+                        grid: {
+                            color: '#2a2a3e'
+                        }
+                    }
+                }
+            }
+        });
+        
+        
+        function toggleCollapse(id) {
+            const element = document.getElementById(id);
+            const header = element.previousElementSibling;
+            const indicator = header.querySelector('.expand-indicator');
+            
+            element.classList.toggle('expanded');
+            header.classList.toggle('expanded');
+            
+            // Animate max-height for smooth transition
+            if (element.classList.contains('expanded')) {
+                element.style.maxHeight = element.scrollHeight + 'px';
+                setTimeout(() => {
+                    element.style.maxHeight = 'none';
+                }, 300);
+            } else {
+                element.style.maxHeight = element.scrollHeight + 'px';
+                setTimeout(() => {
+                    element.style.maxHeight = '0';
+                }, 10);
+            }
+        }
+        
+    </script>
+</body>
+</html>

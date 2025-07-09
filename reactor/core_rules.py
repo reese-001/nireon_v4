@@ -93,12 +93,15 @@ class ConditionalRule(ReactorRule):
     async def matches(self, signal: "EpistemicSignal", context: "RuleContext") -> bool:
         if signal.signal_type != self.signal_type:
             return False
-        for cond in self.conditions:
+        
+        for i, cond in enumerate(self.conditions):
             # Implicit signal_type_match already handled above
             if cond.get("type") == "signal_type_match":
                 continue
+            
             if not await self._evaluate_condition(cond, signal, context):
                 return False
+        
         return True
 
     async def execute(
@@ -130,10 +133,33 @@ class ConditionalRule(ReactorRule):
             logger.warning("Rule %s has empty expression", self.rule_id)
             return False
 
+        # Convert payload to dict if it's a Pydantic model
+        payload_for_context = signal.payload
+        if hasattr(signal.payload, 'model_dump'):
+            payload_for_context = signal.payload.model_dump()
+        elif hasattr(signal.payload, 'dict'):
+            payload_for_context = signal.payload.dict()
+        
+        # Create a simple object wrapper for dict access in REL
+        class PayloadWrapper:
+            def __init__(self, data):
+                self._data = data
+                # Expose top-level keys as attributes
+                for key, value in data.items():
+                    setattr(self, key, value)
+            
+            def get(self, key, default=None):
+                return self._data.get(key, default)
+        
+        # Wrap the payload if it's a dict
+        wrapped_payload = payload_for_context
+        if isinstance(payload_for_context, dict):
+            wrapped_payload = PayloadWrapper(payload_for_context)
+        
         ctx = {
             "signal": signal,
             "context": context,
-            "payload": signal.payload,
+            "payload": wrapped_payload,
             "metadata": getattr(signal, "metadata", {}),
             "now": datetime.now(timezone.utc),
             "trust_score": getattr(signal, "trust_score", None),
@@ -142,10 +168,14 @@ class ConditionalRule(ReactorRule):
             "source_node_id": signal.source_node_id,
             "signal_id": signal.signal_id,
             "parent_signal_ids": signal.parent_signal_ids,
+            # Add helper functions
+            "exists": lambda x: x is not None,
+            "lower": lambda s: s.lower() if isinstance(s, str) else s,
         }
 
         try:
-            return bool(self._rel.evaluate(expression, ctx))
+            result = bool(self._rel.evaluate(expression, ctx))
+            return result
         except Exception as exc:
             logger.exception("Rule %s REL error: %s", self.rule_id, exc)
             return False

@@ -1,15 +1,35 @@
 version: "1.0"
 rules:
-  - id: "high_trust_idea_amplification"
-    description: "Amplify ideas with high trust scores by feeding them to the Catalyst."
-    namespace: "trust"
+  - id: "route_high_trust_to_quantifier"
+    description: "When a high-trust assessment is published, send it to the QuantifierAgent (a Processor)."
+    namespace: "synthesis_loop"
     priority: 10
+    enabled: false # This rule is currently disabled.
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_expression"
+        expression: "signal.trust_score > 6.0 and payload.is_stable == True"
+    actions:
+      - type: "trigger_component"
+        component_id: "quantifier_agent_primary"
+        input_data_mapping:
+          idea_id: "payload.idea_id"
+          idea_text: "payload.assessment_details.metadata.idea_text"
+          assessment_details: "payload.assessment_details"
+          
+  - id: "high_trust_idea_amplification"
+    description: "Amplify ideas with very high trust scores by feeding them to the Catalyst"
+    namespace: "trust"
+    priority: 100
     enabled: true
     conditions:
       - type: "signal_type_match"
         signal_type: "TrustAssessmentSignal"
       - type: "payload_expression"
-        expression: "payload.trust_score > 8.0 and payload.novelty_score > 0.6"
+        # FIX: Use direct attribute access and check for existence at each level.
+        # This avoids the "Function not permitted" error.
+        expression: "signal.trust_score > 8.0 and payload.axis_scores and payload.axis_scores.novel and payload.axis_scores.novel.score and payload.axis_scores.novel.score > 8.0"
     actions:
       - type: "trigger_component"
         component_id: "catalyst_instance_01"
@@ -17,165 +37,3 @@ rules:
         input_data_mapping:
           target_idea_id: "payload.idea_id"
           objective: "payload.assessment_details.metadata.objective"
-
-  - id: "stagnation_detection"
-    description: "Detect and intervene on system-wide idea generation stagnation."
-    namespace: "health"
-    priority: 5
-    enabled: true
-    conditions:
-      - type: "signal_type_match"
-        signal_type: "ComponentHealthSignal"
-      - type: "payload_expression"
-        expression: |
-          payload.metrics.ideas_generated_rate < 0.1 and 
-          payload.metrics.time_since_last_idea > 300
-    actions:
-      - type: "emit_signal"
-        signal_type: "StagnationDetectedSignal"
-        payload:
-          severity: "medium"
-          suggested_intervention: "increase_exploration"
-      - type: "trigger_component"
-        component_id: "explorer_instance_01"
-        input_data:
-          exploration_mode: "aggressive"
-          temperature: 0.9
-
-  - id: "cascade_error_handling"
-    description: "Handle cascading errors intelligently by triggering a recovery manager."
-    namespace: "error"
-    priority: 1
-    enabled: true
-    conditions:
-      - type: "signal_type_match"
-        signal_type: "ErrorSignal"
-      - type: "payload_expression"
-        expression: |
-          payload.error_type == 'critical' and 
-          len(signal.parent_signal_ids) > 3
-    actions:
-      - type: "trigger_component"
-        component_id: "error_recovery_manager"
-        template_id: "CASCADE_RECOVERY"
-      - type: "emit_signal"
-        signal_type: "CIRCUIT_BREAKER_TRIGGERED"
-        payload:
-          component_id: "{{ signal.source_node_id }}"
-          cooldown_seconds: 60
-
-# In configs/reactor/rules/advanced.yaml, update the route_business_idea_to_quantifier_fixed rule:
-  - id: "route_business_idea_to_quantifier_fixed"
-    description: "When a high-trust idea about business or finance is stable, send it to the QuantifierAgent for modeling."
-    namespace: "synthesis_loop"
-    priority: 40
-    enabled: true
-    conditions:
-      - type: "signal_type_match"
-        signal_type: "TrustAssessmentSignal"
-      - type: "payload_expression"
-        expression: >
-          payload.is_stable == True and
-          payload.trust_score != None and
-          payload.trust_score > 6.0 and
-          (
-            (exists(payload.idea_text) and 
-            ('tariff' in lower(payload.idea_text) or 
-              'business' in lower(payload.idea_text) or 
-              'margin' in lower(payload.idea_text) or 
-              'supply chain' in lower(payload.idea_text) or
-              'retail' in lower(payload.idea_text) or
-              'Best Buy' in payload.idea_text or
-              'electronics' in lower(payload.idea_text) or
-              'competition' in lower(payload.idea_text) or
-              'strategy' in lower(payload.idea_text) or
-              'store' in lower(payload.idea_text)))
-            or
-            (exists(payload.objective) and
-            ('business' in lower(payload.objective) or
-              'strategy' in lower(payload.objective) or
-              'Best Buy' in payload.objective))
-          )
-    actions:
-      - type: "trigger_component"
-        component_id: "quantifier_agent_primary"
-        input_data_mapping:
-          idea_id: "payload.idea_id"
-          idea_text: "payload.idea_text"
-          assessment_details: "payload"
-
-  - id: "analyze_fractal_boundary_complexity"
-    description: "When Mandelbrot boundary analysis is complete, trigger an explorer to investigate the implications of its complexity."
-    namespace: "fractal_analysis"
-    priority: 50
-    enabled: true
-    conditions:
-      - type: "signal_type_match"
-        signal_type: "MathProtoResultSignal"
-      - type: "payload_expression"
-        expression: "exists(signal.result.boundary_stats.std_dev_iterations) and signal.proto_block_id.startswith('proto_mandelbrot')"
-    actions:
-      - type: "emit_signal"
-        signal_type: "SeedSignal"
-        payload:
-          seed_idea_id: "fractal_complexity_seed_{{ signal.proto_block_id }}"
-          text: >
-            The boundary of the Mandelbrot set exhibits extreme complexity, with a standard deviation of 
-            {{ "%.2f"|format(signal.result.boundary_stats.std_dev_iterations) }} iterations in the escape-time algorithm.
-            This fractal, self-similar nature at all scales suggests that simple rules can lead to infinitely complex outcomes.
-          metadata:
-            objective: "Explore the philosophical and computational implications of the Mandelbrot set's boundary complexity. Relate it to concepts like undecidability, chaos theory, or the limits of formal systems."
-            source_proto_id: "{{ signal.proto_block_id }}"
-            source_artifacts: "{{ signal.artifacts }}"
-
-  - id: "low_trust_quarantine"
-    description: "Quarantine ideas with very low trust scores"
-    namespace: "trust"
-    priority: 5
-    enabled: true
-    conditions:
-      - type: "signal_type_match"
-        signal_type: "TrustAssessmentSignal"
-      - type: "payload_expression"
-        expression: "payload.trust_score != None and payload.trust_score < 0.2"
-    actions:
-      - type: "emit_signal"
-        signal_type: "IdeaQuarantinedSignal"
-        payload:
-          idea_id: "{{ payload.idea_id }}"
-          reason: "Low trust score"
-          trust_score: "{{ payload.trust_score }}"
-
-  - id: "memory_pressure_response"
-    description: "Respond to high memory usage"
-    namespace: "health"
-    priority: 1
-    enabled: true
-    conditions:
-      - type: "signal_type_match"
-        signal_type: "SystemResourceSignal"
-      - type: "payload_expression"
-        expression: "payload.memory_usage_percent > 85"
-    actions:
-      - type: "emit_signal"
-        signal_type: "ResourcePressureSignal"
-        payload:
-          resource_type: "memory"
-          current_usage: "{{ payload.memory_usage_percent }}"
-          action_required: "cleanup"
-  
-  - id: "production_business_quantifier"
-    description: "PRODUCTION: Trigger quantifier on business ideas using real data"
-    namespace: "business_production"
-    priority: 10
-    enabled: true
-    conditions:
-      - type: "signal_type_match"
-        signal_type: "TrustAssessmentSignal"
-    actions:
-      - type: "trigger_component"
-        component_id: "quantifier_agent_primary"
-        input_data_mapping:
-          idea_id: "payload.idea_id"
-          idea_text: "payload.idea_text"
-          assessment_details: "payload"

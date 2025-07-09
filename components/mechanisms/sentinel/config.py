@@ -61,6 +61,12 @@ class SentinelMechanismConfig(BaseModel):
     objective_override: Optional[str] = Field(None,
         description="If set, this string overrides any objective passed in the context for evaluation.")
 
+    default_llm_score_on_error: float = Field(
+        5.0, 
+        ge=1.0, 
+        le=10.0,
+        description='Score to use when LLM response parsing fails. This ensures assessments can continue even with LLM issues.'
+    )
 
     @classmethod
     def get_default_dict(cls) -> Dict[str, Any]:

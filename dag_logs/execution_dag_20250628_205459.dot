@@ -1,0 +1,21 @@
+digraph ExecutionDAG {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    "BOOTSTRAP" [label="BOOTSTRA...\nSYSTEM", fillcolor=lavender, style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifi...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "SEED_EXEC_prime counting" [label="SEED_EXE...\nSEED_EXECUTION", fillcolor=khaki, style="rounded,filled"];
+    "5900eff8-f51c-4e59-a89e-610e0b769b03" [label="5900eff8...\nSEED_IDEA", fillcolor=lightgreen, style="rounded,filled"];
+    "39e9729c-9f07-462b-aa31-340583d163a5" [label="39e9729c...\nGENERATED_IDEA\nCertainly! Here’s a creative v...", fillcolor=lightblue, style="rounded,filled"];
+    "c8eaf15c-5844-4007-9ae8-469bad3c87c0" [label="c8eaf15c...\nGENERATED_IDEA\n**Idea Title: "Optimized Prime...", fillcolor=lightblue, style="rounded,filled"];
+    "2a8c47b7-3179-4a0e-be90-816114386902" [label="2a8c47b7...\nGENERATED_IDEA\n**Idea Variation: "Segmented P...", fillcolor=lightblue, style="rounded,filled"];
+    "e00299b3-84ab-471d-9fac-72f207d7e06f" [label="e00299b3...\nGENERATED_IDEA\n**Concept Title: "The Sieve of...", fillcolor=lightblue, style="rounded,filled"];
+    "edea6ce4-ccd6-4761-a2bc-29e91cf5859a" [label="edea6ce4...\nGENERATED_IDEA\nCertainly! Here’s a creative v...", fillcolor=lightblue, style="rounded,filled"];
+    "933cde71-e349-4ee2-9959-3292d023972d" [label="933cde71...\nGENERATED_IDEA\nCertainly! Here’s a creative v...", fillcolor=lightblue, style="rounded,filled"];
+    "5900eff8-f51c-4e59-a89e-610e0b769b03" -> "39e9729c-9f07-462b-aa31-340583d163a5" [label="GENERATES\ndepth=0"];
+    "5900eff8-f51c-4e59-a89e-610e0b769b03" -> "c8eaf15c-5844-4007-9ae8-469bad3c87c0" [label="GENERATES\ndepth=0"];
+    "5900eff8-f51c-4e59-a89e-610e0b769b03" -> "2a8c47b7-3179-4a0e-be90-816114386902" [label="GENERATES\ndepth=0"];
+    "5900eff8-f51c-4e59-a89e-610e0b769b03" -> "e00299b3-84ab-471d-9fac-72f207d7e06f" [label="GENERATES\ndepth=0"];
+    "5900eff8-f51c-4e59-a89e-610e0b769b03" -> "edea6ce4-ccd6-4761-a2bc-29e91cf5859a" [label="GENERATES\ndepth=0"];
+    "5900eff8-f51c-4e59-a89e-610e0b769b03" -> "933cde71-e349-4ee2-9959-3292d023972d" [label="GENERATES\ndepth=0"];
+}

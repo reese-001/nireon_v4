@@ -1,0 +1,15 @@
+digraph ExecutionDAG {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    "BOOTSTRAP" [label="BOOTSTRA...\nSYSTEM", fillcolor=lavender, style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifi...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "SEED_EXEC_test_iter1" [label="SEED_EXE...\nSEED_EXECUTION", fillcolor=khaki, style="rounded,filled"];
+    "973a082b-7e70-486f-babc-c93db7049275" [label="973a082b...\nSEED_IDEA", fillcolor=lightgreen, style="rounded,filled"];
+    "9154080e-93ed-46b0-8c27-6492d54c4d83" [label="9154080e...\nGENERATED_IDEA\n**Title: The Great Lobster Mig...", fillcolor=lightblue, style="rounded,filled"];
+    "d245695c-b003-4eeb-94ef-7e8c76a89d1f" [label="d245695c...\nGENERATED_IDEA\nTitle: "The Curious Case of th...", fillcolor=lightblue, style="rounded,filled"];
+    "199bb5e1-8bbb-4481-8e31-02ba6ad786a9" [label="199bb5e1...\nGENERATED_IDEA\nTitle: "The Mystery of the Way...", fillcolor=lightblue, style="rounded,filled"];
+    "973a082b-7e70-486f-babc-c93db7049275" -> "9154080e-93ed-46b0-8c27-6492d54c4d83" [label="GENERATES\ndepth=0"];
+    "973a082b-7e70-486f-babc-c93db7049275" -> "d245695c-b003-4eeb-94ef-7e8c76a89d1f" [label="GENERATES\ndepth=0"];
+    "973a082b-7e70-486f-babc-c93db7049275" -> "199bb5e1-8bbb-4481-8e31-02ba6ad786a9" [label="GENERATES\ndepth=0"];
+}

@@ -1,0 +1,2511 @@
+{
+  "nodes": [
+    "43cb66ee-dada-4caf-a9e0-762c4552fa57",
+    "9ce74696-0f39-45c8-a211-c7b5bb36879e",
+    "0e2dd54a-8ac1-41aa-a8ab-a979e3c705dc",
+    "quantifier_agent_primary",
+    "SEED_EXEC_test_iter1",
+    "b40a44f5-e5d0-42a1-9161-f469a3c02a2a",
+    "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+    "36910bb7-7813-4c50-a943-8c5d4cd691ed",
+    "451525a0-92b2-485e-b9f8-1cddb3398a81",
+    "d8594680-6cb9-4f00-9fc1-e3a2f7b1bf8d",
+    "d26dc15b-976f-45b0-ae89-15faf851e753",
+    "SEED_EXEC_test_iter3",
+    "6b100365-011f-4b9d-bfb5-a820cf89a19c",
+    "475cc239-6d8c-4cf8-a422-b62110f851a1",
+    "35987077-7606-403c-b43d-7485cafb9895",
+    "SEED_EXEC_test_iter4",
+    "afd7ef2a-2283-4063-94cd-55faab58f54d",
+    "dbd035d2-1420-4639-b858-62adc90cf2d2",
+    "5416de25-ff89-4292-a9e4-a04a79c7161d",
+    "f184ff91-9ef6-48c0-b97e-9f77f03cf3ae",
+    "sentinel_instance_01",
+    "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+    "SEED_EXEC_test_iter2",
+    "BOOTSTRAP",
+    "8da8fda8-e924-43b8-91bb-a3cb959d9db3",
+    "SEED_EXEC_test_iter5",
+    "47b661d1-73eb-4443-9c65-4bd1ac5d0e23",
+    "22c09a09-10e1-4a75-a0e4-b803b0d22bb9"
+  ],
+  "edges": [
+    {
+      "source": "dbd035d2-1420-4639-b858-62adc90cf2d2",
+      "target": "36910bb7-7813-4c50-a943-8c5d4cd691ed",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "dbd035d2-1420-4639-b858-62adc90cf2d2",
+      "target": "b40a44f5-e5d0-42a1-9161-f469a3c02a2a",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "dbd035d2-1420-4639-b858-62adc90cf2d2",
+      "target": "afd7ef2a-2283-4063-94cd-55faab58f54d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "35987077-7606-403c-b43d-7485cafb9895",
+      "target": "451525a0-92b2-485e-b9f8-1cddb3398a81",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "35987077-7606-403c-b43d-7485cafb9895",
+      "target": "451525a0-92b2-485e-b9f8-1cddb3398a81",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "35987077-7606-403c-b43d-7485cafb9895",
+      "target": "451525a0-92b2-485e-b9f8-1cddb3398a81",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "35987077-7606-403c-b43d-7485cafb9895",
+      "target": "451525a0-92b2-485e-b9f8-1cddb3398a81",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "35987077-7606-403c-b43d-7485cafb9895",
+      "target": "451525a0-92b2-485e-b9f8-1cddb3398a81",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "35987077-7606-403c-b43d-7485cafb9895",
+      "target": "47b661d1-73eb-4443-9c65-4bd1ac5d0e23",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "35987077-7606-403c-b43d-7485cafb9895",
+      "target": "47b661d1-73eb-4443-9c65-4bd1ac5d0e23",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "35987077-7606-403c-b43d-7485cafb9895",
+      "target": "47b661d1-73eb-4443-9c65-4bd1ac5d0e23",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "35987077-7606-403c-b43d-7485cafb9895",
+      "target": "47b661d1-73eb-4443-9c65-4bd1ac5d0e23",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "35987077-7606-403c-b43d-7485cafb9895",
+      "target": "47b661d1-73eb-4443-9c65-4bd1ac5d0e23",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "35987077-7606-403c-b43d-7485cafb9895",
+      "target": "d26dc15b-976f-45b0-ae89-15faf851e753",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "35987077-7606-403c-b43d-7485cafb9895",
+      "target": "d26dc15b-976f-45b0-ae89-15faf851e753",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "35987077-7606-403c-b43d-7485cafb9895",
+      "target": "d26dc15b-976f-45b0-ae89-15faf851e753",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "35987077-7606-403c-b43d-7485cafb9895",
+      "target": "d26dc15b-976f-45b0-ae89-15faf851e753",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "35987077-7606-403c-b43d-7485cafb9895",
+      "target": "d26dc15b-976f-45b0-ae89-15faf851e753",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+      "target": "6b100365-011f-4b9d-bfb5-a820cf89a19c",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+      "target": "6b100365-011f-4b9d-bfb5-a820cf89a19c",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+      "target": "6b100365-011f-4b9d-bfb5-a820cf89a19c",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+      "target": "6b100365-011f-4b9d-bfb5-a820cf89a19c",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+      "target": "6b100365-011f-4b9d-bfb5-a820cf89a19c",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+      "target": "f184ff91-9ef6-48c0-b97e-9f77f03cf3ae",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+      "target": "f184ff91-9ef6-48c0-b97e-9f77f03cf3ae",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+      "target": "f184ff91-9ef6-48c0-b97e-9f77f03cf3ae",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+      "target": "f184ff91-9ef6-48c0-b97e-9f77f03cf3ae",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+      "target": "f184ff91-9ef6-48c0-b97e-9f77f03cf3ae",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+      "target": "43cb66ee-dada-4caf-a9e0-762c4552fa57",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+      "target": "43cb66ee-dada-4caf-a9e0-762c4552fa57",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+      "target": "43cb66ee-dada-4caf-a9e0-762c4552fa57",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+      "target": "43cb66ee-dada-4caf-a9e0-762c4552fa57",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+      "target": "43cb66ee-dada-4caf-a9e0-762c4552fa57",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+      "target": "5416de25-ff89-4292-a9e4-a04a79c7161d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+      "target": "5416de25-ff89-4292-a9e4-a04a79c7161d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+      "target": "5416de25-ff89-4292-a9e4-a04a79c7161d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+      "target": "5416de25-ff89-4292-a9e4-a04a79c7161d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+      "target": "5416de25-ff89-4292-a9e4-a04a79c7161d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+      "target": "8da8fda8-e924-43b8-91bb-a3cb959d9db3",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+      "target": "8da8fda8-e924-43b8-91bb-a3cb959d9db3",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+      "target": "8da8fda8-e924-43b8-91bb-a3cb959d9db3",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+      "target": "8da8fda8-e924-43b8-91bb-a3cb959d9db3",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+      "target": "8da8fda8-e924-43b8-91bb-a3cb959d9db3",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+      "target": "22c09a09-10e1-4a75-a0e4-b803b0d22bb9",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+      "target": "22c09a09-10e1-4a75-a0e4-b803b0d22bb9",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+      "target": "22c09a09-10e1-4a75-a0e4-b803b0d22bb9",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+      "target": "22c09a09-10e1-4a75-a0e4-b803b0d22bb9",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+      "target": "22c09a09-10e1-4a75-a0e4-b803b0d22bb9",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+      "target": "0e2dd54a-8ac1-41aa-a8ab-a979e3c705dc",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+      "target": "0e2dd54a-8ac1-41aa-a8ab-a979e3c705dc",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+      "target": "0e2dd54a-8ac1-41aa-a8ab-a979e3c705dc",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+      "target": "0e2dd54a-8ac1-41aa-a8ab-a979e3c705dc",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+      "target": "0e2dd54a-8ac1-41aa-a8ab-a979e3c705dc",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+      "target": "9ce74696-0f39-45c8-a211-c7b5bb36879e",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+      "target": "9ce74696-0f39-45c8-a211-c7b5bb36879e",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+      "target": "9ce74696-0f39-45c8-a211-c7b5bb36879e",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+      "target": "9ce74696-0f39-45c8-a211-c7b5bb36879e",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+      "target": "9ce74696-0f39-45c8-a211-c7b5bb36879e",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+      "target": "d8594680-6cb9-4f00-9fc1-e3a2f7b1bf8d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+      "target": "d8594680-6cb9-4f00-9fc1-e3a2f7b1bf8d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+      "target": "d8594680-6cb9-4f00-9fc1-e3a2f7b1bf8d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+      "target": "d8594680-6cb9-4f00-9fc1-e3a2f7b1bf8d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+      "target": "d8594680-6cb9-4f00-9fc1-e3a2f7b1bf8d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    }
+  ],
+  "signals": [
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:11.049982",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "dbd035d2-1420-4639-b858-62adc90cf2d2",
+      "payload": {
+        "seed_idea_id": "dbd035d2-1420-4639-b858-62adc90cf2d2",
+        "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+        "metadata": {
+          "iteration": 1,
+          "total_iterations": 5,
+          "original_seed_id": "test",
+          "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+          "depth": 0,
+          "seed_config_id": "test_iter1"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:24.056113",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "36910bb7-7813-4c50-a943-8c5d4cd691ed",
+      "payload": {
+        "parent_id": "dbd035d2-1420-4639-b858-62adc90cf2d2",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:24.056113",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "b40a44f5-e5d0-42a1-9161-f469a3c02a2a",
+      "payload": {
+        "parent_id": "dbd035d2-1420-4639-b858-62adc90cf2d2",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:24.056113",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "afd7ef2a-2283-4063-94cd-55faab58f54d",
+      "payload": {
+        "parent_id": "dbd035d2-1420-4639-b858-62adc90cf2d2",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:39.982573",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "35987077-7606-403c-b43d-7485cafb9895",
+      "payload": {
+        "seed_idea_id": "35987077-7606-403c-b43d-7485cafb9895",
+        "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+        "metadata": {
+          "iteration": 2,
+          "total_iterations": 5,
+          "original_seed_id": "test",
+          "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+          "depth": 0,
+          "seed_config_id": "test_iter2"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:42.583205",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+      "payload": {
+        "seed_idea_id": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+        "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+        "metadata": {
+          "iteration": 3,
+          "total_iterations": 5,
+          "original_seed_id": "test",
+          "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+          "depth": 0,
+          "seed_config_id": "test_iter3"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:47.184527",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+      "payload": {
+        "seed_idea_id": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+        "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+        "metadata": {
+          "iteration": 4,
+          "total_iterations": 5,
+          "original_seed_id": "test",
+          "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+          "depth": 0,
+          "seed_config_id": "test_iter4"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:49.780413",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+      "payload": {
+        "seed_idea_id": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+        "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+        "metadata": {
+          "iteration": 5,
+          "total_iterations": 5,
+          "original_seed_id": "test",
+          "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+          "depth": 0,
+          "seed_config_id": "test_iter5"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:52.015510",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "451525a0-92b2-485e-b9f8-1cddb3398a81",
+      "payload": {
+        "parent_id": "35987077-7606-403c-b43d-7485cafb9895",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:52.015510",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "451525a0-92b2-485e-b9f8-1cddb3398a81",
+      "payload": {
+        "parent_id": "35987077-7606-403c-b43d-7485cafb9895",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:52.015510",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "451525a0-92b2-485e-b9f8-1cddb3398a81",
+      "payload": {
+        "parent_id": "35987077-7606-403c-b43d-7485cafb9895",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:52.015510",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "451525a0-92b2-485e-b9f8-1cddb3398a81",
+      "payload": {
+        "parent_id": "35987077-7606-403c-b43d-7485cafb9895",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:52.015510",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "451525a0-92b2-485e-b9f8-1cddb3398a81",
+      "payload": {
+        "parent_id": "35987077-7606-403c-b43d-7485cafb9895",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:52.015510",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "47b661d1-73eb-4443-9c65-4bd1ac5d0e23",
+      "payload": {
+        "parent_id": "35987077-7606-403c-b43d-7485cafb9895",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:52.015510",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "47b661d1-73eb-4443-9c65-4bd1ac5d0e23",
+      "payload": {
+        "parent_id": "35987077-7606-403c-b43d-7485cafb9895",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:52.015510",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "47b661d1-73eb-4443-9c65-4bd1ac5d0e23",
+      "payload": {
+        "parent_id": "35987077-7606-403c-b43d-7485cafb9895",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:52.015510",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "47b661d1-73eb-4443-9c65-4bd1ac5d0e23",
+      "payload": {
+        "parent_id": "35987077-7606-403c-b43d-7485cafb9895",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:52.015510",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "47b661d1-73eb-4443-9c65-4bd1ac5d0e23",
+      "payload": {
+        "parent_id": "35987077-7606-403c-b43d-7485cafb9895",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:52.015510",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "d26dc15b-976f-45b0-ae89-15faf851e753",
+      "payload": {
+        "parent_id": "35987077-7606-403c-b43d-7485cafb9895",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:52.015510",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "d26dc15b-976f-45b0-ae89-15faf851e753",
+      "payload": {
+        "parent_id": "35987077-7606-403c-b43d-7485cafb9895",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:52.015510",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "d26dc15b-976f-45b0-ae89-15faf851e753",
+      "payload": {
+        "parent_id": "35987077-7606-403c-b43d-7485cafb9895",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:52.024596",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "d26dc15b-976f-45b0-ae89-15faf851e753",
+      "payload": {
+        "parent_id": "35987077-7606-403c-b43d-7485cafb9895",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:52.026244",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "d26dc15b-976f-45b0-ae89-15faf851e753",
+      "payload": {
+        "parent_id": "35987077-7606-403c-b43d-7485cafb9895",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:56.860606",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "6b100365-011f-4b9d-bfb5-a820cf89a19c",
+      "payload": {
+        "parent_id": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:56.860606",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "6b100365-011f-4b9d-bfb5-a820cf89a19c",
+      "payload": {
+        "parent_id": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:56.861606",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "6b100365-011f-4b9d-bfb5-a820cf89a19c",
+      "payload": {
+        "parent_id": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:56.861606",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "6b100365-011f-4b9d-bfb5-a820cf89a19c",
+      "payload": {
+        "parent_id": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:56.862615",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "6b100365-011f-4b9d-bfb5-a820cf89a19c",
+      "payload": {
+        "parent_id": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:56.862615",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "f184ff91-9ef6-48c0-b97e-9f77f03cf3ae",
+      "payload": {
+        "parent_id": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:56.863607",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "f184ff91-9ef6-48c0-b97e-9f77f03cf3ae",
+      "payload": {
+        "parent_id": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:56.863607",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "f184ff91-9ef6-48c0-b97e-9f77f03cf3ae",
+      "payload": {
+        "parent_id": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:56.863607",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "f184ff91-9ef6-48c0-b97e-9f77f03cf3ae",
+      "payload": {
+        "parent_id": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:56.864606",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "f184ff91-9ef6-48c0-b97e-9f77f03cf3ae",
+      "payload": {
+        "parent_id": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:56.865110",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "43cb66ee-dada-4caf-a9e0-762c4552fa57",
+      "payload": {
+        "parent_id": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:56.865984",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "43cb66ee-dada-4caf-a9e0-762c4552fa57",
+      "payload": {
+        "parent_id": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:56.866598",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "43cb66ee-dada-4caf-a9e0-762c4552fa57",
+      "payload": {
+        "parent_id": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:56.866884",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "43cb66ee-dada-4caf-a9e0-762c4552fa57",
+      "payload": {
+        "parent_id": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:56.866884",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "43cb66ee-dada-4caf-a9e0-762c4552fa57",
+      "payload": {
+        "parent_id": "475cc239-6d8c-4cf8-a422-b62110f851a1",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:59.948772",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "5416de25-ff89-4292-a9e4-a04a79c7161d",
+      "payload": {
+        "parent_id": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:59.949777",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "5416de25-ff89-4292-a9e4-a04a79c7161d",
+      "payload": {
+        "parent_id": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:59.950776",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "5416de25-ff89-4292-a9e4-a04a79c7161d",
+      "payload": {
+        "parent_id": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:59.951776",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "5416de25-ff89-4292-a9e4-a04a79c7161d",
+      "payload": {
+        "parent_id": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:59.952777",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "5416de25-ff89-4292-a9e4-a04a79c7161d",
+      "payload": {
+        "parent_id": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:59.952777",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "8da8fda8-e924-43b8-91bb-a3cb959d9db3",
+      "payload": {
+        "parent_id": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:59.954281",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "8da8fda8-e924-43b8-91bb-a3cb959d9db3",
+      "payload": {
+        "parent_id": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:59.954281",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "8da8fda8-e924-43b8-91bb-a3cb959d9db3",
+      "payload": {
+        "parent_id": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:59.955286",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "8da8fda8-e924-43b8-91bb-a3cb959d9db3",
+      "payload": {
+        "parent_id": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:59.956107",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "8da8fda8-e924-43b8-91bb-a3cb959d9db3",
+      "payload": {
+        "parent_id": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:59.956418",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "22c09a09-10e1-4a75-a0e4-b803b0d22bb9",
+      "payload": {
+        "parent_id": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:59.956418",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "22c09a09-10e1-4a75-a0e4-b803b0d22bb9",
+      "payload": {
+        "parent_id": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:59.957418",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "22c09a09-10e1-4a75-a0e4-b803b0d22bb9",
+      "payload": {
+        "parent_id": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:59.958198",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "22c09a09-10e1-4a75-a0e4-b803b0d22bb9",
+      "payload": {
+        "parent_id": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:22:59.958198",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "22c09a09-10e1-4a75-a0e4-b803b0d22bb9",
+      "payload": {
+        "parent_id": "5a04551f-9b53-4170-ab0f-4669c5c1833d",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:23:01.232721",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "0e2dd54a-8ac1-41aa-a8ab-a979e3c705dc",
+      "payload": {
+        "parent_id": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:23:01.234378",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "0e2dd54a-8ac1-41aa-a8ab-a979e3c705dc",
+      "payload": {
+        "parent_id": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:23:01.234946",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "0e2dd54a-8ac1-41aa-a8ab-a979e3c705dc",
+      "payload": {
+        "parent_id": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:23:01.234946",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "0e2dd54a-8ac1-41aa-a8ab-a979e3c705dc",
+      "payload": {
+        "parent_id": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:23:01.235950",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "0e2dd54a-8ac1-41aa-a8ab-a979e3c705dc",
+      "payload": {
+        "parent_id": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:23:01.235950",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "9ce74696-0f39-45c8-a211-c7b5bb36879e",
+      "payload": {
+        "parent_id": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:23:01.236950",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "9ce74696-0f39-45c8-a211-c7b5bb36879e",
+      "payload": {
+        "parent_id": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:23:01.236950",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "9ce74696-0f39-45c8-a211-c7b5bb36879e",
+      "payload": {
+        "parent_id": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:23:01.236950",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "9ce74696-0f39-45c8-a211-c7b5bb36879e",
+      "payload": {
+        "parent_id": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:23:01.237950",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "9ce74696-0f39-45c8-a211-c7b5bb36879e",
+      "payload": {
+        "parent_id": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:23:01.237950",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "d8594680-6cb9-4f00-9fc1-e3a2f7b1bf8d",
+      "payload": {
+        "parent_id": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:23:01.238884",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "d8594680-6cb9-4f00-9fc1-e3a2f7b1bf8d",
+      "payload": {
+        "parent_id": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:23:01.238884",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "d8594680-6cb9-4f00-9fc1-e3a2f7b1bf8d",
+      "payload": {
+        "parent_id": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:23:01.238884",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "d8594680-6cb9-4f00-9fc1-e3a2f7b1bf8d",
+      "payload": {
+        "parent_id": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T15:23:01.239905",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "d8594680-6cb9-4f00-9fc1-e3a2f7b1bf8d",
+      "payload": {
+        "parent_id": "770fbb4d-ab8a-4717-88b3-2865c5265dd3",
+        "depth": 0
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:11.036361",
+      "event_type": "BOOTSTRAP_COMPLETE",
+      "node_id": "BOOTSTRAP",
+      "details": {
+        "component_count": 61,
+        "run_id": "explorer_run_1752006131"
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:24.056113",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:26.246498",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "afd7ef2a-2283-4063-94cd-55faab58f54d",
+      "details": {
+        "trust_score": 6.453500286389786,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:26.855810",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "36910bb7-7813-4c50-a943-8c5d4cd691ed",
+      "details": {
+        "trust_score": 6.432527866214994,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:26.856983",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "b40a44f5-e5d0-42a1-9161-f469a3c02a2a",
+      "details": {
+        "trust_score": 6.477100286389786,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:37.983181",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:37.984809",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 26.934827,
+        "total_ideas": 4,
+        "total_assessed": 3,
+        "coverage_percent": 75.0
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:38.274338",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:39.422159",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:40.563640",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:40.563640",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:40.563640",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 0.582241,
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "coverage_percent": 0.0
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:45.171615",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:45.171615",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:45.171615",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:45.171615",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 2.589466,
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "coverage_percent": 0.0
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:47.771541",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:47.771541",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:47.772453",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:47.772453",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:47.772453",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 0.590153,
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "coverage_percent": 0.0
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:52.026244",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:52.026244",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:52.026244",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:52.026244",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:52.026244",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:53.885271",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "47b661d1-73eb-4443-9c65-4bd1ac5d0e23",
+      "details": {
+        "trust_score": 6.326898389195514,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:53.885271",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "47b661d1-73eb-4443-9c65-4bd1ac5d0e23",
+      "details": {
+        "trust_score": 6.326898389195514,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:53.885271",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "47b661d1-73eb-4443-9c65-4bd1ac5d0e23",
+      "details": {
+        "trust_score": 6.326898389195514,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:53.885271",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "47b661d1-73eb-4443-9c65-4bd1ac5d0e23",
+      "details": {
+        "trust_score": 6.326898389195514,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:53.885271",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "47b661d1-73eb-4443-9c65-4bd1ac5d0e23",
+      "details": {
+        "trust_score": 6.326898389195514,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:54.284867",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "451525a0-92b2-485e-b9f8-1cddb3398a81",
+      "details": {
+        "trust_score": 6.340298389195514,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:54.284867",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "451525a0-92b2-485e-b9f8-1cddb3398a81",
+      "details": {
+        "trust_score": 6.340298389195514,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:54.286096",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "451525a0-92b2-485e-b9f8-1cddb3398a81",
+      "details": {
+        "trust_score": 6.340298389195514,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:54.286096",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "451525a0-92b2-485e-b9f8-1cddb3398a81",
+      "details": {
+        "trust_score": 6.340298389195514,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:54.286096",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "451525a0-92b2-485e-b9f8-1cddb3398a81",
+      "details": {
+        "trust_score": 6.340298389195514,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:54.669382",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "d26dc15b-976f-45b0-ae89-15faf851e753",
+      "details": {
+        "trust_score": 6.761733623258992,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:54.669382",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "d26dc15b-976f-45b0-ae89-15faf851e753",
+      "details": {
+        "trust_score": 6.761733623258992,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:54.669382",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "d26dc15b-976f-45b0-ae89-15faf851e753",
+      "details": {
+        "trust_score": 6.761733623258992,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:54.669382",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "d26dc15b-976f-45b0-ae89-15faf851e753",
+      "details": {
+        "trust_score": 6.761733623258992,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:54.669382",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "d26dc15b-976f-45b0-ae89-15faf851e753",
+      "details": {
+        "trust_score": 6.761733623258992,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:56.866884",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:56.866884",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:56.866884",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:56.867898",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:56.867898",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:58.871953",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "43cb66ee-dada-4caf-a9e0-762c4552fa57",
+      "details": {
+        "trust_score": 6.636306628098411,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:58.873191",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "43cb66ee-dada-4caf-a9e0-762c4552fa57",
+      "details": {
+        "trust_score": 6.636306628098411,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:58.873191",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "43cb66ee-dada-4caf-a9e0-762c4552fa57",
+      "details": {
+        "trust_score": 6.636306628098411,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:58.875273",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "43cb66ee-dada-4caf-a9e0-762c4552fa57",
+      "details": {
+        "trust_score": 6.636306628098411,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:58.877278",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "43cb66ee-dada-4caf-a9e0-762c4552fa57",
+      "details": {
+        "trust_score": 6.636306628098411,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:59.534350",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "f184ff91-9ef6-48c0-b97e-9f77f03cf3ae",
+      "details": {
+        "trust_score": 6.542206628098411,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:59.534871",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "f184ff91-9ef6-48c0-b97e-9f77f03cf3ae",
+      "details": {
+        "trust_score": 6.542206628098411,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:59.535379",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "f184ff91-9ef6-48c0-b97e-9f77f03cf3ae",
+      "details": {
+        "trust_score": 6.542206628098411,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:59.535965",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "f184ff91-9ef6-48c0-b97e-9f77f03cf3ae",
+      "details": {
+        "trust_score": 6.542206628098411,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:59.536639",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "f184ff91-9ef6-48c0-b97e-9f77f03cf3ae",
+      "details": {
+        "trust_score": 6.542206628098411,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:59.537503",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "6b100365-011f-4b9d-bfb5-a820cf89a19c",
+      "details": {
+        "trust_score": 7.421181658160217,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:59.538008",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "6b100365-011f-4b9d-bfb5-a820cf89a19c",
+      "details": {
+        "trust_score": 7.421181658160217,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:59.538529",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "6b100365-011f-4b9d-bfb5-a820cf89a19c",
+      "details": {
+        "trust_score": 7.421181658160217,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:59.538529",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "6b100365-011f-4b9d-bfb5-a820cf89a19c",
+      "details": {
+        "trust_score": 7.421181658160217,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:59.539569",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "6b100365-011f-4b9d-bfb5-a820cf89a19c",
+      "details": {
+        "trust_score": 7.421181658160217,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:59.958198",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:59.958198",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:59.958198",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:59.958198",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:22:59.959202",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:01.239905",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:01.239905",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:01.239905",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:01.239905",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:01.239905",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:02.265026",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "5416de25-ff89-4292-a9e4-a04a79c7161d",
+      "details": {
+        "trust_score": 6.573660721952302,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:02.266039",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "5416de25-ff89-4292-a9e4-a04a79c7161d",
+      "details": {
+        "trust_score": 6.573660721952302,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:02.266039",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "5416de25-ff89-4292-a9e4-a04a79c7161d",
+      "details": {
+        "trust_score": 6.573660721952302,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:02.268039",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "5416de25-ff89-4292-a9e4-a04a79c7161d",
+      "details": {
+        "trust_score": 6.573660721952302,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:02.269076",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "5416de25-ff89-4292-a9e4-a04a79c7161d",
+      "details": {
+        "trust_score": 6.573660721952302,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:02.270038",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "8da8fda8-e924-43b8-91bb-a3cb959d9db3",
+      "details": {
+        "trust_score": 6.578560721952302,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:02.270038",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "8da8fda8-e924-43b8-91bb-a3cb959d9db3",
+      "details": {
+        "trust_score": 6.578560721952302,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:02.271042",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "8da8fda8-e924-43b8-91bb-a3cb959d9db3",
+      "details": {
+        "trust_score": 6.578560721952302,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:02.271042",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "8da8fda8-e924-43b8-91bb-a3cb959d9db3",
+      "details": {
+        "trust_score": 6.578560721952302,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:02.272038",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "8da8fda8-e924-43b8-91bb-a3cb959d9db3",
+      "details": {
+        "trust_score": 6.578560721952302,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:02.868673",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "22c09a09-10e1-4a75-a0e4-b803b0d22bb9",
+      "details": {
+        "trust_score": 6.996899837543715,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:02.869673",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "22c09a09-10e1-4a75-a0e4-b803b0d22bb9",
+      "details": {
+        "trust_score": 6.996899837543715,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:02.869673",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "22c09a09-10e1-4a75-a0e4-b803b0d22bb9",
+      "details": {
+        "trust_score": 6.996899837543715,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:02.870673",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "22c09a09-10e1-4a75-a0e4-b803b0d22bb9",
+      "details": {
+        "trust_score": 6.996899837543715,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:02.871673",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "22c09a09-10e1-4a75-a0e4-b803b0d22bb9",
+      "details": {
+        "trust_score": 6.996899837543715,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:04.585101",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "d8594680-6cb9-4f00-9fc1-e3a2f7b1bf8d",
+      "details": {
+        "trust_score": 6.014863639997843,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:04.589628",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "d8594680-6cb9-4f00-9fc1-e3a2f7b1bf8d",
+      "details": {
+        "trust_score": 6.014863639997843,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:04.590135",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "d8594680-6cb9-4f00-9fc1-e3a2f7b1bf8d",
+      "details": {
+        "trust_score": 6.014863639997843,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:04.591361",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "d8594680-6cb9-4f00-9fc1-e3a2f7b1bf8d",
+      "details": {
+        "trust_score": 6.014863639997843,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:04.591913",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "d8594680-6cb9-4f00-9fc1-e3a2f7b1bf8d",
+      "details": {
+        "trust_score": 6.014863639997843,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:05.107183",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "9ce74696-0f39-45c8-a211-c7b5bb36879e",
+      "details": {
+        "trust_score": 6.440949704996297,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:05.107809",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "9ce74696-0f39-45c8-a211-c7b5bb36879e",
+      "details": {
+        "trust_score": 6.440949704996297,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:05.108819",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "9ce74696-0f39-45c8-a211-c7b5bb36879e",
+      "details": {
+        "trust_score": 6.440949704996297,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:05.109851",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "9ce74696-0f39-45c8-a211-c7b5bb36879e",
+      "details": {
+        "trust_score": 6.440949704996297,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:05.109851",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "9ce74696-0f39-45c8-a211-c7b5bb36879e",
+      "details": {
+        "trust_score": 6.440949704996297,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:05.540193",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "0e2dd54a-8ac1-41aa-a8ab-a979e3c705dc",
+      "details": {
+        "trust_score": 6.431363639997843,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:05.540193",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "0e2dd54a-8ac1-41aa-a8ab-a979e3c705dc",
+      "details": {
+        "trust_score": 6.431363639997843,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:05.542194",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "0e2dd54a-8ac1-41aa-a8ab-a979e3c705dc",
+      "details": {
+        "trust_score": 6.431363639997843,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:05.543195",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "0e2dd54a-8ac1-41aa-a8ab-a979e3c705dc",
+      "details": {
+        "trust_score": 6.431363639997843,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:05.543195",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "0e2dd54a-8ac1-41aa-a8ab-a979e3c705dc",
+      "details": {
+        "trust_score": 6.431363639997843,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:05.780137",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:05.780696",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:05.780696",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:05.781260",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:05.781260",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T15:23:05.783365",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 16.005438,
+        "total_ideas": 13,
+        "total_assessed": 12,
+        "coverage_percent": 92.3076923076923
+      }
+    }
+  ]
+}

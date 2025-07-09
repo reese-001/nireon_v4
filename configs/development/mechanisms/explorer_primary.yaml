@@ -1,6 +1,6 @@
 # nireon/configs/default/mechanisms/explorer_primary.yaml
 # These are default values that override Pydantic defaults if specified.
-max_depth: 4
-application_rate: 0.6
+max_depth: 6
+application_rate: 0.8
 exploration_strategy: "depth_first"
-# divergence_strength: 0.15 # if this field exists in ExplorerConfig
+divergence_strength: 0.15 # if this field exists in ExplorerConfig

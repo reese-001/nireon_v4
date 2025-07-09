@@ -1,0 +1,15 @@
+digraph ExecutionDAG {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    "BOOTSTRAP" [label="BOOTSTRA...\nSYSTEM", fillcolor=lavender, style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifi...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "SEED_EXEC_prime counting" [label="SEED_EXE...\nSEED_EXECUTION", fillcolor=khaki, style="rounded,filled"];
+    "1011061d-4986-4e0f-8cdc-c9201f3ded1d" [label="1011061d...\nSEED_IDEA", fillcolor=lightgreen, style="rounded,filled"];
+    "d7fd4a5d-2835-41e3-83be-ba694c29e864" [label="d7fd4a5d...\nGENERATED_IDEA\nTo enhance the efficiency of c...", fillcolor=lightblue, style="rounded,filled"];
+    "851b124b-7363-4738-950f-3113f0a5540b" [label="851b124b...\nGENERATED_IDEA\nTo explore advanced mathematic...", fillcolor=lightblue, style="rounded,filled"];
+    "2c0080b1-ccf8-480b-9555-079929cdc7a2" [label="2c0080b1...\nGENERATED_IDEA\n**Title: Enhancing the Efficie...", fillcolor=lightblue, style="rounded,filled"];
+    "1011061d-4986-4e0f-8cdc-c9201f3ded1d" -> "d7fd4a5d-2835-41e3-83be-ba694c29e864" [label="GENERATES\ndepth=0"];
+    "1011061d-4986-4e0f-8cdc-c9201f3ded1d" -> "851b124b-7363-4738-950f-3113f0a5540b" [label="GENERATES\ndepth=0"];
+    "1011061d-4986-4e0f-8cdc-c9201f3ded1d" -> "2c0080b1-ccf8-480b-9555-079929cdc7a2" [label="GENERATES\ndepth=0"];
+}

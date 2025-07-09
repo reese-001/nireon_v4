@@ -1,0 +1,217 @@
+{
+  "nodes": [
+    "36c7ba94-2989-423e-b387-ccf83bf1d0bd",
+    "BOOTSTRAP",
+    "proto_prime_counting_optimization",
+    "proto_prime_count_analysis",
+    "quantifier_agent_primary",
+    "proto_enhanced_prime_counting",
+    "72b71c3f-30bf-433c-a0f6-8cd9efed6a8e",
+    "SEED_EXEC_prime counting",
+    "sentinel_instance_01",
+    "290f73b9-e3d1-405a-a204-8f1f35853478",
+    "fcbf5326-c337-4688-8f83-87a1f3e893c9"
+  ],
+  "edges": [
+    {
+      "source": "fcbf5326-c337-4688-8f83-87a1f3e893c9",
+      "target": "36c7ba94-2989-423e-b387-ccf83bf1d0bd",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "fcbf5326-c337-4688-8f83-87a1f3e893c9",
+      "target": "290f73b9-e3d1-405a-a204-8f1f35853478",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "fcbf5326-c337-4688-8f83-87a1f3e893c9",
+      "target": "72b71c3f-30bf-433c-a0f6-8cd9efed6a8e",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    }
+  ],
+  "signals": [
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T10:09:48.380185",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "fcbf5326-c337-4688-8f83-87a1f3e893c9",
+      "payload": {
+        "seed_idea_id": "fcbf5326-c337-4688-8f83-87a1f3e893c9",
+        "text": "How can we improve on the Pi(x) function to count the number of primes less than x more efficiently without using machine learning?",
+        "metadata": {
+          "iteration": 1,
+          "objective": "Explore advanced mathematical techniques to optimize the counting of prime numbers below a given threshold x. Focus on closed form solutions and algorithmic improvements. Do not consider machine learning or neural networks!",
+          "depth": 0,
+          "seed_config_id": "prime counting"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T10:10:07.697824",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "36c7ba94-2989-423e-b387-ccf83bf1d0bd",
+      "payload": {
+        "parent_id": "fcbf5326-c337-4688-8f83-87a1f3e893c9",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T10:10:07.712012",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "290f73b9-e3d1-405a-a204-8f1f35853478",
+      "payload": {
+        "parent_id": "fcbf5326-c337-4688-8f83-87a1f3e893c9",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T10:10:07.712012",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "72b71c3f-30bf-433c-a0f6-8cd9efed6a8e",
+      "payload": {
+        "parent_id": "fcbf5326-c337-4688-8f83-87a1f3e893c9",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T10:10:39.481386",
+      "signal_type": "ProtoTaskSignal",
+      "source": "quantifier_agent",
+      "target": "proto_prime_counting_optimization",
+      "payload": {
+        "source_idea": null,
+        "eidos": "math"
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T10:10:39.549010",
+      "signal_type": "ProtoTaskSignal",
+      "source": "quantifier_agent",
+      "target": "proto_enhanced_prime_counting",
+      "payload": {
+        "source_idea": null,
+        "eidos": "math"
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T10:10:43.029504",
+      "signal_type": "ProtoTaskSignal",
+      "source": "quantifier_agent",
+      "target": "proto_prime_count_analysis",
+      "payload": {
+        "source_idea": null,
+        "eidos": "math"
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T10:09:48.380185",
+      "event_type": "BOOTSTRAP_COMPLETE",
+      "node_id": "BOOTSTRAP",
+      "details": {
+        "component_count": 59,
+        "run_id": "explorer_run_1751728188"
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T10:10:10.340211",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "36c7ba94-2989-423e-b387-ccf83bf1d0bd",
+      "details": {
+        "trust_score": 6.7041564905854285,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T10:10:10.340211",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "72b71c3f-30bf-433c-a0f6-8cd9efed6a8e",
+      "details": {
+        "trust_score": 6.626258380327261,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T10:10:11.293266",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "290f73b9-e3d1-405a-a204-8f1f35853478",
+      "details": {
+        "trust_score": 6.427656490585429,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T10:10:39.481386",
+      "event_type": "QUANTIFIER_TRIGGERED",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "loop_finished": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T10:10:39.549519",
+      "event_type": "QUANTIFIER_TRIGGERED",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "loop_finished": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T10:10:43.029504",
+      "event_type": "QUANTIFIER_TRIGGERED",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "loop_finished": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T10:11:09.490376",
+      "event_type": "PROTO_EXECUTION_FAILURE",
+      "node_id": "unknown",
+      "details": {}
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T10:11:09.490376",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 81.110191,
+        "total_ideas": 4,
+        "total_assessed": 3,
+        "coverage_percent": 75.0
+      }
+    }
+  ]
+}

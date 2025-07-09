@@ -1,0 +1,1894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIREON Explorer Report - 20250708_152305</title>
+    <style>
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #1a1a2e, #0f0f1e);
+            border-radius: 1rem;
+            border: 1px solid #2a2a3e;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(45deg, #00ff88, #0088ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .timestamp {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        section {
+            margin-bottom: 3rem;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #00ff88;
+        }
+        
+        h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #0088ff;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .stat-card {
+            background: #1a1a2e;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            border: 1px solid #2a2a3e;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+        
+        .stat-card.success {
+            border-color: #00ff88;
+        }
+        
+        .stat-card.failure {
+            border-color: #ff4444;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: #888;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .metric-card {
+            background: #1a1a2e;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #2a2a3e;
+        }
+        
+        .metric-card h3 {
+            color: #0088ff;
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+        
+        .metric-detail {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+        }
+        
+        .chart-container {
+            background: #1a1a2e;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #2a2a3e;
+        }
+        
+        .result-card {
+            background: #1a1a2e;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #2a2a3e;
+            margin-bottom: 1rem;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            cursor: pointer;
+        }
+        
+        .result-header:hover {
+            opacity: 0.8;
+        }
+        
+        .result-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .result-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        
+        .status-success {
+            background: #00ff88;
+            color: #000;
+        }
+        
+        .status-failure {
+            background: #ff4444;
+            color: #fff;
+        }
+        
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            color: #888;
+            font-size: 0.85rem;
+        }
+        
+        .detail-value {
+            font-weight: bold;
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #00ff88, #0088ff);
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+        
+        /* New styles for collapsible content */
+        .collapsible {
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            max-height: 0;
+        }
+        
+        .collapsible.expanded {
+            max-height: none;
+        }
+        
+        .expand-indicator {
+            margin-left: 0.5rem;
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+            display: inline-block;
+        }
+        
+        .expanded .expand-indicator {
+            transform: rotate(180deg);
+        }
+        
+        .idea-container {
+            background: #0f0f1e;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid #2a2a3e;
+        }
+        
+        .idea-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+        
+        .idea-title {
+            font-weight: bold;
+            color: #00ff88;
+            flex: 1;
+            margin-right: 1rem;
+        }
+        
+        .idea-text {
+            font-size: 0.9rem;
+            color: #ccc;
+            line-height: 1.5;
+            max-height: 100px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+        
+        .trust-score {
+            font-weight: bold;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        
+        .high-trust {
+            background: #00ff88;
+            color: #000;
+        }
+        
+        .low-trust {
+            background: #ff4444;
+            color: #fff;
+        }
+        
+        .seed-objective {
+            background: #1a1a3e;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-style: italic;
+            color: #aaa;
+        }
+        
+        .proto-tasks {
+            background: #1a2a3e;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            border: 1px solid #0088ff;
+        }
+        
+        .proto-task-item {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background: #0a1a2e;
+            border-radius: 0.25rem;
+        }
+        
+        .proto-task-id {
+            font-family: monospace;
+            color: #0088ff;
+            font-weight: bold;
+        }
+        
+        .event-timeline {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #0f0f1e;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            font-family: monospace;
+            margin-top: 1rem;
+        }
+        
+        .event-item {
+            margin-bottom: 0.25rem;
+            color: #888;
+        }
+        
+        .event-type {
+            color: #00ff88;
+            font-weight: bold;
+        }
+        
+        .failure-reason {
+            background: #ff444433;
+            border: 1px solid #ff4444;
+            color: #ff8888;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        /* Scrollbar styling for dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1a1a2e;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #2a2a3e;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3a3a4e;
+        }
+        
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧠 NIREON Explorer Test Report</h1>
+            <div class="timestamp">Generated: 2025-07-08 15:23:05</div>
+        </header>
+        
+        <section class="summary">
+            <h2>📊 Executive Summary</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">Total Runs</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">Successful</div>
+                </div>
+                <div class="stat-card failure">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Failed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">100.0%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="metrics">
+            <h2>📈 Key Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h3>Ideas Generated</h3>
+                    <div class="metric-value">20</div>
+                    <div class="metric-detail">Avg: 4.0 per run</div>
+                </div>
+                <div class="metric-card">
+                    <h3>Assessment Coverage</h3>
+                    <div class="metric-value">75.0%</div>
+                    <div class="metric-detail">Of all generated ideas</div>
+                </div>
+                <div class="metric-card">
+                    <h3>High Trust Ideas</h3>
+                    <div class="metric-value">6</div>
+                    <div class="metric-detail">Trust score > 6.0</div>
+                </div>
+                <div class="metric-card">
+                    <h3>Proto Tasks</h3>
+                    <div class="metric-value">0</div>
+                    <div class="metric-detail">Quantifier activations</div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="charts">
+            <h2>📊 Visualizations</h2>
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <canvas id="successChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="ideasChart"></canvas>
+                </div>
+            </div>
+        </section>
+        
+        <section class="results">
+            <h2>🔍 Detailed Results</h2>
+            
+            <div class="result-card">
+                <div class="result-header" onclick="toggleCollapse('test_iter1_details')">
+                    <div class="result-title">test_iter1</div>
+                    <div>
+                        <span class="result-status status-success">✅ PASSED</span>
+                        <span class="expand-indicator">▼</span>
+                    </div>
+                </div>
+                <div class="result-text">A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explana...</div>
+                <div class="result-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Duration</span>
+                        <span class="detail-value">26.94s</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Ideas</span>
+                        <span class="detail-value">4</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Assessed</span>
+                        <span class="detail-value">3</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">High Trust</span>
+                        <span class="detail-value">3</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Max Depth</span>
+                        <span class="detail-value">0</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Proto</span>
+                        <span class="detail-value">No</span>
+                    </div>
+                </div>
+                
+                
+                <div id="test_iter1_details" class="collapsible">
+                    
+            <div class="seed-objective">
+                <strong>Objective:</strong> Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.
+            </div>
+            
+
+                <h3>Generated Ideas (3 Total)</h3>
+                
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Title: The Curious Case of the Inland Lobster</div>
+                    <span class="trust-score high-trust">Trust: 6.43</span>
+                </div>
+                <div class="idea-text">**Title: The Curious Case of the Inland Lobster**
+
+**Setting:** A suburban neighborhood, 15 miles inland from the nearest coastline, where residents are puzzled by the discovery of a dead lobster on a well-manicured lawn.
+
+**Hypotheses to Explain the Phenomenon:**
+
+1. **Unusual Weather Patterns:**
+   - A rare meteorological event could have contributed to the lobster&#x27;s appearance. For instance, an intense storm could have caused flooding or waterspouts that transported marine life from the ocean to inland areas. Strong winds and heavy rain could have picked up the lobster and carried it far from its natural habitat.
+
+2. **Illegal Pet Release:**
+   - Someone might have owned the lobster as an exotic pet and, unable to care for it, decided to release it into the wild. The lobster, unable to survive in freshwater environments, perished on the lawn after being discarded. This scenario raises concerns about the impact of non-native species on local ecosystems.
+
+3. **Aquaculture Misadventure:**
+   - An aquaculture facility or seafood restaurant located nearby might have experienced a mishap, such as a transport truck spill or an escape during a delivery. The lobster could have found its way from the facility to the suburban neighborhood through a series of waterways or drainage systems.
+
+4. **Environmental Pollution:**
+   - An environmental incident, such as the contamination of a local river or stream, could have led to the lobster being displaced. If the waterway connected to coastal areas, the lobster may have traveled upstream only to succumb to pollution or unsuitable environmental conditions before reaching the lawn.
+
+5. **Human Transport:**
+   - A more mundane explanation could involve a human carrying the lobster for a cookout, accidently dropping it en route. Alternatively, a family returning from a beach trip might have unintentionally left it behind. Such human error could explain the lobster&#x27;s unexpected inland presence.
+
+6. **Geological Anomaly:**
+   - Researchers might investigate the possibility of ancient geological activity that altered the landscape, potentially creating an underground channel that allowed marine life to surface far from the coast. This hypothesis would involve studying the area’s geological history to trace any possible routes.
+
+7. **Escaped Research Specimen:**
+   - An academic or commercial research team studying marine biology might have had a lobster escape from their facility. If local universities or marine labs were conducting research nearby, this could explain the lobster&#x27;s presence, especially if it was being kept for observational studies.
+
+**Conclusion:**
+Each of these hypotheses presents a unique angle on the puzzling appearance of a dead lobster so far from its natural habitat. Further investigation, including environmental assessments and interviews with local residents, could help uncover the truth behind this curious case.</div>
+            </div>
+            
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Title: The Curious Case of the Lobster in Suburbia</div>
+                    <span class="trust-score high-trust">Trust: 6.48</span>
+                </div>
+                <div class="idea-text">**Title: The Curious Case of the Lobster in Suburbia**
+
+**Overview:** A dead lobster was discovered on a suburban lawn, 15 miles from the ocean, sparking intrigue and speculation. Below are several distinct, plausible, and scientifically-grounded hypotheses exploring the biological, meteorological, and human factors that could explain this unusual phenomenon.
+
+---
+
+**1. The &quot;Lobster Airlift&quot; Hypothesis:**
+   - **Biological Factors:** Lobsters are marine creatures typically found in ocean habitats. However, it is possible that the lobster was caught in a storm or strong currents and transported via a river or waterway that leads inland. 
+   - **Human Factors:** An adventurous fisherman could have inadvertently transported the lobster in a bucket or cooler and, after an outing, mistakenly dropped it on the lawn while unloading their gear.
+
+**2. The &quot;Tropical Storm Transport&quot; Hypothesis:**
+   - **Meteorological Factors:** A recent storm or hurricane could have swept through the area, carrying marine life far inland with powerful winds and flooding. The lobster may have become dislodged from its habitat during the storm surge and landed on the lawn as the water receded.
+   - **Biological Factors:** This phenomenon, known as &#x27;animal rain,&#x27; can occur when strong updrafts lift animals, including fish and crustaceans, into the atmosphere, only to drop them miles away.
+
+**3. The &quot;Lobster Migration Gone Awry&quot; Hypothesis:**
+   - **Biological Factors:** While lobsters are not known for long migrations, it&#x27;s conceivable that a young lobster, perhaps disoriented or seeking new habitats, wandered far from its oceanic home, possibly through a series of interconnected waterways or streams, leading it to this suburban lawn. 
+   - **Environmental Changes:** Changes in water temperature or salinity could have spurred this unusual behavior, prompting the lobster to venture into unfamiliar territory.
+
+**4. The &quot;Surreptitious Seafood Smuggler&quot; Hypothesis:**
+   - **Human Factors:** The lobster might have been part of an illegal seafood operation, where a smugger attempted to hide the evidence of transport. The lobster could have been discarded on the lawn to avoid detection from authorities, especially if it was part of a shipment that was no longer viable.
+   - **Biological Factors:** Given the lobsters&#x27; robust nature, it may have remained alive during transport, only succumbing after being abandoned.
+
+**5. The &quot;Environmental Pollutant Indicator&quot; Hypothesis:**
+   - **Biological Factors:** The presence of the lobster could serve as an indicator of environmental health or degradation. It might have been a research subject from a nearby university studying pollution in local waterways, with the lobster accidentally released or escaped.
+   - **Meteorological Factors:** A series of unusual weather events could have altered local ecosystems, allowing marine species to survive longer in freshwater and migrate unexpectedly inland.
+
+**6. The &quot;Bizarre Backyard Pet&quot; Hypothesis:**
+   - **Human Factors:** It&#x27;s not uncommon for people to keep exotic pets, and a lobster could have been someone&#x27;s unconventional backyard pet. After it died, the owner may have disposed of it improperly, leading to its discovery on the lawn.
+   - **Cultural Factors:** This idea also opens the door to the possibility of a neighborhood trend of keeping unusual pets, leading to unexpected sightings of marine animals in terrestrial environments.
+
+---
+
+Each of these hypotheses presents a unique and scientifically plausible explanation for the mysterious appearance of the lobster on a suburban lawn, inviting further investigation into this curious occurrence.</div>
+            </div>
+            
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Title: &quot;The Mysterious Lobster: An Inland Enigma&quot;</div>
+                    <span class="trust-score high-trust">Trust: 6.45</span>
+                </div>
+                <div class="idea-text">**Title: &quot;The Mysterious Lobster: An Inland Enigma&quot;**
+
+**Overview:** A dead lobster discovered on a suburban lawn, 15 miles away from the nearest ocean, raises questions that blend biology, meteorology, and human activity. Here are several distinct and scientifically-grounded hypotheses to explain this peculiar phenomenon:
+
+### 1. **The Storm-Driven Journey**
+   - **Hypothesis:** A powerful storm surge or flooding event may have swept the lobster from its marine habitat and carried it inland. Heavy rains or flooding can transport marine life well beyond their typical boundaries.
+   - **Supporting Evidence:** Meteorological records indicate severe weather patterns in the area around the time the lobster was likely displaced, with reports of flash flooding that could have reached the suburbs.
+
+### 2. **Human Intervention**
+   - **Hypothesis:** The lobster could have been part of a seafood delivery or restaurant supply that was improperly disposed of. Someone may have discarded it on their lawn, thinking it would be a humorous prank or as a way to compost it.
+   - **Supporting Evidence:** Local businesses or homes known for seafood restaurants might have had deliveries around the time the lobster was found, and surveillance footage could reveal human activity in the area.
+
+### 3. **Ecological Migration**
+   - **Hypothesis:** Climate change may have altered local ecosystems, enabling unusual migration patterns for marine species. Lobsters might be traveling further inland due to changing oceanic temperatures or salinity levels, seeking new habitats.
+   - **Supporting Evidence:** Recent studies indicate shifts in marine species distributions in response to climate change, and there could be a correlation between rising sea temperatures and lobsters venturing farther inland.
+
+### 4. **Invasive Species Spread**
+   - **Hypothesis:** The lobster could be a non-native species introduced to the area through ballast water from ships or aquarium releases. It may have died after being out of its suitable habitat for too long.
+   - **Supporting Evidence:** Research shows that invasive aquatic species can survive in temporary freshwater conditions, and the presence of an unusual lobster could indicate an ecological imbalance.
+
+### 5. **Bizarre Biological Event**
+   - **Hypothesis:** A rare biological anomaly, such as a mutation or a genetic defect, might have caused the lobster to survive in a fresh-water environment temporarily, leading it to travel inland before succumbing to unsuitable conditions.
+   - **Supporting Evidence:** Genetic studies on lobsters show variations and adaptations; an unusual phenotype could explain the lobster&#x27;s unexpected journey and eventual death.
+
+### 6. **Transport by Wildlife**
+   - **Hypothesis:** A bird or another animal may have caught the lobster from a nearby water source and inadvertently dropped it while flying or moving through the area, leading to its discovery on the lawn.
+   - **Supporting Evidence:** Local wildlife behaviors include scavenging or transporting food sources, and tracking bird migration patterns could reveal a possibility of larger birds preying on lobsters.
+
+### 7. **Underground Waterways**
+   - **Hypothesis:** The presence of underground rivers or waterways could have allowed the lobster to travel from its natural habitat to the suburban area without being directly exposed to the surface environment.
+   - **Supporting Evidence:** Geological surveys may show the existence of natural aquifers or rivers that connect to the ocean, potentially supporting the lobster’s journey inland.
+
+### Conclusion:
+Each of these hypotheses provides a plausible explanation for the unexpected discovery of a dead lobster far from its natural habitat. Further investigation, including ecological assessments, meteorological data review, and community inquiry, could shed light on this peculiar coastal mystery.</div>
+            </div>
+            
+                
+
+            <h3>Event Timeline</h3>
+            <div class="event-timeline">
+                
+            <div class="event-item">
+                [15:22:24] <span class="event-type">idea_generated</span> idea_id: 36910bb7...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:24] <span class="event-type">idea_generated</span> idea_id: b40a44f5...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:24] <span class="event-type">idea_generated</span> idea_id: afd7ef2a...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:26] <span class="event-type">trust_assessment</span> score: 6.453500286389786
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:26] <span class="event-type">trust_assessment</span> score: 6.432527866214994
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:26] <span class="event-type">trust_assessment</span> score: 6.477100286389786
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:37] <span class="event-type">branch_completed</span> 
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:38] <span class="event-type">branch_completed</span> 
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:39] <span class="event-type">branch_completed</span> 
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:40] <span class="event-type">branch_completed</span> 
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:45] <span class="event-type">branch_completed</span> 
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:47] <span class="event-type">branch_completed</span> 
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:52] <span class="event-type">idea_generated</span> idea_id: 451525a0...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:52] <span class="event-type">idea_generated</span> idea_id: 47b661d1...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:52] <span class="event-type">idea_generated</span> idea_id: d26dc15b...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:56] <span class="event-type">idea_generated</span> idea_id: 6b100365...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:56] <span class="event-type">idea_generated</span> idea_id: f184ff91...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:56] <span class="event-type">idea_generated</span> idea_id: 43cb66ee...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:59] <span class="event-type">idea_generated</span> idea_id: 5416de25...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:59] <span class="event-type">idea_generated</span> idea_id: 8da8fda8...
+            </div>
+              <!-- Limit to first 20 events -->
+            </div>
+            
+                </div>
+            </div>
+            
+
+            <div class="result-card">
+                <div class="result-header" onclick="toggleCollapse('test_iter2_details')">
+                    <div class="result-title">test_iter2</div>
+                    <div>
+                        <span class="result-status status-success">✅ PASSED</span>
+                        <span class="expand-indicator">▼</span>
+                    </div>
+                </div>
+                <div class="result-text">A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explana...</div>
+                <div class="result-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Duration</span>
+                        <span class="detail-value">0.59s</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Ideas</span>
+                        <span class="detail-value">1</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Assessed</span>
+                        <span class="detail-value">0</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">High Trust</span>
+                        <span class="detail-value">0</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Max Depth</span>
+                        <span class="detail-value">0</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Proto</span>
+                        <span class="detail-value">No</span>
+                    </div>
+                </div>
+                
+                
+                <div id="test_iter2_details" class="collapsible">
+                    
+            <div class="seed-objective">
+                <strong>Objective:</strong> Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.
+            </div>
+            
+
+                <h3>Generated Ideas (3 Total)</h3>
+                
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Certainly! Here’s a creative variation of the initial idea, followed by a set of distinct hypothe...</div>
+                    <span class="trust-score high-trust">Trust: 6.34</span>
+                </div>
+                <div class="idea-text">Certainly! Here’s a creative variation of the initial idea, followed by a set of distinct hypotheses that could explain the intriguing presence of a dead lobster found far from its natural habitat:
+
+**Variation:**
+In a quiet suburban neighborhood, residents awoke to a puzzling sight: a vibrant, albeit lifeless, lobster sprawled across a neatly manicured lawn, a full 15 miles from the nearest coastline. The crustacean&#x27;s vibrant shell glistened under the morning sun, drawing the attention of curious neighbors. What had led this marine creature so far inland, and what secrets lay behind its mysterious journey?
+
+**Hypotheses:**
+
+1. **Flood or Tsunami Aftermath:**
+   A recent heavy storm or minor tsunami could have caused coastal flooding, sweeping marine life inland. The lobster may have been carried into the river system, eventually finding its way through drainage systems and ending up on the suburban lawn.
+
+2. **Human Intervention:**
+   A local fisherman could have caught the lobster and, for reasons unknown—perhaps as a prank or a social media stunt—decided to release it far from its ocean home. Alternatively, someone may have discarded it after a seafood feast, and it was later displaced by animals or wind.
+
+3. **Climatic Anomalies:**
+   Unusual weather patterns, such as an extraordinary high tide or hurricane, may have displaced the lobster from its ocean habitat. As the storm receded, it could have become trapped in debris carried inland, later falling onto the lawn as it decomposed.
+
+4. **Biological Drift:**
+   With the increasing spread of invasive species due to climate change, it is conceivable that a species of lobster or a related crustacean could be adapting to new environments. This could lead to instances of lobsters being found in freshwater or terrestrial ecosystems through accidental transport or mutation.
+
+5. **Animal Transport:**
+   A bird of prey or another animal could have picked up the lobster from the beach and inadvertently dropped it on the lawn while hunting or during flight. This could explain the lobster’s unexpected location, as wildlife often travels significant distances in search of food.
+
+6. **Urban Myth in the Making:**
+   The appearance of the lobster could be part of a local urban legend, where stories of &quot;oceanic anomalies&quot; become embellished over time. This particular sighting might be an intentional or unintentional act of local folklore creation, spurring conversations and investigations.
+
+7. **Scientific Experiment Gone Awry:**
+   Perhaps a research project studying the impacts of environmental change on marine life inadvertently led to the lobster being released into an unsuitable environment. This could have been an effort to understand how marine species cope with climate change and urbanization.
+
+Each of these hypotheses provides a plausible explanation for how a dead lobster could appear in a suburban setting far from the ocean, blending elements of biology, meteorology, and human behavior into a fascinating mystery.</div>
+            </div>
+            
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Certainly! Here’s a creative variation of the original idea, along with distinct hypotheses to ex...</div>
+                    <span class="trust-score high-trust">Trust: 6.33</span>
+                </div>
+                <div class="idea-text">Certainly! Here’s a creative variation of the original idea, along with distinct hypotheses to explain the mysterious presence of a dead lobster in a suburban lawn:
+
+**Title: &quot;The Lobster Incident of Willow Creek&quot;**
+
+In the quiet suburb of Willow Creek, 15 miles away from the nearest coastline, residents were taken aback when a perfectly preserved dead lobster was discovered nestled in the grass of a front lawn, sparking curiosity and bewilderment. How did it get there? Theories abounded, and investigators were called in to unravel the mystery. 
+
+**Hypotheses:**
+
+1. **The Aquatic Escape Artist**: A local aquarium, known for its diverse marine life, suffered a significant equipment failure in their filtration system, leading to a mass escape of various species, including lobsters. An adventurous lobster, driven by instinct, may have been transported via waterway or storm drain and ended up in a nearby creek. Flooding from recent rains could have created a temporary channel that allowed the lobster to travel inland before succumbing to the elements.
+
+2. **The Culinary Catastrophe**: In a bizarre twist of fate, a local seafood restaurant that catered to an outdoor wedding may have accidentally disposed of the remains of a lobster dish improperly. A delivery truck that was involved in the catering incident could have experienced a mishap, spilling its contents into a storm drain that connects to the suburban area, allowing the lobster to wash up into the lawn as runoff from heavy rain.
+
+3. **The Mysterious Package**: An eccentric local resident, known for their affinity for nautical decor, might have procured a live lobster for a themed garden party. After the festivities, the lobster, deemed “unfit for company” and accidentally left behind, was abandoned. This theory gained traction when neighbors recalled seeing a peculiar delivery truck parked outside that afternoon, suggesting a possible mix-up.
+
+4. **Climate Change and Ocean Currents**: As ocean temperatures rise and habitats shift due to climate change, lobsters may be venturing further from their natural environments. It is plausible that an unusual weather event, such as a waterspout or rogue storm, could have swept a lobster inland during its journey, depositing it onto the suburban lawn. This hypothesis would lead to further investigation into recent meteorological patterns affecting the region.
+
+5. **The Lobster Experiment Gone Awry**: A local high school science class, exploring marine biology, may have been conducting an experiment involving live lobsters. After a field trip to the coast, they transported the lobsters back for observation. In an act of rebellion, a few students may have released one into the wild, which later ended up on the suburban lawn. This theory would require interviews with school staff and students to verify the timeline of events.
+
+Each of these hypotheses opens a door to explore the intersection of human activity, environmental factors, and the mysterious life of a lobster far from its ocean home, encouraging the community of Willow Creek to delve deeper into the surprising connections between land and sea.</div>
+            </div>
+            
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Title: The Mystery of the Wandering Lobster</div>
+                    <span class="trust-score high-trust">Trust: 6.76</span>
+                </div>
+                <div class="idea-text">**Title: The Mystery of the Wandering Lobster**
+
+**Setting:** A suburban lawn, 15 miles from the ocean, where a peculiar sight of a dead lobster has sparked intrigue and speculation.
+
+**Objective:** To explore distinct, plausible, and scientifically-grounded hypotheses explaining the presence of the dead lobster.
+
+### Hypotheses:
+
+1. **Flooding and Displacement:**
+   After heavy rains, local rivers or streams might have overflowed, allowing for a temporary connection between the ocean and inland areas. The lobster could have been swept away from its natural habitat during a flood and ended up on the lawn.
+
+2. **Illegal Seafood Trade Gone Awry:**
+   The lobster could have been part of an illegal seafood smuggling operation. A crate could have fallen off a vehicle or been discarded due to inspection concerns, leading to the lobster&#x27;s unfortunate demise on the lawn.
+
+3. **Unusual Meteorological Phenomenon:**
+   A rare weather event, such as a waterspout or tornado, could have lifted the lobster from a nearby coastal area and deposited it inland. These phenomena can carry marine life considerable distances from their original environments.
+
+4. **Ecological Experiment Gone Wrong:**
+   Local universities or research institutions may have been conducting an ecological study involving lobsters, perhaps to understand their adaptability. An accidental release or miscalculation during transport could explain the lobster&#x27;s presence in the suburban lawn.
+
+5. **Pet Escape or Abandonment:**
+   The lobster might have been kept as a pet in an aquarium that malfunctioned or was abandoned. If a resident nearby lost their lobster due to a power outage or tank failure, it could have crawled or been discarded, landing on the lawn.
+
+6. **Marine Life in Transit:**
+   Lobsters are often transported in tanks or crates for culinary purposes. If a vehicle transporting seafood had an accident or mishap, it could have resulted in some lobsters escaping and finding their way inland before succumbing to the elements.
+
+7. **Climate Change and Habitat Disruption:**
+   With changing ocean temperatures and marine ecosystems, lobsters are known to migrate in search of cooler waters. A rare instance of a lobster venturing too far in search of a new habitat could lead to it ending up in a suburban area, struggling to survive out of water.
+
+8. **Cultural or Art Installation:**
+   The dead lobster could be part of an artistic installation or community project aimed at raising awareness about ocean pollution and biodiversity loss. It may have been deliberately placed there to provoke thought and conversation among residents.
+
+### Conclusion:
+
+This suburban lobster mystery serves as a reminder of the interconnectedness of ecosystems, human activities, and climate influences. Each hypothesis presents a plausible pathway for how this marine creature could find itself far from its ocean home, inviting further investigation and community discussion.</div>
+            </div>
+            
+                
+
+            <h3>Event Timeline</h3>
+            <div class="event-timeline">
+                
+            <div class="event-item">
+                [15:22:40] <span class="event-type">branch_completed</span> 
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:45] <span class="event-type">branch_completed</span> 
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:47] <span class="event-type">branch_completed</span> 
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:52] <span class="event-type">idea_generated</span> idea_id: 451525a0...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:52] <span class="event-type">idea_generated</span> idea_id: 47b661d1...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:52] <span class="event-type">idea_generated</span> idea_id: d26dc15b...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:53] <span class="event-type">trust_assessment</span> score: 6.326898389195514
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:54] <span class="event-type">trust_assessment</span> score: 6.340298389195514
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:54] <span class="event-type">trust_assessment</span> score: 6.761733623258992
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:56] <span class="event-type">idea_generated</span> idea_id: 6b100365...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:56] <span class="event-type">idea_generated</span> idea_id: f184ff91...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:56] <span class="event-type">idea_generated</span> idea_id: 43cb66ee...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:59] <span class="event-type">idea_generated</span> idea_id: 5416de25...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:59] <span class="event-type">idea_generated</span> idea_id: 8da8fda8...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:59] <span class="event-type">idea_generated</span> idea_id: 22c09a09...
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:01] <span class="event-type">idea_generated</span> idea_id: 0e2dd54a...
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:01] <span class="event-type">idea_generated</span> idea_id: 9ce74696...
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:01] <span class="event-type">idea_generated</span> idea_id: d8594680...
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:05] <span class="event-type">branch_completed</span> 
+            </div>
+              <!-- Limit to first 20 events -->
+            </div>
+            
+                </div>
+            </div>
+            
+
+            <div class="result-card">
+                <div class="result-header" onclick="toggleCollapse('test_iter3_details')">
+                    <div class="result-title">test_iter3</div>
+                    <div>
+                        <span class="result-status status-success">✅ PASSED</span>
+                        <span class="expand-indicator">▼</span>
+                    </div>
+                </div>
+                <div class="result-text">A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explana...</div>
+                <div class="result-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Duration</span>
+                        <span class="detail-value">2.59s</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Ideas</span>
+                        <span class="detail-value">1</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Assessed</span>
+                        <span class="detail-value">0</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">High Trust</span>
+                        <span class="detail-value">0</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Max Depth</span>
+                        <span class="detail-value">0</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Proto</span>
+                        <span class="detail-value">No</span>
+                    </div>
+                </div>
+                
+                
+                <div id="test_iter3_details" class="collapsible">
+                    
+            <div class="seed-objective">
+                <strong>Objective:</strong> Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.
+            </div>
+            
+
+                <h3>Generated Ideas (3 Total)</h3>
+                
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Certainly! Here&#x27;s a creative variation of the original idea, followed by a set of distinct hypoth...</div>
+                    <span class="trust-score high-trust">Trust: 6.57</span>
+                </div>
+                <div class="idea-text">Certainly! Here&#x27;s a creative variation of the original idea, followed by a set of distinct hypotheses that could explain the presence of the dead lobster on a suburban lawn:
+
+**Variation:**
+A perplexing discovery has emerged in the heart of a suburban neighborhood—an intact, deceased lobster, lying serenely on a well-manicured lawn, a full 15 miles away from the nearest coastline. The curious crustacean, seemingly out of place amidst the rows of houses and picket fences, has sparked intrigue and speculation among the residents. How did this marine creature end up so far from its oceanic habitat? 
+
+**Hypotheses to Explain the Phenomenon:**
+
+1. **Extreme Weather Event:**
+   - A recent and unusual weather phenomenon, such as a waterspout or tornado, could have formed over the ocean and lifted the lobster from its natural habitat, transporting it inland before depositing it on the lawn during its descent. This hypothesis would be supported by local reports of such weather conditions.
+
+2. **Human Activity:**
+   - The lobster could have been part of a local seafood shipment that was accidentally spilled or discarded. Perhaps a resident received a delivery of live lobsters for a feast but, for some reason, one escaped or was released into the wild, only to be found later after succumbing to the elements.
+
+3. **Ecological Displacement:**
+   - With climate change leading to rising ocean temperatures, some marine species, including lobsters, could be migrating further inland in search of cooler waters. An unusual series of events might have caused this lobster to swim into a freshwater body, ultimately leading it to be stranded far from its home.
+
+4. **Local Aquarium Release:**
+   - A local aquarium or educational facility could have accidentally released the lobster during a public demonstration or due to a malfunction in their systems. The lobster, now unaccustomed to the wild, may have wandered away from the water source and ended up on the lawn, where it eventually perished.
+
+5. **Animal Interaction:**
+   - A larger animal, such as a bird or a raccoon, may have caught the lobster while it was still alive and carried it inland before dropping it on the lawn. This hypothesis would account for both the lobster&#x27;s unexpected location and its state of being dead.
+
+6. **Cultural or Ritualistic Context:**
+   - Perhaps the lobster was part of a local cultural practice or ritual, and it was intentionally placed on the lawn as an offering or statement. This could reflect a growing trend in which residents engage with nature in unusual ways, leading to the lobster&#x27;s unexpected appearance.
+
+7. **Accidental Transport by Vehicle:**
+   - The lobster could have been unintentionally transported inland by a vehicle, perhaps a pickup truck or trailer, that was carrying seafood from the coast to a restaurant or market. The creature might have slipped out during transit and ended up on the lawn.
+
+Each of these hypotheses leverages biological, meteorological, and human factors to explain the intriguing presence of a lobster far from its marine environment, enriching the narrative with scientific grounding and imaginative possibilities.</div>
+            </div>
+            
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Certainly! Here’s a creative variation on the original idea, along with a set of distinct and pla...</div>
+                    <span class="trust-score high-trust">Trust: 6.58</span>
+                </div>
+                <div class="idea-text">Certainly! Here’s a creative variation on the original idea, along with a set of distinct and plausible hypotheses to explain the presence of the dead lobster on a suburban lawn.
+
+**Variation**: A mysterious lobster carcass appeared on the front yard of a suburban home, situated 15 miles from the nearest coastline. This puzzling sight attracted the attention of local residents and prompted a flurry of speculation and investigation, as the search for answers began.
+
+### Hypotheses to Explain the Phenomenon:
+
+1. **Storm Surge and Erosion**: 
+   A recent storm may have caused significant coastal erosion, displacing marine life. High waves and flooding could have swept the lobster inland during a storm surge, resulting in its eventual deposition on a suburban lawn as the waters receded.
+
+2. **Seagull Transportation**: 
+   A seagull, scavenging for food near the coast, may have caught the lobster and, attempting to fly to a nearby food source, accidentally dropped it 15 miles away from the ocean. This could be supported by an increase in seagull activity in the area, especially if the local ecosystem had fewer food sources.
+
+3. **Local Lobster Farming**: 
+   There may be an aquaculture facility or lobster farm located upstream (even if it&#x27;s somewhat unconventional) where lobsters are raised. An escape or an overflow from the farm due to heavy rains could lead to lobsters traveling further inland, especially if they were washed out during a flood.
+
+4. **Human Intervention**: 
+   A local resident could have found the lobster on a fishing trip and brought it home as a trophy or a conversation starter, only to discard it later on the lawn. This could indicate a trend of urban foraging or fishing that has become popular in the community.
+
+5. **Marine Biology Experiment Gone Awry**: 
+   An academic or marine biology student may have been conducting a study on lobster migration or health and accidentally released a specimen far from its natural habitat. Miscommunication or oversight could lead to a lobster being left behind during an experiment.
+
+6. **Unusual Migration Patterns**: 
+   A changing climate or environmental factors could lead to unusual migration behaviors in marine species. If ocean temperatures rise or salinity changes, it might affect lobster movement, resulting in them being found farther inland than usual.
+
+7. **Cultural Significance**: 
+   The lobster may have been part of a local festival or cultural event, where lobsters were ceremonially placed in unexpected locations to symbolize abundance or fertility. This could spark curiosity among residents, leading them to speculate on its origin.
+
+8. **Druidic Ritual**: 
+   A group of local neo-pagans or spiritualists might have left the lobster as part of a ritual, believing it would bring good luck to the neighborhood. This could tie into themes of nature and the interconnectedness of life and death.
+
+By exploring these hypotheses, the mystery of the dead lobster on the suburban lawn opens up a world of possibilities, blending elements of biology, meteorology, and human behavior into an engaging narrative.</div>
+            </div>
+            
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Certainly! Here&#x27;s a reimagined scenario based on your initial idea, along with a set of plausible...</div>
+                    <span class="trust-score high-trust">Trust: 7.00</span>
+                </div>
+                <div class="idea-text">Certainly! Here&#x27;s a reimagined scenario based on your initial idea, along with a set of plausible hypotheses to explain the phenomenon.
+
+---
+
+### Scenario Variation:
+A fully intact but deceased octopus was discovered in a backyard swimming pool, located 20 miles away from the nearest coastal area. The octopus appeared to be in pristine condition, exhibiting vibrant colors and no signs of damage, leading to a perplexing mystery regarding its unexpected location.
+
+### Hypotheses:
+
+1. **Flooding and Displacement**: 
+   - A recent heavy rainstorm caused localized flooding, potentially allowing the octopus to be swept from a nearby waterway or estuary, carried by runoff or overflow. As the water receded, it could have ended up in the swimming pool.
+
+2. **Illegal Exotic Pet Release**: 
+   - The octopus may have been an exotic pet that someone decided to release into the wild. After being released, it could have found its way through drainage systems or waterways, eventually ending up in the swimming pool.
+
+3. **Human Transport and Accidental Release**: 
+   - A person could have caught the octopus while on a coastal trip and brought it home as a curiosity, only for it to escape or be accidentally released into the pool while attempting to show it off to friends or family.
+
+4. **Marine Life Sighting and Weather Phenomenon**: 
+   - A rare meteorological event, such as a waterspout, could have lifted the octopus from the ocean and deposited it inland. Waterspouts can transport marine life significant distances, resulting in a marine creature landing far from its natural habitat.
+
+5. **Environmental Contamination**: 
+   - Pollution or environmental changes in the coastal area may have forced the octopus to migrate. The stress of the changing environment could have resulted in its premature death, leading to its eventual discovery far from the ocean.
+
+6. **Scientific Experiment Gone Awry**: 
+   - An academic or private research project involving marine biology could have unintentionally led to the octopus&#x27;s escape. If researchers were studying octopus behavior in a controlled environment, an accidental release during transport or experimentation could explain the situation.
+
+7. **Cultural or Ritualistic Practices**: 
+   - The octopus may have been used in a local cultural or ritualistic practice that involved the creature being released into a body of water. If the practice included a ceremonial aspect, a miscommunication could have resulted in it being placed in a swimming pool instead.
+
+8. **Mysterious Portal or Anomaly**: 
+   - In a whimsical twist, one could entertain the idea of a localized dimensional rift or anomaly that occasionally allows marine creatures to slip through from their underwater homes. This hypothesis would embrace a more fantastical approach, suggesting that the octopus arrived from another world or dimension.
+
+### Conclusion:
+These hypotheses provide a range of potential explanations, from scientifically plausible to more imaginative scenarios, each inviting further exploration and investigation into the mysterious appearance of the octopus in an unexpected location.</div>
+            </div>
+            
+                
+
+            <h3>Event Timeline</h3>
+            <div class="event-timeline">
+                
+            <div class="event-item">
+                [15:22:45] <span class="event-type">branch_completed</span> 
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:47] <span class="event-type">branch_completed</span> 
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:52] <span class="event-type">idea_generated</span> idea_id: 451525a0...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:52] <span class="event-type">idea_generated</span> idea_id: 47b661d1...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:52] <span class="event-type">idea_generated</span> idea_id: d26dc15b...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:56] <span class="event-type">idea_generated</span> idea_id: 6b100365...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:56] <span class="event-type">idea_generated</span> idea_id: f184ff91...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:56] <span class="event-type">idea_generated</span> idea_id: 43cb66ee...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:59] <span class="event-type">idea_generated</span> idea_id: 5416de25...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:59] <span class="event-type">idea_generated</span> idea_id: 8da8fda8...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:59] <span class="event-type">idea_generated</span> idea_id: 22c09a09...
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:01] <span class="event-type">idea_generated</span> idea_id: 0e2dd54a...
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:01] <span class="event-type">idea_generated</span> idea_id: 9ce74696...
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:01] <span class="event-type">idea_generated</span> idea_id: d8594680...
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:02] <span class="event-type">trust_assessment</span> score: 6.573660721952302
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:02] <span class="event-type">trust_assessment</span> score: 6.578560721952302
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:02] <span class="event-type">trust_assessment</span> score: 6.996899837543715
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:05] <span class="event-type">branch_completed</span> 
+            </div>
+              <!-- Limit to first 20 events -->
+            </div>
+            
+                </div>
+            </div>
+            
+
+            <div class="result-card">
+                <div class="result-header" onclick="toggleCollapse('test_iter4_details')">
+                    <div class="result-title">test_iter4</div>
+                    <div>
+                        <span class="result-status status-success">✅ PASSED</span>
+                        <span class="expand-indicator">▼</span>
+                    </div>
+                </div>
+                <div class="result-text">A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explana...</div>
+                <div class="result-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Duration</span>
+                        <span class="detail-value">0.59s</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Ideas</span>
+                        <span class="detail-value">1</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Assessed</span>
+                        <span class="detail-value">0</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">High Trust</span>
+                        <span class="detail-value">0</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Max Depth</span>
+                        <span class="detail-value">0</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Proto</span>
+                        <span class="detail-value">No</span>
+                    </div>
+                </div>
+                
+                
+                <div id="test_iter4_details" class="collapsible">
+                    
+            <div class="seed-objective">
+                <strong>Objective:</strong> Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.
+            </div>
+            
+
+                <h3>Generated Ideas (3 Total)</h3>
+                
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Certainly! Here’s a creative variation of the idea, along with a set of distinct, plausible hypot...</div>
+                    <span class="trust-score high-trust">Trust: 7.42</span>
+                </div>
+                <div class="idea-text">Certainly! Here’s a creative variation of the idea, along with a set of distinct, plausible hypotheses:
+
+**Variation:**
+&quot;An unusual marine creature, a vibrant purple sea cucumber, was discovered on a suburban lawn, 15 miles away from the nearest coastline. Its presence sparked curiosity and speculation among the local residents, as there seemed to be no clear reason for its arrival.&quot;
+
+**Hypotheses to Explain the Phenomenon:**
+
+1. **Extreme Weather Events:**
+   - A recent storm could have caused massive flooding, allowing the sea cucumber to be swept inland. Heavy rains and storm surges might have led to a temporary influx of seawater, carrying marine life far from their natural habitats.
+
+2. **Human Activity:**
+   - A local aquarium or marine research facility might have had a mishap, such as a transport vehicle losing its cargo, or individuals might have accidentally released the creature into the wild after purchasing it. Alternatively, a resident could have collected it from the beach for educational purposes, only to inadvertently drop it while moving it.
+
+3. **Marine Displacement due to Climate Change:**
+   - Changes in ocean temperature and salinity could be affecting marine species&#x27; habitats, causing them to migrate further inland in search of suitable conditions. The sea cucumber, typically found in coastal regions, may have found itself in unfamiliar territory as a result of shifting environmental factors.
+
+4. **Animal Behavior:**
+   - A local animal, such as a raccoon or bird, might have scavenged the sea cucumber from a nearby water source and inadvertently dropped it in the suburban lawn while foraging for food. This type of transport is common with various wildlife that interacts with both land and water ecosystems.
+
+5. **Pollution or Contamination:**
+   - The presence of pollutants or chemicals in the water may have caused the sea cucumber to behave abnormally, leading it to venture far from its typical habitat. Bioaccumulation of toxins could prompt unusual migration patterns in marine life.
+
+6. **Art Installation or Prank:**
+   - A local artist or group of pranksters may have placed the sea cucumber on the lawn as a form of environmental art or a social commentary on the state of marine ecosystems. This could spark conversations about coastal health and the impact of human activity on marine life.
+
+7. **Transport by Waterfowl:**
+   - Waterfowl that frequent both coastal and inland areas might have carried the sea cucumber on their feathers or feet, inadvertently transporting it to the lawn. This hypothesis considers the mobility of birds and their foraging habits.
+
+These hypotheses encourage exploration of the intersection between human activity, environmental changes, and biological phenomena, fostering a deeper understanding of the complex relationships within ecosystems.</div>
+            </div>
+            
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Creative Variation: &quot;The Mysterious Lobster on Maple Street&quot;</div>
+                    <span class="trust-score high-trust">Trust: 6.54</span>
+                </div>
+                <div class="idea-text">### Creative Variation: &quot;The Mysterious Lobster on Maple Street&quot;
+
+In a quiet suburban neighborhood, 15 miles from the nearest coastline, residents were baffled when a dead lobster was discovered on a pristine lawn, seemingly out of place and time. The community buzzed with speculation, and local scientists were called in to investigate this peculiar phenomenon. Here are some distinct, plausible, and scientifically-grounded hypotheses that emerged to explain the lobster&#x27;s unexpected presence:
+
+#### 1. **Flooding and Displacement**
+   - **Biology**: A recent heavy rainstorm caused local rivers to swell, leading to flooding that may have dislodged the lobster from its natural habitat. It could have been swept inland from a nearby estuary or marsh during the storm, carried along by the rushing water.
+   - **Meteorology**: A sudden weather system, possibly a tropical storm, could have altered local hydrology, pushing marine life into freshwater systems temporarily.
+
+#### 2. **Human Intervention**
+   - **Biology**: A local fisherman or seafood enthusiast might have caught the lobster during a recent trip to the coast and, either accidentally or intentionally, dropped it off or disposed of it on the lawn.
+   - **Human Factors**: It&#x27;s possible that someone in the neighborhood was hosting a seafood boil or gathering, and the lobster was mistakenly left behind, leading to speculation about its origins.
+
+#### 3. **Unusual Weather Patterns**
+   - **Meteorology**: An atmospheric anomaly could have caused a rare phenomenon known as “animal rain,” where small marine life is lifted from the ocean by waterspouts or strong winds and deposited inland.
+   - **Biology**: This could be similar to documented instances of fish or frogs falling from the sky, where lobsters were inadvertently caught up in strong updrafts during a storm.
+
+#### 4. **Ecological Imbalance**
+   - **Biology**: An invasive species or a change in local ecosystem dynamics could lead to lobsters traveling further inland than usual in search of food or shelter. This could be driven by factors such as overfishing or habitat destruction in coastal areas.
+   - **Human Factors**: Urban development and pollution may disrupt local aquatic environments, forcing marine creatures to adapt in unexpected ways, resulting in sightings far from their traditional habitats.
+
+#### 5. **Marine Research Gone Awry**
+   - **Biology**: A nearby university or research facility could have been conducting experiments on marine life, and the lobster escaped or was accidentally released during a transport mishap.
+   - **Human Factors**: Researchers may have been studying the effects of climate change on marine species and inadvertently dropped the lobster during a field study, leading to its discovery in the suburban lawn.
+
+#### 6. **Lobster Migration Patterns**
+   - **Biology**: A shift in ocean currents or temperatures due to climate change could have altered the migration patterns of lobsters, causing them to venture further inland in search of food or suitable breeding grounds, pushing their range beyond typical limits.
+   - **Meteorology**: Unusual warming trends in coastal waters may disrupt the natural behavior of lobsters, leading to erratic movements that bring them into unusual territory.
+
+### Conclusion
+As the mystery of the dead lobster continues to intrigue the neighborhood, these hypotheses offer a blend of biological, meteorological, and human factors that could plausibly explain its presence far from the ocean. The community remains curious, eager to uncover the truth behind this intriguing marine mystery on Maple Street.</div>
+            </div>
+            
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Title: &quot;The Curious Case of the Lobster on Maple Street&quot;</div>
+                    <span class="trust-score high-trust">Trust: 6.64</span>
+                </div>
+                <div class="idea-text">Title: &quot;The Curious Case of the Lobster on Maple Street&quot;
+
+1. **Unintentional Transport**: A local fisherman, having caught a load of lobsters for a seafood festival, may have accidentally dropped a dead lobster while transporting it. This could have occurred during a moment of distraction or a vehicle mishap, leading to its unceremonious resting place on the lawn.
+
+2. **Extreme Weather Event**: A rare and intense storm could have caused significant flooding in the coastal areas, displacing marine life. As the storm surge receded, it’s possible that a lobster was swept inland and ended up on a suburban lawn as waters receded rapidly, leaving it stranded far from its natural habitat.
+
+3. **Aquarium Escape**: A local resident may have had a pet lobster in an aquarium that passed away and was subsequently disposed of improperly. Instead of being buried or disposed of in a trash bin, it might have been thrown out in a moment of carelessness, landing on the lawn.
+
+4. **Ecological Experiment Gone Awry**: A local scientist or biology teacher conducting an ecological experiment could have mistakenly released or abandoned a lobster in the area, either to study its adaptation to different environments or as part of a misguided project. The lobster could have died due to unsuitable environmental conditions.
+
+5. **Suburban Mythology**: As a prank or an artistic statement, a local resident might have placed the lobster on the lawn to spark conversation or curiosity among neighbors. This could be part of a larger trend of urban art installations that challenge perceptions of nature and suburban life.
+
+6. **Wildlife Interaction**: An invasive species of bird or mammal, having been introduced to the area, could have scavenged the lobster from the coast and dropped it after failing to consume it. This could indicate a shift in local wildlife behavior, leading to unexpected encounters with marine life.
+
+7. **Transportation Spill**: A truck transporting seafood products could have lost its cargo due to a malfunction or accident on a nearby highway. This would explain how a lobster could end up so far inland. Investigating local traffic reports could uncover a connection to this hypothesis.
+
+8. **Peculiar Tide Patterns**: Changes in ocean currents or tide patterns, possibly related to climate change, could have caused lobsters to venture further into estuarine environments. An unusual migration behavior may have left one stranded on the lawn after it swam too far from its natural habitat.
+
+Each of these hypotheses opens a door to further investigation, blending science and creativity to explain the enigmatic presence of a lobster far from its seaside home.</div>
+            </div>
+            
+                
+
+            <h3>Event Timeline</h3>
+            <div class="event-timeline">
+                
+            <div class="event-item">
+                [15:22:47] <span class="event-type">branch_completed</span> 
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:52] <span class="event-type">idea_generated</span> idea_id: 451525a0...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:52] <span class="event-type">idea_generated</span> idea_id: 47b661d1...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:52] <span class="event-type">idea_generated</span> idea_id: d26dc15b...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:56] <span class="event-type">idea_generated</span> idea_id: 6b100365...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:56] <span class="event-type">idea_generated</span> idea_id: f184ff91...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:56] <span class="event-type">idea_generated</span> idea_id: 43cb66ee...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:58] <span class="event-type">trust_assessment</span> score: 6.636306628098411
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:59] <span class="event-type">trust_assessment</span> score: 6.542206628098411
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:59] <span class="event-type">trust_assessment</span> score: 7.421181658160217
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:59] <span class="event-type">idea_generated</span> idea_id: 5416de25...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:59] <span class="event-type">idea_generated</span> idea_id: 8da8fda8...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:59] <span class="event-type">idea_generated</span> idea_id: 22c09a09...
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:01] <span class="event-type">idea_generated</span> idea_id: 0e2dd54a...
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:01] <span class="event-type">idea_generated</span> idea_id: 9ce74696...
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:01] <span class="event-type">idea_generated</span> idea_id: d8594680...
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:05] <span class="event-type">branch_completed</span> 
+            </div>
+              <!-- Limit to first 20 events -->
+            </div>
+            
+                </div>
+            </div>
+            
+
+            <div class="result-card">
+                <div class="result-header" onclick="toggleCollapse('test_iter5_details')">
+                    <div class="result-title">test_iter5</div>
+                    <div>
+                        <span class="result-status status-success">✅ PASSED</span>
+                        <span class="expand-indicator">▼</span>
+                    </div>
+                </div>
+                <div class="result-text">A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explana...</div>
+                <div class="result-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Duration</span>
+                        <span class="detail-value">16.01s</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Ideas</span>
+                        <span class="detail-value">13</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Assessed</span>
+                        <span class="detail-value">12</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">High Trust</span>
+                        <span class="detail-value">3</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Max Depth</span>
+                        <span class="detail-value">0</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Proto</span>
+                        <span class="detail-value">No</span>
+                    </div>
+                </div>
+                
+                
+                <div id="test_iter5_details" class="collapsible">
+                    
+            <div class="seed-objective">
+                <strong>Objective:</strong> Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.
+            </div>
+            
+
+                <h3>Generated Ideas (3 Total)</h3>
+                
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Title: &quot;The Mystery of the Lobster in the Lawn&quot;</div>
+                    <span class="trust-score high-trust">Trust: 6.43</span>
+                </div>
+                <div class="idea-text">Title: &quot;The Mystery of the Lobster in the Lawn&quot;
+
+**Hypothesis 1: The Seafood Smuggler**  
+A local seafood restaurant known for its fresh catches may have inadvertently disposed of a deceased lobster in a nearby dumpster. Following a heavy rainstorm, the lobster could have been washed out of the dumpster and carried by runoff, landing on the suburban lawn. This could have been exacerbated by a nearby construction site disrupting drainage patterns.
+
+**Hypothesis 2: A Stormy Voyage**  
+An unusually strong storm could have caused a rare meteorological phenomenon where waterspouts form over the ocean and carry marine life inland. The lobster could have been sucked up into a waterspout during the storm and deposited onto the lawn, which is a considerable distance from the shore. 
+
+**Hypothesis 3: The Backyard Aquarist**  
+A resident with a penchant for marine aquariums may have kept the lobster as a pet. After it died, they might have attempted to dispose of it in a less conventional way, either by burying it in their garden or tossing it out, leading to it being discovered on the surface. This could also suggest a trend where people are increasingly keeping exotic marine life in suburban settings.
+
+**Hypothesis 4: The Accidental Release**  
+A local fishery or marine research facility might have been conducting a study on lobsters and, due to an unfortunate accident or miscalculation, released a batch of lobsters too far from their natural habitat. Some could have traveled inland through waterways or drainage systems, with one ending up on the suburban lawn.
+
+**Hypothesis 5: The Lobster Bandit**  
+In an unusual twist, it’s possible that someone with a mischievous spirit decided to prank the neighborhood by placing the lobster on the lawn. This could involve a connection to a nearby coastal area, where someone obtained the lobster from a fishing trip or market, and placed it there as a harmless joke, leading to confusion among the residents.
+
+**Hypothesis 6: Evolutionary Anomaly**  
+In a more speculative yet scientifically grounded scenario, there could be a previously unidentified behavioral or migratory change in lobsters due to changing ocean temperatures or habitat loss. This could lead to them venturing further inland than ever before, perhaps driven by a search for food or new breeding grounds, leading to occasional sightings far from their native environment.
+
+**Conclusion:**  
+Each of these hypotheses invites further investigation into the ecological, environmental, and social factors that might lead to such an unusual sighting. The dead lobster&#x27;s presence serves as a reminder of the intricate connections between humans, nature, and the unexpected surprises that can arise in suburban settings.</div>
+            </div>
+            
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Certainly! Here’s a creative reimagining of the idea along with distinct, plausible, and scientif...</div>
+                    <span class="trust-score high-trust">Trust: 6.44</span>
+                </div>
+                <div class="idea-text">Certainly! Here’s a creative reimagining of the idea along with distinct, plausible, and scientifically-grounded hypotheses:
+
+**Title: &quot;The Curious Case of the Lobster on Pinecrest Lane&quot;**
+
+**Synopsis:** In a quiet suburban neighborhood, a vibrant red lobster was discovered resting awkwardly on the manicured lawn of a family’s front yard, nearly 15 miles from the nearest coastline. The residents are baffled, and the community is abuzz with theories as to how this crustacean ended up so far from its natural habitat.
+
+### Hypotheses:
+
+1. **Meteorological Misadventure:**
+   - A rare meteorological phenomenon, like a waterspout, could have formed over the ocean during a storm, sucking the lobster from its underwater home and hurling it inland. This tornado-like event could have carried it through the air, depositing it gently onto the unsuspecting suburban lawn.
+
+2. **Human Intervention Gone Awry:**
+   - A local seafood restaurant or fish market could have inadvertently discarded the lobster in an unusual way. Perhaps a delivery truck had a mishap, spilling its cargo during transport, or a prankster may have taken the lobster for a joyride, only to abandon it in a fit of laughter.
+
+3. **Aquatic Invasive Species:**
+   - It’s possible that the lobster is a genetically modified species, engineered for robustness and adaptability. Released by an environmental group or escaped from a local aquaculture facility, this lobster might be part of a study to understand how marine species adapt to freshwater systems, leading it to wander inland.
+
+4. **Environmental Disturbance:**
+   - A recent upstream flood from a nearby river could have caused the lobster to travel from a connected estuary. Though it’s not common, lobsters have been known to survive in brackish water for a limited time. The flooding might have swept it into a drainage system that led to the suburban area.
+
+5. **Urban Wildlife and Scavenging:**
+   - The lobster could have been part of a wildlife scavenging event. Raccoons or other animals may have found it discarded by humans, dragged it into the neighborhood, and left it on the lawn as an offering to their territory or simply as a misplaced meal.
+
+6. **Cultural Significance or Ritual:**
+   - The lobster could be part of an unusual local ritual or art installation. Some neighborhood artists might have decided to use the lobster as a statement about environmental issues or the connection between urban and marine ecosystems, leaving it on the lawn as a provocative piece for passersby to ponder.
+
+7. **Biological Anomaly:**
+   - Lastly, the discovery could be the result of a rare biological event where a lobster, perhaps due to a genetic mutation, instinctively ventured inland in search of food or a mate. This anomaly could lead to a fascinating study of behavioral patterns and adaptability in marine life.
+
+### Conclusion:
+As the community grapples with this peculiar incident, each hypothesis opens the door to exciting discussions about marine biology, environmental science, and the intricate interplay between human activities and nature. The lobster on Pinecrest Lane may just be a delightful mystery waiting to be unraveled.</div>
+            </div>
+            
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Hypothesis 1: Marine Biologist&#x27;s Unintentional Release</div>
+                    <span class="trust-score high-trust">Trust: 6.01</span>
+                </div>
+                <div class="idea-text">### Hypothesis 1: Marine Biologist&#x27;s Unintentional Release
+A local marine biologist or aquarium enthusiast may have been conducting an experiment or educational demonstration involving lobsters and accidentally released the deceased lobster onto the suburban lawn. This could have happened during a public outreach event or a field study, where the lobster was transported for educational purposes and inadvertently left behind.
+
+### Hypothesis 2: Extreme Weather Phenomenon
+An unusual weather event, such as a powerful storm or tornado, could have lifted the lobster from its coastal habitat and carried it inland. This phenomenon, known as a &quot;waterspout&quot; or &quot;marine tornado,&quot; may have picked the lobster from the ocean or a fishing vessel and deposited it on the lawn 15 miles away. The lobster could have been swept up in a waterspout that formed over the ocean and then traveled inland before falling to the ground.
+
+### Hypothesis 3: Waste Disposal Mishap
+A nearby seafood restaurant or fish market may have improperly disposed of its waste, including dead lobsters, which could have been collected and transported by animals or even humans. A raccoon, bird, or even a person could have carried the lobster from the waste site to the lawn, either as a food source or by accident, leading to its unexpected appearance.
+
+### Hypothesis 4: Ecological Experiment Gone Awry
+A local environmentalist or conservation group could have been conducting an experiment to study the impacts of marine life on freshwater ecosystems and accidentally released the lobster, which may have been intended for a controlled study. The lobster, while typically a saltwater creature, could have been part of a research initiative exploring the adaptability of certain species in different environments.
+
+### Hypothesis 5: Genetic Mutation or Anomaly
+A genetic mutation could have resulted in a lobster being capable of surviving out of water for extended periods, leading it to venture farther inland than usual. This mutation could have altered its biology, allowing it to withstand environmental changes that typically would be lethal, thus explaining how it ended up on a suburban lawn.
+
+### Hypothesis 6: Artistic Installation or Prank
+The lobster could be part of an art installation or a prank by local teenagers or artists aiming to spark conversation or curiosity within the community. This would involve strategically placing the lobster on the lawn as a commentary on consumerism, food waste, or the disconnect between urban living and natural environments.
+
+### Hypothesis 7: Climate Change Impact
+Changes in ocean temperatures and currents due to climate change may have caused certain marine species, including lobsters, to migrate farther than usual, leading to one being stranded in an unusual location. The lobster may have been part of a population that was pushed inland due to shifting habitats or altered spawning behaviors influenced by environmental changes.
+
+### Hypothesis 8: Mythical or Folklore Connection
+Finally, consider the possibility of a local legend or folklore that suggests the appearance of a dead lobster signifies an omen or a message from the natural world. Residents may interpret the phenomenon as a sign, weaving tales about its significance in relation to local events, making the lobster&#x27;s presence a subject of local mythology rather than a straightforward scientific explanation.</div>
+            </div>
+            
+                
+
+            <h3>Event Timeline</h3>
+            <div class="event-timeline">
+                
+            <div class="event-item">
+                [15:22:52] <span class="event-type">idea_generated</span> idea_id: 451525a0...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:52] <span class="event-type">idea_generated</span> idea_id: 47b661d1...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:52] <span class="event-type">idea_generated</span> idea_id: d26dc15b...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:56] <span class="event-type">idea_generated</span> idea_id: 6b100365...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:56] <span class="event-type">idea_generated</span> idea_id: f184ff91...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:56] <span class="event-type">idea_generated</span> idea_id: 43cb66ee...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:59] <span class="event-type">idea_generated</span> idea_id: 5416de25...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:59] <span class="event-type">idea_generated</span> idea_id: 8da8fda8...
+            </div>
+            
+
+            <div class="event-item">
+                [15:22:59] <span class="event-type">idea_generated</span> idea_id: 22c09a09...
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:01] <span class="event-type">idea_generated</span> idea_id: 0e2dd54a...
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:01] <span class="event-type">idea_generated</span> idea_id: 9ce74696...
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:01] <span class="event-type">idea_generated</span> idea_id: d8594680...
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:04] <span class="event-type">trust_assessment</span> score: 6.014863639997843
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:05] <span class="event-type">trust_assessment</span> score: 6.440949704996297
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:05] <span class="event-type">trust_assessment</span> score: 6.431363639997843
+            </div>
+            
+
+            <div class="event-item">
+                [15:23:05] <span class="event-type">branch_completed</span> 
+            </div>
+              <!-- Limit to first 20 events -->
+            </div>
+            
+                </div>
+            </div>
+            
+        </section>
+        
+        <section class="timeline">
+            <h2>⏱️ Execution Timeline</h2>
+            <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-time">15:22:11</div>
+                <div class="timeline-content">
+                    <strong>test_iter1</strong> - 
+                    ✅ Completed 
+                    in 26.94s
+                </div>
+            </div>
+            
+
+            <div class="timeline-item">
+                <div class="timeline-time">15:22:39</div>
+                <div class="timeline-content">
+                    <strong>test_iter2</strong> - 
+                    ✅ Completed 
+                    in 0.59s
+                </div>
+            </div>
+            
+
+            <div class="timeline-item">
+                <div class="timeline-time">15:22:42</div>
+                <div class="timeline-content">
+                    <strong>test_iter3</strong> - 
+                    ✅ Completed 
+                    in 2.59s
+                </div>
+            </div>
+            
+
+            <div class="timeline-item">
+                <div class="timeline-time">15:22:47</div>
+                <div class="timeline-content">
+                    <strong>test_iter4</strong> - 
+                    ✅ Completed 
+                    in 0.59s
+                </div>
+            </div>
+            
+
+            <div class="timeline-item">
+                <div class="timeline-time">15:22:49</div>
+                <div class="timeline-content">
+                    <strong>test_iter5</strong> - 
+                    ✅ Completed 
+                    in 16.01s
+                </div>
+            </div>
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        
+        // Success/Failure Chart
+        const successCtx = document.getElementById('successChart').getContext('2d');
+        new Chart(successCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Successful', 'Failed'],
+                datasets: [{
+                    data: [5, 0],
+                    backgroundColor: ['#00ff88', '#ff4444'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Test Results',
+                        color: '#e0e0e0'
+                    },
+                    legend: {
+                        labels: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Ideas per Run Chart
+        const ideasData = [4, 1, 1, 1, 13];
+        const seedLabels = ["test_iter1", "test_iter2", "test_iter3", "test_iter4", "test_iter5"];
+        
+        const ideasCtx = document.getElementById('ideasChart').getContext('2d');
+        new Chart(ideasCtx, {
+            type: 'bar',
+            data: {
+                labels: seedLabels,
+                datasets: [{
+                    label: 'Ideas Generated',
+                    data: ideasData,
+                    backgroundColor: '#0088ff',
+                    borderColor: '#0088ff',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Ideas Generated per Seed',
+                        color: '#e0e0e0'
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#e0e0e0'
+                        },
+                        grid: {
+                            color: '#2a2a3e'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: '#e0e0e0'
+                        },
+                        grid: {
+                            color: '#2a2a3e'
+                        }
+                    }
+                }
+            }
+        });
+        
+        
+        function toggleCollapse(id) {
+            const element = document.getElementById(id);
+            const header = element.previousElementSibling;
+            const indicator = header.querySelector('.expand-indicator');
+            
+            element.classList.toggle('expanded');
+            header.classList.toggle('expanded');
+            
+            // Animate max-height for smooth transition
+            if (element.classList.contains('expanded')) {
+                element.style.maxHeight = element.scrollHeight + 'px';
+                setTimeout(() => {
+                    element.style.maxHeight = 'none';
+                }, 300);
+            } else {
+                element.style.maxHeight = element.scrollHeight + 'px';
+                setTimeout(() => {
+                    element.style.maxHeight = '0';
+                }, 10);
+            }
+        }
+        
+    </script>
+</body>
+</html>

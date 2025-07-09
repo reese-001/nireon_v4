@@ -1,0 +1,15 @@
+digraph ExecutionDAG {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    "BOOTSTRAP" [label="BOOTSTRA...\nSYSTEM", fillcolor=lavender, style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifi...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "SEED_EXEC_prime counting" [label="SEED_EXE...\nSEED_EXECUTION", fillcolor=khaki, style="rounded,filled"];
+    "0362a20a-2b24-4b1d-9b8e-55ccae69e6ba" [label="0362a20a...\nSEED_IDEA", fillcolor=lightgreen, style="rounded,filled"];
+    "ffed28ab-a930-4049-bd33-8a42c3925244" [label="ffed28ab...\nGENERATED_IDEA\nCertainly! Let's delve into th...", fillcolor=lightblue, style="rounded,filled"];
+    "73cd94bc-579f-40b9-be34-17c737be594b" [label="73cd94bc...\nGENERATED_IDEA\nCertainly! Here’s a creative v...", fillcolor=lightblue, style="rounded,filled"];
+    "5d1f60c4-5e6b-472b-9c5b-2996f1b80cb8" [label="5d1f60c4...\nGENERATED_IDEA\nTo explore an innovative appro...", fillcolor=lightblue, style="rounded,filled"];
+    "0362a20a-2b24-4b1d-9b8e-55ccae69e6ba" -> "ffed28ab-a930-4049-bd33-8a42c3925244" [label="GENERATES\ndepth=0"];
+    "0362a20a-2b24-4b1d-9b8e-55ccae69e6ba" -> "73cd94bc-579f-40b9-be34-17c737be594b" [label="GENERATES\ndepth=0"];
+    "0362a20a-2b24-4b1d-9b8e-55ccae69e6ba" -> "5d1f60c4-5e6b-472b-9c5b-2996f1b80cb8" [label="GENERATES\ndepth=0"];
+}

@@ -1,0 +1,25 @@
+# Default configuration for QuantifierAgent
+llm_approach: "single_call"
+max_visualizations: 1
+min_request_length: 100
+viability_threshold: 0.7
+enable_mermaid_output: true
+llm_timeout_seconds: 70
+
+available_libraries:
+  core_data: 
+    - numpy
+    - pandas
+    - scipy
+  visualization:
+    - matplotlib
+    - seaborn
+    - plotly
+  specialized_viz:
+    - networkx
+    - wordcloud
+    - graphviz
+  analysis:
+    - scikit-learn
+    - sklearn
+    - statsmodels

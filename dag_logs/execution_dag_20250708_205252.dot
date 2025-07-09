@@ -1,0 +1,15 @@
+digraph ExecutionDAG {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    "BOOTSTRAP" [label="BOOTSTRA...\nSYSTEM", fillcolor=lavender, style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifi...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "SEED_EXEC_prime counting_iter1" [label="SEED_EXE...\nSEED_EXECUTION", fillcolor=khaki, style="rounded,filled"];
+    "c6a0e532-b6f3-47a7-a959-790e8ff5f348" [label="c6a0e532...\nSEED_IDEA", fillcolor=lightgreen, style="rounded,filled"];
+    "225321a5-ecf9-4a2f-913c-698513a82cf2" [label="225321a5...\nGENERATED_IDEA\nTitle: "The Paradox of Divine ...", fillcolor=lightblue, style="rounded,filled"];
+    "148c8c65-9fa2-4345-bc1f-1f67d79245e7" [label="148c8c65...\nGENERATED_IDEA\n**Title: "The Paradox of Absol...", fillcolor=lightblue, style="rounded,filled"];
+    "3491aafa-67a0-4e5e-ad0e-892fced29023" [label="3491aafa...\nGENERATED_IDEA\n**Title: The Paradox of Infini...", fillcolor=lightblue, style="rounded,filled"];
+    "c6a0e532-b6f3-47a7-a959-790e8ff5f348" -> "225321a5-ecf9-4a2f-913c-698513a82cf2" [label="GENERATES\ndepth=0"];
+    "c6a0e532-b6f3-47a7-a959-790e8ff5f348" -> "148c8c65-9fa2-4345-bc1f-1f67d79245e7" [label="GENERATES\ndepth=0"];
+    "c6a0e532-b6f3-47a7-a959-790e8ff5f348" -> "3491aafa-67a0-4e5e-ad0e-892fced29023" [label="GENERATES\ndepth=0"];
+}

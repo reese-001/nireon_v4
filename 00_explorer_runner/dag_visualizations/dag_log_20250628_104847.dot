@@ -1,0 +1,26 @@
+digraph NIREONExecution {
+    rankdir=TB;
+    node [shape=box, style=rounded, fontsize=10];
+    edge [fontsize=8];
+    "BOOTSTRAP" [label="BOOTSTRAP\nType: SYSTEM", fillcolor="#D8BFD8", style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel_ins...\nType: COMPONENT", fillcolor="#FFB6C1", style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifier_a...\nType: COMPONENT", fillcolor="#FFB6C1", style="rounded,filled"];
+    "SEED_EXEC_prime counting" [label="SEED_EXEC_pr...\nType: SEED_EXECUTION", fillcolor="#F0E68C", style="rounded,filled"];
+    "022f1da4-77ab-4f1e-8bee-e98e8f8c7f0f" [label="022f1da4-77a...\nType: SEED_IDEA", fillcolor="#90EE90", style="rounded,filled"];
+    "8829623c-18f3-49c7-b735-7138fa9fb26e" [label="8829623c-18f...\nType: GENERATED_IDEA\nText: Certainly! Here’s a creative v...", fillcolor="#ADD8E6", style="rounded,filled"];
+    "ac7a2fa2-443b-4bad-a491-229ff866da76" [label="ac7a2fa2-443...\nType: GENERATED_IDEA\nText: Certainly! Here’s a creative v...", fillcolor="#ADD8E6", style="rounded,filled"];
+    "07596cb4-9b21-4541-a50b-c558662bf5f0" [label="07596cb4-9b2...\nType: GENERATED_IDEA\nText: Certainly! Here’s a creative v...", fillcolor="#ADD8E6", style="rounded,filled"];
+    "391c0dc5-f18f-48b3-a3cd-042c1b730140" [label="391c0dc5-f18...\nType: GENERATED_IDEA\nText: One creative variation to impr...", fillcolor="#ADD8E6", style="rounded,filled"];
+    "a9872eaf-5ea9-4993-b4f4-54b242564729" [label="a9872eaf-5ea...\nType: GENERATED_IDEA\nText: Sure! Here’s a creative variat...", fillcolor="#ADD8E6", style="rounded,filled"];
+    "74a33420-20a5-48af-ab98-33a3e7ef9849" [label="74a33420-20a...\nType: GENERATED_IDEA\nText: Certainly! Here’s a creative v...", fillcolor="#ADD8E6", style="rounded,filled"];
+    "proto_segmented_prime_counting" [label="proto_segmen...\nType: PROTO_TASK", fillcolor="#FFA500", style="rounded,filled"];
+    "proto_mermaid_diagram_adaptive_segmented_sieve" [label="proto_mermai...\nType: PROTO_TASK", fillcolor="#FFA500", style="rounded,filled"];
+    "022f1da4-77ab-4f1e-8bee-e98e8f8c7f0f" -> "8829623c-18f3-49c7-b735-7138fa9fb26e" [label="GENERATES", color=blue, xlabel="depth=0"];
+    "022f1da4-77ab-4f1e-8bee-e98e8f8c7f0f" -> "ac7a2fa2-443b-4bad-a491-229ff866da76" [label="GENERATES", color=blue, xlabel="depth=0"];
+    "022f1da4-77ab-4f1e-8bee-e98e8f8c7f0f" -> "07596cb4-9b21-4541-a50b-c558662bf5f0" [label="GENERATES", color=blue, xlabel="depth=0"];
+    "022f1da4-77ab-4f1e-8bee-e98e8f8c7f0f" -> "391c0dc5-f18f-48b3-a3cd-042c1b730140" [label="GENERATES", color=blue, xlabel="depth=0"];
+    "022f1da4-77ab-4f1e-8bee-e98e8f8c7f0f" -> "a9872eaf-5ea9-4993-b4f4-54b242564729" [label="GENERATES", color=blue, xlabel="depth=0"];
+    "022f1da4-77ab-4f1e-8bee-e98e8f8c7f0f" -> "74a33420-20a5-48af-ab98-33a3e7ef9849" [label="GENERATES", color=blue, xlabel="depth=0"];
+    label="Generated: 2025-06-28 10:50:18";
+    labelloc="b";
+}

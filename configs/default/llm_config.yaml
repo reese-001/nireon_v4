@@ -100,6 +100,18 @@ llm:
       temperature: 0.5
       max_tokens: 1500
       priority: 5
+
+    - id: "analyst_agent_route"
+      name: "Analyst Agent Route"
+      stages: ["SYNTHESIS", "synthesis"]  # The quantifier is always synthesizing a plan
+      roles: 
+        - "analyst_brainstorm"
+        - "analyst_planner"
+        - "proto_request_formatter"
+      model: "openai:gpt-4o-mini"
+      temperature: 0.2
+      max_tokens: 2000
+      priority: 10 # Higher priority to be chosen over the generic synthesis_route
   
   # Parameter sets for the ParameterService
   parameters:

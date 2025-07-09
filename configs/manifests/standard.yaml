@@ -1,4 +1,3 @@
-# nireon_v4\configs\manifests\standard.yaml
 version: '1.0'
 metadata:
   name: NireonV4 Standard Setup with Math and Proto Engines
@@ -6,10 +5,6 @@ metadata:
   author: NIREON Team
   created_at: '2025-06-05T10:00:00Z'
   updated_at: '2025-06-10T11:00:00Z'
-
-# ==============================================================================
-#  SHARED SERVICES & GATEWAYS
-# ==============================================================================
 shared_services:
   llm_router_main:
     enabled: true
@@ -62,7 +57,6 @@ shared_services:
           provider: mock
           backend: infrastructure.llm.mock_llm:MockLLM # Assumes this file will be created
           timeout: 5
-
   EmbeddingPort:
     enabled: true
     preload: true
@@ -72,7 +66,6 @@ shared_services:
       model_name: all-MiniLM-L6-v2
       dimensions: 384
       cache_size: 1000
-
   vector_memory_inmemory:
     enabled: true
     preload: true
@@ -83,7 +76,6 @@ shared_services:
       dimensions: 384
       similarity_metric: cosine
       capacity: 100000
-
   IdeaRepositoryPort:
     enabled: true
     preload: true
@@ -94,14 +86,12 @@ shared_services:
       db_path: runtime/nireon_ideas.db
       enable_wal_mode: true
       timeout: 30.0
-
   math_port_sympy:
     enabled: true
     preload: true
     class: infrastructure.math.sympy_adapter:SymPyAdapter
     port_type: domain.ports.math_port:MathPort
     config: {}
-
   embedding_service_main:
     enabled: true
     preload: true
@@ -113,12 +103,19 @@ shared_services:
       vector_memory_ref: vector_memory_inmemory
       novelty_threshold: 0.75
       cache_size: 1000
-
   EventBusPort:
     enabled: true
     preload: true
-    class: infrastructure.event_bus.memory_event_bus:MemoryEventBus
-
+    class: infrastructure.event_bus.persistent_event_bus:PersistentEventBus
+    config:
+      shared_db_path: runtime/nireon_ideas.db
+      retention_days: 30          # Keep events for 30 days
+      batch_size: 100            # Write events in batches of 100
+      flush_interval_seconds: 5   # Flush to disk every 5 seconds
+      enable_wal_mode: true
+      timeout: 30.0
+      retry_attempts: 3
+      pool_size: 5
   IdeaService:
     enabled: true
     preload: true
@@ -127,14 +124,12 @@ shared_services:
     config:
       repository_port_id: IdeaRepositoryPort
       event_bus_port_id: EventBusPort
-
   stage_evaluation_service:
     enabled: true
     preload: true
     class: application.services.stage_evaluation_service:StageEvaluationService
     metadata_definition: application.services.stage_evaluation_service:STAGE_EVALUATION_SERVICE_METADATA
     config: {}
-
   parameter_service_global:
     enabled: true
     preload: true
@@ -142,7 +137,6 @@ shared_services:
     metadata_definition: infrastructure.llm.parameter_service:PARAMETER_SERVICE_METADATA
     config:
       storage_backend: memory
-
   frame_factory_service:
     enabled: true
     preload: true
@@ -152,7 +146,6 @@ shared_services:
     config:
       default_frame_type: epistemic
       log_frame_operations: true
-
   budget_manager_inmemory:
     enabled: true
     preload: true
@@ -167,7 +160,6 @@ shared_services:
         math_calls: 50.0
         proto_executions: 10.0
         proto_cpu_seconds: 300.0
-
   mechanism_gateway:
     enabled: true
     preload: false
@@ -175,7 +167,6 @@ shared_services:
     metadata_definition: infrastructure.gateway.mechanism_gateway_metadata:MECHANISM_GATEWAY_METADATA
     config_override:
       id: mechanism_gateway
-
   proto_gateway_main:
     enabled: true
     preload: false 
@@ -183,16 +174,15 @@ shared_services:
     config:
       dialect_map:
         math: "proto_engine_math"
-
+        graph: "proto_engine_graph"
   proto_generator_main:
     enabled: true
     preload: false
-    class: proto_generator.service:ProtoGenerator
-    metadata_definition: proto_generator.service:PROTO_GENERATOR_METADATA
+    class: "proto_generator.service:ProtoGenerator"
+    metadata_definition: "proto_generator.metadata:PROTO_GENERATOR_METADATA"
     config:
-      supported_dialects: ["math", "graph"]
-      default_dialect: "math"
-  
+      max_retries: 2
+      timeout_seconds: 30
   trace_sink_main:
     enabled: true
     preload: false
@@ -200,14 +190,10 @@ shared_services:
     metadata_definition: "infrastructure.sinks.metadata:TRACE_SINK_METADATA"
     config:
       db_path: "runtime/training_traces.db"
-
-# ==============================================================================
-#  PROTO ENGINES
-# ==============================================================================
 proto_engines:
   proto_engine_math:
     enabled: true
-    class: proto_engine.service:ProtoEngine # This path is now correct
+    class: proto_engine.service:ProtoEngine
     metadata_definition: proto_engine.service:PROTO_ENGINE_METADATA
     config:
       execution_mode: "${PROTO_EXECUTION_MODE:docker}"
@@ -216,55 +202,60 @@ proto_engines:
       artifacts_directory: "${PROTO_ARTIFACTS_DIR:-runtime/proto/math/artifacts}"
       default_timeout_sec: 20
       default_memory_mb: 512
-
-# ==============================================================================
-#  MECHANISMS
-# ==============================================================================
+  proto_engine_graph:
+    enabled: true
+    class: proto_engine.service:ProtoEngine
+    metadata_definition: proto_engine.service:PROTO_ENGINE_METADATA
+    config:
+      execution_mode: "${PROTO_EXECUTION_MODE:docker}"
+      docker_image_prefix: "${DOCKER_IMAGE_PREFIX:nireon-proto}"
+      work_directory: "${PROTO_WORK_DIR:-runtime/proto/graph/workspace}"
+      artifacts_directory: "${PROTO_ARTIFACTS_DIR:-runtime/proto/graph/artifacts}"
+      default_timeout_sec: 20
+      default_memory_mb: 512
 mechanisms:
   explorer_instance_01:
     enabled: true
     class: components.mechanisms.explorer.service:ExplorerMechanism
     metadata_definition: components.mechanisms.explorer.service:EXPLORER_METADATA
     config: configs/default/mechanisms/{id}.yaml
+    config_override:
+      divergence_strength: 0.7
+      creativity_factor: 0.7
+      enable_diversity_filter: true
     epistemic_tags:
       - "generator"
       - "mutator"
       - "explorer"
-
   sentinel_instance_01:
     enabled: true
     class: components.mechanisms.sentinel.service:SentinelMechanism
     metadata_definition: components.mechanisms.sentinel.metadata:SENTINEL_METADATA
     config: configs/default/mechanisms/{id}.yaml
     config_override:
-      trust_threshold: 3.5
-      min_axis_score: 1.0
-
+      trust_threshold: 2.5
+      min_axis_score: 2.0
   catalyst_instance_01:
     enabled: true
     class: components.mechanisms.catalyst.service:CatalystMechanism
     metadata_definition: components.mechanisms.catalyst.metadata:CATALYST_METADATA
     config: configs/default/mechanisms/{id}.yaml
-
   principia_agent_primary:
     enabled: true
     class: components.mechanisms.math_agents.principia_agent:PrincipiaAgent
     metadata_definition: components.mechanisms.math_agents.principia_agent:PRINCIPIA_METADATA
     config_override:
       max_compute_seconds: 10
-
-  # --- [NEW] Quantifier Agent for bridging qualitative ideas to quantitative models ---
   quantifier_agent_primary:
     enabled: true
-    # NOTE: You will need to create this file as per the previous response
-    class: components.mechanisms.analyst_agents.quantifier_agent:QuantifierAgent
-    metadata_definition: components.mechanisms.analyst_agents.quantifier_agent:QUANTIFIER_METADATA
-    config_override: {}
-  # --- [END NEW] ---
-
-# ==============================================================================
-#  PLANNERS
-# ==============================================================================
+    class: "components.mechanisms.analyst_agents.quantifier_agent.service:QuantifierAgent"
+    metadata_definition: "components.mechanisms.analyst_agents.quantifier_agent.metadata:QUANTIFIER_METADATA"
+    config: "configs/default/mechanisms/{id}.yaml"
+    config_override:
+      llm_approach: "single_call"
+      max_visualizations: 1
+      enable_mermaid_output: true
+      viability_threshold: 0.7
 planners:
   active_planner:
     enabled: true
@@ -278,12 +269,22 @@ planners:
       action_to_mechanism_map:
         EXPLORE: "explorer_instance_01"
         SYNTHESIZE: "catalyst_instance_01"
-
-# ==============================================================================
-#  ORCHESTRATION & OTHER
-# ==============================================================================
 composites: {}
-observers: {}
+observers:
+  stagnation_detector_main:
+    enabled: true
+    class: "components.observers.adaptive_triggers:StagnationDetector"
+    metadata_definition: "components.observers.adaptive_triggers:STAGNATION_DETECTOR_METADATA"
+    config_override:
+      stagnation_threshold: 2 # Changed from 1 or 3 to 2
+      novelty_score_threshold: 8.5
+      catalyst_trigger_id: "catalyst_instance_01"
+      idea_selection_trust_threshold: 4.0
+  idea_score_updater:
+    enabled: true
+    class: "components.observers.idea_score_updater:IdeaScoreUpdater"
+    metadata_definition: "components.observers.idea_score_updater:IDEA_SCORE_UPDATER_METADATA"
+    config: {}
 managers: {}
 orchestration_commands: {}
 environment_overrides: {}

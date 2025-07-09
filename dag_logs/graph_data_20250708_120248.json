@@ -1,0 +1,4040 @@
+{
+  "nodes": [
+    "SEED_EXEC_test_iter9",
+    "fbbc3167-fd49-4182-94e6-80e630adc60e",
+    "quantifier_agent_primary",
+    "5ffd6e89-af76-4384-a163-89ac71872059",
+    "SEED_EXEC_test_iter7",
+    "70c7ede4-9724-49e8-ba4d-aca7c9c89a93",
+    "f68ccddc-7010-455d-b7b3-1d8abd3520b8",
+    "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+    "SEED_EXEC_test_iter1",
+    "8554b35e-19a2-41f6-95e2-a95551ad7ca5",
+    "SEED_EXEC_test_iter8",
+    "BOOTSTRAP",
+    "7812edff-fea4-44db-a49a-3f667fac0a5e",
+    "3cfb18b4-6b1e-4f20-ba02-3a32516ae88e",
+    "d67bd81f-f7ac-487f-beb6-c30897c2f5fb",
+    "1b3da0f2-3373-4753-a9f1-2d3ac8a1b9d5",
+    "SEED_EXEC_test_iter4",
+    "30ba3bc3-a6c9-4441-b394-2ada03595dfe",
+    "d46b9652-fd85-411e-a551-5e895143db21",
+    "SEED_EXEC_test_iter3",
+    "ba8ab85d-b887-424f-8e4f-e2aa74128aa9",
+    "e7b8a30d-31a5-4a69-858d-f7ddec3cdd00",
+    "aba35ab9-c360-43e4-911a-6a153bb51778",
+    "9d82c2ff-9bc0-434f-8f71-3d11bf8f49bd",
+    "617791d6-8424-46ee-b794-6ea8decc058d",
+    "b4be9432-9ae9-4142-9ae3-6b9ae6fc924f",
+    "ed7ffedb-5e16-4747-9ab5-4ac2f7162a47",
+    "29ed6bde-747a-471f-9aee-438581f65b94",
+    "sentinel_instance_01",
+    "6a983762-843c-4568-b0bd-ee52367c0b4b",
+    "0f6d69c9-d2c3-4f0d-ab68-3e4ccab6a902",
+    "SEED_EXEC_test_iter10",
+    "96a5da9c-604f-42b4-94cd-c8145def6bc2",
+    "SEED_EXEC_test_iter2",
+    "SEED_EXEC_test_iter5",
+    "2ecf5864-8b2a-454c-8646-f78e1d63e381",
+    "SEED_EXEC_test_iter6",
+    "9a812053-6483-43a6-8622-c411f5b079e3"
+  ],
+  "edges": [
+    {
+      "source": "8554b35e-19a2-41f6-95e2-a95551ad7ca5",
+      "target": "ed7ffedb-5e16-4747-9ab5-4ac2f7162a47",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "8554b35e-19a2-41f6-95e2-a95551ad7ca5",
+      "target": "d67bd81f-f7ac-487f-beb6-c30897c2f5fb",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "8554b35e-19a2-41f6-95e2-a95551ad7ca5",
+      "target": "e7b8a30d-31a5-4a69-858d-f7ddec3cdd00",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+      "target": "5ffd6e89-af76-4384-a163-89ac71872059",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+      "target": "5ffd6e89-af76-4384-a163-89ac71872059",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+      "target": "5ffd6e89-af76-4384-a163-89ac71872059",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+      "target": "5ffd6e89-af76-4384-a163-89ac71872059",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+      "target": "5ffd6e89-af76-4384-a163-89ac71872059",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+      "target": "ba8ab85d-b887-424f-8e4f-e2aa74128aa9",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+      "target": "ba8ab85d-b887-424f-8e4f-e2aa74128aa9",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+      "target": "ba8ab85d-b887-424f-8e4f-e2aa74128aa9",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+      "target": "ba8ab85d-b887-424f-8e4f-e2aa74128aa9",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+      "target": "ba8ab85d-b887-424f-8e4f-e2aa74128aa9",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+      "target": "fbbc3167-fd49-4182-94e6-80e630adc60e",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+      "target": "fbbc3167-fd49-4182-94e6-80e630adc60e",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+      "target": "fbbc3167-fd49-4182-94e6-80e630adc60e",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+      "target": "fbbc3167-fd49-4182-94e6-80e630adc60e",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+      "target": "fbbc3167-fd49-4182-94e6-80e630adc60e",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "aba35ab9-c360-43e4-911a-6a153bb51778",
+      "target": "617791d6-8424-46ee-b794-6ea8decc058d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "aba35ab9-c360-43e4-911a-6a153bb51778",
+      "target": "617791d6-8424-46ee-b794-6ea8decc058d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "aba35ab9-c360-43e4-911a-6a153bb51778",
+      "target": "617791d6-8424-46ee-b794-6ea8decc058d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "aba35ab9-c360-43e4-911a-6a153bb51778",
+      "target": "617791d6-8424-46ee-b794-6ea8decc058d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "aba35ab9-c360-43e4-911a-6a153bb51778",
+      "target": "617791d6-8424-46ee-b794-6ea8decc058d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "aba35ab9-c360-43e4-911a-6a153bb51778",
+      "target": "3cfb18b4-6b1e-4f20-ba02-3a32516ae88e",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "aba35ab9-c360-43e4-911a-6a153bb51778",
+      "target": "3cfb18b4-6b1e-4f20-ba02-3a32516ae88e",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "aba35ab9-c360-43e4-911a-6a153bb51778",
+      "target": "3cfb18b4-6b1e-4f20-ba02-3a32516ae88e",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "aba35ab9-c360-43e4-911a-6a153bb51778",
+      "target": "3cfb18b4-6b1e-4f20-ba02-3a32516ae88e",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "aba35ab9-c360-43e4-911a-6a153bb51778",
+      "target": "3cfb18b4-6b1e-4f20-ba02-3a32516ae88e",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "aba35ab9-c360-43e4-911a-6a153bb51778",
+      "target": "29ed6bde-747a-471f-9aee-438581f65b94",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "aba35ab9-c360-43e4-911a-6a153bb51778",
+      "target": "29ed6bde-747a-471f-9aee-438581f65b94",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "aba35ab9-c360-43e4-911a-6a153bb51778",
+      "target": "29ed6bde-747a-471f-9aee-438581f65b94",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "aba35ab9-c360-43e4-911a-6a153bb51778",
+      "target": "29ed6bde-747a-471f-9aee-438581f65b94",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "aba35ab9-c360-43e4-911a-6a153bb51778",
+      "target": "29ed6bde-747a-471f-9aee-438581f65b94",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+      "target": "6a983762-843c-4568-b0bd-ee52367c0b4b",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+      "target": "6a983762-843c-4568-b0bd-ee52367c0b4b",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+      "target": "6a983762-843c-4568-b0bd-ee52367c0b4b",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+      "target": "6a983762-843c-4568-b0bd-ee52367c0b4b",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+      "target": "6a983762-843c-4568-b0bd-ee52367c0b4b",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+      "target": "b4be9432-9ae9-4142-9ae3-6b9ae6fc924f",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+      "target": "b4be9432-9ae9-4142-9ae3-6b9ae6fc924f",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+      "target": "b4be9432-9ae9-4142-9ae3-6b9ae6fc924f",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+      "target": "b4be9432-9ae9-4142-9ae3-6b9ae6fc924f",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+      "target": "b4be9432-9ae9-4142-9ae3-6b9ae6fc924f",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+      "target": "1b3da0f2-3373-4753-a9f1-2d3ac8a1b9d5",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+      "target": "1b3da0f2-3373-4753-a9f1-2d3ac8a1b9d5",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+      "target": "1b3da0f2-3373-4753-a9f1-2d3ac8a1b9d5",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+      "target": "1b3da0f2-3373-4753-a9f1-2d3ac8a1b9d5",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+      "target": "1b3da0f2-3373-4753-a9f1-2d3ac8a1b9d5",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "9a812053-6483-43a6-8622-c411f5b079e3",
+      "target": "70c7ede4-9724-49e8-ba4d-aca7c9c89a93",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "9a812053-6483-43a6-8622-c411f5b079e3",
+      "target": "70c7ede4-9724-49e8-ba4d-aca7c9c89a93",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "9a812053-6483-43a6-8622-c411f5b079e3",
+      "target": "70c7ede4-9724-49e8-ba4d-aca7c9c89a93",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "9a812053-6483-43a6-8622-c411f5b079e3",
+      "target": "70c7ede4-9724-49e8-ba4d-aca7c9c89a93",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "9a812053-6483-43a6-8622-c411f5b079e3",
+      "target": "70c7ede4-9724-49e8-ba4d-aca7c9c89a93",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "9a812053-6483-43a6-8622-c411f5b079e3",
+      "target": "f68ccddc-7010-455d-b7b3-1d8abd3520b8",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "9a812053-6483-43a6-8622-c411f5b079e3",
+      "target": "f68ccddc-7010-455d-b7b3-1d8abd3520b8",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "9a812053-6483-43a6-8622-c411f5b079e3",
+      "target": "f68ccddc-7010-455d-b7b3-1d8abd3520b8",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "9a812053-6483-43a6-8622-c411f5b079e3",
+      "target": "f68ccddc-7010-455d-b7b3-1d8abd3520b8",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "9a812053-6483-43a6-8622-c411f5b079e3",
+      "target": "f68ccddc-7010-455d-b7b3-1d8abd3520b8",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "9a812053-6483-43a6-8622-c411f5b079e3",
+      "target": "30ba3bc3-a6c9-4441-b394-2ada03595dfe",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "9a812053-6483-43a6-8622-c411f5b079e3",
+      "target": "30ba3bc3-a6c9-4441-b394-2ada03595dfe",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "9a812053-6483-43a6-8622-c411f5b079e3",
+      "target": "30ba3bc3-a6c9-4441-b394-2ada03595dfe",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "9a812053-6483-43a6-8622-c411f5b079e3",
+      "target": "30ba3bc3-a6c9-4441-b394-2ada03595dfe",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "9a812053-6483-43a6-8622-c411f5b079e3",
+      "target": "30ba3bc3-a6c9-4441-b394-2ada03595dfe",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    }
+  ],
+  "signals": [
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:01:13.693065",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "8554b35e-19a2-41f6-95e2-a95551ad7ca5",
+      "payload": {
+        "seed_idea_id": "8554b35e-19a2-41f6-95e2-a95551ad7ca5",
+        "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+        "metadata": {
+          "iteration": 1,
+          "total_iterations": 10,
+          "original_seed_id": "test",
+          "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+          "depth": 0,
+          "seed_config_id": "test_iter1"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:01:30.633162",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "ed7ffedb-5e16-4747-9ab5-4ac2f7162a47",
+      "payload": {
+        "parent_id": "8554b35e-19a2-41f6-95e2-a95551ad7ca5",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:01:30.634087",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "d67bd81f-f7ac-487f-beb6-c30897c2f5fb",
+      "payload": {
+        "parent_id": "8554b35e-19a2-41f6-95e2-a95551ad7ca5",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:01:30.634087",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "e7b8a30d-31a5-4a69-858d-f7ddec3cdd00",
+      "payload": {
+        "parent_id": "8554b35e-19a2-41f6-95e2-a95551ad7ca5",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:01:56.139243",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+      "payload": {
+        "seed_idea_id": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+        "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+        "metadata": {
+          "iteration": 2,
+          "total_iterations": 10,
+          "original_seed_id": "test",
+          "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+          "depth": 0,
+          "seed_config_id": "test_iter2"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:01.029305",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "aba35ab9-c360-43e4-911a-6a153bb51778",
+      "payload": {
+        "seed_idea_id": "aba35ab9-c360-43e4-911a-6a153bb51778",
+        "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+        "metadata": {
+          "iteration": 3,
+          "total_iterations": 10,
+          "original_seed_id": "test",
+          "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+          "depth": 0,
+          "seed_config_id": "test_iter3"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:03.752582",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+      "payload": {
+        "seed_idea_id": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+        "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+        "metadata": {
+          "iteration": 4,
+          "total_iterations": 10,
+          "original_seed_id": "test",
+          "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+          "depth": 0,
+          "seed_config_id": "test_iter4"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:06.894830",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "9a812053-6483-43a6-8622-c411f5b079e3",
+      "payload": {
+        "seed_idea_id": "9a812053-6483-43a6-8622-c411f5b079e3",
+        "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+        "metadata": {
+          "iteration": 5,
+          "total_iterations": 10,
+          "original_seed_id": "test",
+          "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+          "depth": 0,
+          "seed_config_id": "test_iter5"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:10.404393",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "5ffd6e89-af76-4384-a163-89ac71872059",
+      "payload": {
+        "parent_id": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:10.404393",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "5ffd6e89-af76-4384-a163-89ac71872059",
+      "payload": {
+        "parent_id": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:10.404393",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "5ffd6e89-af76-4384-a163-89ac71872059",
+      "payload": {
+        "parent_id": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:10.404393",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "5ffd6e89-af76-4384-a163-89ac71872059",
+      "payload": {
+        "parent_id": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:10.412112",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "5ffd6e89-af76-4384-a163-89ac71872059",
+      "payload": {
+        "parent_id": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:10.413887",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "ba8ab85d-b887-424f-8e4f-e2aa74128aa9",
+      "payload": {
+        "parent_id": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:10.413887",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "ba8ab85d-b887-424f-8e4f-e2aa74128aa9",
+      "payload": {
+        "parent_id": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:10.415371",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "ba8ab85d-b887-424f-8e4f-e2aa74128aa9",
+      "payload": {
+        "parent_id": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:10.415371",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "ba8ab85d-b887-424f-8e4f-e2aa74128aa9",
+      "payload": {
+        "parent_id": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:10.415371",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "ba8ab85d-b887-424f-8e4f-e2aa74128aa9",
+      "payload": {
+        "parent_id": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:10.415371",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "fbbc3167-fd49-4182-94e6-80e630adc60e",
+      "payload": {
+        "parent_id": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:10.415371",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "fbbc3167-fd49-4182-94e6-80e630adc60e",
+      "payload": {
+        "parent_id": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:10.419777",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "fbbc3167-fd49-4182-94e6-80e630adc60e",
+      "payload": {
+        "parent_id": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:10.419777",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "fbbc3167-fd49-4182-94e6-80e630adc60e",
+      "payload": {
+        "parent_id": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:10.422838",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "fbbc3167-fd49-4182-94e6-80e630adc60e",
+      "payload": {
+        "parent_id": "7812edff-fea4-44db-a49a-3f667fac0a5e",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:17.585947",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "617791d6-8424-46ee-b794-6ea8decc058d",
+      "payload": {
+        "parent_id": "aba35ab9-c360-43e4-911a-6a153bb51778",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:17.585947",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "617791d6-8424-46ee-b794-6ea8decc058d",
+      "payload": {
+        "parent_id": "aba35ab9-c360-43e4-911a-6a153bb51778",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:17.585947",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "617791d6-8424-46ee-b794-6ea8decc058d",
+      "payload": {
+        "parent_id": "aba35ab9-c360-43e4-911a-6a153bb51778",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:17.592342",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "617791d6-8424-46ee-b794-6ea8decc058d",
+      "payload": {
+        "parent_id": "aba35ab9-c360-43e4-911a-6a153bb51778",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:17.593103",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "617791d6-8424-46ee-b794-6ea8decc058d",
+      "payload": {
+        "parent_id": "aba35ab9-c360-43e4-911a-6a153bb51778",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:17.593103",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "3cfb18b4-6b1e-4f20-ba02-3a32516ae88e",
+      "payload": {
+        "parent_id": "aba35ab9-c360-43e4-911a-6a153bb51778",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:17.593103",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "3cfb18b4-6b1e-4f20-ba02-3a32516ae88e",
+      "payload": {
+        "parent_id": "aba35ab9-c360-43e4-911a-6a153bb51778",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:17.593103",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "3cfb18b4-6b1e-4f20-ba02-3a32516ae88e",
+      "payload": {
+        "parent_id": "aba35ab9-c360-43e4-911a-6a153bb51778",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:17.593103",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "3cfb18b4-6b1e-4f20-ba02-3a32516ae88e",
+      "payload": {
+        "parent_id": "aba35ab9-c360-43e4-911a-6a153bb51778",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:17.593103",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "3cfb18b4-6b1e-4f20-ba02-3a32516ae88e",
+      "payload": {
+        "parent_id": "aba35ab9-c360-43e4-911a-6a153bb51778",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:17.593103",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "29ed6bde-747a-471f-9aee-438581f65b94",
+      "payload": {
+        "parent_id": "aba35ab9-c360-43e4-911a-6a153bb51778",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:17.593103",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "29ed6bde-747a-471f-9aee-438581f65b94",
+      "payload": {
+        "parent_id": "aba35ab9-c360-43e4-911a-6a153bb51778",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:17.600497",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "29ed6bde-747a-471f-9aee-438581f65b94",
+      "payload": {
+        "parent_id": "aba35ab9-c360-43e4-911a-6a153bb51778",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:17.600497",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "29ed6bde-747a-471f-9aee-438581f65b94",
+      "payload": {
+        "parent_id": "aba35ab9-c360-43e4-911a-6a153bb51778",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:17.603273",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "29ed6bde-747a-471f-9aee-438581f65b94",
+      "payload": {
+        "parent_id": "aba35ab9-c360-43e4-911a-6a153bb51778",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:19.524691",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "6a983762-843c-4568-b0bd-ee52367c0b4b",
+      "payload": {
+        "parent_id": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:19.524691",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "6a983762-843c-4568-b0bd-ee52367c0b4b",
+      "payload": {
+        "parent_id": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:19.524691",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "6a983762-843c-4568-b0bd-ee52367c0b4b",
+      "payload": {
+        "parent_id": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:19.532073",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "6a983762-843c-4568-b0bd-ee52367c0b4b",
+      "payload": {
+        "parent_id": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:19.532073",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "6a983762-843c-4568-b0bd-ee52367c0b4b",
+      "payload": {
+        "parent_id": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:19.532073",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "b4be9432-9ae9-4142-9ae3-6b9ae6fc924f",
+      "payload": {
+        "parent_id": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:19.533368",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "b4be9432-9ae9-4142-9ae3-6b9ae6fc924f",
+      "payload": {
+        "parent_id": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:19.534222",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "b4be9432-9ae9-4142-9ae3-6b9ae6fc924f",
+      "payload": {
+        "parent_id": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:19.534222",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "b4be9432-9ae9-4142-9ae3-6b9ae6fc924f",
+      "payload": {
+        "parent_id": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:19.535225",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "b4be9432-9ae9-4142-9ae3-6b9ae6fc924f",
+      "payload": {
+        "parent_id": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:19.535225",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "1b3da0f2-3373-4753-a9f1-2d3ac8a1b9d5",
+      "payload": {
+        "parent_id": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:19.536382",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "1b3da0f2-3373-4753-a9f1-2d3ac8a1b9d5",
+      "payload": {
+        "parent_id": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:19.536382",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "1b3da0f2-3373-4753-a9f1-2d3ac8a1b9d5",
+      "payload": {
+        "parent_id": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:19.537010",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "1b3da0f2-3373-4753-a9f1-2d3ac8a1b9d5",
+      "payload": {
+        "parent_id": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:19.537527",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "1b3da0f2-3373-4753-a9f1-2d3ac8a1b9d5",
+      "payload": {
+        "parent_id": "1b1a541b-1452-46e7-8e7c-42d4e337a3cc",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:21.741921",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "70c7ede4-9724-49e8-ba4d-aca7c9c89a93",
+      "payload": {
+        "parent_id": "9a812053-6483-43a6-8622-c411f5b079e3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:21.742932",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "70c7ede4-9724-49e8-ba4d-aca7c9c89a93",
+      "payload": {
+        "parent_id": "9a812053-6483-43a6-8622-c411f5b079e3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:21.743763",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "70c7ede4-9724-49e8-ba4d-aca7c9c89a93",
+      "payload": {
+        "parent_id": "9a812053-6483-43a6-8622-c411f5b079e3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:21.743763",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "70c7ede4-9724-49e8-ba4d-aca7c9c89a93",
+      "payload": {
+        "parent_id": "9a812053-6483-43a6-8622-c411f5b079e3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:21.743763",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "70c7ede4-9724-49e8-ba4d-aca7c9c89a93",
+      "payload": {
+        "parent_id": "9a812053-6483-43a6-8622-c411f5b079e3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:21.745776",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "f68ccddc-7010-455d-b7b3-1d8abd3520b8",
+      "payload": {
+        "parent_id": "9a812053-6483-43a6-8622-c411f5b079e3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:21.746510",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "f68ccddc-7010-455d-b7b3-1d8abd3520b8",
+      "payload": {
+        "parent_id": "9a812053-6483-43a6-8622-c411f5b079e3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:21.746510",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "f68ccddc-7010-455d-b7b3-1d8abd3520b8",
+      "payload": {
+        "parent_id": "9a812053-6483-43a6-8622-c411f5b079e3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:21.746510",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "f68ccddc-7010-455d-b7b3-1d8abd3520b8",
+      "payload": {
+        "parent_id": "9a812053-6483-43a6-8622-c411f5b079e3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:21.746510",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "f68ccddc-7010-455d-b7b3-1d8abd3520b8",
+      "payload": {
+        "parent_id": "9a812053-6483-43a6-8622-c411f5b079e3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:21.746510",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "30ba3bc3-a6c9-4441-b394-2ada03595dfe",
+      "payload": {
+        "parent_id": "9a812053-6483-43a6-8622-c411f5b079e3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:21.749487",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "30ba3bc3-a6c9-4441-b394-2ada03595dfe",
+      "payload": {
+        "parent_id": "9a812053-6483-43a6-8622-c411f5b079e3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:21.749487",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "30ba3bc3-a6c9-4441-b394-2ada03595dfe",
+      "payload": {
+        "parent_id": "9a812053-6483-43a6-8622-c411f5b079e3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:21.749487",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "30ba3bc3-a6c9-4441-b394-2ada03595dfe",
+      "payload": {
+        "parent_id": "9a812053-6483-43a6-8622-c411f5b079e3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:21.749487",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "30ba3bc3-a6c9-4441-b394-2ada03595dfe",
+      "payload": {
+        "parent_id": "9a812053-6483-43a6-8622-c411f5b079e3",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:35.049298",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "2ecf5864-8b2a-454c-8646-f78e1d63e381",
+      "payload": {
+        "seed_idea_id": "2ecf5864-8b2a-454c-8646-f78e1d63e381",
+        "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+        "metadata": {
+          "iteration": 6,
+          "total_iterations": 10,
+          "original_seed_id": "test",
+          "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+          "depth": 0,
+          "seed_config_id": "test_iter6"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:37.772890",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "0f6d69c9-d2c3-4f0d-ab68-3e4ccab6a902",
+      "payload": {
+        "seed_idea_id": "0f6d69c9-d2c3-4f0d-ab68-3e4ccab6a902",
+        "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+        "metadata": {
+          "iteration": 7,
+          "total_iterations": 10,
+          "original_seed_id": "test",
+          "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+          "depth": 0,
+          "seed_config_id": "test_iter7"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:42.742935",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "9d82c2ff-9bc0-434f-8f71-3d11bf8f49bd",
+      "payload": {
+        "seed_idea_id": "9d82c2ff-9bc0-434f-8f71-3d11bf8f49bd",
+        "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+        "metadata": {
+          "iteration": 8,
+          "total_iterations": 10,
+          "original_seed_id": "test",
+          "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+          "depth": 0,
+          "seed_config_id": "test_iter8"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:45.482419",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "d46b9652-fd85-411e-a551-5e895143db21",
+      "payload": {
+        "seed_idea_id": "d46b9652-fd85-411e-a551-5e895143db21",
+        "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+        "metadata": {
+          "iteration": 9,
+          "total_iterations": 10,
+          "original_seed_id": "test",
+          "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+          "depth": 0,
+          "seed_config_id": "test_iter9"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T12:02:48.230562",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "96a5da9c-604f-42b4-94cd-c8145def6bc2",
+      "payload": {
+        "seed_idea_id": "96a5da9c-604f-42b4-94cd-c8145def6bc2",
+        "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+        "metadata": {
+          "iteration": 10,
+          "total_iterations": 10,
+          "original_seed_id": "test",
+          "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+          "depth": 0,
+          "seed_config_id": "test_iter10"
+        }
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:01:13.676518",
+      "event_type": "BOOTSTRAP_COMPLETE",
+      "node_id": "BOOTSTRAP",
+      "details": {
+        "component_count": 61,
+        "run_id": "explorer_run_1751994073"
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:01:30.634087",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:01:34.044139",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "e7b8a30d-31a5-4a69-858d-f7ddec3cdd00",
+      "details": {
+        "trust_score": 6.441051636545382,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:01:34.823076",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "ed7ffedb-5e16-4747-9ab5-4ac2f7162a47",
+      "details": {
+        "trust_score": 6.220751636545381,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:01:34.823076",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "d67bd81f-f7ac-487f-beb6-c30897c2f5fb",
+      "details": {
+        "trust_score": 6.745562813667913,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:01:54.125921",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:01:54.125921",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 40.433368,
+        "total_ideas": 4,
+        "total_assessed": 3,
+        "coverage_percent": 75.0
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:01:54.435811",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:01:59.022744",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:01:59.022744",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:01:59.022744",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 2.883501,
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "coverage_percent": 0.0
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:01:59.864039",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:01:59.864039",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:01.731206",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:01.731206",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:01.732210",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:01.733221",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 0.707315,
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "coverage_percent": 0.0
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:04.867607",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:04.867607",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:04.867607",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:04.867607",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:04.872928",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 1.126675,
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "coverage_percent": 0.0
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:10.422838",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:10.422838",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:10.422838",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:10.422838",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:10.422838",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:12.894094",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "ba8ab85d-b887-424f-8e4f-e2aa74128aa9",
+      "details": {
+        "trust_score": 6.5796459142494506,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:12.894094",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "ba8ab85d-b887-424f-8e4f-e2aa74128aa9",
+      "details": {
+        "trust_score": 6.5796459142494506,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:12.897033",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "ba8ab85d-b887-424f-8e4f-e2aa74128aa9",
+      "details": {
+        "trust_score": 6.5796459142494506,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:12.897033",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "ba8ab85d-b887-424f-8e4f-e2aa74128aa9",
+      "details": {
+        "trust_score": 6.5796459142494506,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:12.897033",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "ba8ab85d-b887-424f-8e4f-e2aa74128aa9",
+      "details": {
+        "trust_score": 6.5796459142494506,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:13.374263",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "fbbc3167-fd49-4182-94e6-80e630adc60e",
+      "details": {
+        "trust_score": 6.30974591424945,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:13.374789",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "fbbc3167-fd49-4182-94e6-80e630adc60e",
+      "details": {
+        "trust_score": 6.30974591424945,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:13.374789",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "fbbc3167-fd49-4182-94e6-80e630adc60e",
+      "details": {
+        "trust_score": 6.30974591424945,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:13.375851",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "fbbc3167-fd49-4182-94e6-80e630adc60e",
+      "details": {
+        "trust_score": 6.30974591424945,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:13.376156",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "fbbc3167-fd49-4182-94e6-80e630adc60e",
+      "details": {
+        "trust_score": 6.30974591424945,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:13.853283",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "5ffd6e89-af76-4384-a163-89ac71872059",
+      "details": {
+        "trust_score": 6.980912336866627,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:13.853283",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "5ffd6e89-af76-4384-a163-89ac71872059",
+      "details": {
+        "trust_score": 6.980912336866627,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:13.853283",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "5ffd6e89-af76-4384-a163-89ac71872059",
+      "details": {
+        "trust_score": 6.980912336866627,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:13.853283",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "5ffd6e89-af76-4384-a163-89ac71872059",
+      "details": {
+        "trust_score": 6.980912336866627,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:13.853283",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "5ffd6e89-af76-4384-a163-89ac71872059",
+      "details": {
+        "trust_score": 6.980912336866627,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:17.604779",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:17.604779",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:17.604779",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:17.604779",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:17.606796",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:19.537527",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:19.537527",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:19.537527",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:19.537527",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:19.537527",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:21.020535",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "617791d6-8424-46ee-b794-6ea8decc058d",
+      "details": {
+        "trust_score": 6.66242427975648,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:21.020535",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "617791d6-8424-46ee-b794-6ea8decc058d",
+      "details": {
+        "trust_score": 6.66242427975648,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:21.021169",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "617791d6-8424-46ee-b794-6ea8decc058d",
+      "details": {
+        "trust_score": 6.66242427975648,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:21.021693",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "617791d6-8424-46ee-b794-6ea8decc058d",
+      "details": {
+        "trust_score": 6.66242427975648,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:21.022206",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "617791d6-8424-46ee-b794-6ea8decc058d",
+      "details": {
+        "trust_score": 6.66242427975648,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:21.022716",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "29ed6bde-747a-471f-9aee-438581f65b94",
+      "details": {
+        "trust_score": 6.637778661761882,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:21.023576",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "29ed6bde-747a-471f-9aee-438581f65b94",
+      "details": {
+        "trust_score": 6.637778661761882,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:21.023576",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "29ed6bde-747a-471f-9aee-438581f65b94",
+      "details": {
+        "trust_score": 6.637778661761882,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:21.023576",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "29ed6bde-747a-471f-9aee-438581f65b94",
+      "details": {
+        "trust_score": 6.637778661761882,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:21.023576",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "29ed6bde-747a-471f-9aee-438581f65b94",
+      "details": {
+        "trust_score": 6.637778661761882,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:21.023576",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "3cfb18b4-6b1e-4f20-ba02-3a32516ae88e",
+      "details": {
+        "trust_score": 6.71462427975648,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:21.023576",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "3cfb18b4-6b1e-4f20-ba02-3a32516ae88e",
+      "details": {
+        "trust_score": 6.71462427975648,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:21.023576",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "3cfb18b4-6b1e-4f20-ba02-3a32516ae88e",
+      "details": {
+        "trust_score": 6.71462427975648,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:21.023576",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "3cfb18b4-6b1e-4f20-ba02-3a32516ae88e",
+      "details": {
+        "trust_score": 6.71462427975648,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:21.023576",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "3cfb18b4-6b1e-4f20-ba02-3a32516ae88e",
+      "details": {
+        "trust_score": 6.71462427975648,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:21.749487",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:21.749487",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:21.749487",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:21.752783",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:21.752783",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:23.962867",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "6a983762-843c-4568-b0bd-ee52367c0b4b",
+      "details": {
+        "trust_score": 6.747681283058737,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:23.962867",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "6a983762-843c-4568-b0bd-ee52367c0b4b",
+      "details": {
+        "trust_score": 6.747681283058737,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:23.962867",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "6a983762-843c-4568-b0bd-ee52367c0b4b",
+      "details": {
+        "trust_score": 6.747681283058737,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:23.962867",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "6a983762-843c-4568-b0bd-ee52367c0b4b",
+      "details": {
+        "trust_score": 6.747681283058737,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:23.962867",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "6a983762-843c-4568-b0bd-ee52367c0b4b",
+      "details": {
+        "trust_score": 6.747681283058737,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:24.703768",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "1b3da0f2-3373-4753-a9f1-2d3ac8a1b9d5",
+      "details": {
+        "trust_score": 6.915876192725998,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:24.704775",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "1b3da0f2-3373-4753-a9f1-2d3ac8a1b9d5",
+      "details": {
+        "trust_score": 6.915876192725998,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:24.704775",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "1b3da0f2-3373-4753-a9f1-2d3ac8a1b9d5",
+      "details": {
+        "trust_score": 6.915876192725998,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:24.704775",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "1b3da0f2-3373-4753-a9f1-2d3ac8a1b9d5",
+      "details": {
+        "trust_score": 6.915876192725998,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:24.704775",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "1b3da0f2-3373-4753-a9f1-2d3ac8a1b9d5",
+      "details": {
+        "trust_score": 6.915876192725998,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:25.333199",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "b4be9432-9ae9-4142-9ae3-6b9ae6fc924f",
+      "details": {
+        "trust_score": 6.829281283058737,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:25.333199",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "b4be9432-9ae9-4142-9ae3-6b9ae6fc924f",
+      "details": {
+        "trust_score": 6.829281283058737,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:25.333199",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "b4be9432-9ae9-4142-9ae3-6b9ae6fc924f",
+      "details": {
+        "trust_score": 6.829281283058737,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:25.333199",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "b4be9432-9ae9-4142-9ae3-6b9ae6fc924f",
+      "details": {
+        "trust_score": 6.829281283058737,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:25.333199",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "b4be9432-9ae9-4142-9ae3-6b9ae6fc924f",
+      "details": {
+        "trust_score": 6.829281283058737,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:25.574329",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "30ba3bc3-a6c9-4441-b394-2ada03595dfe",
+      "details": {
+        "trust_score": 6.690449026349399,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:25.574329",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "30ba3bc3-a6c9-4441-b394-2ada03595dfe",
+      "details": {
+        "trust_score": 6.690449026349399,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:25.576338",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "30ba3bc3-a6c9-4441-b394-2ada03595dfe",
+      "details": {
+        "trust_score": 6.690449026349399,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:25.576338",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "30ba3bc3-a6c9-4441-b394-2ada03595dfe",
+      "details": {
+        "trust_score": 6.690449026349399,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:25.576338",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "30ba3bc3-a6c9-4441-b394-2ada03595dfe",
+      "details": {
+        "trust_score": 6.690449026349399,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:25.576338",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "f68ccddc-7010-455d-b7b3-1d8abd3520b8",
+      "details": {
+        "trust_score": 6.333509984708845,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:25.576338",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "f68ccddc-7010-455d-b7b3-1d8abd3520b8",
+      "details": {
+        "trust_score": 6.333509984708845,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:25.576338",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "f68ccddc-7010-455d-b7b3-1d8abd3520b8",
+      "details": {
+        "trust_score": 6.333509984708845,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:25.579438",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "f68ccddc-7010-455d-b7b3-1d8abd3520b8",
+      "details": {
+        "trust_score": 6.333509984708845,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:25.579438",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "f68ccddc-7010-455d-b7b3-1d8abd3520b8",
+      "details": {
+        "trust_score": 6.333509984708845,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:26.516059",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "70c7ede4-9724-49e8-ba4d-aca7c9c89a93",
+      "details": {
+        "trust_score": 6.659809984708846,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:26.516059",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "70c7ede4-9724-49e8-ba4d-aca7c9c89a93",
+      "details": {
+        "trust_score": 6.659809984708846,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:26.516059",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "70c7ede4-9724-49e8-ba4d-aca7c9c89a93",
+      "details": {
+        "trust_score": 6.659809984708846,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:26.516059",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "70c7ede4-9724-49e8-ba4d-aca7c9c89a93",
+      "details": {
+        "trust_score": 6.659809984708846,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:26.516059",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "70c7ede4-9724-49e8-ba4d-aca7c9c89a93",
+      "details": {
+        "trust_score": 6.659809984708846,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:33.034768",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:33.034768",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:33.034768",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:33.034768",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:33.034768",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:33.034768",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 26.141936,
+        "total_ideas": 13,
+        "total_assessed": 12,
+        "coverage_percent": 92.3076923076923
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:33.444298",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:33.444298",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:33.444298",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:33.444298",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:33.444298",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:34.264903",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:34.264903",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:34.265829",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:34.265829",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:34.265829",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:34.573706",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:34.573706",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:34.575819",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:34.576405",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:34.576405",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:34.985747",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:34.985747",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:34.992373",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:34.992373",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:34.992993",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:35.757637",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:35.757637",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:35.758124",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:35.758668",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:35.758668",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:35.759252",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:35.759876",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 0.710578,
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "coverage_percent": 0.0
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:36.540010",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:36.540010",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:36.540010",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:36.541116",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:36.541116",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:36.541116",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:40.724996",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:40.724996",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:40.724996",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:40.724996",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:40.724996",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:40.724996",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:40.727001",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:40.727001",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 2.95665,
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "coverage_percent": 0.0
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:40.913131",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:40.913131",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:40.913131",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:40.913131",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:40.913131",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:40.913131",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:40.915439",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:42.684081",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:42.684081",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:42.684081",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:42.684081",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:42.684081",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:42.684081",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:42.684081",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.457454",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.457454",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.459529",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.459981",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.459981",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.459981",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.459981",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.459981",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.462068",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 0.723238,
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "coverage_percent": 0.0
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.466422",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.466926",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.466926",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.466926",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.466926",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.466926",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.466926",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.466926",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.792831",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.792831",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.792831",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.794849",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.794849",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.794849",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.794849",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:43.794849",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:44.303221",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:44.303221",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:44.303221",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:44.303221",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:44.306617",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:44.306617",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:44.306617",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:44.306617",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:46.223196",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:46.223196",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:46.223196",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:46.224199",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:46.224199",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:46.224199",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:46.224856",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:46.224856",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:46.225372",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:46.225372",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 0.746057,
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "coverage_percent": 0.0
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:47.575957",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:47.575957",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:47.575957",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:47.575957",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:47.575957",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:47.577190",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:47.577190",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:47.577190",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:47.577190",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.972004",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.973019",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.973019",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.973019",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.973019",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.975221",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.975221",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.975221",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.975221",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.977225",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.977225",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.977225",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.977225",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.977225",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.977225",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.977225",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.979573",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.980235",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.980235",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.981421",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T12:02:48.982103",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 0.754326,
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "coverage_percent": 0.0
+      }
+    }
+  ]
+}

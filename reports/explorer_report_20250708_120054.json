@@ -1,0 +1,2878 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-08T12:00:54.124266",
+    "version": "1.0",
+    "config": {
+      "bootstrap": {
+        "manifest": "configs/manifests/standard.yaml",
+        "strict_mode": false
+      },
+      "execution": {
+        "timeout": 120,
+        "iterations": 10,
+        "parallel_execution": false,
+        "completion_condition": {
+          "type": "timeout"
+        }
+      },
+      "debug": {
+        "log_level": "INFO",
+        "enable_reactor_rules_check": true,
+        "enable_quantifier_check": true,
+        "quiet_loggers": [
+          "httpx",
+          "httpcore",
+          "openai",
+          "anthropic"
+        ]
+      },
+      "dag_logging": {
+        "enabled": true,
+        "output_dir": "./dag_logs",
+        "visualization": {
+          "auto_generate": true,
+          "formats": [
+            "graphviz",
+            "mermaid",
+            "json"
+          ]
+        },
+        "performance": {
+          "buffer_size": 1000,
+          "async_write": true
+        }
+      },
+      "reporting": {
+        "report_dir": "./reports",
+        "generate_json": true,
+        "generate_html": true,
+        "generate_csv_summary": true,
+        "include_dag_visualization": true
+      },
+      "criteria": {
+        "min_trust_score_for_quantifier": 6.0,
+        "max_depth": 5
+      },
+      "seeds": [
+        {
+          "id": "test",
+          "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+          "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+          "tags": [
+            "analysis_query",
+            "mystery"
+          ]
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_runs": 10,
+    "successful_runs": 10,
+    "failed_runs": 0,
+    "success_rate": 100.0,
+    "total_ideas": 25,
+    "total_assessed": 15,
+    "total_high_trust": 5,
+    "proto_triggered_count": 0,
+    "avg_ideas_per_run": 2.5,
+    "avg_assessment_coverage": 60.0
+  },
+  "results": [
+    {
+      "seed_id": "test_iter1",
+      "seed_text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+      "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+      "test_passed": true,
+      "failure_reason": null,
+      "start_time": "2025-07-08T11:59:07.440755",
+      "end_time": "2025-07-08T11:59:51.245621",
+      "duration_seconds": 43.804866,
+      "run_data": {
+        "seed_idea": {
+          "id": "8d8bdcce-2123-4fe1-aec4-dfe05a76dbf3",
+          "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+          "trust_score": null,
+          "is_stable": null,
+          "variations": {
+            "4270bc3a-4599-45fd-92e4-060422abf151": {
+              "id": "4270bc3a-4599-45fd-92e4-060422abf151",
+              "text": "### Creative Variations and Hypotheses for the Inland Lobster Discovery\n\n**1. The Lobster Migration Mystery:**\n   - **Hypothesis:** A rare environmental phenomenon, such as a sudden shift in local climate or water temperature, prompted a mass migration of lobsters inland from nearby rivers or estuaries. This could have been triggered by an unusual weather pattern that temporarily altered their natural habitat, pushing them further upstream than usual.\n   - **Supporting Evidence:** Historical data indicating rare storm surges or flooding in the area, combined with reports of increased lobster population in the coastal regions, might suggest that lobsters are adapting to changing environments.\n\n**2. The Lobster Pet Escape:**\n   - **Hypothesis:** The lobster was once a pet in a suburban aquarium. After a period of neglect or abandonment, it escaped or was released into the wild, only to succumb to the stress of the environment or predation before reaching safety.\n   - **Supporting Evidence:** A survey of local residents could reveal cases of missing aquarium pets or a pattern of people discarding unwanted exotic pets that don’t survive in the wild.\n\n**3. Alien Lobster Drop:**\n   - **Hypothesis:** An extraterrestrial event led to the lobster's presence, either through a spacecraft accident or as part of a scientific experiment involving space-faring organisms. The presence of the lobster may suggest a broader experiment on Earth’s biodiversity.\n   - **Supporting Evidence:** Reports of unusual lights or sounds in the area preceding the discovery, as well as a lack of natural explanations for the lobster's appearance, might lead to speculation about alien involvement.\n\n**4. The Lobster Biological Experiment:**\n   - **Hypothesis:** The lobster is part of a clandestine biological research project where scientists are experimenting with the effects of land environments on marine life. The lobster may have been intentionally released to study its adaptation or survival rate in a non-aquatic setting.\n   - **Supporting Evidence:** Local news reports of scientific institutions or universities conducting unusual ecological studies could lend credibility to this hypothesis, as well as the discovery of unusual lab equipment or markings nearby.\n\n**5. Meteorological Fallout:**\n   - **Hypothesis:** An intense storm or waterspout could have lifted the lobster from its ocean habitat and deposited it overland during a severe weather event. Such phenomena can carry marine life onto land far from their natural habitat.\n   - **Supporting Evidence:** Meteorological records showing recent severe weather conditions, including waterspouts, could support this idea, along with accounts of other unusual marine animal sightings following the storm.\n\n**6. The Lobster's Role in Local Folklore:**\n   - **Hypothesis:** The lobster’s appearance is tied to local folklore or urban legends, potentially symbolizing a harbinger of change or a warning from nature. The community might have a historical context for this event, suggesting cultural interpretations of the lobster's presence.\n   - **Supporting Evidence:** Interviews with local historians or folklore experts could reveal stories about lobsters or other marine creatures appearing in unusual places as omens or signs of upcoming events in the community.\n\n**7. The Lobster Delivery Error:**\n   - **Hypothesis:** The lobster was accidentally released from a seafood delivery truck, which may have taken a wrong turn. The driver, unaware, might have left it behind during an emergency stop or unloading process.\n   - **Supporting Evidence:** Investigating local seafood markets or delivery services could reveal discrepancies in their inventory or unusual delivery routes that could explain how the lobster ended up on a suburban lawn.\n\nThese hypotheses create an intriguing narrative surrounding the mysterious appearance of a lobster 15 miles inland, providing various paths for exploration that merge scientific reasoning with imaginative speculation.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 5.979691039815205,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            },
+            "7ef4a5ba-c1e5-42f2-8ad9-c54a1aa2faa8": {
+              "id": "7ef4a5ba-c1e5-42f2-8ad9-c54a1aa2faa8",
+              "text": "### Creative Variation: \"The Curious Case of the Inland Lobster\"\n\n**Setting:** A picturesque suburban neighborhood, dotted with charming homes and meticulously maintained lawns. One sunny afternoon, residents are drawn to a peculiar sight: a large dead lobster sprawled across a front yard, a good 15 miles from the nearest coastline. The mystery ignites conversations, theories, and a desire for answers. \n\n### Hypotheses to Explain the Phenomenon:\n\n1. **Unusual Flooding and Water Transport:**\n   - Following an intense storm, a nearby river or creek might have overflowed, creating a temporary waterway that connected to a coastal area. The lobster could have been swept upstream during heavy rains or flash floods, ultimately finding itself stranded far from its natural habitat.\n\n2. **Illegal Seafood Dumping:**\n   - A local restaurant or seafood distributor may have improperly disposed of unsold or spoiled seafood, including lobsters, in the area. This practice, while illegal and harmful, could explain why a lobster ended up on a suburban lawn. Investigating local waste management practices could provide insights into this theory.\n\n3. **Aquaculture Escapee:**\n   - An aquaculture facility that raises lobsters might have experienced a containment breach. Lobsters could have escaped into nearby waterways, and through an unlikely series of events, one could have ventured inland before succumbing to the elements or predation.\n\n4. **Meteorological Anomaly:**\n   - A rare meteorological event, such as a waterspout or a strong downdraft, might have picked up marine life from the ocean and deposited it inland. Such phenomena can transport small marine organisms, and a lobster could be an unusual but possible casualty of such an event.\n\n5. **Human Prank or Hoax:**\n   - It’s not unheard of for residents to stage quirky pranks to garner attention. The lobster could be a deliberate placement by a local prankster, aimed at sparking curiosity and intrigue among neighbors, possibly as part of a social media stunt.\n\n6. **Wildlife Behavior:**\n   - Some species of birds or mammals, particularly those that forage for food in coastal areas, might have picked up the lobster and inadvertently dropped it during a flight. This could happen if the animal traveled a significant distance inland while searching for food, leading to the lobster’s unexpected appearance.\n\n7. **Local Ecosystem Changes:**\n   - An introduction of lobsters into local waterways (due to human activity or natural migration) could alter the ecosystem dynamics, leading to lobsters adapting to life in non-marine environments. This could raise questions about biodiversity and invasive species and their impacts on local fauna.\n\n8. **Art Installation:**\n   - A local artist may have created an environmental art installation focused on the fragility of marine ecosystems. The dead lobster could be part of a commentary on pollution and climate change, strategically placed in the suburb to provoke thought and discussion among residents.\n\n### Conclusion:\nThe discovery of a dead lobster on a suburban lawn opens the door to numerous intriguing explanations that blend biology, meteorology, and human behavior. Each hypothesis not only provides a potential answer but also invites further investigation into the delicate interplay between nature and urban life, sparking curiosity and community engagement.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 6.656749005538535,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            },
+            "1a2581c0-03ae-4d10-b5a3-d5644ce0bd05": {
+              "id": "1a2581c0-03ae-4d10-b5a3-d5644ce0bd05",
+              "text": "**Title: The Mysterious Lobster: Unraveling the Suburban Enigma**\n\n**1. Unintentional Human Intervention:**\n   - *Hypothesis:* A seafood enthusiast or a local chef, perhaps inspired by a recent culinary trend, could have purchased the lobster for a special dish. After realizing it was no longer fresh or perhaps after a change of plans, they might have discarded it in their yard or a nearby vacant lot, leading to its discovery.\n   - *Supporting Evidence:* Signs of human activity, such as nearby trash bins, could corroborate this theory, along with testimonies from neighbors about recent barbeque preparations or cooking events.\n\n**2. Natural Displacement:**\n   - *Hypothesis:* Strong winds or a freak weather event, such as a tornado or waterspout, could have picked up the lobster from a nearby seafood market or a boat dock and carried it inland, ultimately dropping it onto the suburban lawn.\n   - *Supporting Evidence:* Weather reports detailing unusual meteorological conditions or sightings of waterspouts in the area around the time the lobster was discovered would lend credence to this explanation.\n\n**3. Aquatic Migration Gone Awry:**\n   - *Hypothesis:* A lobster might have entered a storm drainage system during heavy rains, following a series of waterways that inadvertently led it to the suburban area. This could happen if the drainage connected to a larger body of water that flows from the ocean.\n   - *Supporting Evidence:* An examination of the local drainage infrastructure, along with any evidence of recent flooding or heavy rains, could support this hypothesis.\n\n**4. Exotic Pet Release:**\n   - *Hypothesis:* A local resident might have kept the lobster as a pet, possibly as part of a unique aquarium setup. Upon finding it too difficult to care for or facing financial constraints, they could have released it into the wild, leading to its unfortunate demise on the lawn.\n   - *Supporting Evidence:* Neighbor interviews revealing any unusual pet ownership patterns or a history of lobster-related pet trade in the area could add validity to this theory.\n\n**5. Scientific Experimentation Gone Awry:**\n   - *Hypothesis:* Local scientists or students involved in an ecological study might have been testing the effects of climate change on marine species. If they inadvertently lost a specimen during their research, it could explain the lobster's presence far from its natural habitat.\n   - *Supporting Evidence:* Nearby institutions or universities engaged in marine biology research could provide insights, along with any reports of missing specimen collections.\n\n**6. Climate Change Impact:**\n   - *Hypothesis:* Changes in climate patterns might have allowed for a rare occurrence where lobsters migrate further inland due to temperature changes in coastal waters, leading to unusual sightings far from the ocean.\n   - *Supporting Evidence:* Studies highlighting shifting habitats for marine species as a result of climate change, particularly in relation to coastal communities, would strengthen this hypothesis.\n\nIn conclusion, while the presence of a dead lobster on a suburban lawn may initially seem baffling, a variety of scientifically grounded hypotheses can help explain this peculiar phenomenon, ranging from human activity to natural environmental factors. Each hypothesis offers a unique perspective, inviting further investigation and curiosity about the interconnectedness of our ecosystems.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 6.651649005538536,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            }
+          }
+        },
+        "metadata": {
+          "run_start_time": "2025-07-08T11:59:07.442305",
+          "run_end_time": "2025-07-08T11:59:51.245621",
+          "total_ideas": 16,
+          "total_assessments": 3,
+          "high_trust_ideas": [
+            {
+              "idea_id": "7ef4a5ba-c1e5-42f2-8ad9-c54a1aa2faa8",
+              "trust_score": 6.656749005538535
+            },
+            {
+              "idea_id": "1a2581c0-03ae-4d10-b5a3-d5644ce0bd05",
+              "trust_score": 6.651649005538536
+            }
+          ],
+          "max_depth_reached": 0,
+          "signals_received": {
+            "IdeaGeneratedSignal": 15,
+            "TrustAssessmentSignal": 15,
+            "ProtoTaskSignal": 0,
+            "GenerativeLoopFinishedSignal": 30
+          },
+          "duration_seconds": 43.803316,
+          "ideas_per_second": 0.09131728748572368,
+          "assessment_coverage": 75.0
+        },
+        "events": [
+          {
+            "timestamp": "2025-07-08T11:59:29.456724",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "4270bc3a-4599-45fd-92e4-060422abf151",
+              "parent_id": "8d8bdcce-2123-4fe1-aec4-dfe05a76dbf3",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T11:59:29.457732",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "7ef4a5ba-c1e5-42f2-8ad9-c54a1aa2faa8",
+              "parent_id": "8d8bdcce-2123-4fe1-aec4-dfe05a76dbf3",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T11:59:29.458374",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "1a2581c0-03ae-4d10-b5a3-d5644ce0bd05",
+              "parent_id": "8d8bdcce-2123-4fe1-aec4-dfe05a76dbf3",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T11:59:34.571971",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "7ef4a5ba-c1e5-42f2-8ad9-c54a1aa2faa8",
+              "trust_score": 6.656749005538535,
+              "is_stable": true,
+              "high_trust": true
+            }
+          },
+          {
+            "timestamp": "2025-07-08T11:59:36.069411",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "1a2581c0-03ae-4d10-b5a3-d5644ce0bd05",
+              "trust_score": 6.651649005538536,
+              "is_stable": true,
+              "high_trust": true
+            }
+          },
+          {
+            "timestamp": "2025-07-08T11:59:36.072799",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "4270bc3a-4599-45fd-92e4-060422abf151",
+              "trust_score": 5.979691039815205,
+              "is_stable": true,
+              "high_trust": false
+            }
+          },
+          {
+            "timestamp": "2025-07-08T11:59:51.242298",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T11:59:54.632531",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T11:59:59.760158",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:06.339308",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:13.165096",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "0c11ab5b-32aa-4ca9-9f37-ebdd87d792a1",
+              "parent_id": "ab361bd8-838a-4a89-a869-3c1bbba3c9fc",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:13.171498",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "576be869-70ff-49f9-bf3f-a936d5901904",
+              "parent_id": "ab361bd8-838a-4a89-a869-3c1bbba3c9fc",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:13.173403",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "181bac3e-aec7-4b2f-b111-516f6abbedb6",
+              "parent_id": "ab361bd8-838a-4a89-a869-3c1bbba3c9fc",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.107897",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "6fb17d39-aec7-4388-b721-e891d3761e9f",
+              "parent_id": "dbe0d51e-4b75-4111-8fae-05f5b82f18fe",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.107897",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "15189a5c-9b91-45e0-b928-52df85c9475c",
+              "parent_id": "dbe0d51e-4b75-4111-8fae-05f5b82f18fe",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.113128",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "b75d1a37-d214-4a3d-bbed-323db671de98",
+              "parent_id": "dbe0d51e-4b75-4111-8fae-05f5b82f18fe",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.844183",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "2ab1ae84-814b-4c3b-a8a9-3650432801b2",
+              "parent_id": "462cf099-13fa-459a-82cb-975d3a515080",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.850702",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "b8ca87ad-3e95-4438-8155-6f8ac2feea17",
+              "parent_id": "462cf099-13fa-459a-82cb-975d3a515080",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.854760",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "b398952e-aec7-4a68-895e-9a04baf85566",
+              "parent_id": "462cf099-13fa-459a-82cb-975d3a515080",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:30.592398",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "f220303d-de33-4b33-91ad-0ec0147910fb",
+              "parent_id": "562ed0ce-e7cb-4a53-af44-1e8f5b23182d",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:30.592927",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "94c6df7e-72f6-4b67-bc87-c59d2fa6f966",
+              "parent_id": "562ed0ce-e7cb-4a53-af44-1e8f5b23182d",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:30.595724",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "7a025582-9c34-47ec-a6ce-ed51d7698a9f",
+              "parent_id": "562ed0ce-e7cb-4a53-af44-1e8f5b23182d",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:36.951494",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:37.332592",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:38.863286",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:39.733957",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:39.883330",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:42.529573",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:42.629118",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.532720",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.548246",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.954609",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:44.153524",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.332115",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.428209",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.624053",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:46.246302",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:46.444408",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:47.224963",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:47.235573",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:50.223842",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:51.765916",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:54.120090",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          }
+        ]
+      },
+      "summary_stats": {
+        "total_ideas": 4,
+        "total_assessed": 3,
+        "high_trust_count": 2,
+        "max_depth": 0,
+        "proto_triggered": false,
+        "signals_received": {
+          "IdeaGeneratedSignal": 15,
+          "TrustAssessmentSignal": 15,
+          "ProtoTaskSignal": 0,
+          "GenerativeLoopFinishedSignal": 30
+        }
+      }
+    },
+    {
+      "seed_id": "test_iter2",
+      "seed_text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+      "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+      "test_passed": true,
+      "failure_reason": null,
+      "start_time": "2025-07-08T11:59:53.252674",
+      "end_time": "2025-07-08T11:59:54.632531",
+      "duration_seconds": 1.379857,
+      "run_data": {
+        "seed_idea": {
+          "id": "dbe0d51e-4b75-4111-8fae-05f5b82f18fe",
+          "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+          "trust_score": null,
+          "is_stable": null,
+          "variations": {
+            "6fb17d39-aec7-4388-b721-e891d3761e9f": {
+              "id": "6fb17d39-aec7-4388-b721-e891d3761e9f",
+              "text": "**Title: The Curious Case of the Lobster in the Suburbs**\n\nIn a quiet suburban neighborhood, a peculiar sight has captured the attention of residents: a dead lobster found resting on a well-manicured lawn, a surprising 15 miles away from the nearest coastline. As theories abound, here are several distinct, plausible, and scientifically-grounded hypotheses to unravel this aquatic mystery:\n\n### 1. **Unusual Weather Patterns**\nRecent meteorological anomalies could have led to a rare flooding event. Heavy rains or a storm surge, potentially linked to climate change, might have washed the lobster from its natural habitat, carrying it inland via a river or storm drain system. This hypothesis would be supported by local reports of heavy rainfall or flooding in recent weeks.\n\n### 2. **Human Intervention**\nA local seafood enthusiast or a restaurant could have mistakenly discarded the lobster or even used it as bait for fishing in a nearby pond or river, only for it to end up on the lawn after being carried by wildlife or water flow. This theory would be reinforced by reports of unusual fishing activities or recent seafood deliveries in the area.\n\n### 3. **Wildlife Behavior**\nLocal wildlife, particularly birds like seagulls or crows, could have snatched the lobster from a nearby trash can or a fishing spot. After transporting it, they may have dropped it on the lawn while attempting to consume it, which could explain its presence so far from the ocean. Observations of bird behavior in the area would support this hypothesis.\n\n### 4. **Biodiversity and Migration**\nWith changing ecosystems, lobsters could be adapting to new environments. A population of lobsters might be migrating inland due to temperature changes in coastal waters or habitat disruptions, leading them to seek out new environments. This hypothesis would necessitate further research into local aquatic biology and the health of nearby freshwater ecosystems.\n\n### 5. **Shipping and Transport Mishaps**\nThe lobster could have come from a shipping container or truck transporting seafood to a local market. An accident or mishap during transport might have resulted in the lobster escaping or being discarded along the route. Investigating local seafood supply chains might reveal recent incidents that align with this theory.\n\n### 6. **Art Installation or Prank**\nAn artistic statement or prank may have led someone to place the lobster on the lawn deliberately. The phenomenon could be a commentary on environmental issues, the decline of marine life, or simply a humorous act. Social media or local art community discussions could provide insight into this hypothesis.\n\n### 7. **Aquatic Disease Outbreak**\nA disease affecting local marine life may have caused the lobster to swim or be carried to the area, either via contaminated water sources or as a part of a larger ecological disturbance. Testing local waterways for pathogens or contaminants would lend credence to this theory.\n\n### Conclusion\nThe appearance of a dead lobster on a suburban lawn prompts curiosity and speculation. By exploring these hypotheses, we might inch closer to understanding this intriguing phenomenon, blending the realms of biology, meteorology, and human activity in a quest for answers.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 6.6854470932040755,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            },
+            "15189a5c-9b91-45e0-b928-52df85c9475c": {
+              "id": "15189a5c-9b91-45e0-b928-52df85c9475c",
+              "text": "Title: \"The Mystery of the Inland Lobster: Unraveling the Unexpected\"\n\n### Hypotheses to Explain the Presence of a Dead Lobster on a Suburban Lawn\n\n1. **Unusual Weather Events**:\n   - A rare meteorological phenomenon, such as a waterspout or rogue waterspout, could have lifted the lobster from the ocean and deposited it far inland. Waterspouts can form over warm ocean waters and carry marine life aloft, potentially transporting them miles away from their natural habitat.\n\n2. **Human Interaction**:\n   - The lobster may have been part of a seafood delivery that accidentally spilled during transportation. It could have been discarded by a resident who didn’t realize the ecological implications of leaving it on their lawn, leading to its eventual discovery by neighbors.\n\n3. **Aquaculture Escape**:\n   - The lobster could have escaped from a nearby aquaculture facility or a lobster farming operation. This would explain its presence in an area where lobsters are not typically found, as these facilities sometimes release or lose their stock, especially during extreme weather or flooding events.\n\n4. **Pet Release**:\n   - A household pet, such as a cat or dog, might have brought the lobster home after finding it near a water body, such as a river or lake where it may have been discarded. This scenario suggests a playful interaction with the marine creature, leading to its unusual location.\n\n5. **Environmental Changes**:\n   - Climate change and rising sea levels could be altering habitats, potentially leading to unusual migration patterns in marine species. The lobster might have ventured further inland in search of food or new habitats due to changing environmental conditions in its native coastal ecosystem.\n\n6. **Urban Myth or Local Prank**:\n   - The dead lobster could be part of a local prank or urban legend. Some residents might place it on the lawn to spark curiosity and discussion, leading to speculation about its origins. This could be an artistic or humorous expression rather than a genuine mystery.\n\n7. **Invasive Species Behavior**:\n   - The lobster could be a non-native species that has adapted to survive in freshwater or brackish environments. A study of its species could reveal that it has unique survival capabilities, allowing it to venture further inland than typical lobsters.\n\n8. **Ecological Study Gone Awry**:\n   - Researchers studying the impacts of pollution or other ecological phenomena might have conducted an experiment involving lobsters, leading to accidental releases. This dead lobster could serve as a reminder of unintended consequences in scientific research.\n\nEach hypothesis presents a unique lens through which to view the perplexing situation of the dead lobster, encouraging further investigation into both local ecology and human activity in the area.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 6.729247093204075,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            },
+            "b75d1a37-d214-4a3d-bbed-323db671de98": {
+              "id": "b75d1a37-d214-4a3d-bbed-323db671de98",
+              "text": "**Title: The Mysterious Lobster on Maple Drive**\n\n**Overview:** In a quiet suburban neighborhood, a perplexing discovery has caught the attention of locals and scientists alike: a dead lobster was found lying on a well-manicured lawn, a shocking 15 miles away from the nearest shore. Here are several distinct hypotheses that could explain this unusual occurrence, grounded in biology, meteorology, and human factors.\n\n---\n\n**1. High-Pressure System and Waterspouts:**\n   - **Hypothesis:** A rare meteorological phenomenon may have played a role in transporting the lobster inland. A strong high-pressure system could have formed over the ocean, creating a waterspout that lifted the lobster from the sea and deposited it on the suburban lawn during a storm.\n   - **Supporting Evidence:** Waterspouts can transport marine life, and unusual weather patterns have been documented to cause such phenomena, especially when combined with tornadoes or severe thunderstorms.\n\n---\n\n**2. Illegal Seafood Dumping:**\n   - **Hypothesis:** The lobster may have been part of a clandestine seafood dumping operation. Fishermen or seafood distributors might have discarded excess or spoiled catch inland to avoid detection or regulatory scrutiny.\n   - **Supporting Evidence:** Instances of illegal dumping have been reported in various regions. This hypothesis would require an investigation into local fishing practices and potential violations.\n\n---\n\n**3. Unintentional Hitchhiker:**\n   - **Hypothesis:** The lobster could have hitched a ride in the back of a vehicle, such as a moving truck or a car transporting food or aquatic goods from the coast to a restaurant or event. It may have then fallen or been discarded en route.\n   - **Supporting Evidence:** Lobsters are often transported live in crates; a lapse in securing these crates could allow for accidental releases. Surveillance or witness accounts from the neighborhood could provide insights.\n\n---\n\n**4. Climate Change and Habitat Displacement:**\n   - **Hypothesis:** Changes in ocean temperatures and salinity due to climate change may cause lobsters to migrate further inland or into unusual habitats. This lobster could be part of a broader trend of marine species adapting to shifting environments.\n   - **Supporting Evidence:** Scientists are observing changes in marine species distribution patterns due to climate change, suggesting that lobsters might be expanding their range and occasionally straying into freshwater systems or unusual locations.\n\n---\n\n**5. Prank or Urban Myth:**\n   - **Hypothesis:** The dead lobster could be the result of a prank, either by locals or as part of an urban myth being perpetuated in the community. It might have been placed there intentionally for comedic effect or as part of a social media stunt.\n   - **Supporting Evidence:** Communities often engage in quirky pranks; locals might recall recent events or social media posts that could shed light on the lobster’s arrival.\n\n---\n\n**6. Transportation Accident:**\n   - **Hypothesis:** The lobster may have been part of a cargo shipment that fell off a truck during transit. Accidental spills during transportation of seafood products can occur, especially if the cargo is not secured properly.\n   - **Supporting Evidence:** Investigating local delivery services and recent traffic incidents could provide clues. Reports of accidents involving seafood deliveries might corroborate this theory.\n\n---\n\n**Conclusion:** The discovery of a dead lobster on a suburban lawn presents an intriguing mystery that invites investigation from multiple scientific perspectives. Each hypothesis offers a plausible explanation, encouraging the community and experts to explore the intersection of nature, human activity, and environmental change.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 6.717516375101229,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            }
+          }
+        },
+        "metadata": {
+          "run_start_time": "2025-07-08T11:59:53.252674",
+          "run_end_time": "2025-07-08T11:59:54.632531",
+          "total_ideas": 13,
+          "total_assessments": 3,
+          "high_trust_ideas": [
+            {
+              "idea_id": "b75d1a37-d214-4a3d-bbed-323db671de98",
+              "trust_score": 6.717516375101229
+            },
+            {
+              "idea_id": "6fb17d39-aec7-4388-b721-e891d3761e9f",
+              "trust_score": 6.6854470932040755
+            },
+            {
+              "idea_id": "15189a5c-9b91-45e0-b928-52df85c9475c",
+              "trust_score": 6.729247093204075
+            }
+          ],
+          "max_depth_reached": 0,
+          "signals_received": {
+            "IdeaGeneratedSignal": 12,
+            "TrustAssessmentSignal": 12,
+            "ProtoTaskSignal": 0,
+            "GenerativeLoopFinishedSignal": 28
+          },
+          "duration_seconds": 1.379857,
+          "ideas_per_second": 0.7247127782081767,
+          "assessment_coverage": 0.0
+        },
+        "events": [
+          {
+            "timestamp": "2025-07-08T11:59:54.632531",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T11:59:59.760158",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:06.339308",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:13.169242",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "0c11ab5b-32aa-4ca9-9f37-ebdd87d792a1",
+              "parent_id": "ab361bd8-838a-4a89-a869-3c1bbba3c9fc",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:13.171498",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "576be869-70ff-49f9-bf3f-a936d5901904",
+              "parent_id": "ab361bd8-838a-4a89-a869-3c1bbba3c9fc",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:13.174275",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "181bac3e-aec7-4b2f-b111-516f6abbedb6",
+              "parent_id": "ab361bd8-838a-4a89-a869-3c1bbba3c9fc",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.107897",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "6fb17d39-aec7-4388-b721-e891d3761e9f",
+              "parent_id": "dbe0d51e-4b75-4111-8fae-05f5b82f18fe",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.112508",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "15189a5c-9b91-45e0-b928-52df85c9475c",
+              "parent_id": "dbe0d51e-4b75-4111-8fae-05f5b82f18fe",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.113128",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "b75d1a37-d214-4a3d-bbed-323db671de98",
+              "parent_id": "dbe0d51e-4b75-4111-8fae-05f5b82f18fe",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.844183",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "2ab1ae84-814b-4c3b-a8a9-3650432801b2",
+              "parent_id": "462cf099-13fa-459a-82cb-975d3a515080",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.852584",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "b8ca87ad-3e95-4438-8155-6f8ac2feea17",
+              "parent_id": "462cf099-13fa-459a-82cb-975d3a515080",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.854760",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "b398952e-aec7-4a68-895e-9a04baf85566",
+              "parent_id": "462cf099-13fa-459a-82cb-975d3a515080",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:20.426412",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "b75d1a37-d214-4a3d-bbed-323db671de98",
+              "trust_score": 6.717516375101229,
+              "is_stable": true,
+              "high_trust": true
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:22.508013",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "6fb17d39-aec7-4388-b721-e891d3761e9f",
+              "trust_score": 6.6854470932040755,
+              "is_stable": true,
+              "high_trust": true
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:23.103059",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "15189a5c-9b91-45e0-b928-52df85c9475c",
+              "trust_score": 6.729247093204075,
+              "is_stable": true,
+              "high_trust": true
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:30.592927",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "f220303d-de33-4b33-91ad-0ec0147910fb",
+              "parent_id": "562ed0ce-e7cb-4a53-af44-1e8f5b23182d",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:30.595724",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "94c6df7e-72f6-4b67-bc87-c59d2fa6f966",
+              "parent_id": "562ed0ce-e7cb-4a53-af44-1e8f5b23182d",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:30.597768",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "7a025582-9c34-47ec-a6ce-ed51d7698a9f",
+              "parent_id": "562ed0ce-e7cb-4a53-af44-1e8f5b23182d",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:36.952562",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:37.333105",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:38.863286",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:39.733957",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:39.883330",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:42.529573",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:42.629118",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.533234",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.548246",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.954609",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:44.153524",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.333132",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.428209",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.624770",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:46.246302",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:46.444408",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:47.224963",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:47.235573",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:50.223842",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:51.765916",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:54.120090",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          }
+        ]
+      },
+      "summary_stats": {
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "high_trust_count": 0,
+        "max_depth": 0,
+        "proto_triggered": false,
+        "signals_received": {
+          "IdeaGeneratedSignal": 12,
+          "TrustAssessmentSignal": 12,
+          "ProtoTaskSignal": 0,
+          "GenerativeLoopFinishedSignal": 28
+        }
+      }
+    },
+    {
+      "seed_id": "test_iter3",
+      "seed_text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+      "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+      "test_passed": true,
+      "failure_reason": null,
+      "start_time": "2025-07-08T11:59:56.637129",
+      "end_time": "2025-07-08T11:59:59.760158",
+      "duration_seconds": 3.127797,
+      "run_data": {
+        "seed_idea": {
+          "id": "ab361bd8-838a-4a89-a869-3c1bbba3c9fc",
+          "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+          "trust_score": null,
+          "is_stable": null,
+          "variations": {
+            "0c11ab5b-32aa-4ca9-9f37-ebdd87d792a1": {
+              "id": "0c11ab5b-32aa-4ca9-9f37-ebdd87d792a1",
+              "text": "Sure! Let’s explore a reimagined scenario based on the initial idea of a dead lobster found far from its natural habitat, but in this variation, we will also incorporate a broader range of hypotheses and scientific explanations. \n\n**Scenario:** A bright red lobster, lifeless and slightly sun-bleached, was discovered on a suburban lawn in a neighborhood 15 miles inland from the coastline, sparking curiosity and bewilderment among residents. \n\n**Distinct, Plausible Hypotheses:**\n\n1. **Extreme Weather Event:** A recent, unpredicted weather phenomenon such as a powerful storm or rogue waterspout could have lifted the lobster from the ocean and deposited it onto the lawn. This could include a waterspout that developed over the ocean, picking up marine life and carrying it inland before dissipating. \n\n2. **Urban Seafood Delivery Mishap:** A truck transporting fresh seafood to a local market or restaurant may have experienced an accident or a spill, resulting in lobsters tumbling out during transit. The one found on the lawn could be the unfortunate survivor that was discarded or overlooked.\n\n3. **Illegal Crab Trap:** The lobster could have been captured by a recreational fisherman who was using illegal traps to catch lobsters. After realizing they caught a lobster, the fisherman might have disposed of it in a nearby water body, where it eventually made its way to the suburban area via drainage systems.\n\n4. **Biological Research Release:** A local university conducting marine biology research might have accidentally released lobsters into the local waterways. With heavy rains or flooding, these lobsters could have migrated into drainage systems that lead to the suburban area, ultimately leading to the discovery on the lawn.\n\n5. **Exotic Pet Escape:** A resident may have been keeping a lobster as an exotic pet and it managed to escape into the local environment. This could happen if the lobster was released into a nearby pond or creek and later washed up on the lawn due to flooding or rain runoff.\n\n6. **Cultural Festival or Event:** The community might have recently held a seafood festival or cultural event where lobsters were featured. A discarded or improperly disposed of lobster could have ended up in the grass, contributing to the mystery of its presence.\n\n7. **Environmental Contamination:** An unusual environmental event, such as a chemical spill in a nearby waterway, could have affected the lobster population. A lobster dislodged from its habitat by the resulting currents might have been found far from the ocean, a stark reminder of the impacts of pollution.\n\n8. **Alien Artifact:** For those inclined toward the speculative, the lobster could be a form of extraterrestrial life, perhaps a part of an alien experiment gone awry, leading to this unexpected appearance in suburbia. \n\nEach of these hypotheses highlights the intersection of biology, meteorology, and human activity, showcasing the complexity of the environment and the ways in which organisms can travel outside of their typical habitats.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 6.433741965926998,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            },
+            "576be869-70ff-49f9-bf3f-a936d5901904": {
+              "id": "576be869-70ff-49f9-bf3f-a936d5901904",
+              "text": "### Creative Variation: \"The Mysterious Lobster Discovery\"\n\n**Setting:** In a quiet suburban neighborhood, a perplexing scene unfolds as a dead lobster is discovered on a well-manicured lawn, situated 15 miles from the nearest coastline. The residents are baffled, sparking local intrigue and speculation.\n\n### Hypotheses to Explain the Phenomenon:\n\n1. **Flooding and Wildlife Displacement:**\n   - A recent heavy rainstorm caused significant flooding in the coastal areas, washing marine life, including lobsters, inland. The lobster might have been swept away from its habitat during a flash flood or storm surge, finding itself far from its natural environment.\n\n2. **Human Intervention or Pet Escape:**\n   - A local resident may have purchased the lobster as a pet or for a special dinner but then either accidentally released it or let it escape into a nearby water source, such as a river or pond. Over time, the lobster could have traveled a considerable distance before succumbing to the unfamiliar freshwater conditions.\n\n3. **Unusual Migration Patterns:**\n   - Due to changing ocean temperatures and currents associated with climate change, lobsters might be exhibiting unusual migratory behavior, moving further inland in search of food or breeding grounds. This could lead to them being found in unconventional locations, including suburban areas.\n\n4. **Airborne Delivery:**\n   - In a bizarre twist of fate, the lobster could have been inadvertently transported by a migrating bird, which picked it up from the beach or a fishing boat. After a long flight, the bird may have dropped it on the lawn, leading to the unexpected discovery.\n\n5. **Artistic Installation or Prank:**\n   - The lobster's presence might be the result of a local artist's installation or a prank by residents. A neighbor could have placed it there as a statement on environmental issues or simply as a humorous surprise for the community, turning the lawn into an unexpected art exhibit.\n\n6. **Chemical or Environmental Contamination:**\n   - Local environmental changes, such as pollution or habitat destruction, could have caused lobsters to seek refuge in less familiar territories. If there’s evidence of chemical runoff affecting local waterways, lobsters may have been forced inland due to declining water quality in their native habitat.\n\n7. **Fossilized Remains:**\n   - In a more peculiar scenario, the \"dead lobster\" could actually be a fossilized specimen exposed by recent landscaping or construction work, misleading residents into believing it is a recent find. This hypothesis would lead to interesting discussions on paleontology and geology in the area.\n\n8. **Meteor Shower Impact:**\n   - In an outlandish but scientifically intriguing theory, the lobster could be a result of a meteor shower that contained organic material. This meteorite could have released the lobster upon impact, akin to how some asteroids have been shown to contain organic compounds.\n\n### Conclusion:\nEach of these hypotheses invites a blend of scientific inquiry and community engagement. As residents investigate the origins of the lobster, they may come together to explore the intersections of ecology, human behavior, and the unexpected ways nature interacts with suburban life, all while fostering a sense of curiosity and wonder in their otherwise routine environment.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 6.176988905261042,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            },
+            "181bac3e-aec7-4b2f-b111-516f6abbedb6": {
+              "id": "181bac3e-aec7-4b2f-b111-516f6abbedb6",
+              "text": "**Title: The Curious Case of the Lobster on the Lawn**\n\n**Setting**: A quaint suburban neighborhood, 15 miles inland from the nearest coastline, where the ordinary is disrupted by an extraordinary find—a dead lobster sprawled across a well-manicured lawn.\n\n### Hypothesis 1: The Accidental Delivery\n- **Biological Aspect**: The lobster could have been accidentally delivered to the area. A local seafood restaurant or market might have received a shipment that included live lobsters. During transport, one lobster could have either died from stress or escaped and made its way onto the lawn.\n- **Human Factor**: Residents may have discarded their seafood waste improperly, leading to an unintentional release into the environment. \n\n### Hypothesis 2: Weather-Driven Displacement\n- **Meteorological Aspect**: A rare and extreme weather event, such as a waterspout or tornado, could have occurred over the ocean, picking up marine life and depositing it far inland. This phenomenon, although unusual, has been documented where fish and other sea creatures are dropped onto land.\n- **Biological Impact**: The lobster could have survived the journey initially but succumbed to the stress of the event once on dry land.\n\n### Hypothesis 3: Urban Myth in the Making\n- **Cultural and Human Factors**: The discovery of the lobster could be part of a burgeoning urban legend or myth among residents. Local children or pranksters could have placed the lobster on the lawn as a joke, leading to wild speculation about its origins and igniting a community fascination.\n- **Scientific Engagement**: A local science club could use the incident to engage the community in discussions about marine biology, ecology, and conservation, amplifying interest in marine life despite the lobster's unfortunate demise.\n\n### Hypothesis 4: The Escaped Pet Theory\n- **Biological Insight**: A resident may have kept the lobster as an unconventional pet in an aquarium. When the lobster died, it could have been discarded improperly, perhaps during yard work or cleanup, leading to its appearance on the lawn.\n- **Human Factor**: This scenario raises questions about the care of exotic pets and the responsibilities associated with keeping marine life in a non-native environment.\n\n### Hypothesis 5: Climate Change and Habitat Shift\n- **Ecological Perspective**: Due to climate change, lobsters may be expanding their range as ocean temperatures rise and habitats shift. This could lead to unusual sightings as lobsters venture into unfamiliar waters, and, in rare cases, may be washed ashore or found in unexpected places.\n- **Scientific Consideration**: Biologists might investigate if this is a sign of shifting marine ecosystems, prompting further research into how climate change affects coastal species distribution.\n\n### Conclusion\nThe presence of a dead lobster on a suburban lawn, while perplexing, can be attributed to a variety of plausible explanations rooted in biology, human behavior, and environmental science. Each hypothesis opens a door to further investigation and community discussion, transforming a curious incident into a catalyst for learning and engagement.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 6.722941965926999,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            }
+          }
+        },
+        "metadata": {
+          "run_start_time": "2025-07-08T11:59:56.638162",
+          "run_end_time": "2025-07-08T11:59:59.760158",
+          "total_ideas": 13,
+          "total_assessments": 3,
+          "high_trust_ideas": [
+            {
+              "idea_id": "181bac3e-aec7-4b2f-b111-516f6abbedb6",
+              "trust_score": 6.722941965926999
+            },
+            {
+              "idea_id": "0c11ab5b-32aa-4ca9-9f37-ebdd87d792a1",
+              "trust_score": 6.433741965926998
+            },
+            {
+              "idea_id": "576be869-70ff-49f9-bf3f-a936d5901904",
+              "trust_score": 6.176988905261042
+            }
+          ],
+          "max_depth_reached": 0,
+          "signals_received": {
+            "IdeaGeneratedSignal": 12,
+            "TrustAssessmentSignal": 12,
+            "ProtoTaskSignal": 0,
+            "GenerativeLoopFinishedSignal": 27
+          },
+          "duration_seconds": 3.121996,
+          "ideas_per_second": 0.32030790558347927,
+          "assessment_coverage": 0.0
+        },
+        "events": [
+          {
+            "timestamp": "2025-07-08T11:59:59.760158",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:06.345585",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:13.169242",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "0c11ab5b-32aa-4ca9-9f37-ebdd87d792a1",
+              "parent_id": "ab361bd8-838a-4a89-a869-3c1bbba3c9fc",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:13.172894",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "576be869-70ff-49f9-bf3f-a936d5901904",
+              "parent_id": "ab361bd8-838a-4a89-a869-3c1bbba3c9fc",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:13.174275",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "181bac3e-aec7-4b2f-b111-516f6abbedb6",
+              "parent_id": "ab361bd8-838a-4a89-a869-3c1bbba3c9fc",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:15.934201",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "181bac3e-aec7-4b2f-b111-516f6abbedb6",
+              "trust_score": 6.722941965926999,
+              "is_stable": true,
+              "high_trust": true
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:16.410248",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "0c11ab5b-32aa-4ca9-9f37-ebdd87d792a1",
+              "trust_score": 6.433741965926998,
+              "is_stable": true,
+              "high_trust": true
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:16.872402",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "576be869-70ff-49f9-bf3f-a936d5901904",
+              "trust_score": 6.176988905261042,
+              "is_stable": true,
+              "high_trust": true
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.107897",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "6fb17d39-aec7-4388-b721-e891d3761e9f",
+              "parent_id": "dbe0d51e-4b75-4111-8fae-05f5b82f18fe",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.112508",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "15189a5c-9b91-45e0-b928-52df85c9475c",
+              "parent_id": "dbe0d51e-4b75-4111-8fae-05f5b82f18fe",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.113128",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "b75d1a37-d214-4a3d-bbed-323db671de98",
+              "parent_id": "dbe0d51e-4b75-4111-8fae-05f5b82f18fe",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.844183",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "2ab1ae84-814b-4c3b-a8a9-3650432801b2",
+              "parent_id": "462cf099-13fa-459a-82cb-975d3a515080",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.853254",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "b8ca87ad-3e95-4438-8155-6f8ac2feea17",
+              "parent_id": "462cf099-13fa-459a-82cb-975d3a515080",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.854760",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "b398952e-aec7-4a68-895e-9a04baf85566",
+              "parent_id": "462cf099-13fa-459a-82cb-975d3a515080",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:30.592927",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "f220303d-de33-4b33-91ad-0ec0147910fb",
+              "parent_id": "562ed0ce-e7cb-4a53-af44-1e8f5b23182d",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:30.595724",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "94c6df7e-72f6-4b67-bc87-c59d2fa6f966",
+              "parent_id": "562ed0ce-e7cb-4a53-af44-1e8f5b23182d",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:30.597768",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "7a025582-9c34-47ec-a6ce-ed51d7698a9f",
+              "parent_id": "562ed0ce-e7cb-4a53-af44-1e8f5b23182d",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:36.952562",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:37.333105",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:38.863286",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:39.733957",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:39.889578",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:42.530999",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:42.629118",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.533234",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.548246",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.954609",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:44.153524",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.333946",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.428209",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.624770",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:46.246302",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:46.445008",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:47.224963",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:47.235573",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:50.223842",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:51.765916",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:54.121069",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          }
+        ]
+      },
+      "summary_stats": {
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "high_trust_count": 0,
+        "max_depth": 0,
+        "proto_triggered": false,
+        "signals_received": {
+          "IdeaGeneratedSignal": 12,
+          "TrustAssessmentSignal": 12,
+          "ProtoTaskSignal": 0,
+          "GenerativeLoopFinishedSignal": 27
+        }
+      }
+    },
+    {
+      "seed_id": "test_iter4",
+      "seed_text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+      "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+      "test_passed": true,
+      "failure_reason": null,
+      "start_time": "2025-07-08T12:00:01.768491",
+      "end_time": "2025-07-08T12:00:06.347592",
+      "duration_seconds": 4.579101,
+      "run_data": {
+        "seed_idea": {
+          "id": "462cf099-13fa-459a-82cb-975d3a515080",
+          "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+          "trust_score": null,
+          "is_stable": null,
+          "variations": {
+            "2ab1ae84-814b-4c3b-a8a9-3650432801b2": {
+              "id": "2ab1ae84-814b-4c3b-a8a9-3650432801b2",
+              "text": "Here are several creative and scientifically grounded hypotheses to explain the presence of a dead lobster found on a suburban lawn, 15 miles inland from the ocean:\n\n1. **Weather-Driven Displacement**: A rare meteorological event, such as a powerful waterspout or tornado, could have lifted the lobster from the ocean, transporting it inland. After the storm dissipated, the lobster may have fallen onto the suburban lawn, explaining its unexpected location.\n\n2. **Aquaculture Escape**: The lobster could have escaped from a nearby aquaculture facility. If a storm or flood caused a breach in containment, it might have traveled through drainage systems or streams, eventually ending up on the lawn. This hypothesis could be investigated by checking local aquaculture facilities for missing stock.\n\n3. **Unusual Animal Behavior**: A raccoon or another local animal might have scavenged the lobster from a coastal area or a nearby restaurant’s waste and carried it inland. This behavior could be driven by a food shortage or an unusual attraction to seafood, leading to the lobster's final resting place on the lawn.\n\n4. **Human Intervention**: A prankster or a curious individual could have brought the lobster from the coast for a party or event and then discarded it on the lawn after it was no longer needed. This theory could involve local sightings or social media activity that might hint at a lobster-themed event.\n\n5. **Pollution or Water Quality Issues**: There could be a significant environmental factor at play, such as pollution or a harmful algal bloom affecting the coastal waters. This condition might have caused the lobster to swim further than usual in search of cleaner waters, leading to its death and subsequent displacement inland.\n\n6. **Pet-Related Incident**: A pet, such as a dog, may have dug up the lobster from a nearby beach or coastal area, bringing it home as a 'trophy'. If the pet's owner failed to notice, the lobster could have been left on the lawn, resulting in its eventual decay.\n\n7. **Climate Change Effects**: Changes in marine ecosystems due to climate change could have caused lobsters to migrate further inland, either through altered currents or increased temperatures in their habitat. This unusual behavior could lead to lobsters being found in unexpected places, including suburban areas.\n\n8. **Art Installation Gone Awry**: An artist or community group could have staged a temporary art installation featuring marine life to raise awareness about ocean conservation. If the installation was disrupted or dismantled improperly, the lobster could have ended up discarded on the lawn.\n\nEach hypothesis presents a plausible explanation rooted in biological, meteorological, or human factors, encouraging further investigation into the circumstances surrounding this peculiar incident.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 6.718190388159061,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            },
+            "b8ca87ad-3e95-4438-8155-6f8ac2feea17": {
+              "id": "b8ca87ad-3e95-4438-8155-6f8ac2feea17",
+              "text": "**Title: The Mystery of the Wayward Lobster**\n\nIn a suburban neighborhood, a curious discovery has been made: a lifeless lobster sprawled across a neatly manicured lawn, a full 15 miles away from the nearest coastline. This unusual find prompts an investigation into how this marine creature ended up so far from its natural habitat. Here are several plausible hypotheses that incorporate elements from biology, meteorology, and human factors.\n\n### 1. **Extreme Weather Event**\nA recent powerful storm could have caused coastal flooding, leading to a surge that displaced marine life, including lobsters, far inland. The heavy rains and strong winds may have washed the lobster into a nearby river or drainage system that ultimately led to the suburban area. \n\n### 2. **Human Intervention**\nIt is possible that a local fisherman or seafood enthusiast caught the lobster during a recreational trip and, for some reason, decided to release it in the neighborhood—whether as a prank, a misunderstood attempt at conservation, or an accidental escape during transport. \n\n### 3. **Biological Anomaly**\nThe lobster could be a rare species or a genetically modified specimen that has adapted to survive in brackish water, allowing it to venture beyond its typical habitat. This might explain its presence well inland, as it searches for a suitable environment or food source.\n\n### 4. **Pollution and Ecosystem Shift**\nEnvironmental changes, such as pollution in the coastal waters or changes in temperature, could have driven the lobster to migrate inland in search of cleaner waters. This might indicate a broader ecological shift that could affect marine life and prompt them to find new habitats.\n\n### 5. **Suburban Habitat Creation**\nSome residents might have created a home aquarium or constructed a garden pond that inadvertently mimicked a lobster's natural environment. The creature could have escaped from a backyard aquarium, finding itself in the unfamiliar territory of a suburban lawn.\n\n### 6. **Transportation Mishap**\nThe lobster may have been part of a shipment of seafood that accidentally fell from a delivery vehicle. The lobster could have escaped onto the lawn after being dropped or mishandled, left to die without water or proper habitat.\n\n### 7. **Urban Myth in the Making**\nThe dead lobster could be a part of an urban legend or prank, deliberately placed by locals to spark curiosity or fear. This could lead to speculation about the environment and the ocean’s impact on urban life, whether factual or mythical.\n\n### 8. **Climate Change Effects**\nAs climate change alters oceanic currents and temperatures, it could lead to unusual migration patterns for marine species. The lobster might have been swept inland during an uncharacteristic current shift, becoming part of a larger trend where marine animals are increasingly found in unexpected locations.\n\n### Conclusion\nThis peculiar case of the lobster on a suburban lawn opens up a myriad of possibilities rooted in scientific explanations. Whether the result of human activity, environmental changes, or biological anomalies, each hypothesis provides a fascinating glimpse into the interaction between human life and nature's mysteries.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 6.670475993618669,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            },
+            "b398952e-aec7-4a68-895e-9a04baf85566": {
+              "id": "b398952e-aec7-4a68-895e-9a04baf85566",
+              "text": "Certainly! Here’s a creative variation of the idea, along with distinct hypotheses to explain the mysterious presence of a dead lobster on a suburban lawn 15 miles inland:\n\n**Concept Variation: \"The Lobster Mystery: An Inland Enigma\"**\n\n**Setting:** A suburban neighborhood, where residents are baffled by the discovery of a lifeless lobster on one homeowner's front lawn. This peculiar occurrence sparks curiosity and speculation among the community.\n\n**Plausible Hypotheses:**\n\n1. **Flooding and Habitat Displacement:**\n   - **Biological Explanation:** Recent heavy rains and flooding could have caused nearby rivers or estuaries to overflow. The lobster, perhaps washed away from its natural habitat, could have been carried by floodwaters all the way to the suburban area.\n   - **Supporting Evidence:** Fish and other marine life are sometimes found in unlikely places after significant weather events, suggesting that the lobster could have been displaced during a storm.\n\n2. **Unintentional Transport by a Human or Vehicle:**\n   - **Human Factors:** A local fisherman or seafood supplier might have accidentally dropped the lobster while transporting it to a nearby market or restaurant. Alternatively, it could have been smuggled as part of an illegal catch and discarded.\n   - **Supporting Evidence:** Residents could check local businesses for recent seafood deliveries or investigate any nearby fishing activities that might connect the lobster to human handling.\n\n3. **Recreational Fishing Gone Awry:**\n   - **Biological Explanation:** Someone could have been engaging in recreational fishing at a lake or pond and accidentally caught the lobster, which is not native to freshwater environments. Upon realizing the mistake, they may have discarded it on the lawn.\n   - **Supporting Evidence:** Local fishing regulations might need to be reviewed to confirm the presence of lobsters in nearby water bodies, as well as to investigate if any unusual fishing practices are occurring.\n\n4. **Climate Change and Species Range Expansion:**\n   - **Scientific Explanation:** As ocean temperatures rise due to climate change, lobsters may be expanding their range and adapting to new environments. This could lead to instances of lobsters venturing further inland during specific conditions, such as warm spells or unusual currents.\n   - **Supporting Evidence:** Research into regional marine life shifts and reports of lobster sightings in unusual locations could support this hypothesis, indicating a possible trend in species movement.\n\n5. **An Artistic or Prank Installation:**\n   - **Human Factors:** The lobster may have been placed there as part of an art installation or as a prank by a local resident. The timing could coincide with a community event or local art festival, sparking a conversation about art and environmental issues.\n   - **Supporting Evidence:** Interviews with local artists or community members could reveal if there was a planned event or artistic endeavor involving marine themes.\n\n6. **Unusual Weather Patterns:**\n   - **Meteorological Explanation:** An unusual weather phenomenon, such as a waterspout, could have lifted the lobster from the ocean and deposited it inland. Waterspouts can form over the ocean and carry marine life into the atmosphere, dropping them far from their original habitat.\n   - **Supporting Evidence:** Meteorological data and reports of waterspouts or severe weather conditions in the region at the time of the event could provide insights into this possibility.\n\nEach hypothesis presents a plausible explanation for the unexpected appearance of the lobster, inviting further investigation and community discussion. The intersection of biology, human behavior, and environmental science creates a rich narrative around this coastal curiosity.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 6.6111759936186685,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            }
+          }
+        },
+        "metadata": {
+          "run_start_time": "2025-07-08T12:00:01.769982",
+          "run_end_time": "2025-07-08T12:00:06.345585",
+          "total_ideas": 13,
+          "total_assessments": 3,
+          "high_trust_ideas": [
+            {
+              "idea_id": "2ab1ae84-814b-4c3b-a8a9-3650432801b2",
+              "trust_score": 6.718190388159061
+            },
+            {
+              "idea_id": "b398952e-aec7-4a68-895e-9a04baf85566",
+              "trust_score": 6.6111759936186685
+            },
+            {
+              "idea_id": "b8ca87ad-3e95-4438-8155-6f8ac2feea17",
+              "trust_score": 6.670475993618669
+            }
+          ],
+          "max_depth_reached": 0,
+          "signals_received": {
+            "IdeaGeneratedSignal": 12,
+            "TrustAssessmentSignal": 12,
+            "ProtoTaskSignal": 0,
+            "GenerativeLoopFinishedSignal": 26
+          },
+          "duration_seconds": 4.575603,
+          "ideas_per_second": 0.2185504293095358,
+          "assessment_coverage": 0.0
+        },
+        "events": [
+          {
+            "timestamp": "2025-07-08T12:00:06.345585",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:13.169242",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "0c11ab5b-32aa-4ca9-9f37-ebdd87d792a1",
+              "parent_id": "ab361bd8-838a-4a89-a869-3c1bbba3c9fc",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:13.172894",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "576be869-70ff-49f9-bf3f-a936d5901904",
+              "parent_id": "ab361bd8-838a-4a89-a869-3c1bbba3c9fc",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:13.174275",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "181bac3e-aec7-4b2f-b111-516f6abbedb6",
+              "parent_id": "ab361bd8-838a-4a89-a869-3c1bbba3c9fc",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.107897",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "6fb17d39-aec7-4388-b721-e891d3761e9f",
+              "parent_id": "dbe0d51e-4b75-4111-8fae-05f5b82f18fe",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.113128",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "15189a5c-9b91-45e0-b928-52df85c9475c",
+              "parent_id": "dbe0d51e-4b75-4111-8fae-05f5b82f18fe",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.113128",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "b75d1a37-d214-4a3d-bbed-323db671de98",
+              "parent_id": "dbe0d51e-4b75-4111-8fae-05f5b82f18fe",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.850702",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "2ab1ae84-814b-4c3b-a8a9-3650432801b2",
+              "parent_id": "462cf099-13fa-459a-82cb-975d3a515080",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.854038",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "b8ca87ad-3e95-4438-8155-6f8ac2feea17",
+              "parent_id": "462cf099-13fa-459a-82cb-975d3a515080",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.854760",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "b398952e-aec7-4a68-895e-9a04baf85566",
+              "parent_id": "462cf099-13fa-459a-82cb-975d3a515080",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:21.495189",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "2ab1ae84-814b-4c3b-a8a9-3650432801b2",
+              "trust_score": 6.718190388159061,
+              "is_stable": true,
+              "high_trust": true
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:21.500258",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "b398952e-aec7-4a68-895e-9a04baf85566",
+              "trust_score": 6.6111759936186685,
+              "is_stable": true,
+              "high_trust": true
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:21.503279",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "b8ca87ad-3e95-4438-8155-6f8ac2feea17",
+              "trust_score": 6.670475993618669,
+              "is_stable": true,
+              "high_trust": true
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:30.592927",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "f220303d-de33-4b33-91ad-0ec0147910fb",
+              "parent_id": "562ed0ce-e7cb-4a53-af44-1e8f5b23182d",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:30.595724",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "94c6df7e-72f6-4b67-bc87-c59d2fa6f966",
+              "parent_id": "562ed0ce-e7cb-4a53-af44-1e8f5b23182d",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:30.597768",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "7a025582-9c34-47ec-a6ce-ed51d7698a9f",
+              "parent_id": "562ed0ce-e7cb-4a53-af44-1e8f5b23182d",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:36.953088",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:37.333105",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:38.863286",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:39.733957",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:39.889578",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:42.530999",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:42.629118",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.533234",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.548246",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.954609",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:44.153524",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.333946",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.428209",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.625338",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:46.246302",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:46.445008",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:47.224963",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:47.236759",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:50.223842",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:51.767428",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:54.121069",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          }
+        ]
+      },
+      "summary_stats": {
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "high_trust_count": 0,
+        "max_depth": 0,
+        "proto_triggered": false,
+        "signals_received": {
+          "IdeaGeneratedSignal": 12,
+          "TrustAssessmentSignal": 12,
+          "ProtoTaskSignal": 0,
+          "GenerativeLoopFinishedSignal": 26
+        }
+      }
+    },
+    {
+      "seed_id": "test_iter5",
+      "seed_text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+      "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+      "test_passed": true,
+      "failure_reason": null,
+      "start_time": "2025-07-08T12:00:08.361921",
+      "end_time": "2025-07-08T12:00:36.953088",
+      "duration_seconds": 28.591167,
+      "run_data": {
+        "seed_idea": {
+          "id": "562ed0ce-e7cb-4a53-af44-1e8f5b23182d",
+          "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+          "trust_score": null,
+          "is_stable": null,
+          "variations": {
+            "f220303d-de33-4b33-91ad-0ec0147910fb": {
+              "id": "f220303d-de33-4b33-91ad-0ec0147910fb",
+              "text": "**Title: The Curious Case of the Lobster on Lawn 15**\n\n**Scenario:** A deceased lobster was discovered on a suburban lawn, 15 miles from the nearest coastline, presenting an intriguing mystery. Here are several distinct, plausible, and scientifically-grounded hypotheses to explain its unusual presence:\n\n### 1. **Unusual Weather Phenomenon**\n**Hypothesis:** A rare meteorological event could have occurred, such as a strong coastal storm or waterspout that picked up the lobster from the ocean and transported it inland. Such phenomena can carry marine life over significant distances, depositing them far from their natural habitat. \n\n**Supporting Evidence:** Historical records of similar events, combined with recent weather patterns, could be examined to establish this possibility.\n\n### 2. **Aquarium Escapee**\n**Hypothesis:** The lobster may have originated from a local aquarium or seafood market. A malfunction or negligence in tank maintenance could have allowed it to escape into the wild. Alternatively, someone might have purchased it for a home aquarium and, unable to care for it properly, released it into a nearby water source.\n\n**Supporting Evidence:** Investigating local aquariums or seafood shops for missing lobsters or checking for reports of escaped marine life could confirm this theory.\n\n### 3. **Human Intervention**\n**Hypothesis:** The lobster could have been part of a bizarre prank or an artistic installation. A neighbor or local artist could have placed the lobster on the lawn intentionally as a commentary on environmental issues, food waste, or even as a humorous statement.\n\n**Supporting Evidence:** Interviews with local residents or social media activity in the area could reveal information regarding any recent pranks or artistic expressions involving marine life.\n\n### 4. **Environmental Impact**\n**Hypothesis:** An ecological anomaly could have contributed to the lobster's death. Increased freshwater runoff or pollution from nearby agricultural activities could have affected local waterways, leading to the lobster’s unexpected presence as it sought to escape deteriorating conditions in its native habitat.\n\n**Supporting Evidence:** Water quality assessments in nearby streams or rivers, along with studies on local biodiversity, could provide insight into this theory.\n\n### 5. **Wildlife Migration**\n**Hypothesis:** While lobsters are not known for long-distance migration, it’s possible that changes in ocean currents or temperatures due to climate change have caused unusual behaviors in marine life. A lobster could have been swept upstream through a river system connected to the ocean, eventually making its way to the suburban area.\n\n**Supporting Evidence:** Research on marine migration patterns and shifts in oceanographic conditions would lend credibility to this scenario.\n\n### 6. **Culinary Experiment Gone Awry**\n**Hypothesis:** The lobster could have been part of a culinary experiment or local cookout that went wrong. After a failed attempt to prepare a feast or a cooking mishap, the remains were discarded improperly, leading to it ending up on the lawn.\n\n**Supporting Evidence:** Neighborhood inquiries about recent gatherings, barbecues, or culinary events could lead to discoveries regarding the lobster's origin.\n\n### Conclusion\nEach of these hypotheses provides a distinct lens through which to explore the mystery of the dead lobster found on the suburban lawn. By delving into biological, meteorological, and human factors, the investigation could unveil a fascinating story about the intersection of nature and suburban life.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 6.581442263692447,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            },
+            "94c6df7e-72f6-4b67-bc87-c59d2fa6f966": {
+              "id": "94c6df7e-72f6-4b67-bc87-c59d2fa6f966",
+              "text": "### Creative Variation: \"An Unlikely Visitor\"\n\n**Scenario:**\nA fully intact, bioluminescent jellyfish is discovered on a suburban lawn, 20 miles from the nearest coastline. Its vibrant colors pulsate gently, captivating the curiosity of the neighborhood. The community is baffled, leading to a series of theories and investigations to explain this peculiar phenomenon.\n\n### Hypotheses to Explain the Phenomenon:\n\n1. **Unusual Weather Patterns:**\n   - **Hypothesis:** A rare meteorological event, such as a waterspout or a strong storm system, may have lifted the jellyfish from the ocean and deposited it inland. Waterspouts can carry marine life significant distances, and with recent reports of extreme weather in the area, this could explain how the jellyfish ended up far from its natural habitat.\n\n2. **Human Interference:**\n   - **Hypothesis:** The jellyfish was part of a scientific research project or an aquarium's exhibition that went awry. Perhaps a local biologist was studying bioluminescent organisms and accidentally released it, or a pet owner let their exotic pet jellyfish escape during a yard cleaning session, leading to its unexpected appearance in the neighborhood.\n\n3. **Ecological Disruption:**\n   - **Hypothesis:** Climate change and ocean acidification could be altering marine habitats, prompting jellyfish populations to migrate further inland in search of suitable conditions. Increased nutrients from runoff may have led to a bloom of jellyfish, and their unusual movement patterns could be a response to environmental changes.\n\n4. **Cultural Ritual or Art Installation:**\n   - **Hypothesis:** The jellyfish's presence may be part of a local art installation or cultural event celebrating marine life. Artists could have placed the jellyfish on the lawn to spark conversations about ocean conservation and raise awareness about the impact of pollution on marine ecosystems, leading to its unintentional display.\n\n5. **Unidentified Species:**\n   - **Hypothesis:** The jellyfish could represent a new species that has adapted to survive in freshwater conditions, capable of living in both saltwater and freshwater environments. This adaptability could lead to sightings far from the ocean, challenging current biological classifications and prompting further research.\n\n6. **Transport via Wildlife:**\n   - **Hypothesis:** A bird, fish, or other animal might have ingested or picked up the jellyfish from the ocean and subsequently dropped it in the suburban area. This transport mechanism could explain how a marine organism ended up so far inland without any clear human interaction.\n\n7. **Stolen Exhibit:**\n   - **Hypothesis:** The jellyfish was part of a traveling exhibit that was stolen or mishandled. Someone could have taken it for a prank or as a collector’s item, and it was accidentally released or discarded, ending up on the lawn as a result of negligence.\n\n### Conclusion:\nThe discovery of the bioluminescent jellyfish sparks a wave of intrigue and creativity within the community, leading to discussions about environmental awareness, scientific inquiry, and the intricate connections between marine and terrestrial ecosystems. Each hypothesis invites further exploration, turning a simple curiosity into a springboard for greater understanding of our natural world.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 6.940787318920802,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            },
+            "7a025582-9c34-47ec-a6ce-ed51d7698a9f": {
+              "id": "7a025582-9c34-47ec-a6ce-ed51d7698a9f",
+              "text": "### Creative Variation: \"The Curious Case of the Lobster on Maple Street\"\n\n**Scenario Overview:**\nA dead lobster is discovered on a suburban lawn, 15 miles inland from the ocean. The residents of Maple Street are baffled by this peculiar find, leading to a community-wide investigation. Here are several distinct and plausible hypotheses that could explain the lobster’s unexpected presence, grounded in biology, meteorology, and human factors.\n\n#### 1. **Unusual Weather Patterns:**\n   - **Hypothesis:** A rare meteorological phenomenon, such as a strong storm or waterspout, could have swept the lobster inland from a nearby coastal area. Waterspouts can pick up marine life and transport them miles away from their natural habitat, resulting in the lobster ending up on a suburban lawn.\n   - **Supporting Evidence:** Reports of an unusual weather pattern, such as a sudden coastal storm followed by calm weather, can be cross-referenced with local meteorological data.\n\n#### 2. **Human Intervention:**\n   - **Hypothesis:** A local resident, perhaps an avid fisherman or seafood enthusiast, may have caught the lobster and decided to transport it home. After deciding not to cook it, they could have accidentally left it on their lawn, or a child may have mistakenly discarded it there after a playful encounter.\n   - **Supporting Evidence:** Interviews with neighbors and local seafood markets could reveal recent fishing activities or sales, providing context for human involvement.\n\n#### 3. **Environmental Displacement:**\n   - **Hypothesis:** Climate change and its effects on marine ecosystems may have caused the lobster to migrate further than usual, possibly due to warming waters and altered currents. This aberrant behavior could lead to lobsters finding themselves in unexpected locations.\n   - **Supporting Evidence:** Analysis of lobster populations in relation to ocean temperature changes and currents could indicate shifts in migration patterns, supporting the theory that lobsters are venturing further inland.\n\n#### 4. **Local Wildlife Interaction:**\n   - **Hypothesis:** A local predator, such as a raccoon or a bird, may have found the lobster on a nearby beach, carried it inland, and then discarded it on the lawn. This could be a part of the animal's foraging behavior.\n   - **Supporting Evidence:** Footprints or other signs of wildlife activity around the lawn could be investigated to determine if a local animal was involved in transporting the lobster.\n\n#### 5. **Pollution or Chemical Spill:**\n   - **Hypothesis:** A nearby factory or industrial site could have experienced a chemical spill that affected local waterways. Lobsters or other marine life could have been displaced due to contamination, leading to their death and eventual washing up on land.\n   - **Supporting Evidence:** Local environmental reports and water quality testing could reveal contamination levels and any recent incidents that might correlate with the lobster's appearance.\n\n#### 6. **Cultural Art Project:**\n   - **Hypothesis:** A local art group or school project might involve creating awareness about marine life and environmental issues. The dead lobster could be part of an installation meant to provoke thought about ocean health and its impact on distant communities.\n   - **Supporting Evidence:** Checking with local schools, community boards, or art organizations could uncover planned projects that incorporate marine life as a theme.\n\n### Conclusion:\nThe dead lobster on Maple Street serves as a catalyst for exploring ecological connections, human impacts, and environmental changes. Each hypothesis provides a plausible explanation, encouraging the community to engage in thoughtful discussions about the intricate relationships between humans, wildlife, and the environment.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 6.561442263692446,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            }
+          }
+        },
+        "metadata": {
+          "run_start_time": "2025-07-08T12:00:08.362487",
+          "run_end_time": "2025-07-08T12:00:36.953088",
+          "total_ideas": 13,
+          "total_assessments": 3,
+          "high_trust_ideas": [
+            {
+              "idea_id": "7a025582-9c34-47ec-a6ce-ed51d7698a9f",
+              "trust_score": 6.561442263692446
+            },
+            {
+              "idea_id": "94c6df7e-72f6-4b67-bc87-c59d2fa6f966",
+              "trust_score": 6.940787318920802
+            },
+            {
+              "idea_id": "f220303d-de33-4b33-91ad-0ec0147910fb",
+              "trust_score": 6.581442263692447
+            }
+          ],
+          "max_depth_reached": 0,
+          "signals_received": {
+            "IdeaGeneratedSignal": 12,
+            "TrustAssessmentSignal": 12,
+            "ProtoTaskSignal": 0,
+            "GenerativeLoopFinishedSignal": 25
+          },
+          "duration_seconds": 28.590601,
+          "ideas_per_second": 0.45469488381863676,
+          "assessment_coverage": 92.3076923076923
+        },
+        "events": [
+          {
+            "timestamp": "2025-07-08T12:00:13.171498",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "0c11ab5b-32aa-4ca9-9f37-ebdd87d792a1",
+              "parent_id": "ab361bd8-838a-4a89-a869-3c1bbba3c9fc",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:13.173403",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "576be869-70ff-49f9-bf3f-a936d5901904",
+              "parent_id": "ab361bd8-838a-4a89-a869-3c1bbba3c9fc",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:13.174275",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "181bac3e-aec7-4b2f-b111-516f6abbedb6",
+              "parent_id": "ab361bd8-838a-4a89-a869-3c1bbba3c9fc",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.107897",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "6fb17d39-aec7-4388-b721-e891d3761e9f",
+              "parent_id": "dbe0d51e-4b75-4111-8fae-05f5b82f18fe",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.113128",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "15189a5c-9b91-45e0-b928-52df85c9475c",
+              "parent_id": "dbe0d51e-4b75-4111-8fae-05f5b82f18fe",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.113128",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "b75d1a37-d214-4a3d-bbed-323db671de98",
+              "parent_id": "dbe0d51e-4b75-4111-8fae-05f5b82f18fe",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.850702",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "2ab1ae84-814b-4c3b-a8a9-3650432801b2",
+              "parent_id": "462cf099-13fa-459a-82cb-975d3a515080",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.854760",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "b8ca87ad-3e95-4438-8155-6f8ac2feea17",
+              "parent_id": "462cf099-13fa-459a-82cb-975d3a515080",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:17.854760",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "b398952e-aec7-4a68-895e-9a04baf85566",
+              "parent_id": "462cf099-13fa-459a-82cb-975d3a515080",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:30.592927",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "f220303d-de33-4b33-91ad-0ec0147910fb",
+              "parent_id": "562ed0ce-e7cb-4a53-af44-1e8f5b23182d",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:30.595724",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "94c6df7e-72f6-4b67-bc87-c59d2fa6f966",
+              "parent_id": "562ed0ce-e7cb-4a53-af44-1e8f5b23182d",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:30.599773",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "7a025582-9c34-47ec-a6ce-ed51d7698a9f",
+              "parent_id": "562ed0ce-e7cb-4a53-af44-1e8f5b23182d",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:33.193230",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "7a025582-9c34-47ec-a6ce-ed51d7698a9f",
+              "trust_score": 6.561442263692446,
+              "is_stable": true,
+              "high_trust": true
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:33.964987",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "94c6df7e-72f6-4b67-bc87-c59d2fa6f966",
+              "trust_score": 6.940787318920802,
+              "is_stable": true,
+              "high_trust": true
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:33.967682",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "f220303d-de33-4b33-91ad-0ec0147910fb",
+              "trust_score": 6.581442263692447,
+              "is_stable": true,
+              "high_trust": true
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:36.953088",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:37.333105",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:38.863286",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:39.737816",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:39.889578",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:42.530999",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:42.632161",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.533234",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.548246",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.954609",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:44.153524",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.333946",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.428209",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.625922",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:46.246302",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:46.445861",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:47.229737",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:47.236759",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:50.223842",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:51.768133",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:54.121069",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          }
+        ]
+      },
+      "summary_stats": {
+        "total_ideas": 13,
+        "total_assessed": 12,
+        "high_trust_count": 3,
+        "max_depth": 0,
+        "proto_triggered": false,
+        "signals_received": {
+          "IdeaGeneratedSignal": 12,
+          "TrustAssessmentSignal": 12,
+          "ProtoTaskSignal": 0,
+          "GenerativeLoopFinishedSignal": 25
+        }
+      }
+    },
+    {
+      "seed_id": "test_iter6",
+      "seed_text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+      "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+      "test_passed": true,
+      "failure_reason": null,
+      "start_time": "2025-07-08T12:00:38.969923",
+      "end_time": "2025-07-08T12:00:39.738420",
+      "duration_seconds": 0.768497,
+      "run_data": {
+        "seed_idea": {
+          "id": "49a31bc2-eab0-45af-9302-db8e35ebf408",
+          "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+          "trust_score": null,
+          "is_stable": null,
+          "variations": {}
+        },
+        "metadata": {
+          "run_start_time": "2025-07-08T12:00:38.970625",
+          "run_end_time": "2025-07-08T12:00:39.738420",
+          "total_ideas": 1,
+          "total_assessments": 0,
+          "high_trust_ideas": [],
+          "max_depth_reached": 0,
+          "signals_received": {
+            "IdeaGeneratedSignal": 0,
+            "TrustAssessmentSignal": 0,
+            "ProtoTaskSignal": 0,
+            "GenerativeLoopFinishedSignal": 18
+          },
+          "duration_seconds": 0.767795,
+          "ideas_per_second": 1.302430987438053,
+          "assessment_coverage": 0.0
+        },
+        "events": [
+          {
+            "timestamp": "2025-07-08T12:00:39.738420",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:39.889578",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:42.530999",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:42.632161",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.533234",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.548246",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.954609",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:44.153524",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.333946",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.428209",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.626296",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:46.246302",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:46.446707",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:47.229737",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:47.236759",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:50.227638",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:51.768133",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:54.123023",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          }
+        ]
+      },
+      "summary_stats": {
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "high_trust_count": 0,
+        "max_depth": 0,
+        "proto_triggered": false,
+        "signals_received": {
+          "IdeaGeneratedSignal": 0,
+          "TrustAssessmentSignal": 0,
+          "ProtoTaskSignal": 0,
+          "GenerativeLoopFinishedSignal": 18
+        }
+      }
+    },
+    {
+      "seed_id": "test_iter7",
+      "seed_text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+      "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+      "test_passed": true,
+      "failure_reason": null,
+      "start_time": "2025-07-08T12:00:41.743318",
+      "end_time": "2025-07-08T12:00:42.532290",
+      "duration_seconds": 0.788972,
+      "run_data": {
+        "seed_idea": {
+          "id": "4d8c02af-ed9f-4063-99e3-60b2ed082c58",
+          "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+          "trust_score": null,
+          "is_stable": null,
+          "variations": {}
+        },
+        "metadata": {
+          "run_start_time": "2025-07-08T12:00:41.744349",
+          "run_end_time": "2025-07-08T12:00:42.530999",
+          "total_ideas": 1,
+          "total_assessments": 0,
+          "high_trust_ideas": [],
+          "max_depth_reached": 0,
+          "signals_received": {
+            "IdeaGeneratedSignal": 0,
+            "TrustAssessmentSignal": 0,
+            "ProtoTaskSignal": 0,
+            "GenerativeLoopFinishedSignal": 16
+          },
+          "duration_seconds": 0.78665,
+          "ideas_per_second": 1.2712133731646857,
+          "assessment_coverage": 0.0
+        },
+        "events": [
+          {
+            "timestamp": "2025-07-08T12:00:42.530999",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:42.632161",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.533234",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.548246",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:43.954609",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:44.153524",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.333946",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.428209",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.626296",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:46.246302",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:46.446707",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:47.229737",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:47.236759",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:50.227638",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:51.768133",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:54.123023",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          }
+        ]
+      },
+      "summary_stats": {
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "high_trust_count": 0,
+        "max_depth": 0,
+        "proto_triggered": false,
+        "signals_received": {
+          "IdeaGeneratedSignal": 0,
+          "TrustAssessmentSignal": 0,
+          "ProtoTaskSignal": 0,
+          "GenerativeLoopFinishedSignal": 16
+        }
+      }
+    },
+    {
+      "seed_id": "test_iter8",
+      "seed_text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+      "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+      "test_passed": true,
+      "failure_reason": null,
+      "start_time": "2025-07-08T12:00:44.552986",
+      "end_time": "2025-07-08T12:00:45.333946",
+      "duration_seconds": 0.78096,
+      "run_data": {
+        "seed_idea": {
+          "id": "9dcacf6e-d583-4412-8bc9-980118fe2f7a",
+          "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+          "trust_score": null,
+          "is_stable": null,
+          "variations": {}
+        },
+        "metadata": {
+          "run_start_time": "2025-07-08T12:00:44.555064",
+          "run_end_time": "2025-07-08T12:00:45.333946",
+          "total_ideas": 1,
+          "total_assessments": 0,
+          "high_trust_ideas": [],
+          "max_depth_reached": 0,
+          "signals_received": {
+            "IdeaGeneratedSignal": 0,
+            "TrustAssessmentSignal": 0,
+            "ProtoTaskSignal": 0,
+            "GenerativeLoopFinishedSignal": 10
+          },
+          "duration_seconds": 0.778882,
+          "ideas_per_second": 1.283891526572703,
+          "assessment_coverage": 0.0
+        },
+        "events": [
+          {
+            "timestamp": "2025-07-08T12:00:45.333946",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.428209",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:45.626800",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:46.246302",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:46.446707",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:47.229737",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:47.236759",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:50.228286",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:51.768133",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:54.123023",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          }
+        ]
+      },
+      "summary_stats": {
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "high_trust_count": 0,
+        "max_depth": 0,
+        "proto_triggered": false,
+        "signals_received": {
+          "IdeaGeneratedSignal": 0,
+          "TrustAssessmentSignal": 0,
+          "ProtoTaskSignal": 0,
+          "GenerativeLoopFinishedSignal": 10
+        }
+      }
+    },
+    {
+      "seed_id": "test_iter9",
+      "seed_text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+      "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+      "test_passed": true,
+      "failure_reason": null,
+      "start_time": "2025-07-08T12:00:47.332653",
+      "end_time": "2025-07-08T12:00:50.228286",
+      "duration_seconds": 2.895633,
+      "run_data": {
+        "seed_idea": {
+          "id": "d2a5229f-ebc7-4e89-a184-288a17d7f64a",
+          "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+          "trust_score": null,
+          "is_stable": null,
+          "variations": {}
+        },
+        "metadata": {
+          "run_start_time": "2025-07-08T12:00:47.334485",
+          "run_end_time": "2025-07-08T12:00:50.228286",
+          "total_ideas": 1,
+          "total_assessments": 0,
+          "high_trust_ideas": [],
+          "max_depth_reached": 0,
+          "signals_received": {
+            "IdeaGeneratedSignal": 0,
+            "TrustAssessmentSignal": 0,
+            "ProtoTaskSignal": 0,
+            "GenerativeLoopFinishedSignal": 3
+          },
+          "duration_seconds": 2.893801,
+          "ideas_per_second": 0.34556626388614836,
+          "assessment_coverage": 0.0
+        },
+        "events": [
+          {
+            "timestamp": "2025-07-08T12:00:50.228286",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:51.769615",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T12:00:54.124266",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          }
+        ]
+      },
+      "summary_stats": {
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "high_trust_count": 0,
+        "max_depth": 0,
+        "proto_triggered": false,
+        "signals_received": {
+          "IdeaGeneratedSignal": 0,
+          "TrustAssessmentSignal": 0,
+          "ProtoTaskSignal": 0,
+          "GenerativeLoopFinishedSignal": 3
+        }
+      }
+    },
+    {
+      "seed_id": "test_iter10",
+      "seed_text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+      "objective": "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors.",
+      "test_passed": true,
+      "failure_reason": null,
+      "start_time": "2025-07-08T12:00:52.234449",
+      "end_time": "2025-07-08T12:00:54.124266",
+      "duration_seconds": 1.889817,
+      "run_data": {
+        "seed_idea": {
+          "id": "10e30339-4942-4e8a-be3a-c1b5925e1704",
+          "text": "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence.",
+          "trust_score": null,
+          "is_stable": null,
+          "variations": {}
+        },
+        "metadata": {
+          "run_start_time": "2025-07-08T12:00:52.236500",
+          "run_end_time": "2025-07-08T12:00:54.124266",
+          "total_ideas": 1,
+          "total_assessments": 0,
+          "high_trust_ideas": [],
+          "max_depth_reached": 0,
+          "signals_received": {
+            "IdeaGeneratedSignal": 0,
+            "TrustAssessmentSignal": 0,
+            "ProtoTaskSignal": 0,
+            "GenerativeLoopFinishedSignal": 1
+          },
+          "duration_seconds": 1.887766,
+          "ideas_per_second": 0.5297266716319713,
+          "assessment_coverage": 0.0
+        },
+        "events": [
+          {
+            "timestamp": "2025-07-08T12:00:54.124266",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          }
+        ]
+      },
+      "summary_stats": {
+        "total_ideas": 1,
+        "total_assessed": 0,
+        "high_trust_count": 0,
+        "max_depth": 0,
+        "proto_triggered": false,
+        "signals_received": {
+          "IdeaGeneratedSignal": 0,
+          "TrustAssessmentSignal": 0,
+          "ProtoTaskSignal": 0,
+          "GenerativeLoopFinishedSignal": 1
+        }
+      }
+    }
+  ]
+}

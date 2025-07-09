@@ -14,9 +14,18 @@ from core.tracing import BlockTrace
 # Reusable enums (optional, but safer than string Literals everywhere)
 # ---------------------------------------------------------------------- #
 class LoopAction(str, Enum):
-    CONTINUE = "continue"
-    PAUSE = "pause"
-    STOP = "stop"
+    CONTINUE = 'continue'
+    PAUSE = 'pause'
+    STOP = 'stop'
+
+
+# NEW: Add completion status enum
+class BranchCompletionStatus(str, Enum):
+    """Represents the completion state of an exploration branch."""
+    TERMINAL_SUCCESS = 'terminal_success'  # Branch completed successfully with results
+    TERMINAL_FAILURE = 'terminal_failure'  # Branch failed with error
+    TERMINAL_NO_OP = 'terminal_no_op'     # Branch completed but no operation performed (e.g., not viable)
+    CONTINUE = 'continue'                   # Branch should continue processing
 
 
 # ---------------------------------------------------------------------- #
@@ -96,9 +105,25 @@ class ErrorSignal(EpistemicSignal):
 
 
 class GenerativeLoopFinishedSignal(EpistemicSignal):
-    signal_type: Literal["GenerativeLoopFinishedSignal"] = "GenerativeLoopFinishedSignal"
-
-
+    signal_type: Literal['GenerativeLoopFinishedSignal'] = 'GenerativeLoopFinishedSignal'
+    
+    completion_status: Optional[BranchCompletionStatus] = Field(
+        None, 
+        description="The completion status of this branch"
+    )
+    completion_reason: Optional[str] = Field(
+        None, 
+        description="Human-readable reason for the completion status"
+    )
+    # Keep these for backward compatibility, but they're now optional
+    status: Optional[str] = Field(
+        None,
+        description="Legacy status field for backward compatibility"
+    )
+    quantifier_triggered: Optional[bool] = Field(
+        None,
+        description="Legacy field indicating if quantifier was triggered"
+    )
 # ---------------------------------------------------------------------- #
 # Math dialect signals
 # ---------------------------------------------------------------------- #

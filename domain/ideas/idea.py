@@ -34,6 +34,13 @@ class Idea:
     step: int = -1
     method: str = "manual"
     metadata: Dict[str, Any] = field(default_factory=dict)
+    
+    # ───────────────────────────────
+    # Assessment scores (NEW FIELDS)
+    # ───────────────────────────────
+    trust_score: Optional[float] = None
+    novelty_score: Optional[float] = None
+    is_stable: Optional[bool] = None
 
     # --------------------------------------------------------------------- #
     # Factory
@@ -47,6 +54,9 @@ class Idea:
         step: int = -1,
         method: str = "manual",
         metadata: Optional[Dict[str, Any]] = None,
+        trust_score: Optional[float] = None,
+        novelty_score: Optional[float] = None,
+        is_stable: Optional[bool] = None,
     ) -> "Idea":
         """
         Factory method to create a new Idea with a unique ID and explicit UTC timestamp.
@@ -75,6 +85,9 @@ class Idea:
             method=str(method), # Ensure method is a string
             metadata=metadata.copy() if metadata is not None else {}, # Ensure metadata is a new dict
             # timestamp will be set by default_factory
+            trust_score=trust_score,
+            novelty_score=novelty_score,
+            is_stable=is_stable,
         )
 
     # --------------------------------------------------------------------- #
@@ -137,13 +150,32 @@ class Idea:
         new_metadata = self.metadata.copy()
         new_metadata.update(updates)
         return replace(self, metadata=new_metadata)
+    
+    # --------------------------------------------------------------------- #
+    # Score mutators (NEW METHODS)
+    # --------------------------------------------------------------------- #
+    def with_scores(self, trust_score: float, novelty_score: Optional[float] = None, 
+                    is_stable: Optional[bool] = None) -> "Idea":
+        """Return a new Idea with assessment scores updated."""
+        return replace(self, 
+                      trust_score=trust_score,
+                      novelty_score=novelty_score,
+                      is_stable=is_stable)
+    
+    def with_trust_score(self, trust_score: float) -> "Idea":
+        """Return a new Idea with trust score updated."""
+        return replace(self, trust_score=trust_score)
+    
+    def with_stability(self, is_stable: bool) -> "Idea":
+        """Return a new Idea with stability flag updated."""
+        return replace(self, is_stable=is_stable)
 
     # --------------------------------------------------------------------- #
     # Utilities
     # --------------------------------------------------------------------- #
     def compute_hash(self, algorithm: str = 'sha256') -> str:
         """
-        Compute a deterministic hash of the Idea’s significant immutable fields.
+        Compute a deterministic hash of the Idea's significant immutable fields.
 
         Allows specifying the hashing algorithm.
         Fields included: idea_id, text, sorted parent_ids, timestamp (ISO format).
@@ -183,6 +215,14 @@ class Idea:
 
         hasher.update(canonical_representation)
         return hasher.hexdigest()
+    
+    def has_scores(self) -> bool:
+        """Check if this idea has been assessed (has trust score)."""
+        return self.trust_score is not None
+    
+    def is_high_trust(self, threshold: float = 6.0) -> bool:
+        """Check if this idea has high trust score."""
+        return self.trust_score is not None and self.trust_score > threshold
 
     def __repr__(self) -> str:
         """Provides a developer-friendly, unambiguous string representation of the Idea instance."""
@@ -197,7 +237,15 @@ class Idea:
         if len(self.metadata) > 3:
             metadata_str += ", ..."
         metadata_str += "}"
-
+        
+        # Add score info if present
+        score_info = ""
+        if self.trust_score is not None:
+            score_info = f", trust={self.trust_score:.2f}"
+        if self.novelty_score is not None:
+            score_info += f", novelty={self.novelty_score:.2f}"
+        if self.is_stable is not None:
+            score_info += f", stable={self.is_stable}"
 
         return (
             f"{self.__class__.__name__}("
@@ -210,6 +258,7 @@ class Idea:
             f"step={self.step}, "
             f"method='{self.method}', "
             f"metadata_preview={metadata_str}"
+            f"{score_info}"  # Add score info
             ")"
         )
 

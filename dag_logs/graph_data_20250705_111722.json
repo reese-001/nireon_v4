@@ -1,0 +1,137 @@
+{
+  "nodes": [
+    "SEED_EXEC_prime counting",
+    "70265add-0462-46f5-85fd-2e2553ae3dd7",
+    "73f19e72-6f2e-4d4b-a4e5-23f8d41815b4",
+    "18bb3cce-20f8-4be1-9214-8fbc5c04c119",
+    "sentinel_instance_01",
+    "e5f5f4b5-feb6-4b06-8831-bd25af132381",
+    "quantifier_agent_primary",
+    "BOOTSTRAP"
+  ],
+  "edges": [
+    {
+      "source": "73f19e72-6f2e-4d4b-a4e5-23f8d41815b4",
+      "target": "e5f5f4b5-feb6-4b06-8831-bd25af132381",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "73f19e72-6f2e-4d4b-a4e5-23f8d41815b4",
+      "target": "18bb3cce-20f8-4be1-9214-8fbc5c04c119",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "73f19e72-6f2e-4d4b-a4e5-23f8d41815b4",
+      "target": "70265add-0462-46f5-85fd-2e2553ae3dd7",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    }
+  ],
+  "signals": [
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T11:16:22.969979",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "73f19e72-6f2e-4d4b-a4e5-23f8d41815b4",
+      "payload": {
+        "seed_idea_id": "73f19e72-6f2e-4d4b-a4e5-23f8d41815b4",
+        "text": "How can we improve on the Pi(x) function to count the number of primes less than x more efficiently without using machine learning?",
+        "metadata": {
+          "iteration": 1,
+          "objective": "Explore advanced mathematical techniques to optimize the counting of prime numbers below a given threshold x. Focus on closed form solutions and algorithmic improvements. Do not consider machine learning or neural networks!",
+          "depth": 0,
+          "seed_config_id": "prime counting"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T11:16:49.095034",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "e5f5f4b5-feb6-4b06-8831-bd25af132381",
+      "payload": {
+        "parent_id": "73f19e72-6f2e-4d4b-a4e5-23f8d41815b4",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T11:16:49.096034",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "18bb3cce-20f8-4be1-9214-8fbc5c04c119",
+      "payload": {
+        "parent_id": "73f19e72-6f2e-4d4b-a4e5-23f8d41815b4",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T11:16:49.096034",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "70265add-0462-46f5-85fd-2e2553ae3dd7",
+      "payload": {
+        "parent_id": "73f19e72-6f2e-4d4b-a4e5-23f8d41815b4",
+        "depth": 0
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T11:16:22.968024",
+      "event_type": "BOOTSTRAP_COMPLETE",
+      "node_id": "BOOTSTRAP",
+      "details": {
+        "component_count": 59,
+        "run_id": "explorer_run_1751732182"
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T11:17:06.415334",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "18bb3cce-20f8-4be1-9214-8fbc5c04c119",
+      "details": {
+        "trust_score": 3.8748646768416046,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T11:17:11.666034",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "e5f5f4b5-feb6-4b06-8831-bd25af132381",
+      "details": {
+        "trust_score": 6.489064676841605,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T11:17:22.969695",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 59.999716,
+        "total_ideas": 4,
+        "total_assessed": 2,
+        "coverage_percent": 50.0
+      }
+    }
+  ]
+}

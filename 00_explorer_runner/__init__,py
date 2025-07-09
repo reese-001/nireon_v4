@@ -1,0 +1,25 @@
+"""
+NIREON V4 Explorer Test Runner Package
+Located at: ./00_explorer_runner/__init__.py
+"""
+
+__version__ = "1.0.0"
+__author__ = "NIREON Team"
+
+# Export main components
+from .orchestrator import ExplorerOrchestrator
+from .result_capturer import ResultCapturer
+from .report_generator import ReportGenerator
+from .debug_helpers import DebugInspector, SignalFlowVisualizer
+from .utils import find_project_root, setup_logging, set_component
+
+__all__ = [
+    'ExplorerOrchestrator',
+    'ResultCapturer',
+    'ReportGenerator',
+    'DebugInspector',
+    'SignalFlowVisualizer',
+    'find_project_root',
+    'setup_logging',
+    'set_component'
+]

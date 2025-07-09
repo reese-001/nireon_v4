@@ -1,0 +1,149 @@
+{
+  "nodes": [
+    "36fd2060-1a70-402b-afcb-4ba8d6c07b02",
+    "7b2557df-8ea2-4a4c-891b-fa8f6b984988",
+    "41b072bc-7bee-4074-b239-7a14546e4c5f",
+    "6b525b89-ec46-49ef-bec9-cf6f4d4a716b",
+    "sentinel_instance_01",
+    "SEED_EXEC_test_iter1",
+    "quantifier_agent_primary",
+    "BOOTSTRAP"
+  ],
+  "edges": [
+    {
+      "source": "6b525b89-ec46-49ef-bec9-cf6f4d4a716b",
+      "target": "7b2557df-8ea2-4a4c-891b-fa8f6b984988",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "6b525b89-ec46-49ef-bec9-cf6f4d4a716b",
+      "target": "36fd2060-1a70-402b-afcb-4ba8d6c07b02",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "6b525b89-ec46-49ef-bec9-cf6f4d4a716b",
+      "target": "41b072bc-7bee-4074-b239-7a14546e4c5f",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    }
+  ],
+  "signals": [
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-07T15:21:03.592909",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "6b525b89-ec46-49ef-bec9-cf6f4d4a716b",
+      "payload": {
+        "seed_idea_id": "6b525b89-ec46-49ef-bec9-cf6f4d4a716b",
+        "text": "How does a dead lobster find its way into a suburban yard inland from an ocean?",
+        "metadata": {
+          "iteration": 1,
+          "total_iterations": 1,
+          "original_seed_id": "test",
+          "objective": "This is a true story and I am looking for logical explanations. A lobster was found in a 2 acre lawn at least 15 miles from the ocean. There are no resturants in the vicinity nor abnormal human or animal presence. The lobster was likely alive within the past 24 hours of being found on the lawn. Its body was fully intact. FHow did this happen?",
+          "depth": 0,
+          "seed_config_id": "test_iter1"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-07T15:21:17.948808",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "7b2557df-8ea2-4a4c-891b-fa8f6b984988",
+      "payload": {
+        "parent_id": "6b525b89-ec46-49ef-bec9-cf6f4d4a716b",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-07T15:21:17.949727",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "36fd2060-1a70-402b-afcb-4ba8d6c07b02",
+      "payload": {
+        "parent_id": "6b525b89-ec46-49ef-bec9-cf6f4d4a716b",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-07T15:21:17.950545",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "41b072bc-7bee-4074-b239-7a14546e4c5f",
+      "payload": {
+        "parent_id": "6b525b89-ec46-49ef-bec9-cf6f4d4a716b",
+        "depth": 0
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T15:21:03.579109",
+      "event_type": "BOOTSTRAP_COMPLETE",
+      "node_id": "BOOTSTRAP",
+      "details": {
+        "component_count": 59,
+        "run_id": "explorer_run_1751919663"
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T15:21:20.277524",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "41b072bc-7bee-4074-b239-7a14546e4c5f",
+      "details": {
+        "trust_score": 5.457151083573836,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T15:21:20.285263",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "36fd2060-1a70-402b-afcb-4ba8d6c07b02",
+      "details": {
+        "trust_score": 5.947209521609178,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T15:21:21.356909",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "7b2557df-8ea2-4a4c-891b-fa8f6b984988",
+      "details": {
+        "trust_score": 5.7223510835738365,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T15:22:03.600195",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 60.009292,
+        "total_ideas": 4,
+        "total_assessed": 3,
+        "coverage_percent": 75.0
+      }
+    }
+  ]
+}

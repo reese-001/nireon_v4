@@ -1,0 +1,15 @@
+digraph ExecutionDAG {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    "BOOTSTRAP" [label="BOOTSTRA...\nSYSTEM", fillcolor=lavender, style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifi...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "SEED_EXEC_prime counting_iter1" [label="SEED_EXE...\nSEED_EXECUTION", fillcolor=khaki, style="rounded,filled"];
+    "c9943fb7-c1f5-4f89-81d7-beffc0b51fc6" [label="c9943fb7...\nSEED_IDEA", fillcolor=lightgreen, style="rounded,filled"];
+    "da24ecdf-14a6-479a-8dc4-3587a68ce8a5" [label="da24ecdf...\nGENERATED_IDEA\n**Title: "The Paradox of Divin...", fillcolor=lightblue, style="rounded,filled"];
+    "446ecedc-b30c-4534-8452-3f22e51af361" [label="446ecedc...\nGENERATED_IDEA\n**Title: The Paradox of Infini...", fillcolor=lightblue, style="rounded,filled"];
+    "564044b5-49fc-4f9a-accd-a915cd51d802" [label="564044b5...\nGENERATED_IDEA\nTitle: "The Paradox of Knowled...", fillcolor=lightblue, style="rounded,filled"];
+    "c9943fb7-c1f5-4f89-81d7-beffc0b51fc6" -> "da24ecdf-14a6-479a-8dc4-3587a68ce8a5" [label="GENERATES\ndepth=0"];
+    "c9943fb7-c1f5-4f89-81d7-beffc0b51fc6" -> "446ecedc-b30c-4534-8452-3f22e51af361" [label="GENERATES\ndepth=0"];
+    "c9943fb7-c1f5-4f89-81d7-beffc0b51fc6" -> "564044b5-49fc-4f9a-accd-a915cd51d802" [label="GENERATES\ndepth=0"];
+}

@@ -1,0 +1,130 @@
+{
+  "nodes": [
+    "454d6fbe-2198-47e7-83b9-9290aa2737cf",
+    "SEED_EXEC_test_iter1",
+    "BOOTSTRAP",
+    "c63818b9-a1e6-435a-ab3b-ca2b5fd18051",
+    "quantifier_agent_primary",
+    "77ef5f05-9825-4bcf-8aea-d48f13b7551e",
+    "sentinel_instance_01",
+    "5bff9ecf-d757-4335-bb6a-4ecd4b02f108"
+  ],
+  "edges": [
+    {
+      "source": "5bff9ecf-d757-4335-bb6a-4ecd4b02f108",
+      "target": "77ef5f05-9825-4bcf-8aea-d48f13b7551e",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "5bff9ecf-d757-4335-bb6a-4ecd4b02f108",
+      "target": "c63818b9-a1e6-435a-ab3b-ca2b5fd18051",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "5bff9ecf-d757-4335-bb6a-4ecd4b02f108",
+      "target": "454d6fbe-2198-47e7-83b9-9290aa2737cf",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    }
+  ],
+  "signals": [
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-07T17:00:44.440233",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "5bff9ecf-d757-4335-bb6a-4ecd4b02f108",
+      "payload": {
+        "seed_idea_id": "5bff9ecf-d757-4335-bb6a-4ecd4b02f108",
+        "text": "How does a dead lobster find its way into a suburban yard inland from an ocean?",
+        "metadata": {
+          "iteration": 1,
+          "total_iterations": 1,
+          "original_seed_id": "test",
+          "objective": "This is a true story and I am looking for logical explanations. A lobster was found in a 2 acre lawn at least 15 miles from the ocean. There are no resturants in the vicinity nor abnormal human or animal presence. The lobster was likely alive within the past 24 hours of being found on the lawn. Its body was fully intact. FHow did this happen?",
+          "depth": 0,
+          "seed_config_id": "test_iter1"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-07T17:00:59.758644",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "77ef5f05-9825-4bcf-8aea-d48f13b7551e",
+      "payload": {
+        "parent_id": "5bff9ecf-d757-4335-bb6a-4ecd4b02f108",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-07T17:00:59.759641",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "c63818b9-a1e6-435a-ab3b-ca2b5fd18051",
+      "payload": {
+        "parent_id": "5bff9ecf-d757-4335-bb6a-4ecd4b02f108",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-07T17:00:59.762729",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "454d6fbe-2198-47e7-83b9-9290aa2737cf",
+      "payload": {
+        "parent_id": "5bff9ecf-d757-4335-bb6a-4ecd4b02f108",
+        "depth": 0
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T17:00:44.426499",
+      "event_type": "BOOTSTRAP_COMPLETE",
+      "node_id": "BOOTSTRAP",
+      "details": {
+        "component_count": 59,
+        "run_id": "explorer_run_1751925644"
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T17:00:59.763736",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-07T17:01:44.443211",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 60.002978,
+        "total_ideas": 4,
+        "total_assessed": 0,
+        "coverage_percent": 0.0
+      }
+    }
+  ]
+}

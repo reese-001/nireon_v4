@@ -200,6 +200,40 @@ class ManifestProcessingPhase(BootstrapPhase):
                             stats['instantiation_failures'] += 1
                             logger.error(error_msg, exc_info=True)
                 
+                # --- Observers ---
+                observers = manifest_data.get('observers', {})
+                for obs_id, obs_spec in observers.items():
+                    if obs_spec.get('enabled', True):
+                        try:
+                            # Create a definition that process_simple_component can understand
+                            simple_comp_def = {
+                                'component_id': obs_id,
+                                'class': obs_spec.get('class'),
+                                'type': 'observer', # This sets the category
+                                'config': obs_spec.get('config', {}),
+                                'config_override': obs_spec.get('config_override', {}),
+                                'enabled': obs_spec.get('enabled', True),
+                                'metadata_definition': obs_spec.get('metadata_definition'),
+                                'epistemic_tags': obs_spec.get('epistemic_tags', [])
+                            }
+                            # Use the existing helper function to process it
+                            await process_simple_component(
+                                simple_comp_def,
+                                context.registry,
+                                getattr(context, 'mechanism_factory', None),
+                                context.health_reporter,
+                                context.run_id,
+                                context.global_app_config,
+                                getattr(context, 'validation_data_store', None)
+                            )
+                            stats['components_instantiated'] += 1
+                            logger.debug(f'✓ Instantiated observer: {obs_id}')
+                        except Exception as e:
+                            error_msg = f'Failed to instantiate observer {obs_id}: {e}'
+                            errors.append(error_msg)
+                            stats['instantiation_failures'] += 1
+                            logger.error(error_msg, exc_info=True)
+                
                 # --- Orchestration Commands ---
                 orch_commands = manifest_data.get('orchestration_commands', {})
                 for cmd_id, cmd_spec in orch_commands.items():
@@ -215,8 +249,16 @@ class ManifestProcessingPhase(BootstrapPhase):
                             logger.error(error_msg, exc_info=True)
                 
                 stats['manifests_processed'] += 1
-                # Update stats to include the new section
-                stats['components_discovered'] += len(shared_services) + len(proto_engines) + len(composites) + len(mechanisms) + len(planners) + len(orch_commands)
+                stats['components_discovered'] += (
+                    len(shared_services) + 
+                    len(proto_engines) + 
+                    len(composites) + 
+                    len(mechanisms) + 
+                    len(planners) + 
+                    len(observers) + 
+                    len(manifest_data.get('managers', {})) + 
+                    len(orch_commands)
+                )
 
             except Exception as e:
                 error_msg = f'Exception processing manifest {manifest_path}: {e}'

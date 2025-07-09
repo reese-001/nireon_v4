@@ -1,0 +1,1 @@
+To render the Mermaid diagram, use a Mermaid live editor or integrate it into your Markdown files using the Mermaid syntax.

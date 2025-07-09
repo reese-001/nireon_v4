@@ -1,0 +1,265 @@
+{
+  "nodes": [
+    "proto_count_primes_and_visualize",
+    "proto_mermaid_diagram_prime_enumeration",
+    "b37cc62a-45a2-430c-8671-3caa161f3449",
+    "sentinel_instance_01",
+    "proto_count_primes_below_x",
+    "SEED_EXEC_prime counting",
+    "196cfeb0-dbeb-4454-8ebf-2c4e5174cd6f",
+    "quantifier_agent_primary",
+    "79a868c2-8bee-4a42-a485-2f48c4c32eda",
+    "proto_prime_enumeration_analysis",
+    "BOOTSTRAP",
+    "846c28a8-9947-4800-9e25-a74b4b20154d"
+  ],
+  "edges": [
+    {
+      "source": "b37cc62a-45a2-430c-8671-3caa161f3449",
+      "target": "846c28a8-9947-4800-9e25-a74b4b20154d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "b37cc62a-45a2-430c-8671-3caa161f3449",
+      "target": "196cfeb0-dbeb-4454-8ebf-2c4e5174cd6f",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "b37cc62a-45a2-430c-8671-3caa161f3449",
+      "target": "79a868c2-8bee-4a42-a485-2f48c4c32eda",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    }
+  ],
+  "signals": [
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T11:43:28.240716",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "b37cc62a-45a2-430c-8671-3caa161f3449",
+      "payload": {
+        "seed_idea_id": "b37cc62a-45a2-430c-8671-3caa161f3449",
+        "text": "How can we improve on the Pi(x) function to count the number of primes less than x more efficiently without using machine learning?",
+        "metadata": {
+          "iteration": 1,
+          "objective": "Explore advanced mathematical techniques to optimize the counting of prime numbers below a given threshold x. Focus on closed form solutions and algorithmic improvements. Do not consider machine learning or neural networks!",
+          "depth": 0,
+          "seed_config_id": "prime counting"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T11:43:38.590549",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "846c28a8-9947-4800-9e25-a74b4b20154d",
+      "payload": {
+        "parent_id": "b37cc62a-45a2-430c-8671-3caa161f3449",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T11:43:38.590549",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "196cfeb0-dbeb-4454-8ebf-2c4e5174cd6f",
+      "payload": {
+        "parent_id": "b37cc62a-45a2-430c-8671-3caa161f3449",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T11:43:38.592553",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "79a868c2-8bee-4a42-a485-2f48c4c32eda",
+      "payload": {
+        "parent_id": "b37cc62a-45a2-430c-8671-3caa161f3449",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T11:44:01.089344",
+      "signal_type": "ProtoTaskSignal",
+      "source": "quantifier_agent",
+      "target": "proto_count_primes_below_x",
+      "payload": {
+        "source_idea": null,
+        "eidos": "math"
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T11:44:02.181143",
+      "signal_type": "ProtoTaskSignal",
+      "source": "quantifier_agent",
+      "target": "proto_prime_enumeration_analysis",
+      "payload": {
+        "source_idea": null,
+        "eidos": "math"
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T11:44:02.586007",
+      "signal_type": "ProtoTaskSignal",
+      "source": "quantifier_agent",
+      "target": "proto_count_primes_and_visualize",
+      "payload": {
+        "source_idea": null,
+        "eidos": "math"
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T11:44:02.863380",
+      "signal_type": "ProtoTaskSignal",
+      "source": "quantifier_agent",
+      "target": "proto_count_primes_and_visualize",
+      "payload": {
+        "source_idea": null,
+        "eidos": "math"
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T11:44:05.998202",
+      "signal_type": "ProtoTaskSignal",
+      "source": "quantifier_agent",
+      "target": "proto_mermaid_diagram_prime_enumeration",
+      "payload": {
+        "source_idea": null,
+        "eidos": "math"
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T11:43:28.237347",
+      "event_type": "BOOTSTRAP_COMPLETE",
+      "node_id": "BOOTSTRAP",
+      "details": {
+        "component_count": 59,
+        "run_id": "explorer_run_1751733808"
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T11:43:41.189754",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "79a868c2-8bee-4a42-a485-2f48c4c32eda",
+      "details": {
+        "trust_score": 6.784834220832332,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T11:43:41.505869",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "196cfeb0-dbeb-4454-8ebf-2c4e5174cd6f",
+      "details": {
+        "trust_score": 6.781534220832333,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T11:43:43.232115",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "846c28a8-9947-4800-9e25-a74b4b20154d",
+      "details": {
+        "trust_score": 6.835762550517282,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T11:44:01.090902",
+      "event_type": "QUANTIFIER_TRIGGERED",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "loop_finished": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T11:44:02.181143",
+      "event_type": "QUANTIFIER_TRIGGERED",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "loop_finished": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T11:44:02.586007",
+      "event_type": "QUANTIFIER_TRIGGERED",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "loop_finished": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T11:44:02.863924",
+      "event_type": "QUANTIFIER_TRIGGERED",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "loop_finished": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T11:44:05.998719",
+      "event_type": "QUANTIFIER_TRIGGERED",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "loop_finished": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T11:44:06.510831",
+      "event_type": "PROTO_EXECUTION_SUCCESS",
+      "node_id": "proto_mermaid_diagram_prime_enumeration",
+      "details": {
+        "success": true,
+        "proto_id": "proto_mermaid_diagram_prime_enumeration",
+        "artifacts": [
+          "C:\\Users\\erees\\Documents\\development\\nireon_v4\\runtime\\proto\\math\\artifacts\\proto_mermaid_diagram_prime_enumeration-f346ff7a_diagram.mmd",
+          "C:\\Users\\erees\\Documents\\development\\nireon_v4\\runtime\\proto\\math\\artifacts\\proto_mermaid_diagram_prime_enumeration-f346ff7a_mermaid_output.txt"
+        ]
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T11:44:06.510831",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 38.270115,
+        "total_ideas": 4,
+        "total_assessed": 3,
+        "coverage_percent": 75.0
+      }
+    }
+  ]
+}

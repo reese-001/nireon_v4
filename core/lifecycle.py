@@ -4,7 +4,7 @@ import logging
 import threading
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Set, Type, Protocol, TypeVar, Union, Callable
+from typing import Any, Dict, List, Optional, Set, Type, Protocol, TypeVar, Union, Callable, Literal
 from functools import cached_property
 import hashlib
 
@@ -37,6 +37,9 @@ class ComponentMetadata:
     conflicts_with: Set[str] = field(default_factory=set)
     runtime_state: Dict[str, Any] = field(default_factory=dict)
     _validation_rules: List[Callable[[ComponentMetadata], bool]] = field(default_factory=list, repr=False)
+    
+    # NEW FIELD: Interaction pattern for Reactor behavior
+    interaction_pattern: Optional[Literal['producer', 'processor', 'service', 'unknown']] = 'unknown'
 
     def __post_init__(self) -> None:
         if not all([self.id, self.name, self.version, self.category]):
@@ -58,6 +61,11 @@ class ComponentMetadata:
 
         if not isinstance(self.requires_initialize, bool):
             raise TypeError(f"'requires_initialize' for component '{self.id}' must be a boolean.")
+            
+        # Validate interaction_pattern
+        valid_patterns = {'producer', 'processor', 'service', 'unknown', None}
+        if self.interaction_pattern not in valid_patterns:
+            raise ValueError(f"Invalid interaction_pattern '{self.interaction_pattern}' for component '{self.id}'. Must be one of: {valid_patterns}")
 
         self._validate_version_format()
         self._validate_dependencies()
@@ -148,7 +156,8 @@ class ComponentMetadata:
             'capabilities': sorted(list(self.capabilities)),
             'accepts': sorted(self.accepts),
             'produces': sorted(self.produces),
-            'requires_initialize': self.requires_initialize
+            'requires_initialize': self.requires_initialize,
+            'interaction_pattern': self.interaction_pattern
         }
         json_str = json.dumps(data, sort_keys=True)
         return hashlib.sha256(json_str.encode()).hexdigest()[:16]

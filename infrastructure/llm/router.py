@@ -181,9 +181,9 @@ class LLMRouter(NireonBaseComponent, LLMPort):
         
         # Enhanced backend retrieval logging
         try:
-            component_logger.info(f"LLMRouter '{self.component_id}': Attempting to get backend '{backend_key}'")
+            component_logger.debug(f"LLMRouter '{self.component_id}': Attempting to get backend '{backend_key}'")
             backend = await self._lazy_get_backend(backend_key)
-            component_logger.info(f"LLMRouter '{self.component_id}': Successfully got backend '{backend_key}' of type {type(backend).__name__}")
+            component_logger.debug(f"LLMRouter '{self.component_id}': Successfully got backend '{backend_key}' of type {type(backend).__name__}")
         except KeyError as e:
             component_logger.error(f"LLMRouter '{self.component_id}': Backend key '{backend_key}' (from route '{logical_route}') not found or failed to load. {e}")
             raise LLMBackendNotAvailableError(f"LLM backend '{backend_key}' not available.", details={'backend_key': backend_key}) from e
@@ -206,12 +206,12 @@ class LLMRouter(NireonBaseComponent, LLMPort):
             call_start = time.time()
             
             # Log right before the actual call
-            component_logger.info(f"LLMRouter '{self.component_id}': About to call backend.call_llm_async() at {call_start}")
+            component_logger.debug(f"LLMRouter '{self.component_id}': About to call backend.call_llm_async() at {call_start}")
             
             llm_response_obj = await backend.call_llm_async(prompt, stage=stage, role=role, context=context, settings=final_llm_params)
             
             call_duration = time.time() - call_start
-            component_logger.info(f"LLMRouter '{self.component_id}': LLM call completed successfully in {call_duration:.2f}s")
+            component_logger.debug(f"LLMRouter '{self.component_id}': LLM call completed successfully in {call_duration:.2f}s")
             
             # Log response details
             response_text = llm_response_obj.text
@@ -228,6 +228,8 @@ class LLMRouter(NireonBaseComponent, LLMPort):
         except Exception as e:
             call_duration = time.time() - call_start
             component_logger.error(f"LLMRouter '{self.component_id}': Error calling backend '{backend_key}' after {call_duration:.2f}s: {type(e).__name__}: {e}", exc_info=True)
+            component_logger.debug(f"LLMRouter '{self.component_id}': Error details: {e}", exc_info=True)
+            component_logger.debug(f"LLMRouter '{self.component_id}': Prompt: {prompt}, Logical route: {logical_route}")
             error_details = str(e)
             if self._enable_metrics and ENHANCEMENTS_AVAILABLE:
                 duration_ms = (time.time() - start_time) * 1000

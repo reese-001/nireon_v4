@@ -1,0 +1,252 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-08T21:31:28.445664",
+    "version": "1.0",
+    "config": {
+      "bootstrap": {
+        "manifest": "configs/manifests/standard.yaml",
+        "strict_mode": false
+      },
+      "execution": {
+        "timeout": 120,
+        "iterations": 1,
+        "parallel_execution": false,
+        "completion_condition": {
+          "type": "timeout"
+        }
+      },
+      "debug": {
+        "log_level": "INFO",
+        "enable_reactor_rules_check": true,
+        "enable_quantifier_check": true,
+        "quiet_loggers": [
+          "httpx",
+          "httpcore",
+          "openai",
+          "anthropic"
+        ]
+      },
+      "dag_logging": {
+        "enabled": true,
+        "output_dir": "./dag_logs",
+        "visualization": {
+          "auto_generate": true,
+          "formats": [
+            "graphviz",
+            "mermaid",
+            "json"
+          ]
+        },
+        "performance": {
+          "buffer_size": 1000,
+          "async_write": true
+        }
+      },
+      "reporting": {
+        "report_dir": "./reports",
+        "generate_json": true,
+        "generate_html": true,
+        "generate_csv_summary": true,
+        "include_dag_visualization": true
+      },
+      "criteria": {
+        "min_trust_score_for_quantifier": 6.0,
+        "max_depth": 6
+      },
+      "seeds": [
+        {
+          "id": "prime counting",
+          "text": "Develop a comprehensive and innovative philisophical proof that Mormonism cannot be true.",
+          "objective": "Do not focus on the religious aspects, but rather on the philosophical implications and logical structure of the belief system. Insist on a novel approach that challenges conventional reasoning and creates a new understanding of the topic.",
+          "tags": [
+            "math",
+            "philosophy",
+            "theory"
+          ]
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_runs": 1,
+    "successful_runs": 1,
+    "failed_runs": 0,
+    "success_rate": 100.0,
+    "total_ideas": 4,
+    "total_assessed": 3,
+    "total_high_trust": 3,
+    "proto_triggered_count": 0,
+    "avg_ideas_per_run": 4.0,
+    "avg_assessment_coverage": 75.0
+  },
+  "results": [
+    {
+      "seed_id": "prime counting_iter1",
+      "seed_text": "Develop a comprehensive and innovative philisophical proof that Mormonism cannot be true.",
+      "objective": "Do not focus on the religious aspects, but rather on the philosophical implications and logical structure of the belief system. Insist on a novel approach that challenges conventional reasoning and creates a new understanding of the topic.",
+      "test_passed": true,
+      "failure_reason": null,
+      "start_time": "2025-07-08T21:30:47.339115",
+      "end_time": "2025-07-08T21:31:27.424018",
+      "duration_seconds": 40.084903,
+      "run_data": {
+        "seed_idea": {
+          "id": "00ab1d35-c433-4475-9407-719db3e340d4",
+          "text": "Develop a comprehensive and innovative philisophical proof that Mormonism cannot be true.",
+          "trust_score": null,
+          "is_stable": null,
+          "variations": {
+            "27bc0647-3bb6-4a9b-bb88-a981ac8e46f7": {
+              "id": "27bc0647-3bb6-4a9b-bb88-a981ac8e46f7",
+              "text": "**Title: The Paradox of Infinite Revelation: A Philosophical Inquiry into the Nature of Truth in Mormonism**\n\n**Abstract:**\nThis exploration seeks to investigate the philosophical implications of Mormonism through the lens of infinite revelation and the nature of truth. By dissecting the belief system's core tenets, we will create a novel philosophical proof that challenges the foundational premises of Mormonism while avoiding direct critique of its religious aspects. The aim is to illuminate the logical structure and assumptions underlying the belief system, revealing inherent paradoxes that question its coherence and plausibility.\n\n**Introduction:**\nAt the heart of Mormonism lies the concept of continuous revelation—an assertion that divine truth can evolve and expand over time through prophetic voices. This foundational premise raises significant philosophical questions regarding the nature of truth, the possibility of an ultimate reality, and the implications of an ever-changing doctrine. Through this inquiry, we will develop a proof rooted in philosophical reasoning rather than theological critique.\n\n**I. The Nature of Truth: A Philosophical Overview**\n1. **Correspondence Theory of Truth:** Truth is often defined as that which corresponds to reality. If revelation can change, does it not imply that prior truths were contingent and not absolute?\n2. **Coherence Theory of Truth:** For a belief system to be true, it must not only correspond with reality but also be coherent within itself. We will examine if the fluidity of revelation leads to internal contradictions.\n\n**II. The Paradox of Infinite Revelation**\n1. **The Infinite Regression of Truth Claims:** Each new revelation must be evaluated against previous claims. If new truths can invalidate older ones, how can any truth claim be considered definitive? This presents a paradox: if truth is ever-evolving, it can never be fully grasped.\n2. **The Problem of Authority:** With multiple prophets and voices asserting new truths, how do adherents determine which revelation holds the most weight? This leads to a fragmentation of belief, undermining the unity of the faith.\n\n**III. The Implications of Temporal Validity**\n1. **Temporal vs. Eternal Truths:** If truths can change based on time and context, what does this say about the nature of the divine? Is the divine subject to temporal constraints, or does this suggest a limitation in our understanding of divinity?\n2. **Ethical Considerations:** If moral truths can shift over time, how does one navigate ethical dilemmas? The reliance on evolving revelation may lead to ethical relativism, challenging the concept of an absolute moral compass.\n\n**IV. The Challenge of Certainty in Faith**\n1. **Faith and Doubt:** In a system where beliefs can change, the certainty that typically accompanies faith is challenged. How can adherents hold unwavering faith when the foundations of their beliefs are inherently unstable?\n2. **The Existential Crisis of Belief:** The constant search for new revelations may lead to an existential crisis among believers—what if the next revelation contradicts the very core of their faith?\n\n**V. Conclusion: Reconstructing the Understanding of Truth**\nThrough this philosophical proof, we have explored the inherent contradictions and paradoxes present in the Mormon belief system regarding infinite revelation. By challenging the coherence and stability of its truth claims, we have illuminated the philosophical implications that arise from the assertion of continuous divine guidance. This inquiry invites a reevaluation of how we approach the concepts of truth, authority, and faith, ultimately leading to a deeper understanding of the philosophical landscape surrounding belief systems.\n\n**Final Thoughts:**\nIn the quest for truth, we must grapple with the paradoxes of belief and the implications of an evolving doctrine. By examining Mormonism from a philosophical perspective, we open the door to new interpretations and understandings of faith that transcend conventional religious dialogue, inviting a broader discourse on the nature of truth itself.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 6.313459018414839,
+              "is_stable": true,
+              "depth": 1,
+              "variations": {}
+            },
+            "98d95bc0-c7a4-4580-8697-fb71b278b4c2": {
+              "id": "98d95bc0-c7a4-4580-8697-fb71b278b4c2",
+              "text": "**Title: The Paradox of Absolute Certainty: A Philosophical Exploration of Belief Systems through the Lens of Mormonism**\n\n**Abstract:**  \nThis exploration seeks to transcend the traditional arguments against the veracity of Mormonism by delving into the philosophical implications of certainty, belief, and epistemology. By employing a novel approach that centers on the paradox of absolute certainty—wherein the assurance of truth leads to philosophical contradictions—we aim to unveil a deeper understanding of belief systems that transcends mere religious critique. \n\n**Introduction:**  \nAt the core of many belief systems, including Mormonism, lies a profound assertion of truth, often bolstered by claims of divine revelation and absolute knowledge. This paper proposes a philosophical proof that centers not on the truth of the specific doctrines of Mormonism, but rather on the implications of holding such beliefs with unwavering certainty. \n\n**The Premise of Certainty:**  \nMormonism, like many faiths, offers its followers a framework of absolute truth based on spiritual experiences and revelations. However, we must question: What happens when absolute certainty encounters the complexities of human understanding and the nature of knowledge itself? \n\n1. **The Problem of Epistemic Closure:**  \n   - *Argument:* If one is absolutely certain of their beliefs, they may close off their epistemic horizon, limiting their capacity for new information and alternate perspectives. This closure can lead to a dogmatic adherence that negates the very essence of philosophical inquiry, which thrives on questioning and revising beliefs in light of new evidence or arguments.\n   - *Implication:* The certainty that Mormonism claims may paradoxically undermine the intellectual integrity of its adherents, leading them to a state of philosophical stagnation rather than growth.\n\n2. **The Paradox of Revelation:**  \n   - *Argument:* The belief in continuous revelation as a cornerstone of Mormonism posits that new truths can emerge at any moment. However, if new revelations contradict previous ones, the foundational certainty of the belief system becomes unstable. This leads to the question: Can a belief system rooted in the fluidity of truth claim absolute certainty?\n   - *Implication:* The instability introduced by continuous revelation creates an inherent tension within the belief system that challenges its validity and coherence.\n\n3. **The Relativity of Moral Frameworks:**  \n   - *Argument:* Mormonism presents a specific moral and ethical framework that is said to be divinely inspired. However, moral relativism suggests that morality is culturally and contextually bound. If moral truths can vary across cultures, then the claim of absolute moral directives from a singular divine source becomes philosophically problematic.\n   - *Implication:* This relativity challenges the universal applicability of Mormon moral teachings, suggesting that they may be one of many valid interpretations of human ethics rather than the definitive guide.\n\n**Conclusion:**  \nThrough the examination of certainty, revelation, and morality, we highlight the philosophical tensions inherent in the belief system of Mormonism. Rather than dismissing its doctrines outright, this approach encourages a deeper inquiry into the nature of belief itself, revealing how the very structure of certainty can lead to contradictions that challenge the legitimacy of any absolute claim. \n\nBy reinterpreting the discourse surrounding Mormonism through these philosophical lenses, we not only engage with the specifics of this belief system but also contribute to a broader understanding of how all belief systems grapple with the paradoxes of truth, certainty, and knowledge. In doing so, we foster a more nuanced discourse that transcends mere religious critique, inviting individuals to reflect on the nature of their own beliefs in light of philosophical inquiry.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 6.1477128916582275,
+              "is_stable": true,
+              "depth": 1,
+              "variations": {}
+            },
+            "a524f06a-cf99-407c-a8c0-3278733cc26d": {
+              "id": "a524f06a-cf99-407c-a8c0-3278733cc26d",
+              "text": "Title: \"The Convergence of Rationality and Myth: A Philosophical Exploration of the Mormon Narrative\"\n\nAbstract: This paper seeks to explore the philosophical underpinnings of the belief system inherent in Mormonism by challenging its internal coherence and examining its implications within a broader metaphysical framework. Rather than focusing directly on the religious claims, we will analyze the philosophical constructs that underpin the belief system, presenting a novel critique that emphasizes the intersections of epistemology, metaphysics, and ethics.\n\n1. **Introduction: Beyond Faith and Doctrine**  \n   Introduce the premise of examining belief systems through a philosophical lens, arguing that any belief system can be scrutinized for its logical consistency and ethical implications, independent of its religious context. \n\n2. **The Structure of Belief: A Logical Analysis**  \n   Delve into the logical structure of key Mormon beliefs, such as the concept of continuing revelation, the nature of God, and the role of sacred texts. Employ modal logic to explore the implications of these beliefs on their own terms, assessing whether they create contradictions or paradoxes.\n\n3. **Epistemic Integrity: The Challenge of Knowledge Claims**  \n   Analyze the epistemological claims made within Mormonism, particularly those regarding personal revelation and the nature of truth. Compare these with established epistemic standards and theories, such as empiricism and rationalism. Propose that the subjective nature of personal revelation may undermine communal standards of truth.\n\n4. **Metaphysical Musings: The Universe and the Infinite**  \n   Explore the metaphysical claims surrounding the nature of God and the universe in Mormon theology. Investigate the implications of an infinite progression of gods and the potential contradictions that arise with the concept of eternal progression. Challenge the coherence of the cosmological narrative through a contemporary understanding of metaphysical necessity.\n\n5. **Ethical Considerations: The Moral Framework of Belief**  \n   Discuss the ethical implications of the belief system, particularly how the doctrine influences moral decision-making and societal norms. Analyze whether the proposed moral framework aligns with universal ethical theories or creates ethical dilemmas that challenge its foundational claims.\n\n6. **The Role of Myth and Narrative in Human Understanding**  \n   Examine how the narrative structure of Mormonism functions as a mythological framework, providing meaning and identity. Argue that while myths can serve important cultural and psychological functions, they may not hold up under rigorous philosophical scrutiny.\n\n7. **A Novel Paradigm: The Integration of Existential Philosophy**  \n   Integrate existential philosophy to explore the implications of living within a belief system that may lack objective grounding. Discuss the human experience of searching for meaning in a potentially flawed narrative, suggesting that this search can lead to a more authentic existence outside rigid belief structures.\n\n8. **Conclusion: Toward a Philosophical Synthesis**  \n   Summarize the findings and propose a philosophical synthesis that encourages a reevaluation of belief systems, advocating for a more critical and reflective approach to understanding truth, meaning, and existence. \n\nThis approach does not dismiss or belittle individual experiences but instead opens a dialogue about the philosophical implications of belief systems, encouraging a deeper understanding of the nature of truth and the human condition.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 6.1477128916582275,
+              "is_stable": true,
+              "depth": 1,
+              "variations": {}
+            }
+          }
+        },
+        "metadata": {
+          "run_start_time": "2025-07-08T21:30:47.341982",
+          "run_end_time": "2025-07-08T21:31:27.424018",
+          "total_ideas": 4,
+          "total_assessments": 3,
+          "high_trust_ideas": [
+            {
+              "idea_id": "27bc0647-3bb6-4a9b-bb88-a981ac8e46f7",
+              "trust_score": 6.313459018414839
+            },
+            {
+              "idea_id": "98d95bc0-c7a4-4580-8697-fb71b278b4c2",
+              "trust_score": 6.1477128916582275
+            },
+            {
+              "idea_id": "a524f06a-cf99-407c-a8c0-3278733cc26d",
+              "trust_score": 6.1477128916582275
+            }
+          ],
+          "max_depth_reached": 1,
+          "signals_received": {
+            "IdeaGeneratedSignal": 3,
+            "TrustAssessmentSignal": 3,
+            "ProtoTaskSignal": 0,
+            "GenerativeLoopFinishedSignal": 3
+          },
+          "duration_seconds": 40.082036,
+          "ideas_per_second": 0.09979532975819891,
+          "assessment_coverage": 75.0
+        },
+        "events": [
+          {
+            "timestamp": "2025-07-08T21:31:07.419167",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "27bc0647-3bb6-4a9b-bb88-a981ac8e46f7",
+              "parent_id": "00ab1d35-c433-4475-9407-719db3e340d4",
+              "source": "explorer_instance_01",
+              "depth": 1
+            }
+          },
+          {
+            "timestamp": "2025-07-08T21:31:07.420920",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "98d95bc0-c7a4-4580-8697-fb71b278b4c2",
+              "parent_id": "00ab1d35-c433-4475-9407-719db3e340d4",
+              "source": "explorer_instance_01",
+              "depth": 1
+            }
+          },
+          {
+            "timestamp": "2025-07-08T21:31:07.421938",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "a524f06a-cf99-407c-a8c0-3278733cc26d",
+              "parent_id": "00ab1d35-c433-4475-9407-719db3e340d4",
+              "source": "explorer_instance_01",
+              "depth": 1
+            }
+          },
+          {
+            "timestamp": "2025-07-08T21:31:12.499355",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "27bc0647-3bb6-4a9b-bb88-a981ac8e46f7",
+              "trust_score": 6.313459018414839,
+              "is_stable": true,
+              "high_trust": true
+            }
+          },
+          {
+            "timestamp": "2025-07-08T21:31:13.826813",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "98d95bc0-c7a4-4580-8697-fb71b278b4c2",
+              "trust_score": 6.1477128916582275,
+              "is_stable": true,
+              "high_trust": true
+            }
+          },
+          {
+            "timestamp": "2025-07-08T21:31:16.005130",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "a524f06a-cf99-407c-a8c0-3278733cc26d",
+              "trust_score": 6.1477128916582275,
+              "is_stable": true,
+              "high_trust": true
+            }
+          },
+          {
+            "timestamp": "2025-07-08T21:31:27.422513",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          },
+          {
+            "timestamp": "2025-07-08T21:31:27.520293",
+            "type": "branch_completed",
+            "details": {
+              "completion_status": "terminal_no_op",
+              "completion_reason": "Idea not viable for quantitative analysis"
+            }
+          }
+        ]
+      },
+      "summary_stats": {
+        "total_ideas": 4,
+        "total_assessed": 3,
+        "high_trust_count": 3,
+        "max_depth": 1,
+        "proto_triggered": false,
+        "signals_received": {
+          "IdeaGeneratedSignal": 3,
+          "TrustAssessmentSignal": 3,
+          "ProtoTaskSignal": 0,
+          "GenerativeLoopFinishedSignal": 3
+        }
+      }
+    }
+  ]
+}

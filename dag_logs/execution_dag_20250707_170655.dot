@@ -1,0 +1,15 @@
+digraph ExecutionDAG {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    "BOOTSTRAP" [label="BOOTSTRA...\nSYSTEM", fillcolor=lavender, style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifi...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "SEED_EXEC_test_iter1" [label="SEED_EXE...\nSEED_EXECUTION", fillcolor=khaki, style="rounded,filled"];
+    "6087bc58-514d-4978-9148-608294a94158" [label="6087bc58...\nSEED_IDEA", fillcolor=lightgreen, style="rounded,filled"];
+    "8e4b67a0-1cb4-4613-a6a3-c0aeb83746b5" [label="8e4b67a0...\nGENERATED_IDEA\nTitle: "The Curious Case of th...", fillcolor=lightblue, style="rounded,filled"];
+    "d60a39d6-39ef-4aab-9120-8c247a672b78" [label="d60a39d6...\nGENERATED_IDEA\n**Title: The Lobster’s Odyssey...", fillcolor=lightblue, style="rounded,filled"];
+    "6fd75eab-23d4-4b87-af71-862be5f588c2" [label="6fd75eab...\nGENERATED_IDEA\nTitle: "The Suburban Lobster O...", fillcolor=lightblue, style="rounded,filled"];
+    "6087bc58-514d-4978-9148-608294a94158" -> "8e4b67a0-1cb4-4613-a6a3-c0aeb83746b5" [label="GENERATES\ndepth=0"];
+    "6087bc58-514d-4978-9148-608294a94158" -> "d60a39d6-39ef-4aab-9120-8c247a672b78" [label="GENERATES\ndepth=0"];
+    "6087bc58-514d-4978-9148-608294a94158" -> "6fd75eab-23d4-4b87-af71-862be5f588c2" [label="GENERATES\ndepth=0"];
+}

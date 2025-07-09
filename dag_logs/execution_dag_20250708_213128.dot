@@ -1,0 +1,15 @@
+digraph ExecutionDAG {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    "BOOTSTRAP" [label="BOOTSTRA...\nSYSTEM", fillcolor=lavender, style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifi...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "SEED_EXEC_prime counting_iter1" [label="SEED_EXE...\nSEED_EXECUTION", fillcolor=khaki, style="rounded,filled"];
+    "00ab1d35-c433-4475-9407-719db3e340d4" [label="00ab1d35...\nSEED_IDEA", fillcolor=lightgreen, style="rounded,filled"];
+    "27bc0647-3bb6-4a9b-bb88-a981ac8e46f7" [label="27bc0647...\nGENERATED_IDEA\n**Title: The Paradox of Infini...", fillcolor=lightblue, style="rounded,filled"];
+    "98d95bc0-c7a4-4580-8697-fb71b278b4c2" [label="98d95bc0...\nGENERATED_IDEA\n**Title: The Paradox of Absolu...", fillcolor=lightblue, style="rounded,filled"];
+    "a524f06a-cf99-407c-a8c0-3278733cc26d" [label="a524f06a...\nGENERATED_IDEA\nTitle: "The Convergence of Rat...", fillcolor=lightblue, style="rounded,filled"];
+    "00ab1d35-c433-4475-9407-719db3e340d4" -> "27bc0647-3bb6-4a9b-bb88-a981ac8e46f7" [label="GENERATES\ndepth=1"];
+    "00ab1d35-c433-4475-9407-719db3e340d4" -> "98d95bc0-c7a4-4580-8697-fb71b278b4c2" [label="GENERATES\ndepth=1"];
+    "00ab1d35-c433-4475-9407-719db3e340d4" -> "a524f06a-cf99-407c-a8c0-3278733cc26d" [label="GENERATES\ndepth=1"];
+}

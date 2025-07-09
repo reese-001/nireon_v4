@@ -1,0 +1,58 @@
+version: "1.0"
+rules:
+  - id: "core_seed_to_explorer_rule"
+    description: "When a SeedSignal is detected, trigger the primary explorer."
+    namespace: "core"
+    priority: 10
+    enabled: false
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "SeedSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "explorer_instance_01"
+        input_data_mapping:
+          text: "payload.text"
+          id: "payload.seed_idea_id"
+          objective: "payload.metadata.objective"
+          metadata:
+            depth: 0
+            
+  - id: "idea_generated_to_trust_eval"
+    description: "When a new idea is generated, trigger the Sentinel (a Processor) to evaluate it."
+    namespace: "core_evaluation"
+    priority: 20
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "IdeaGeneratedSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "sentinel_instance_01"
+        input_data_mapping:
+          target_idea_id: "payload.idea_id"
+          idea_text: "payload.idea_content"
+          objective: "payload.objective"
+          # Pass along other context if Sentinel needs it
+          # e.g., parent_id: "payload.parent_id"
+          
+  # REMOVED: low_quality_loop_finisher and high_trust_stable_loop_finisher
+  # The Reactor now automatically promotes Sentinel's ProcessResult to TrustAssessmentSignal
+  # Other rules can then act on the clean TrustAssessmentSignal
+  
+  - id: "error_notification"
+    description: "Log and notify on critical errors"
+    namespace: "system"
+    priority: 1
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "ErrorSignal"
+      - type: "payload_expression"
+        expression: "payload.error_type == 'critical'"
+    actions:
+      - type: "emit_signal"
+        signal_type: "SYSTEM_ALERT"
+        payload:
+          severity: "critical"
+          requires_intervention: true

@@ -37,28 +37,44 @@ class RuleLoader:
 
     # ------------------------------------------------------------------ #
     def _load_rules_from_file(self, filepath: Path) -> None:
+        logger.info(f"Loading rules from file: {filepath}")  # You already added this
         try:
             data = yaml.safe_load(filepath.read_text())
-            if not data or "rules" not in data:
+            if not data or 'rules' not in data:
                 logger.debug("No 'rules' key in %s – skipped", filepath.name)
                 return
-
-            if (ver := data.get("version", "1.0")) != "1.0":
+            if (ver := data.get('version', '1.0')) != '1.0':
                 logger.warning("Unexpected version '%s' in %s", ver, filepath.name)
-
-            for cfg in data["rules"]:
-                if not cfg.get("enabled", True):
+            
+            # Add this to track rules being loaded
+            file_rules = []
+            
+            for cfg in data['rules']:
+                if not cfg.get('enabled', True):
+                    logger.debug("Rule %s disabled - skipping", cfg.get('id', 'unknown'))
                     continue
                 if not self._validate_rule_config(cfg):
+                    logger.debug("Rule %s failed validation - skipping", cfg.get('id', 'unknown'))
                     continue
                 rule = self._create_rule_from_config(cfg)
                 if rule:
+                    # Check for duplicates
+                    existing_rule_ids = [r.rule_id for r in self.loaded_rules]
+                    if rule.rule_id in existing_rule_ids:
+                        logger.warning("DUPLICATE RULE ID '%s' from %s - will overwrite previous", 
+                                    rule.rule_id, filepath.name)
+                    
                     self.loaded_rules.append(rule)
-                    logger.debug("Rule %s loaded from %s", rule.rule_id, filepath.name)
+                    file_rules.append(rule.rule_id)
+                    logger.debug('Rule %s loaded from %s', rule.rule_id, filepath.name)
+            
+            # Log summary for this file
+            logger.info("Loaded %d rules from %s: %s", len(file_rules), filepath.name, file_rules)
+            
         except yaml.YAMLError as exc:
-            logger.error("YAML error in %s: %s", filepath, exc)
-        except Exception as exc:  # pragma: no cover
-            logger.exception("Failed to load %s: %s", filepath, exc)
+            logger.error('YAML error in %s: %s', filepath, exc)
+        except Exception as exc:
+            logger.exception('Failed to load %s: %s', filepath, exc)
 
     # ------------------------------------------------------------------ #
     @staticmethod

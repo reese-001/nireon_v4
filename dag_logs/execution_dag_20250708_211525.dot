@@ -1,0 +1,15 @@
+digraph ExecutionDAG {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    "BOOTSTRAP" [label="BOOTSTRA...\nSYSTEM", fillcolor=lavender, style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifi...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "SEED_EXEC_prime counting_iter1" [label="SEED_EXE...\nSEED_EXECUTION", fillcolor=khaki, style="rounded,filled"];
+    "c56a336b-435b-43d5-b0bf-0c4e7245d9e4" [label="c56a336b...\nSEED_IDEA", fillcolor=lightgreen, style="rounded,filled"];
+    "dbc00ed4-c76a-4dd4-9949-03401b09b59b" [label="dbc00ed4...\nGENERATED_IDEA\nTitle: "The Paradox of Certain...", fillcolor=lightblue, style="rounded,filled"];
+    "dc0cb0b5-f4d4-4db9-9c61-58a29ffbe656" [label="dc0cb0b5...\nGENERATED_IDEA\n### Title: "The Paradox of Div...", fillcolor=lightblue, style="rounded,filled"];
+    "6071e3ae-03ec-480a-8d25-9bd1be608cdf" [label="6071e3ae...\nGENERATED_IDEA\nTitle: "The Paradox of Infinit...", fillcolor=lightblue, style="rounded,filled"];
+    "c56a336b-435b-43d5-b0bf-0c4e7245d9e4" -> "dbc00ed4-c76a-4dd4-9949-03401b09b59b" [label="GENERATES\ndepth=0"];
+    "c56a336b-435b-43d5-b0bf-0c4e7245d9e4" -> "dc0cb0b5-f4d4-4db9-9c61-58a29ffbe656" [label="GENERATES\ndepth=0"];
+    "c56a336b-435b-43d5-b0bf-0c4e7245d9e4" -> "6071e3ae-03ec-480a-8d25-9bd1be608cdf" [label="GENERATES\ndepth=0"];
+}

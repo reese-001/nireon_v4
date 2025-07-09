@@ -1,0 +1,15 @@
+digraph ExecutionDAG {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    "BOOTSTRAP" [label="BOOTSTRA...\nSYSTEM", fillcolor=lavender, style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifi...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "SEED_EXEC_prime counting" [label="SEED_EXE...\nSEED_EXECUTION", fillcolor=khaki, style="rounded,filled"];
+    "cd3200b0-e233-4a75-9479-165373546bb7" [label="cd3200b0...\nSEED_IDEA", fillcolor=lightgreen, style="rounded,filled"];
+    "73e61398-f09e-47a6-b25e-6a988a43fc15" [label="73e61398...\nGENERATED_IDEA\nTo tackle the problem of effic...", fillcolor=lightblue, style="rounded,filled"];
+    "1ae21bb5-715e-4902-a239-ba7be114ffbd" [label="1ae21bb5...\nGENERATED_IDEA\nTo explore advanced mathematic...", fillcolor=lightblue, style="rounded,filled"];
+    "300658b0-caaf-4740-a3ca-e7e699ae473a" [label="300658b0...\nGENERATED_IDEA\nTo enhance the efficiency of c...", fillcolor=lightblue, style="rounded,filled"];
+    "cd3200b0-e233-4a75-9479-165373546bb7" -> "73e61398-f09e-47a6-b25e-6a988a43fc15" [label="GENERATES\ndepth=0"];
+    "cd3200b0-e233-4a75-9479-165373546bb7" -> "1ae21bb5-715e-4902-a239-ba7be114ffbd" [label="GENERATES\ndepth=0"];
+    "cd3200b0-e233-4a75-9479-165373546bb7" -> "300658b0-caaf-4740-a3ca-e7e699ae473a" [label="GENERATES\ndepth=0"];
+}

@@ -1,0 +1,229 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-07T17:06:13.706928",
+    "version": "1.0",
+    "config": {
+      "bootstrap": {
+        "manifest": "configs/manifests/standard.yaml",
+        "strict_mode": false
+      },
+      "execution": {
+        "timeout": 60,
+        "iterations": 1,
+        "parallel_execution": false,
+        "completion_condition": {
+          "type": "all_assessed"
+        }
+      },
+      "debug": {
+        "log_level": "INFO",
+        "enable_reactor_rules_check": true,
+        "enable_quantifier_check": true,
+        "quiet_loggers": [
+          "httpx",
+          "httpcore",
+          "openai",
+          "anthropic"
+        ]
+      },
+      "dag_logging": {
+        "enabled": true,
+        "output_dir": "./dag_logs",
+        "capture": {
+          "nodes": true,
+          "edges": true,
+          "signals": true,
+          "events": true
+        },
+        "visualization": {
+          "auto_generate": true,
+          "formats": [
+            "graphviz",
+            "mermaid",
+            "json"
+          ]
+        },
+        "performance": {
+          "buffer_size": 1000,
+          "async_write": true
+        }
+      },
+      "reporting": {
+        "report_dir": "./reports",
+        "generate_json": true,
+        "generate_html": true,
+        "generate_csv_summary": true,
+        "include_dag_visualization": true
+      },
+      "criteria": {
+        "min_trust_score_for_quantifier": 6.0,
+        "max_depth": 5
+      },
+      "seeds": [
+        {
+          "id": "test",
+          "text": "How does a dead lobster find its way into a suburban yard inland from an ocean?",
+          "objective": "This is a true story and I am looking for logical explanations. A lobster was found in a 2 acre lawn at least 15 miles from the ocean. There are no resturants in the vicinity nor abnormal human or animal presence. The lobster was likely alive within the past 24 hours of being found on the lawn. Its body was fully intact. FHow did this happen?",
+          "tags": [
+            "biology",
+            "navigation",
+            "marine life"
+          ]
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_runs": 1,
+    "successful_runs": 0,
+    "failed_runs": 1,
+    "success_rate": 0.0,
+    "total_ideas": 4,
+    "total_assessed": 3,
+    "total_high_trust": 0,
+    "proto_triggered_count": 0,
+    "avg_ideas_per_run": 4.0,
+    "avg_assessment_coverage": 75.0
+  },
+  "results": [
+    {
+      "seed_id": "test_iter1",
+      "seed_text": "How does a dead lobster find its way into a suburban yard inland from an ocean?",
+      "objective": "This is a true story and I am looking for logical explanations. A lobster was found in a 2 acre lawn at least 15 miles from the ocean. There are no resturants in the vicinity nor abnormal human or animal presence. The lobster was likely alive within the past 24 hours of being found on the lawn. Its body was fully intact. FHow did this happen?",
+      "test_passed": false,
+      "failure_reason": "Timeout after 60s",
+      "start_time": "2025-07-07T17:05:13.693353",
+      "end_time": "2025-07-07T17:06:13.705933",
+      "duration_seconds": 60.01258,
+      "run_data": {
+        "seed_idea": {
+          "id": "eba3ae2a-a6ef-4d7a-a529-bb889f8ad7eb",
+          "text": "How does a dead lobster find its way into a suburban yard inland from an ocean?",
+          "trust_score": null,
+          "is_stable": null,
+          "variations": {
+            "58e96a50-3054-46bc-9eab-5fa19681c408": {
+              "id": "58e96a50-3054-46bc-9eab-5fa19681c408",
+              "text": "**Title: The Journey of the Lost Lobster**\n\nIn a quiet suburban neighborhood, a curious sight startled the residents: a bright red lobster lying in the middle of a lush two-acre lawn, a full 15 miles from the nearest ocean. The mystery deepened as the lobster appeared to be perfectly intact, suggesting it had been alive not long before being discovered. How did this crustacean embark on such an improbable journey?\n\n**Exploration of Possibilities:**\n\n1. **The Great Flood**: Just a day before the lobster was found, an intense storm swept through the region, causing a nearby river to overflow. The floodwaters could have dislodged the lobster from its natural habitat, carried it upstream, and deposited it in the suburban yard. This unlikely journey could have transformed the lobster into a wayward traveler, tossed about in the turbulent waters.\n\n2. **The Lobster Liberation**: A local seafood enthusiast, perhaps after a lobster boil, may have attempted to liberate a live lobster by tossing it into a nearby stream, thinking it would swim back to safety. Instead, the lobster could have gotten caught in a current, carried through a series of drainage systems, and eventually found itself in the yard after a night of adventure.\n\n3. **The Distraction of a Pet**: Imagine a playful dog, drawn by an unusual scent, digging in its owner’s yard. In its enthusiastic quest for a buried treasure, the dog could have unearthed a lobster that was previously hidden or concealed in a cooler near a barbecue area. The pet might have brought the crustacean home as a peculiar trophy, leading to confusion and curiosity.\n\n4. **A Curious Crustacean Conspiracy**: Perhaps a group of lobsters had planned an adventurous escape from an unsuspecting fisherman’s catch. Using teamwork and stealth, they made their way from a nearby dock, navigating through backyards and gardens, until one brave soul ventured too far and ended up stranded in the suburban wilderness.\n\n5. **The Bizarre Delivery**: What if a local food delivery driver had an unfortunate mishap? A shipment of live lobsters, destined for a restaurant far away, could have spilled during transport. One determined lobster, more persistent than the others, managed to free itself and wriggle its way to the nearest yard, seeking shelter and a new home.\n\n6. **The Secret Lobster Society**: In a whimsical twist, what if there was a secret society of lobsters that had developed the ability to teleport? Fed up with the dangers of the ocean, they decided to explore the land. One adventurous lobster, perhaps a rogue member of the society, miscalculated its teleportation and ended up in the suburban lawn, leaving the residents to wonder how it got there.\n\nEach of these scenarios, while imaginative, showcases the strange and wonderful possibilities that could explain the presence of a lobster far from its oceanic home. The true story lies somewhere between the absurd and the plausible, waiting for a curious mind to piece it together.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 5.4926108468691694,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            },
+            "fa1ea1ab-5fd8-4e50-bd8d-9f245192d47f": {
+              "id": "fa1ea1ab-5fd8-4e50-bd8d-9f245192d47f",
+              "text": "Title: \"The Lobster's Journey: A Tale of Tides and Time\"\n\nIn a quiet suburban neighborhood, nestled 15 miles inland from the crashing waves of the ocean, a perplexing mystery unfolded one serene afternoon. On a verdant 2-acre lawn, a fully intact lobster lay, its shell glistening under the sun, seemingly plucked from its marine habitat and dropped into this unexpected landlocked paradise.\n\nTo unravel the enigma of how this crustacean found itself so far from home, we must delve into a series of logical explanations, each woven together like the strands of the lobster's own antennae.\n\n**1. The Great Tide:**\nImagine a powerful storm surge, the kind that can sweep through coastal areas with surprising ferocity. During a tumultuous night, rising tides could have carried the lobster far from its usual rocky retreat, possibly dislodging it from its underwater sanctuary. As the storm subsided, the lobster might have been caught in the swirling currents, eventually expelled from the ocean, and landing in a nearby river or estuary.\n\n**2. Riverine Adventures:**\nOnce free of the ocean's grasp, the lobster could have been swept into a freshwater river system. As it journeyed upstream, it may have traversed various landscapes, pushed along by the relentless flow of water. This journey could have taken it through channels and tributaries, leading it farther inland, away from the salty embrace of the sea.\n\n**3. A Curious Human Touch:**\nWhile the lawn appeared untouched by human hands, consider the possibility of a local fisherman or an adventurous soul who, after a day by the ocean, decided to take home a lobster for dinner. Perhaps they changed their minds, opting to release the creature back into the wild. In an act of misguided generosity, they placed it in a nearby stream or pond, unaware that the lobster's future lay not in the depths of the water, but rather upon the lush grass of an unsuspecting lawn.\n\n**4. The Animal Highway:**\nAs the world of nature is interconnected, it's plausible that a local animal, such as a heron or a raccoon, discovered the lobster on its own journey. Intrigued by the unusual find, the animal could have transported the lobster to the suburban yard, perhaps dropping it in a moment of distraction or during a playful romp.\n\n**5. The Mysterious Displacement:**\nLastly, let’s entertain a more whimsical notion: the lobster could have been part of a bizarre riddle of nature—a genetic anomaly that somehow thrived in an unexpected environment. Perhaps, in a twist of fate, it had learned to navigate the land through an unexplainable instinct, leaving behind the comforts of the ocean for an adventure on solid ground, only to be found by curious onlookers who would later ponder its existence.\n\nIn this imaginative exploration, the journey of the lobster serves as a reminder of the unpredictable forces of nature and the mysteries that lie just beneath the surface—both of the ocean and our understanding of the world around us. The suburban lawn, once a mundane expanse of grass, transforms into the final resting place of a creature whose adventures bridged the gap between land and sea, leaving behind a tale of wonder for those who dare to ponder its origin.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 5.77031084686917,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            },
+            "95537d1c-ed8d-4f67-90e5-2b9d5960fdac": {
+              "id": "95537d1c-ed8d-4f67-90e5-2b9d5960fdac",
+              "text": "Title: \"The Curious Case of the Lobster in the Lawn\"\n\nIn a tranquil suburban neighborhood, an unexpected visitor turned the local community's attention: a dead lobster, perfectly preserved, lying in a sprawling two-acre lawn 15 miles from the nearest ocean. This peculiar occurrence sparked intrigue and speculation, prompting a quest for logical explanations.\n\n**The Theory of the Lobster's Journey:**\n\n1. **The Great Water Adventure**: Imagine a scenario where an adventurous fisherman, having caught a fresh lobster earlier that day, finds himself caught in an unexpected storm while out at sea. With rough waves tossing his boat about, he decides to throw the lobster back into the water. However, the lobster, instead of sinking to the bottom, is swept away by an unusually strong current, which carries it far inland, possibly through a series of tidal rivers or estuaries, eventually depositing it on the suburban lawn.\n\n2. **The Magical Transport**: What if the lobster was part of a whimsical scientific experiment involving teleportation? A local scientist, trying to perfect a teleportation device, accidentally sends the lobster from a nearby marine research facility directly into the yard of an unsuspecting homeowner. The device malfunctions, and the lobster appears, still intact, to the surprise of the locals.\n\n3. **The Curious Case of the Overflowing Aquarium**: Picture a scenario where a neighborhood aquarium enthusiast has been overzealous in maintaining their aquatic pets. After cleaning out their tank, they accidentally spill a bucket of water containing the lobster in a nearby storm drain. The rainwater carries the lobster through a network of pipes and drains, which leads directly to the lush suburban lawn, leaving it there to be discovered.\n\n4. **Urban Legends and Lobster Lore**: Perhaps there exists a local urban legend about lobsters that wander far from their ocean homes on special nights. A group of kids decides to have a fun adventure on a summer evening, going out to catch a glimpse of these fabled lobsters. They are shocked to find one right in their own backyard, proving that magic sometimes happens in the most mundane places.\n\n5. **The Lobster’s Last Resort**: In a more somber version of the story, consider the plight of a lobster that managed to escape the clutches of a seagull or other predator. In its frantic search for safety, it might have found itself in a series of bizarre situations—being carried away by a large bird, getting tossed into a truck, or even being transported in a cooler by an unsuspecting traveler, who later parked their vehicle near the suburban area. \n\n**Conclusion**: The dead lobster in the suburban yard, while a puzzling phenomenon, invites creative reasoning and exploration of the unexpected connections between land and sea. Whether through natural curiosity, an imaginative tale, or a scientific mishap, the lobster’s journey sparks intrigue and serves as a reminder of the unpredictable nature of our world.",
+              "source_mechanism": "explorer_instance_01",
+              "trust_score": 5.90609026924459,
+              "is_stable": true,
+              "depth": 0,
+              "variations": {}
+            }
+          }
+        },
+        "metadata": {
+          "run_start_time": "2025-07-07T17:05:13.694352",
+          "run_end_time": "2025-07-07T17:06:13.705933",
+          "total_ideas": 4,
+          "total_assessments": 3,
+          "high_trust_ideas": [],
+          "max_depth_reached": 0,
+          "signals_received": {
+            "IdeaGeneratedSignal": 3,
+            "TrustAssessmentSignal": 3,
+            "ProtoTaskSignal": 0,
+            "GenerativeLoopFinishedSignal": 1
+          },
+          "duration_seconds": 60.011581,
+          "ideas_per_second": 0.06665380137210516,
+          "assessment_coverage": 75.0
+        },
+        "events": [
+          {
+            "timestamp": "2025-07-07T17:05:28.387118",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "58e96a50-3054-46bc-9eab-5fa19681c408",
+              "parent_id": "eba3ae2a-a6ef-4d7a-a529-bb889f8ad7eb",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-07T17:05:28.388114",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "fa1ea1ab-5fd8-4e50-bd8d-9f245192d47f",
+              "parent_id": "eba3ae2a-a6ef-4d7a-a529-bb889f8ad7eb",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-07T17:05:28.389419",
+            "type": "idea_generated",
+            "details": {
+              "idea_id": "95537d1c-ed8d-4f67-90e5-2b9d5960fdac",
+              "parent_id": "eba3ae2a-a6ef-4d7a-a529-bb889f8ad7eb",
+              "source": "explorer_instance_01",
+              "depth": 0
+            }
+          },
+          {
+            "timestamp": "2025-07-07T17:05:30.393630",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "58e96a50-3054-46bc-9eab-5fa19681c408",
+              "trust_score": 5.4926108468691694,
+              "is_stable": true,
+              "high_trust": false
+            }
+          },
+          {
+            "timestamp": "2025-07-07T17:05:30.401262",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "fa1ea1ab-5fd8-4e50-bd8d-9f245192d47f",
+              "trust_score": 5.77031084686917,
+              "is_stable": true,
+              "high_trust": false
+            }
+          },
+          {
+            "timestamp": "2025-07-07T17:05:30.740549",
+            "type": "trust_assessment",
+            "details": {
+              "idea_id": "95537d1c-ed8d-4f67-90e5-2b9d5960fdac",
+              "trust_score": 5.90609026924459,
+              "is_stable": true,
+              "high_trust": false
+            }
+          }
+        ]
+      },
+      "summary_stats": {
+        "total_ideas": 4,
+        "total_assessed": 3,
+        "high_trust_count": 0,
+        "max_depth": 0,
+        "proto_triggered": false,
+        "signals_received": {
+          "IdeaGeneratedSignal": 3,
+          "TrustAssessmentSignal": 3,
+          "ProtoTaskSignal": 0,
+          "GenerativeLoopFinishedSignal": 1
+        }
+      }
+    }
+  ]
+}

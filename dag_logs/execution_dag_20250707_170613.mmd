@@ -1,0 +1,17 @@
+graph TD
+    BOOTSTRAP[BOOTSTRA...<br/>SYSTEM]
+    sentinel_instance_01[sentinel...<br/>COMPONENT]:::component
+    quantifier_agent_primary[quantifi...<br/>COMPONENT]:::component
+    SEED_EXEC_test_iter1[SEED_EXE...<br/>SEED_EXECUTION]
+    eba3ae2a_a6ef_4d7a_a529_bb889f8ad7eb[eba3ae2a...<br/>SEED_IDEA]:::seed
+    58e96a50_3054_46bc_9eab_5fa19681c408[58e96a50...<br/>GENERATED_IDEA]:::idea
+    fa1ea1ab_5fd8_4e50_bd8d_9f245192d47f[fa1ea1ab...<br/>GENERATED_IDEA]:::idea
+    95537d1c_ed8d_4f67_90e5_2b9d5960fdac[95537d1c...<br/>GENERATED_IDEA]:::idea
+    eba3ae2a_a6ef_4d7a_a529_bb889f8ad7eb -->|GENERATES| 58e96a50_3054_46bc_9eab_5fa19681c408
+    eba3ae2a_a6ef_4d7a_a529_bb889f8ad7eb -->|GENERATES| fa1ea1ab_5fd8_4e50_bd8d_9f245192d47f
+    eba3ae2a_a6ef_4d7a_a529_bb889f8ad7eb -->|GENERATES| 95537d1c_ed8d_4f67_90e5_2b9d5960fdac
+
+    classDef seed fill:#90EE90,stroke:#333,stroke-width:2px;
+    classDef idea fill:#ADD8E6,stroke:#333,stroke-width:2px;
+    classDef proto fill:#FFA500,stroke:#333,stroke-width:2px;
+    classDef component fill:#FFB6C1,stroke:#333,stroke-width:2px;

@@ -1,0 +1,16 @@
+# FILE: configs/reactor/rules/proto_routing.yaml
+version: "1.0"
+rules:
+  - id: "route_proto_task_to_gateway"
+    enabled: true
+    namespace: "proto_plane_routing"
+    priority: 50
+    description: "Routes a ProtoTaskSignal to the main ProtoGateway for execution."
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "ProtoTaskSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "proto_gateway_main"
+        input_data_mapping:
+          signal: "signal" # The ProtoGateway expects the entire signal object in its input data under the 'signal' key.

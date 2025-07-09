@@ -1,0 +1,15 @@
+digraph ExecutionDAG {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    "BOOTSTRAP" [label="BOOTSTRA...\nSYSTEM", fillcolor=lavender, style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifi...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "SEED_EXEC_test_iter1" [label="SEED_EXE...\nSEED_EXECUTION", fillcolor=khaki, style="rounded,filled"];
+    "b07559b0-b0fa-4851-80f1-577f14016053" [label="b07559b0...\nSEED_IDEA", fillcolor=lightgreen, style="rounded,filled"];
+    "8be85e2b-d2a1-4aeb-97fb-f7787d267300" [label="8be85e2b...\nGENERATED_IDEA\n**Title: The Lobster’s Unlikel...", fillcolor=lightblue, style="rounded,filled"];
+    "da4c48c9-32b8-4148-9795-eac121e5b72c" [label="da4c48c9...\nGENERATED_IDEA\nTitle: "The Curious Case of th...", fillcolor=lightblue, style="rounded,filled"];
+    "9edd3874-971d-4737-ae56-09b282e2795e" [label="9edd3874...\nGENERATED_IDEA\nTitle: "The Curious Case of th...", fillcolor=lightblue, style="rounded,filled"];
+    "b07559b0-b0fa-4851-80f1-577f14016053" -> "8be85e2b-d2a1-4aeb-97fb-f7787d267300" [label="GENERATES\ndepth=1"];
+    "b07559b0-b0fa-4851-80f1-577f14016053" -> "da4c48c9-32b8-4148-9795-eac121e5b72c" [label="GENERATES\ndepth=1"];
+    "b07559b0-b0fa-4851-80f1-577f14016053" -> "9edd3874-971d-4737-ae56-09b282e2795e" [label="GENERATES\ndepth=1"];
+}

@@ -1,0 +1,677 @@
+# Concatenated NIREON Rules
+# Generated: 2025-06-26 14:57:44
+# Source files: 5
+
+# ============================================================
+# Source: configs\reactor\rules\advanced.yaml
+# ============================================================
+
+# C:\Users\erees\Documents\development\nireon_v4\configs\reactor\rules\advanced.yaml
+version: "1.0"
+rules:
+  - id: "high_trust_idea_amplification"
+    description: "Amplify ideas with high trust scores by feeding them to the Catalyst."
+    namespace: "trust"
+    priority: 10
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_expression"
+        expression: "signal.trust_score > 8.0 and payload.novelty_score > 0.6"
+    actions:
+      - type: "trigger_component"
+        component_id: "catalyst_instance_01"
+        template_id: "AMPLIFY_HIGH_TRUST"
+        input_data_mapping:
+          target_idea_id: "payload.idea_id"
+          objective: "payload.assessment_details.metadata.objective"
+  - id: "stagnation_detection"
+    description: "Detect and intervene on system-wide idea generation stagnation."
+    namespace: "health"
+    priority: 5
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "ComponentHealthSignal"
+      - type: "payload_expression"
+        expression: |
+          payload.metrics.ideas_generated_rate < 0.1 and 
+          payload.metrics.time_since_last_idea > 300
+    actions:
+      - type: "emit_signal"
+        signal_type: "StagnationDetectedSignal"
+        payload:
+          severity: "medium"
+          suggested_intervention: "increase_exploration"
+      - type: "trigger_component"
+        component_id: "explorer_instance_01"
+        input_data:
+          exploration_mode: "aggressive"
+          temperature: 0.9
+  - id: "cascade_error_handling"
+    description: "Handle cascading errors intelligently by triggering a recovery manager."
+    namespace: "error"
+    priority: 1
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "ErrorSignal"
+      - type: "payload_expression"
+        expression: |
+          payload.error_type == 'critical' and 
+          len(signal.parent_signal_ids) > 3
+    actions:
+      - type: "trigger_component"
+        component_id: "error_recovery_manager"
+        template_id: "CASCADE_RECOVERY"
+      - type: "emit_signal"
+        signal_type: "CIRCUIT_BREAKER_TRIGGERED"
+        payload:
+          component_id: "{{ signal.source_node_id }}"
+          cooldown_seconds: 60
+  - id: "route_business_idea_to_quantifier_fixed"
+    description: "When a high-trust idea about business or finance is stable, send it to the QuantifierAgent for modeling."
+    namespace: "synthesis_loop"
+    priority: 40
+    enabled: false
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_expression"
+        expression: |
+          payload.is_stable == True and
+          signal.trust_score is not None and
+          signal.trust_score > 6.0 and
+          (
+            (exists(payload.assessment_details.metadata.idea_text) and 
+            ('tariff' in lower(payload.assessment_details.metadata.idea_text) or 
+              'business' in lower(payload.assessment_details.metadata.idea_text) or 
+              'margin' in lower(payload.assessment_details.metadata.idea_text) or 
+              'supply chain' in lower(payload.assessment_details.metadata.idea_text) or
+              'retail' in lower(payload.assessment_details.metadata.idea_text) or
+              'Best Buy' in payload.assessment_details.metadata.idea_text or
+              'electronics' in lower(payload.assessment_details.metadata.idea_text) or
+              'competition' in lower(payload.assessment_details.metadata.idea_text) or
+              'strategy' in lower(payload.assessment_details.metadata.idea_text) or
+              'store' in lower(payload.assessment_details.metadata.idea_text)))
+            or
+            (exists(payload.assessment_details.metadata.objective) and
+            ('business' in lower(payload.assessment_details.metadata.objective) or
+              'strategy' in lower(payload.assessment_details.metadata.objective) or
+              'Best Buy' in payload.assessment_details.metadata.objective))
+          )
+    actions:
+      - type: "trigger_component"
+        component_id: "quantifier_agent_primary"
+        input_data_mapping:
+          idea_id: "payload.idea_id"
+          idea_text: "payload.assessment_details.metadata.idea_text"
+          assessment_details: "payload.assessment_details"
+  - id: "analyze_fractal_boundary_complexity"
+    description: "When Mandelbrot boundary analysis is complete, trigger an explorer to investigate the implications of its complexity."
+    namespace: "fractal_analysis"
+    priority: 50
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "MathProtoResultSignal"
+      - type: "payload_expression"
+        expression: "exists(signal.result.boundary_stats.std_dev_iterations) and signal.proto_block_id.startswith('proto_mandelbrot')"
+    actions:
+      - type: "emit_signal"
+        signal_type: "SeedSignal"
+        payload:
+          seed_idea_id: "fractal_complexity_seed_{{ signal.proto_block_id }}"
+          text: >
+            The boundary of the Mandelbrot set exhibits extreme complexity, with a standard deviation of 
+            {{ "%.2f"|format(signal.result.boundary_stats.std_dev_iterations) }} iterations in the escape-time algorithm.
+            This fractal, self-similar nature at all scales suggests that simple rules can lead to infinitely complex outcomes.
+          metadata:
+            objective: "Explore the philosophical and computational implications of the Mandelbrot set's boundary complexity. Relate it to concepts like undecidability, chaos theory, or the limits of formal systems."
+            source_proto_id: "{{ signal.proto_block_id }}"
+            source_artifacts: "{{ signal.artifacts }}"
+  - id: "low_trust_quarantine"
+    description: "Quarantine ideas with very low trust scores"
+    namespace: "trust"
+    priority: 5
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_expression"
+        expression: "signal.trust_score is not None and signal.trust_score < 0.2"
+    actions:
+      - type: "emit_signal"
+        signal_type: "IdeaQuarantinedSignal"
+        payload:
+          idea_id: "{{ payload.idea_id }}"
+          reason: "Low trust score"
+          trust_score: "{{ signal.trust_score }}"
+  - id: "memory_pressure_response"
+    description: "Respond to high memory usage"
+    namespace: "health"
+    priority: 1
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "SystemResourceSignal"
+      - type: "payload_expression"
+        expression: "payload.memory_usage_percent > 85"
+    actions:
+      - type: "emit_signal"
+        signal_type: "ResourcePressureSignal"
+        payload:
+          resource_type: "memory"
+          current_usage: "{{ payload.memory_usage_percent }}"
+          action_required: "cleanup"
+  - id: "production_business_quantifier"
+    description: "PRODUCTION: Trigger quantifier on business ideas using real data"
+    namespace: "business_production"
+    priority: 10
+    enabled: false
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "quantifier_agent_primary"
+        input_data_mapping:
+          idea_id: "payload.idea_id"
+          idea_text: "payload.idea_text"
+          assessment_details: "payload"
+
+# ============================================================
+# Source: configs\reactor\rules\core.yaml
+# ============================================================
+
+# Fixed core.yaml with single-line expressions
+
+version: "1.0"
+rules:
+  # Working rule for idea to trust evaluation
+  - id: "idea_generated_to_trust_eval"
+    description: "Trigger trust evaluation for new ideas"
+    namespace: "core"
+    priority: 20
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "IdeaGeneratedSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "sentinel_instance_01"
+        input_data_mapping:
+          target_idea_id: "payload.id"
+          frame_id: "payload.frame_id"
+          objective: "payload.objective"
+
+  # Complete loop after low trust assessment
+  - id: "low_quality_loop_finisher"
+    description: "Complete the loop for low-trust or unstable ideas"
+    namespace: "system"
+    priority: 100
+    enabled: false
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_expression"
+        expression: "payload.is_stable == False or signal.trust_score <= 6.0"
+    actions:
+      - type: "emit_signal"
+        signal_type: "GenerativeLoopFinishedSignal"
+        payload:
+          status: "completed_low_trust"
+          final_idea_id: "{{ payload.idea_id }}"
+          final_trust_score: "{{ signal.trust_score }}"
+          reason: "low_trust_or_unstable"
+
+  # Complete loop after high trust assessment - FIXED WITH SINGLE LINE
+  - id: "high_trust_stable_loop_finisher"
+    description: "Complete the loop for high-trust stable ideas"
+    namespace: "system"
+    priority: 150
+    enabled: false
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_expression"
+        expression: "payload.is_stable == True and signal.trust_score > 6.0"
+    actions:
+      - type: "emit_signal"
+        signal_type: "GenerativeLoopFinishedSignal"
+        payload:
+          status: "completed_high_trust"
+          final_idea_id: "{{ payload.idea_id }}"
+          final_trust_score: "{{ signal.trust_score }}"
+          reason: "high_trust_stable_complete"
+          quantifier_triggered: true
+
+  # Error notification
+  - id: "error_notification"
+    description: "Log and notify on critical errors"
+    namespace: "system"
+    priority: 1
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "ErrorSignal"
+      - type: "payload_expression"
+        expression: "payload.error_type == 'critical'"
+    actions:
+      - type: "emit_signal"
+        signal_type: "SYSTEM_ALERT"
+        payload:
+          severity: "critical"
+          requires_intervention: true
+
+# ============================================================
+# Source: configs\reactor\rules\debug.yaml
+# ============================================================
+
+version: "1.0"
+rules:
+  - id: "test_simple_trust_check"
+    description: "Test just trust score check"
+    namespace: "debug"
+    priority: 2
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_expression"
+        expression: "signal.trust_score > 6.0"
+    actions:
+      - type: "emit_signal"
+        signal_type: "GenerativeLoopFinishedSignal"
+        payload:
+          status: "debug_trust_check_passed"
+          final_idea_id: "debug"
+          final_trust_score: "{{ signal.trust_score }}"
+          reason: "trust_score_check_worked"
+          
+  - id: "test_nested_payload"
+    description: "Test accessing nested payload"
+    namespace: "debug"
+    priority: 3
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_expression"
+        expression: "payload.payload.is_stable == True"
+    actions:
+      - type: "emit_signal"
+        signal_type: "GenerativeLoopFinishedSignal"
+        payload:
+          status: "debug_nested_payload_worked"
+          final_idea_id: "{{ payload.payload.idea_id }}"
+          reason: "nested_payload_access_worked"
+          
+  - id: "test_combined_expression"
+    description: "Test combined trust and stable check"
+    namespace: "debug"
+    priority: 4
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_expression"
+        expression: "signal.trust_score > 6.0 and payload.payload.is_stable == True"
+    actions:
+      - type: "emit_signal"
+        signal_type: "GenerativeLoopFinishedSignal"
+        payload:
+          status: "debug_combined_check_passed"
+          final_idea_id: "{{ payload.payload.idea_id }}"
+          final_trust_score: "{{ signal.trust_score }}"
+          reason: "combined_expression_worked"
+          
+  - id: "test_quantifier_trigger"
+    description: "Test triggering quantifier with simplified expression"
+    namespace: "debug"
+    priority: 5
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_expression"
+        expression: "signal.trust_score > 6.0 and payload.payload.is_stable == True"
+    actions:
+      - type: "trigger_component"
+        component_id: "quantifier_agent_primary"
+        input_data:
+          idea_id: "{{ payload.payload.idea_id }}"
+          idea_text: "Test idea text from debug rule"
+          assessment_details:
+            trust_score: "{{ signal.trust_score }}"
+            is_stable: "{{ payload.payload.is_stable }}"
+  - id: "test_payload_exists"
+    description: "Test if payload exists at all"
+    namespace: "debug"
+    priority: 1
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_expression"
+        expression: "exists(payload)"
+    actions:
+      - type: "emit_signal"
+        signal_type: "DebugSignal"
+        payload:
+          debug_message: "payload exists"
+          
+  - id: "test_signal_payload_exists"
+    description: "Test if signal.payload exists"
+    namespace: "debug"
+    priority: 2
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_expression"
+        expression: "exists(signal.payload)"
+    actions:
+      - type: "emit_signal"
+        signal_type: "DebugSignal"
+        payload:
+          debug_message: "signal.payload exists"
+          
+  - id: "test_direct_is_stable"
+    description: "Test accessing is_stable directly from payload"
+    namespace: "debug"
+    priority: 3
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_expression"
+        expression: "payload.is_stable == True"
+    actions:
+      - type: "emit_signal"
+        signal_type: "GenerativeLoopFinishedSignal"
+        payload:
+          status: "direct_is_stable_worked"
+          reason: "payload.is_stable access worked"
+          
+  - id: "test_signal_payload_is_stable"
+    description: "Test accessing is_stable via signal.payload"
+    namespace: "debug"
+    priority: 4
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_expression"
+        expression: "signal.payload.is_stable == True"
+    actions:
+      - type: "emit_signal"
+        signal_type: "GenerativeLoopFinishedSignal"
+        payload:
+          status: "signal_payload_is_stable_worked"
+          reason: "signal.payload.is_stable access worked"
+          
+  - id: "always_match_for_debug"
+    description: "Always match to prevent timeout"
+    namespace: "debug"
+    priority: 100
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+    actions:
+      - type: "emit_signal"
+        signal_type: "GenerativeLoopFinishedSignal"
+        payload:
+          status: "debug_fallback"
+          reason: "no_expression_matched"
+
+# ============================================================
+# Source: configs\reactor\rules\planner.yaml
+# ============================================================
+
+# C:\Users\erees\Documents\development\nireon_v4\configs\reactor\rules\planner.yaml
+# FIXED VERSION 2
+
+version: "1.0"
+rules:
+  # This rule now ONLY matches a SeedSignal that does NOT come from the planner.
+  # This makes it specific to the initial trigger.
+  - id: "on_seed_trigger_planner"
+    description: "When a new seed is introduced from an external source, trigger the planner."
+    namespace: "planner_loop"
+    priority: 5
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "SeedSignal"
+      - type: "payload_expression"
+        # This is the key change: ensure the signal is not from the planner itself.
+        expression: "signal.source_node_id != 'active_planner'"
+    actions:
+      - type: "emit_signal"
+        signal_type: "PlanNextStepSignal"
+        source_node_id_override: "reactor"
+        session_id: "{{ signal.run_id }}_{{ signal.signal_id }}"
+        current_idea_id: "{{ payload.seed_idea_id }}"
+        current_idea_text: "{{ payload.text }}"
+        current_trust_score: 10.0 # Seed ideas start with maximum trust.
+        current_depth: 0
+        objective: "{{ payload.objective }}"
+
+  # This rule triggers the planner component itself. No changes are needed here.
+  - id: "on_plan_next_step_trigger_planner"
+    description: "When a PlanNextStepSignal is detected, trigger the planner component to decide the next action."
+    namespace: "planner_loop"
+    priority: 8
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "PlanNextStepSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "active_planner"
+        input_data_mapping:
+          source_node_id: "signal.source_node_id"
+          session_id: "signal.session_id"
+          current_idea_id: "signal.current_idea_id"
+          current_trust_score: "signal.current_trust_score"
+          current_depth: "signal.current_depth"
+          objective: "signal.objective"
+          current_idea_text: "signal.current_idea_text"
+
+  # This rule now ONLY matches a SeedSignal that DOES come from the planner.
+  # This ensures it triggers the correct mechanism (e.g., Explorer).
+  - id: "on_planner_seed_trigger_mechanism"
+    description: "When the planner emits a SeedSignal, trigger the specified mechanism."
+    namespace: "planner_loop"
+    priority: 4
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "SeedSignal"
+      - type: "payload_expression"
+        expression: "signal.source_node_id == 'active_planner'"
+    actions:
+      - type: "trigger_component"
+        component_id: "{{ payload.target_component_id }}"
+        input_data_mapping:
+          id: "payload.seed_idea_id"
+          text: "payload.text"
+          objective: "payload.objective"
+          session_id: "payload.session_id"
+          planner_action: "payload.planner_action"
+          parent_trust_score: "payload.parent_trust_score"
+          depth: "payload.depth"
+          metadata: "payload"
+          target_idea_id: "payload.seed_idea_id"
+
+  # This rule had a bug from the previous fix attempt. It now correctly
+  # accesses the nested metadata from the assessment object.
+  - id: "on_assessment_assemble_trace_and_plan_next"
+    description: "After an idea is assessed, assembles a trace and triggers the planner for the next step."
+    namespace: "planner_loop"
+    priority: 15
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_expression"
+        # The session_id is inside the 'metadata' dict of the assessment_details object.
+        expression: "exists(payload.assessment_details.metadata.session_id)"
+    actions:
+      - type: "emit_signal"
+        signal_type: "TraceEmittedSignal"
+        source_node_id_override: "reactor_trace_assembler"
+        trace:
+          session_id: "{{ payload.assessment_details.metadata.session_id }}"
+          parent_idea_id: "{{ payload.assessment_details.idea_parent_id }}"
+          parent_trust_score: "{{ payload.assessment_details.metadata.parent_trust_score }}"
+          parent_depth: "{{ payload.assessment_details.metadata.depth | default(0) - 1 }}"
+          planner_policy_id: "bandit_v1"
+          chosen_action: "{{ payload.assessment_details.metadata.planner_action }}"
+          chosen_mechanism_id: "{{ payload.assessment_details.metadata.target_component_id }}"
+          generated_idea_id: "{{ signal.target_id }}"
+          generated_trust_score: "{{ signal.trust_score }}"
+          duration_ms: "{{ payload.assessment_details.metadata.duration_ms | default(1000) }}"
+          llm_calls: 1
+          frame_id: "{{ signal.context_tags.frame_id }}"
+          interpreter_set: "{{ payload.assessment_details.metadata.interpreter_set | default(None) }}"
+          trace_metadata:
+            frame_variance: "{{ payload.assessment_details.metadata.frame_variance | default(0.0) }}"
+      - type: "emit_signal"
+        signal_type: "PlanNextStepSignal"
+        source_node_id_override: "reactor"
+        session_id: "{{ payload.assessment_details.metadata.session_id }}"
+        current_idea_id: "{{ signal.target_id }}"
+        current_idea_text: "{{ payload.idea_text }}"
+        current_trust_score: "{{ signal.trust_score }}"
+        current_depth: "{{ payload.assessment_details.metadata.depth }}"
+        objective: "{{ payload.assessment_details.metadata.objective }}"
+
+  # This rule remains unchanged as it is disabled.
+  - id: "planner_circuit_breaker"
+    description: "If average reward is too low, fall back to a default action."
+    namespace: "planner_safety"
+    priority: 1
+    enabled: false
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TraceEmittedSignal"
+      - type: "payload_expression"
+        expression: "context.component_registry.get('reward_monitor').get_average_reward() < -0.2"
+    actions:
+      - type: "emit_signal"
+        signal_type: "SystemAlert"
+        payload:
+          severity: "high"
+          message: "Planner circuit breaker triggered due to poor performance. Falling back to default."
+      - type: "emit_signal"
+        signal_type: "GenerativeLoopFinishedSignal"
+        payload:
+          status: "aborted_by_safety_circuit"
+
+# ============================================================
+# Source: configs\reactor\rules\proto.yaml
+# ============================================================
+
+version: "1.0"
+rules:
+  - id: "route_proto_task_to_gateway"
+    description: "When a ProtoTaskSignal is detected, trigger the main ProtoGateway to handle it."
+    namespace: "proto_plane_routing"
+    priority: 10 # High priority to ensure tasks are routed quickly.
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "ProtoTaskSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "proto_gateway_main" # Matches the ID in the manifest.
+        input_data_mapping:
+          signal: "signal"
+
+  - id: "handle_proto_result_completion"
+    description: "Handle successful ProtoResultSignal completion by emitting a GenerativeLoopFinishedSignal."
+    namespace: "proto_plane_completion"
+    priority: 15 # Higher priority to ensure results are processed quickly
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "ProtoResultSignal"
+      - type: "payload_expression"
+        expression: "signal.success == True"
+    actions:
+      - type: "emit_signal"
+        signal_type: "GenerativeLoopFinishedSignal"
+        payload:
+          status: "proto_execution_completed"
+          final_proto_id: "{{ signal.proto_block_id }}"
+          execution_time_sec: "{{ signal.execution_time_sec }}"
+          artifacts: "{{ signal.artifacts }}"
+          result: "{{ signal.result }}"
+          reason: "proto_execution_successful"
+
+  - id: "handle_math_proto_result_completion"
+    description: "Handle successful MathProtoResultSignal completion by emitting a GenerativeLoopFinishedSignal."
+    namespace: "proto_plane_completion"
+    priority: 15 # Higher priority to ensure results are processed quickly
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "MathProtoResultSignal"
+      - type: "payload_expression"
+        expression: "signal.success == True"
+    actions:
+      - type: "emit_signal"
+        signal_type: "GenerativeLoopFinishedSignal"
+        payload:
+          status: "math_proto_execution_completed"
+          final_proto_id: "{{ signal.proto_block_id }}"
+          execution_time_sec: "{{ signal.execution_time_sec }}"
+          artifacts: "{{ signal.artifacts }}"
+          result: "{{ signal.result }}"
+          reason: "math_proto_execution_successful"
+
+  - id: "handle_proto_error"
+    description: "Handle ProtoErrorSignal by emitting appropriate completion signal."
+    namespace: "proto_plane_error_handling"
+    priority: 5 # High priority for error handling
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "ProtoErrorSignal"
+    actions:
+      - type: "emit_signal"
+        signal_type: "GenerativeLoopFinishedSignal"
+        payload:
+          status: "proto_execution_failed"
+          final_proto_id: "{{ signal.proto_block_id }}"
+          error_type: "{{ signal.error_type }}"
+          error_message: "{{ signal.error_message }}"
+          reason: "proto_execution_error"
+
+  - id: "analyze_fractal_boundary_complexity_proto"
+    description: "When Mandelbrot boundary analysis is complete, trigger an explorer to investigate the implications of its complexity."
+    namespace: "fractal_analysis"
+    priority: 50
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "MathProtoResultSignal"
+      - type: "payload_expression"
+        expression: "exists(signal.result.boundary_stats.std_dev_iterations) and signal.proto_block_id.startswith('proto_mandelbrot')"
+    actions:
+      - type: "emit_signal"
+        signal_type: "SeedSignal"
+        payload:
+          seed_idea_id: "fractal_complexity_seed_{{ signal.proto_block_id }}"
+          text: >
+            The boundary of the Mandelbrot set exhibits extreme complexity, with a standard deviation of 
+            {{ "%.2f"|format(signal.result.boundary_stats.std_dev_iterations) }} iterations in the escape-time algorithm.
+            This fractal, self-similar nature at all scales suggests that simple rules can lead to infinitely complex outcomes.
+          metadata:
+            objective: "Explore the philosophical and computational implications of the Mandelbrot set's boundary complexity. Relate it to concepts like undecidability, chaos theory, or the limits of formal systems."
+            source_proto_id: "{{ signal.proto_block_id }}"
+            source_artifacts: "{{ signal.artifacts }}"

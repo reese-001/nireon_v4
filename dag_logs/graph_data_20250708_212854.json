@@ -1,0 +1,171 @@
+{
+  "nodes": [
+    "sentinel_instance_01",
+    "quantifier_agent_primary",
+    "8f5bb04f-c55a-42dd-9454-c7b8db546b04",
+    "7b2185bf-dc6d-4f21-bea5-1ea526e1baf8",
+    "BOOTSTRAP",
+    "SEED_EXEC_prime counting_iter1",
+    "65965334-1f11-44af-8932-350cf231d3f3",
+    "0d40ca43-1cf4-48d7-992c-f480638a6195"
+  ],
+  "edges": [
+    {
+      "source": "7b2185bf-dc6d-4f21-bea5-1ea526e1baf8",
+      "target": "0d40ca43-1cf4-48d7-992c-f480638a6195",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 1
+      }
+    },
+    {
+      "source": "7b2185bf-dc6d-4f21-bea5-1ea526e1baf8",
+      "target": "8f5bb04f-c55a-42dd-9454-c7b8db546b04",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 1
+      }
+    },
+    {
+      "source": "7b2185bf-dc6d-4f21-bea5-1ea526e1baf8",
+      "target": "65965334-1f11-44af-8932-350cf231d3f3",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 1
+      }
+    }
+  ],
+  "signals": [
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T21:28:09.043550",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "7b2185bf-dc6d-4f21-bea5-1ea526e1baf8",
+      "payload": {
+        "seed_idea_id": "7b2185bf-dc6d-4f21-bea5-1ea526e1baf8",
+        "text": "Develop a comprehensive and innovative philisophical proof that Mormonism cannot be true.",
+        "metadata": {
+          "iteration": 1,
+          "total_iterations": 1,
+          "original_seed_id": "prime counting",
+          "objective": "Do not focus on the religious aspects, but rather on the philosophical implications and logical structure of the belief system. Insist on a novel approach that challenges conventional reasoning and creates a new understanding of the topic.",
+          "depth": 0,
+          "seed_config_id": "prime counting_iter1"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T21:28:32.416801",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "0d40ca43-1cf4-48d7-992c-f480638a6195",
+      "payload": {
+        "parent_id": "7b2185bf-dc6d-4f21-bea5-1ea526e1baf8",
+        "depth": 1
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T21:28:32.416801",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "8f5bb04f-c55a-42dd-9454-c7b8db546b04",
+      "payload": {
+        "parent_id": "7b2185bf-dc6d-4f21-bea5-1ea526e1baf8",
+        "depth": 1
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-08T21:28:32.416801",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "65965334-1f11-44af-8932-350cf231d3f3",
+      "payload": {
+        "parent_id": "7b2185bf-dc6d-4f21-bea5-1ea526e1baf8",
+        "depth": 1
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T21:28:09.024193",
+      "event_type": "BOOTSTRAP_COMPLETE",
+      "node_id": "BOOTSTRAP",
+      "details": {
+        "component_count": 63,
+        "run_id": "explorer_run_1752028089"
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T21:28:32.416801",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "unknown",
+      "details": {
+        "status": null,
+        "reason": "branch_terminal",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T21:28:35.259114",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "0d40ca43-1cf4-48d7-992c-f480638a6195",
+      "details": {
+        "trust_score": 6.548149112909511,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T21:28:35.789943",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "8f5bb04f-c55a-42dd-9454-c7b8db546b04",
+      "details": {
+        "trust_score": 6.548149112909511,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T21:28:36.304371",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "65965334-1f11-44af-8932-350cf231d3f3",
+      "details": {
+        "trust_score": 7.068555549403329,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T21:28:53.522147",
+      "event_type": "LOOP_FINISHED_SIGNAL",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "status": "terminal_no_op",
+        "reason": "Idea not viable for quantitative analysis",
+        "quantifier_triggered": false
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-08T21:28:53.524250",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 44.488232,
+        "total_ideas": 4,
+        "total_assessed": 3,
+        "coverage_percent": 75.0
+      }
+    }
+  ]
+}

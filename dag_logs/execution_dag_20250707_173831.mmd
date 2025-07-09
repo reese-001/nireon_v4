@@ -1,0 +1,19 @@
+graph TD
+    BOOTSTRAP[BOOTSTRA...<br/>SYSTEM]
+    sentinel_instance_01[sentinel...<br/>COMPONENT]:::component
+    quantifier_agent_primary[quantifi...<br/>COMPONENT]:::component
+    SEED_EXEC_test_iter1[SEED_EXE...<br/>SEED_EXECUTION]
+    8112bb5c_2c32_4047_b917_37c606eff206[8112bb5c...<br/>SEED_IDEA]:::seed
+    adf99c52_ab1b_488e_89f1_1b5c0274c4ed[adf99c52...<br/>GENERATED_IDEA]:::idea
+    a2f180a2_587b_47c4_9d5a_fcc660ef3dbc[a2f180a2...<br/>GENERATED_IDEA]:::idea
+    cd496719_a432_4687_87b9_3be82718a16b[cd496719...<br/>GENERATED_IDEA]:::idea
+    SEED_EXEC_test_iter2[SEED_EXE...<br/>SEED_EXECUTION]
+    2bc4f727_7854_4435_b053_db223a3266ad[2bc4f727...<br/>SEED_IDEA]:::seed
+    8112bb5c_2c32_4047_b917_37c606eff206 -->|GENERATES| adf99c52_ab1b_488e_89f1_1b5c0274c4ed
+    8112bb5c_2c32_4047_b917_37c606eff206 -->|GENERATES| a2f180a2_587b_47c4_9d5a_fcc660ef3dbc
+    8112bb5c_2c32_4047_b917_37c606eff206 -->|GENERATES| cd496719_a432_4687_87b9_3be82718a16b
+
+    classDef seed fill:#90EE90,stroke:#333,stroke-width:2px;
+    classDef idea fill:#ADD8E6,stroke:#333,stroke-width:2px;
+    classDef proto fill:#FFA500,stroke:#333,stroke-width:2px;
+    classDef component fill:#FFB6C1,stroke:#333,stroke-width:2px;

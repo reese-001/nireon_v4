@@ -1,0 +1,24 @@
+digraph ExecutionDAG {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    "BOOTSTRAP" [label="BOOTSTRA...\nSYSTEM", fillcolor=lavender, style="rounded,filled"];
+    "sentinel_instance_01" [label="sentinel...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "quantifier_agent_primary" [label="quantifi...\nCOMPONENT", fillcolor=pink, style="rounded,filled"];
+    "SEED_EXEC_prime counting" [label="SEED_EXE...\nSEED_EXECUTION", fillcolor=khaki, style="rounded,filled"];
+    "3f24eeb6-5e68-4de3-99c2-2c7f95cf6794" [label="3f24eeb6...\nSEED_IDEA", fillcolor=lightgreen, style="rounded,filled"];
+    "cc7a4a59-ee37-41d3-b11b-4c17dd9abac6" [label="cc7a4a59...\nGENERATED_IDEA\nCertainly! Here’s a creative v...", fillcolor=lightblue, style="rounded,filled"];
+    "64d58038-ddeb-4e82-8a0d-53886e0f2199" [label="64d58038...\nGENERATED_IDEA\n**Variation Idea: "Segmented P...", fillcolor=lightblue, style="rounded,filled"];
+    "b68396a0-4d42-426d-837e-b086dc558076" [label="b68396a0...\nGENERATED_IDEA\nCertainly! Here’s a creative v...", fillcolor=lightblue, style="rounded,filled"];
+    "69f6999e-28ab-4cfe-be39-11ffa7903841" [label="69f6999e...\nGENERATED_IDEA\nCertainly! Here’s a creative v...", fillcolor=lightblue, style="rounded,filled"];
+    "801df8ac-7d47-4bf3-adf2-086bb0d47cd7" [label="801df8ac...\nGENERATED_IDEA\nCertainly! Here’s a creative v...", fillcolor=lightblue, style="rounded,filled"];
+    "32ced133-2ed6-4289-97ea-636b49dc5e28" [label="32ced133...\nGENERATED_IDEA\n**Idea Variation: "Leveraging ...", fillcolor=lightblue, style="rounded,filled"];
+    "proto_enhanced_prime_counting" [label="proto_en...\nPROTO_TASK", fillcolor=orange, style="rounded,filled"];
+    "proto_sieve_enhanced_composite_counting" [label="proto_si...\nPROTO_TASK", fillcolor=orange, style="rounded,filled"];
+    "proto_prime_counting_with_bins" [label="proto_pr...\nPROTO_TASK", fillcolor=orange, style="rounded,filled"];
+    "3f24eeb6-5e68-4de3-99c2-2c7f95cf6794" -> "cc7a4a59-ee37-41d3-b11b-4c17dd9abac6" [label="GENERATES\ndepth=0"];
+    "3f24eeb6-5e68-4de3-99c2-2c7f95cf6794" -> "64d58038-ddeb-4e82-8a0d-53886e0f2199" [label="GENERATES\ndepth=0"];
+    "3f24eeb6-5e68-4de3-99c2-2c7f95cf6794" -> "b68396a0-4d42-426d-837e-b086dc558076" [label="GENERATES\ndepth=0"];
+    "3f24eeb6-5e68-4de3-99c2-2c7f95cf6794" -> "69f6999e-28ab-4cfe-be39-11ffa7903841" [label="GENERATES\ndepth=0"];
+    "3f24eeb6-5e68-4de3-99c2-2c7f95cf6794" -> "801df8ac-7d47-4bf3-adf2-086bb0d47cd7" [label="GENERATES\ndepth=0"];
+    "3f24eeb6-5e68-4de3-99c2-2c7f95cf6794" -> "32ced133-2ed6-4289-97ea-636b49dc5e28" [label="GENERATES\ndepth=0"];
+}

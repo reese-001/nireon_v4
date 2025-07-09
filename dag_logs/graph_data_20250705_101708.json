@@ -1,0 +1,257 @@
+{
+  "nodes": [
+    "proto_count_and_visualize_primes",
+    "SEED_EXEC_prime counting",
+    "aed8b826-b43a-4e29-a96e-0ca34ad5e05d",
+    "quantifier_agent_primary",
+    "BOOTSTRAP",
+    "proto_count_primes_and_visualize",
+    "proto_prime_counting_analysis",
+    "08d8342f-9488-486b-bff5-4bd64668fdbf",
+    "46cbcddd-1d9e-48cd-9782-381c8c2bb1f5",
+    "sentinel_instance_01",
+    "ed1c4c61-e9f9-484f-860c-8fd5fdc6c334"
+  ],
+  "edges": [
+    {
+      "source": "08d8342f-9488-486b-bff5-4bd64668fdbf",
+      "target": "46cbcddd-1d9e-48cd-9782-381c8c2bb1f5",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "08d8342f-9488-486b-bff5-4bd64668fdbf",
+      "target": "ed1c4c61-e9f9-484f-860c-8fd5fdc6c334",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    },
+    {
+      "source": "08d8342f-9488-486b-bff5-4bd64668fdbf",
+      "target": "aed8b826-b43a-4e29-a96e-0ca34ad5e05d",
+      "type": "GENERATES",
+      "metadata": {
+        "generation_mechanism": "explorer_instance_01",
+        "depth": 0
+      }
+    }
+  ],
+  "signals": [
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T10:16:02.485856",
+      "signal_type": "SeedSignal",
+      "source": "ExplorerOrchestrator",
+      "target": "08d8342f-9488-486b-bff5-4bd64668fdbf",
+      "payload": {
+        "seed_idea_id": "08d8342f-9488-486b-bff5-4bd64668fdbf",
+        "text": "How can we improve on the Pi(x) function to count the number of primes less than x more efficiently without using machine learning?",
+        "metadata": {
+          "iteration": 1,
+          "objective": "Explore advanced mathematical techniques to optimize the counting of prime numbers below a given threshold x. Focus on closed form solutions and algorithmic improvements. Do not consider machine learning or neural networks!",
+          "depth": 0,
+          "seed_config_id": "prime counting"
+        }
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T10:16:14.222677",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "46cbcddd-1d9e-48cd-9782-381c8c2bb1f5",
+      "payload": {
+        "parent_id": "08d8342f-9488-486b-bff5-4bd64668fdbf",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T10:16:14.222677",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "ed1c4c61-e9f9-484f-860c-8fd5fdc6c334",
+      "payload": {
+        "parent_id": "08d8342f-9488-486b-bff5-4bd64668fdbf",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T10:16:14.222677",
+      "signal_type": "IdeaGeneratedSignal",
+      "source": "explorer_instance_01",
+      "target": "aed8b826-b43a-4e29-a96e-0ca34ad5e05d",
+      "payload": {
+        "parent_id": "08d8342f-9488-486b-bff5-4bd64668fdbf",
+        "depth": 0
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T10:16:38.148291",
+      "signal_type": "ProtoTaskSignal",
+      "source": "quantifier_agent",
+      "target": "proto_count_and_visualize_primes",
+      "payload": {
+        "source_idea": null,
+        "eidos": "math"
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T10:16:38.926570",
+      "signal_type": "ProtoTaskSignal",
+      "source": "quantifier_agent",
+      "target": "proto_count_primes_and_visualize",
+      "payload": {
+        "source_idea": null,
+        "eidos": "math"
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T10:16:39.950009",
+      "signal_type": "ProtoTaskSignal",
+      "source": "quantifier_agent",
+      "target": "proto_count_primes_and_visualize",
+      "payload": {
+        "source_idea": null,
+        "eidos": "math"
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T10:16:42.769302",
+      "signal_type": "ProtoTaskSignal",
+      "source": "quantifier_agent",
+      "target": "proto_count_primes_and_visualize",
+      "payload": {
+        "source_idea": null,
+        "eidos": "math"
+      }
+    },
+    {
+      "type": "SIGNAL",
+      "timestamp": "2025-07-05T10:16:42.946450",
+      "signal_type": "ProtoTaskSignal",
+      "source": "quantifier_agent",
+      "target": "proto_prime_counting_analysis",
+      "payload": {
+        "source_idea": null,
+        "eidos": "math"
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T10:16:02.485856",
+      "event_type": "BOOTSTRAP_COMPLETE",
+      "node_id": "BOOTSTRAP",
+      "details": {
+        "component_count": 59,
+        "run_id": "explorer_run_1751728562"
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T10:16:16.787201",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "aed8b826-b43a-4e29-a96e-0ca34ad5e05d",
+      "details": {
+        "trust_score": 6.602820748689023,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T10:16:17.118246",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "ed1c4c61-e9f9-484f-860c-8fd5fdc6c334",
+      "details": {
+        "trust_score": 6.70716291165481,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T10:16:17.452620",
+      "event_type": "TRUST_ASSESSMENT",
+      "node_id": "46cbcddd-1d9e-48cd-9782-381c8c2bb1f5",
+      "details": {
+        "trust_score": 6.554662911654811,
+        "is_stable": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T10:16:38.148291",
+      "event_type": "QUANTIFIER_TRIGGERED",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "loop_finished": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T10:16:38.926570",
+      "event_type": "QUANTIFIER_TRIGGERED",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "loop_finished": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T10:16:39.950009",
+      "event_type": "QUANTIFIER_TRIGGERED",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "loop_finished": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T10:16:42.769302",
+      "event_type": "QUANTIFIER_TRIGGERED",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "loop_finished": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T10:16:42.946450",
+      "event_type": "QUANTIFIER_TRIGGERED",
+      "node_id": "quantifier_agent_primary",
+      "details": {
+        "loop_finished": true
+      }
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T10:17:08.162210",
+      "event_type": "PROTO_EXECUTION_FAILURE",
+      "node_id": "unknown",
+      "details": {}
+    },
+    {
+      "type": "EVENT",
+      "timestamp": "2025-07-05T10:17:08.162210",
+      "event_type": "CAPTURE_FINALIZED",
+      "node_id": "SYSTEM",
+      "details": {
+        "duration_seconds": 65.676354,
+        "total_ideas": 4,
+        "total_assessed": 3,
+        "coverage_percent": 75.0
+      }
+    }
+  ]
+}

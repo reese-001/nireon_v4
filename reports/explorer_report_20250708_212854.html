@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIREON Explorer Report - 20250708_212854</title>
+    <style>
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #1a1a2e, #0f0f1e);
+            border-radius: 1rem;
+            border: 1px solid #2a2a3e;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(45deg, #00ff88, #0088ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .timestamp {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        section {
+            margin-bottom: 3rem;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #00ff88;
+        }
+        
+        h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #0088ff;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .stat-card {
+            background: #1a1a2e;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            border: 1px solid #2a2a3e;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+        
+        .stat-card.success {
+            border-color: #00ff88;
+        }
+        
+        .stat-card.failure {
+            border-color: #ff4444;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: #888;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .metric-card {
+            background: #1a1a2e;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #2a2a3e;
+        }
+        
+        .metric-card h3 {
+            color: #0088ff;
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+        
+        .metric-detail {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+        }
+        
+        .chart-container {
+            background: #1a1a2e;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #2a2a3e;
+        }
+        
+        .result-card {
+            background: #1a1a2e;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #2a2a3e;
+            margin-bottom: 1rem;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            cursor: pointer;
+        }
+        
+        .result-header:hover {
+            opacity: 0.8;
+        }
+        
+        .result-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .result-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        
+        .status-success {
+            background: #00ff88;
+            color: #000;
+        }
+        
+        .status-failure {
+            background: #ff4444;
+            color: #fff;
+        }
+        
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            color: #888;
+            font-size: 0.85rem;
+        }
+        
+        .detail-value {
+            font-weight: bold;
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #00ff88, #0088ff);
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+        
+        /* New styles for collapsible content */
+        .collapsible {
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            max-height: 0;
+        }
+        
+        .collapsible.expanded {
+            max-height: none;
+        }
+        
+        .expand-indicator {
+            margin-left: 0.5rem;
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+            display: inline-block;
+        }
+        
+        .expanded .expand-indicator {
+            transform: rotate(180deg);
+        }
+        
+        .idea-container {
+            background: #0f0f1e;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid #2a2a3e;
+        }
+        
+        .idea-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+        
+        .idea-title {
+            font-weight: bold;
+            color: #00ff88;
+            flex: 1;
+            margin-right: 1rem;
+        }
+        
+        .idea-text {
+            font-size: 0.9rem;
+            color: #ccc;
+            line-height: 1.5;
+            max-height: 100px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+        
+        .trust-score {
+            font-weight: bold;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        
+        .high-trust {
+            background: #00ff88;
+            color: #000;
+        }
+        
+        .low-trust {
+            background: #ff4444;
+            color: #fff;
+        }
+        
+        .seed-objective {
+            background: #1a1a3e;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-style: italic;
+            color: #aaa;
+        }
+        
+        .proto-tasks {
+            background: #1a2a3e;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            border: 1px solid #0088ff;
+        }
+        
+        .proto-task-item {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background: #0a1a2e;
+            border-radius: 0.25rem;
+        }
+        
+        .proto-task-id {
+            font-family: monospace;
+            color: #0088ff;
+            font-weight: bold;
+        }
+        
+        .event-timeline {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #0f0f1e;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            font-family: monospace;
+            margin-top: 1rem;
+        }
+        
+        .event-item {
+            margin-bottom: 0.25rem;
+            color: #888;
+        }
+        
+        .event-type {
+            color: #00ff88;
+            font-weight: bold;
+        }
+        
+        .failure-reason {
+            background: #ff444433;
+            border: 1px solid #ff4444;
+            color: #ff8888;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        /* Scrollbar styling for dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1a1a2e;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #2a2a3e;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3a3a4e;
+        }
+        
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧠 NIREON Explorer Test Report</h1>
+            <div class="timestamp">Generated: 2025-07-08 21:28:54</div>
+        </header>
+        
+        <section class="summary">
+            <h2>📊 Executive Summary</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">1</div>
+                    <div class="stat-label">Total Runs</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-value">1</div>
+                    <div class="stat-label">Successful</div>
+                </div>
+                <div class="stat-card failure">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Failed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">100.0%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="metrics">
+            <h2>📈 Key Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h3>Ideas Generated</h3>
+                    <div class="metric-value">4</div>
+                    <div class="metric-detail">Avg: 4.0 per run</div>
+                </div>
+                <div class="metric-card">
+                    <h3>Assessment Coverage</h3>
+                    <div class="metric-value">75.0%</div>
+                    <div class="metric-detail">Of all generated ideas</div>
+                </div>
+                <div class="metric-card">
+                    <h3>High Trust Ideas</h3>
+                    <div class="metric-value">3</div>
+                    <div class="metric-detail">Trust score > 6.0</div>
+                </div>
+                <div class="metric-card">
+                    <h3>Proto Tasks</h3>
+                    <div class="metric-value">0</div>
+                    <div class="metric-detail">Quantifier activations</div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="charts">
+            <h2>📊 Visualizations</h2>
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <canvas id="successChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="ideasChart"></canvas>
+                </div>
+            </div>
+        </section>
+        
+        <section class="results">
+            <h2>🔍 Detailed Results</h2>
+            
+            <div class="result-card">
+                <div class="result-header" onclick="toggleCollapse('prime_counting_iter1_details')">
+                    <div class="result-title">prime counting_iter1</div>
+                    <div>
+                        <span class="result-status status-success">✅ PASSED</span>
+                        <span class="expand-indicator">▼</span>
+                    </div>
+                </div>
+                <div class="result-text">Develop a comprehensive and innovative philisophical proof that Mormonism cannot be true....</div>
+                <div class="result-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Duration</span>
+                        <span class="detail-value">44.49s</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Ideas</span>
+                        <span class="detail-value">4</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Assessed</span>
+                        <span class="detail-value">3</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">High Trust</span>
+                        <span class="detail-value">3</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Max Depth</span>
+                        <span class="detail-value">1</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Proto</span>
+                        <span class="detail-value">No</span>
+                    </div>
+                </div>
+                
+                
+                <div id="prime_counting_iter1_details" class="collapsible">
+                    
+            <div class="seed-objective">
+                <strong>Objective:</strong> Do not focus on the religious aspects, but rather on the philosophical implications and logical structure of the belief system. Insist on a novel approach that challenges conventional reasoning and creates a new understanding of the topic.
+            </div>
+            
+
+                <h3>Generated Ideas (3 Total)</h3>
+                
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Title: The Paradox of Divine Narrative: A Philosophical Exploration of Truth in Religious Frameworks</div>
+                    <span class="trust-score high-trust">Trust: 6.55</span>
+                </div>
+                <div class="idea-text">**Title: The Paradox of Divine Narrative: A Philosophical Exploration of Truth in Religious Frameworks**
+
+**Introduction:**
+This exploration seeks to dissect the philosophical implications of Mormonism—not through traditional theological critique, but by examining the logical structures and narrative frameworks inherent in religious belief systems. By analyzing the nature of truth, narrative coherence, and the epistemic foundations of belief, we can unveil a novel perspective that challenges the veracity of Mormonism as a cohesive philosophical system.
+
+**I. The Nature of Truth and Epistemic Foundations:**
+1. **Defining Truth:**
+   - Begin with an analysis of truth through the lens of correspondence theory, coherence theory, and pragmatic theory. What constitutes truth in a religious context? Is it the alignment with observable reality, internal consistency, or pragmatic utility?
+  
+2. **Epistemological Limitations:**
+   - Assess the epistemic claims of Mormonism, particularly the concept of &quot;personal revelation&quot; and how subjective experiences can lead to conflicting truths among adherents. Explore how this epistemic pluralism poses challenges to establishing a singular, coherent truth.
+
+**II. The Structure of Divine Narrative:**
+1. **Narrative Coherence:**
+   - Investigate the structure of the Book of Mormon as a narrative. Does the text maintain internal consistency, or do contradictions arise when examined philosophically? Analyze its historical claims in relation to known historical and archaeological evidence.
+  
+2. **The Role of Myth in Belief:**
+   - Examine the concept of myth in religious narratives. Are the stories within Mormonism akin to mythological constructs that serve psychological or social functions rather than factual accounts? Discuss the implications of interpreting divine narratives as allegorical rather than literal truths.
+
+**III. The Problem of Infinite Regression:**
+1. **God&#x27;s Nature and the Infinite Regression:**
+   - Discuss the philosophical implications of the Mormon concept of God as an exalted man and the associated problem of infinite regression. If gods can be made, what does that imply about the nature of divinity and the ultimate source of truth?
+  
+2. **Existential Questions:**
+   - Explore existential implications. If divine beings can evolve, what does this suggest about moral absolutism within the belief system? Is morality then contingent upon the whims of an evolving deity, thus undermining the objectivity of moral truths?
+
+**IV. The Social Construct of Belief:**
+1. **Community and Identity:**
+   - Analyze how social constructs shape belief systems. How do communal reinforcement and identity formation influence the acceptance of Mormon doctrine? What does this imply about the subjective nature of truth within a socio-cultural context?
+
+2. **Philosophical Implications of Belief:**
+   - Discuss how belief in Mormonism functions as a social narrative rather than an absolute truth. Could it be that the belief system serves more to solidify community bonds than to provide objective truth? 
+
+**V. A Novel Synthesis:**
+1. **Emergence of a New Understanding:**
+   - Propose a synthesis that transcends traditional critique: rather than arguing for or against the truth of Mormonism on conventional grounds, suggest that the belief system illustrates broader philosophical principles about the nature of truth, narrative, and the human condition.
+
+2. **Toward a Pluralistic Epistemology:**
+   - Advocate for a pluralistic approach to understanding religious truth that embraces the complexity of human experience, recognizing the multifaceted nature of belief systems without strictly categorizing them as true or false.
+
+**Conclusion:**
+Through this comprehensive philosophical exploration, we uncover the intricate tapestry of narrative, truth, and belief that defines Mormonism. By reframing the conversation away from the conventional dichotomy of true or false, we invite a deeper understanding of how such belief systems operate within the human psyche and society. In doing so, we not only challenge the logical structure of Mormonism but also broaden our perspective on the nature of truth itself, opening pathways for more inclusive dialogues about faith, belief, and existence.</div>
+            </div>
+            
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Title: &quot;The Paradox of Belief: A Philosophical Inquiry into the Nature of Truth and Mormonism&quot;</div>
+                    <span class="trust-score high-trust">Trust: 6.55</span>
+                </div>
+                <div class="idea-text">**Title: &quot;The Paradox of Belief: A Philosophical Inquiry into the Nature of Truth and Mormonism&quot;**
+
+**Abstract:**
+This philosophical exploration seeks to dissect the logical structure of belief systems, particularly Mormonism, not through direct critique of its religious tenets, but by examining the implications of belief itself. By employing a novel framework that juxtaposes belief with epistemological constraints, we aim to highlight the paradoxes inherent in absolute claims of truth.
+
+**Introduction:**
+At its core, belief systems are constructs that shape our understanding of existence, morality, and purpose. This inquiry will examine the belief structure of Mormonism through a philosophical lens, focusing on three pivotal areas: the nature of truth, the role of revelation, and the implications of communal belief. By challenging the standard logical frameworks, we introduce a new paradigm for understanding the validity of belief systems.
+
+**1. The Nature of Truth: Absolute vs. Relative**
+   - **Argument:** Mormonism posits absolute truths conveyed through divine revelation. This section will explore the philosophical implications of absolute truth claims in a relativistic world. 
+   - **Analysis:** Using a relativistic framework, we argue that truth must be contextual rather than absolute. We will reference thinkers like William James and his pragmatism, suggesting that beliefs must be evaluated based on their consequences in the real world, not merely their adherence to dogma.
+
+**2. Revelation and the Epistemic Limitations**
+   - **Argument:** The concept of revelation in Mormonism suggests a direct line to divine truth. However, we will argue that personal revelation is inherently subjective and prone to cognitive biases.
+   - **Analysis:** By applying epistemological theories from Descartes to contemporary skepticism, we will illustrate how reliance on subjective experiences undermines the universality of truth claims. The paradox arises when personal experience contradicts communal beliefs, leading to an epistemic crisis within the belief system.
+
+**3. The Social Construct of Belief**
+   - **Argument:** Belief systems, including Mormonism, thrive on social cohesion and community validation. We will examine the sociological aspects of belief and how they shape individual understanding.
+   - **Analysis:** Drawing from Peter Berger’s social construction of reality, we will argue that the communal reinforcement of belief can lead to systemic biases. The challenge arises when the community&#x27;s truths are confronted by individual experiences or alternative perspectives, which can lead to cognitive dissonance and the questioning of the belief system’s validity.
+
+**4. The Existential Dilemma: Meaning vs. Truth**
+   - **Argument:** This section will explore the tension between seeking meaning and establishing objective truth. 
+   - **Analysis:** We will argue that while belief systems like Mormonism may provide existential meaning, they may not necessarily align with objective truths. By employing existentialist perspectives from thinkers like Kierkegaard and Camus, we will examine how the search for meaning can sometimes obfuscate the pursuit of truth.
+
+**Conclusion: A New Understanding of Belief Systems**
+This philosophical inquiry does not aim to disprove Mormonism outright but rather to challenge the frameworks through which we evaluate belief systems. By recontextualizing truth, revelation, and communal belief, we foster a deeper understanding of the nature of belief itself. The paradoxical nature of absolute claims becomes apparent, paving the way for a more nuanced discourse on the relationship between belief, truth, and meaning.
+
+**Implications for Future Inquiry:**
+This exploration opens avenues for further investigation into how we construct meaning in a pluralistic society. It invites believers and non-believers alike to reflect on their own frameworks of understanding and to engage in a dialogue that transcends traditional boundaries. 
+
+In this way, we not only examine Mormonism from a philosophical standpoint but also contribute to the broader discourse on the nature of belief, prompting a reevaluation of what it means to hold a truth in an increasingly complex world.</div>
+            </div>
+            
+            <div class="idea-container">
+                <div class="idea-header">
+                    <div class="idea-title">Title: The Paradox of Plurality: A Philosophical Inquiry into the Structure of Belief Systems</div>
+                    <span class="trust-score high-trust">Trust: 7.07</span>
+                </div>
+                <div class="idea-text">**Title: The Paradox of Plurality: A Philosophical Inquiry into the Structure of Belief Systems**
+
+**Introduction:**
+In the realm of philosophical discourse, the exploration of belief systems often unveils a tapestry of logical structures and existential implications. Rather than directly addressing the tenets of Mormonism, this exploration seeks to engage with the philosophical implications of a belief system that emphasizes plurality—particularly the existence of multiple divine beings and the potential for human deification. By analyzing the logical coherence and existential ramifications of such a system, we aim to derive a new understanding that challenges conventional reasoning and illuminates broader truths about belief itself.
+
+**Thesis:**
+The core assertion of this philosophical proof is that a belief system grounded in the concept of divine plurality leads to intrinsic paradoxes that undermine its coherence. This argument will be structured around three primary philosophical pillars: the Principle of Unity, the Problem of Infinite Regression, and the Existential Value of Individuality.
+
+**1. The Principle of Unity:**
+At the heart of many philosophical inquiries is the principle that truth should be unified and cohesive. In the context of a belief system advocating for multiple gods, the concept of unity becomes inherently problematic. If each god possesses distinct attributes, wills, and purposes, the potential for conflict arises—leading to a fragmented understanding of existence. This fragmentation not only complicates the moral landscape but also raises questions about the nature of truth itself. If truth is multiplicative, can it ever be a singular, guiding force for humanity?
+
+*Argument:* A true philosophical foundation must provide a coherent and unified understanding of existence. The existence of multiple gods, each with separate wills and intentions, leads to a fragmented reality that challenges the pursuit of a singular truth. Thus, any belief system grounded in such plurality is philosophically unstable.
+
+**2. The Problem of Infinite Regression:**
+In a system that allows for human deification and the notion of becoming like gods, we encounter the Problem of Infinite Regression. If humans can become gods, what prevents those gods from becoming even greater gods? This creates a never-ending hierarchy that lacks resolution. Each level of divinity necessitates a further explanation, ultimately leading to an infinite regress that challenges the finality of truth claims within the belief system.
+
+*Argument:* A robust philosophical framework must provide a definitive endpoint or resolution to its claims. The possibility of infinite regression undermines the very foundation of a belief system that promotes deification, as it lacks the capacity to offer a conclusive understanding of existence.
+
+**3. The Existential Value of Individuality:**
+The belief in a plurality of gods and the potential for human deification raises profound questions about individual identity and purpose. If individuals are merely stepping stones to becoming gods, does this not diminish their intrinsic value as unique beings? The existential implications of such a hierarchy lead to a commodification of existence, where individuals are valued only for their potential to ascend rather than for their inherent qualities.
+
+*Argument:* A philosophical belief system must recognize and affirm the intrinsic value of individuality. The reduction of human experience to a mere pathway for divine ascension undermines the richness of human life and the quest for meaning in the here and now.
+
+**Conclusion:**
+By examining the philosophical implications of a belief system that espouses divine plurality, we uncover intrinsic paradoxes that challenge its coherence. The lack of unity in truth, the problem of infinite regression, and the diminished value of individuality collectively suggest that such a system cannot sustain itself as a viable framework for understanding existence. In this exploration, we have not only critiqued a specific belief system but have also engaged in a broader inquiry into the nature of belief itself—inviting a deeper contemplation of the philosophical foundations that underpin our understanding of truth, identity, and existence. Through this lens, we gain insights that transcend the specificities of any one belief, fostering a richer discourse on the nature of belief systems as a whole.</div>
+            </div>
+            
+                
+
+            <h3>Event Timeline</h3>
+            <div class="event-timeline">
+                
+            <div class="event-item">
+                [21:28:32] <span class="event-type">idea_generated</span> idea_id: 0d40ca43...
+            </div>
+            
+
+            <div class="event-item">
+                [21:28:32] <span class="event-type">idea_generated</span> idea_id: 8f5bb04f...
+            </div>
+            
+
+            <div class="event-item">
+                [21:28:32] <span class="event-type">idea_generated</span> idea_id: 65965334...
+            </div>
+            
+
+            <div class="event-item">
+                [21:28:35] <span class="event-type">trust_assessment</span> score: 6.548149112909511
+            </div>
+            
+
+            <div class="event-item">
+                [21:28:35] <span class="event-type">trust_assessment</span> score: 6.548149112909511
+            </div>
+            
+
+            <div class="event-item">
+                [21:28:36] <span class="event-type">trust_assessment</span> score: 7.068555549403329
+            </div>
+            
+
+            <div class="event-item">
+                [21:28:53] <span class="event-type">branch_completed</span> 
+            </div>
+              <!-- Limit to first 20 events -->
+            </div>
+            
+                </div>
+            </div>
+            
+        </section>
+        
+        <section class="timeline">
+            <h2>⏱️ Execution Timeline</h2>
+            <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-time">21:28:09</div>
+                <div class="timeline-content">
+                    <strong>prime counting_iter1</strong> - 
+                    ✅ Completed 
+                    in 44.49s
+                </div>
+            </div>
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        
+        // Success/Failure Chart
+        const successCtx = document.getElementById('successChart').getContext('2d');
+        new Chart(successCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Successful', 'Failed'],
+                datasets: [{
+                    data: [1, 0],
+                    backgroundColor: ['#00ff88', '#ff4444'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Test Results',
+                        color: '#e0e0e0'
+                    },
+                    legend: {
+                        labels: {
+                            color: '#e0e0e0'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Ideas per Run Chart
+        const ideasData = [4];
+        const seedLabels = ["prime counting_iter1"];
+        
+        const ideasCtx = document.getElementById('ideasChart').getContext('2d');
+        new Chart(ideasCtx, {
+            type: 'bar',
+            data: {
+                labels: seedLabels,
+                datasets: [{
+                    label: 'Ideas Generated',
+                    data: ideasData,
+                    backgroundColor: '#0088ff',
+                    borderColor: '#0088ff',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Ideas Generated per Seed',
+                        color: '#e0e0e0'
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#e0e0e0'
+                        },
+                        grid: {
+                            color: '#2a2a3e'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: '#e0e0e0'
+                        },
+                        grid: {
+                            color: '#2a2a3e'
+                        }
+                    }
+                }
+            }
+        });
+        
+        
+        function toggleCollapse(id) {
+            const element = document.getElementById(id);
+            const header = element.previousElementSibling;
+            const indicator = header.querySelector('.expand-indicator');
+            
+            element.classList.toggle('expanded');
+            header.classList.toggle('expanded');
+            
+            // Animate max-height for smooth transition
+            if (element.classList.contains('expanded')) {
+                element.style.maxHeight = element.scrollHeight + 'px';
+                setTimeout(() => {
+                    element.style.maxHeight = 'none';
+                }, 300);
+            } else {
+                element.style.maxHeight = element.scrollHeight + 'px';
+                setTimeout(() => {
+                    element.style.maxHeight = '0';
+                }, 10);
+            }
+        }
+        
+    </script>
+</body>
+</html>
