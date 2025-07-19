@@ -132,7 +132,7 @@ class OpenAILLMAdapter(LLMPort):
         return LLMResponse({LLMResponse.TEXT_KEY: f"Mock {mode} OpenAI response to: {prompt[:50]}…"})
 
 # --------------------------------------------------------------------------- #
-# Module‑level utility functions
+# Module-level utility functions
 # --------------------------------------------------------------------------- #
 def _build_headers(api_key: str | None) -> Dict[str, str]:
     return {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"} if api_key else {}

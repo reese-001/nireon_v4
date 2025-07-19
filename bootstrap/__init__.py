@@ -18,7 +18,7 @@ from configs.config_loader import ConfigLoader # Assuming this is correctly loca
 
 __version__ = '4.0.0'
 __author__ = 'NIREON V4 Bootstrap Team'
-__description__ = 'L0 Abiogenesis – Bootstrap Infrastructure'
+__description__ = 'L0 Abiogenesis - Bootstrap Infrastructure'
 CURRENT_SCHEMA_VERSION = 'V4-alpha.1.0'
 
 __all__ = [

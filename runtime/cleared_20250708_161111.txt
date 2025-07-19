@@ -1,2 +1,0 @@
-Database cleared at 2025-07-08 16:11:11.300793
-Tables cleared: ideas, idea_relationships, idea_world_facts, events, event_subscriptions, event_aggregations

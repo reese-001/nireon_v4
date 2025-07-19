@@ -60,7 +60,7 @@ def _update_attr_if_different(obj: Any, attr: str, new_value: Any) -> None:
     try:
         object.__setattr__(obj, attr, new_value)
     except Exception:
-        # Fallback for non‑dataclass or protected attrs
+        # Fallback for non-dataclass or protected attrs
         setattr(obj, attr, new_value)
 
 
@@ -69,7 +69,7 @@ def _is_pydantic_model(cls: Type) -> bool:
 
 
 ###############################################################################
-# 1. Default‑config extraction
+# 1. Default-config extraction
 ###############################################################################
 
 @functools.lru_cache(maxsize=256)
@@ -230,7 +230,7 @@ def inject_dependencies(
                 logger.warning("Failed to inject '%s' into %s: %s", name, instance.component_id, exc)
         else:
             logger.warning(
-                "Dependency '%s' could not be injected into %s (attribute missing or read‑only)",
+                "Dependency '%s' could not be injected into %s (attribute missing or read-only)",
                 name,
                 instance.component_id,
             )

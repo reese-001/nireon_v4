@@ -16,7 +16,7 @@ class ExplorerConfig(BaseModel):
     max_variations_per_level: int = Field(..., ge=1, le=20, description='Number of candidate variations to generate per depth level.')
     enable_semantic_exploration: bool = Field(..., description='Use embedding distance to drive semantic exploration.')
     enable_llm_enhancement: bool = Field(..., description='Allow LLM to refine or expand generated ideas.')
-    creativity_factor: float = Field(..., ge=0.0, le=1.0, description='`temperature`‑like multiplier for LLM prompts (1.0 = max).')
+    creativity_factor: float = Field(..., ge=0.0, le=1.0, description='`temperature`-like multiplier for LLM prompts (1.0 = max).')
     seed_randomness: Optional[int] = Field(..., description='Random seed for deterministic runs (None = nondeterministic).')
     minimum_idea_length: int = Field(..., ge=5, le=1000, description='Lower bound on generated idea length (tokens/words).')
     maximum_idea_length: int = Field(..., ge=50, le=5000, description='Upper bound on generated idea length (tokens/words).')
@@ -28,11 +28,13 @@ class ExplorerConfig(BaseModel):
     reperturb_multiplier: float = Field(..., ge=1.0, le=5.0, description='Factor by which perturbation is increased on each retry.')
     max_retries_for_novelty: int = Field(..., ge=1, le=10, description='Attempts to achieve the desired novelty before giving up.')
     min_novelty_threshold_for_acceptance: float = Field(..., ge=0.0, le=1.0, description='Minimum novelty score to accept a perturbed idea.')
-    default_prompt_template: Optional[str] = Field(..., description='Jinja‑style template available to LLM prompt builders. Named placeholders **must** remain unchanged for compatibility.')
-    preferred_gateway_ids: str = Field(..., description='Comma‑separated priority list of MechanismGateway IDs.')
+    default_prompt_template: Optional[str] = Field(..., description='Jinja-style template available to LLM prompt builders. Named placeholders **must** remain unchanged for compatibility.')
+    preferred_gateway_ids: str = Field(..., description='Comma-separated priority list of MechanismGateway IDs.')
     request_embeddings_for_variations: bool = Field(..., description='Trigger embedding requests for each new variation.')
-    max_pending_embedding_requests: int = Field(..., ge=1, le=100, description='Back‑pressure guard against embedding queue overflow.')
+    max_pending_embedding_requests: int = Field(..., ge=1, le=100, description='Back-pressure guard against embedding queue overflow.')
     embedding_request_metadata: Dict[str, Any] = Field(..., description='Extra metadata included in *EmbeddingRequestSignal*s.')
+    enable_sentinel_feedback: bool = Field(False, description='Enable closed feedback loop with Sentinel to guide exploration using trust scores.')
+    default_llm_policy_for_exploration: Dict[str, Any] = Field(default_factory=lambda: {"temperature": 0.7}, description='Default LLM policy settings for exploration requests.')
 
     @validator('maximum_idea_length')
     def _validate_max_length(cls, v: int, values: Dict[str, Any]) -> int:
@@ -47,7 +49,7 @@ class ExplorerConfig(BaseModel):
     @classmethod
     def from_yaml(cls, path: str | pathlib.Path) -> 'ExplorerConfig':
         import yaml
-        with pathlib.Path(path).expanduser().open('r', encoding='utf‑8') as fh:
+        with pathlib.Path(path).expanduser().open('r', encoding='utf-8') as fh:
             data = yaml.safe_load(fh)
         return cls(**data)
 
@@ -58,6 +60,8 @@ class ExplorerConfig(BaseModel):
             'creativity': self.creativity_factor,
             'max_variations': self.max_variations_per_level,
             'timeout': self.exploration_timeout_seconds,
+            'semantic_enabled': self.enable_semantic_exploration,
+            'sentinel_feedback': self.enable_sentinel_feedback,
         }
 
     def is_llm_enabled(self) -> bool:
@@ -65,6 +69,9 @@ class ExplorerConfig(BaseModel):
 
     def is_semantic_enabled(self) -> bool:
         return self.enable_semantic_exploration
+
+    def is_sentinel_feedback_enabled(self) -> bool:
+        return self.enable_sentinel_feedback
 
     def should_filter_diversity(self) -> bool:
         return self.enable_diversity_filter and self.diversity_threshold > 0.0

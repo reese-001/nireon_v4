@@ -316,7 +316,7 @@ from configs.config_loader import ConfigLoader # Assuming this is correctly loca
 
 __version__ = '4.0.0'
 __author__ = 'NIREON V4 Bootstrap Team'
-__description__ = 'L0 Abiogenesis – Bootstrap Infrastructure'
+__description__ = 'L0 Abiogenesis - Bootstrap Infrastructure'
 CURRENT_SCHEMA_VERSION = 'V4-alpha.1.0'
 
 __all__ = [
@@ -546,7 +546,7 @@ async def init_full_component(
         return
 
     if not spec.get('enabled', True):
-        logger.info("Component '%s' disabled in manifest – skipping.", cid_manifest)
+        logger.info("Component '%s' disabled in manifest - skipping.", cid_manifest)
         if health_reporter:
             # Create a minimal metadata for reporting disabled status
             minimal_meta = ComponentMetadata(id=cid_manifest, name=cid_manifest, version='N/A', category='disabled')

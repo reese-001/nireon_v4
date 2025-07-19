@@ -76,7 +76,7 @@ def _load_yaml(path: Path) -> Dict[str, Any]:
         
         data = yaml.safe_load(text) or {}
         if not isinstance(data, dict):
-            logger.warning('%s does not contain a top‑level mapping – ignored', path)
+            logger.warning('%s does not contain a top-level mapping - ignored', path)
             return {}
         return data
 
@@ -172,7 +172,7 @@ class ConfigLoader:
             content = _load_yaml(path)
             llm_part = content.get('llm', {}) if content else {}
             if not isinstance(llm_part, dict):
-                logger.warning("%s 'llm' section is not a dict – skipped.", label)
+                logger.warning("%s 'llm' section is not a dict - skipped.", label)
                 continue
             
             llm_accum = ConfigMerger.merge(llm_accum, llm_part, f'llm_layer: {label}')
@@ -182,7 +182,7 @@ class ConfigLoader:
         if llm_accum:
             cfg['llm'] = ConfigMerger.merge(cfg.get('llm', {}), llm_accum, 'merged_llm_config_layers')
         elif 'llm' not in cfg or not cfg['llm']:
-            raise RuntimeError('No valid LLM configuration found in any source – aborting.')
+            raise RuntimeError('No valid LLM configuration found in any source - aborting.')
         else:
             logger.info('Using LLM section from global_app_config.yaml unchanged.')
         
@@ -226,7 +226,7 @@ class ConfigLoader:
     def _validate_required_config(self, cfg: Mapping[str, Any], env: str) -> None:
         llm_cfg = cfg.get('llm')
         if not isinstance(llm_cfg, dict) or not llm_cfg:
-            logger.warning('No LLM config present during validation – skipping.')
+            logger.warning('No LLM config present during validation - skipping.')
             return
         
         if 'models' not in llm_cfg:

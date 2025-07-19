@@ -75,7 +75,7 @@ async def init_full_component(
         return
 
     if not spec.get('enabled', True):
-        logger.info("Component '%s' disabled in manifest – skipping.", cid_manifest)
+        logger.info("Component '%s' disabled in manifest - skipping.", cid_manifest)
         if health_reporter:
             # Create a minimal metadata for reporting disabled status
             minimal_meta = ComponentMetadata(id=cid_manifest, name=cid_manifest, version='N/A', category='disabled')

@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class RuleLoader:
-    """Load YAML rule‑files from a directory tree."""
+    """Load YAML rule-files from a directory tree."""
 
     def __init__(self) -> None:
         self.loaded_rules: List[ReactorRule] = []
@@ -41,7 +41,7 @@ class RuleLoader:
         try:
             data = yaml.safe_load(filepath.read_text())
             if not data or 'rules' not in data:
-                logger.debug("No 'rules' key in %s – skipped", filepath.name)
+                logger.debug("No 'rules' key in %s - skipped", filepath.name)
                 return
             if (ver := data.get('version', '1.0')) != '1.0':
                 logger.warning("Unexpected version '%s' in %s", ver, filepath.name)

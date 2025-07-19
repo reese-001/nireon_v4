@@ -1,7 +1,7 @@
 v### **Project: Stage-2 Self-Improving Planner**
 
 **Objective:**
-This document outlines the complete, end-to-end engineering plan to evolve NIREON V4's planning from a static, rule-based system into a dynamic, self-improving one. We will implement a BanditPlanner component that learns from experience to maximize the (trust gain – compute_cost) per cycle.
+This document outlines the complete, end-to-end engineering plan to evolve NIREON V4's planning from a static, rule-based system into a dynamic, self-improving one. We will implement a BanditPlanner component that learns from experience to maximize the (trust gain - compute_cost) per cycle.
 
 **Core Strategy:**
 The implementation will integrate seamlessly with NIREON's existing signal-driven architecture. The planner will be a standard component triggered by the Reactor. Its "action" will be to emit a signal, which the Reactor then routes to the appropriate mechanism (e.g., Explorer). A TraceSink component will listen for TraceEmittedSignal events to build a dataset for offline training, closing the learning loop.

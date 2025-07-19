@@ -3,6 +3,6 @@ min_axis_score: 2.0
 # FIX: Increase the weight of novelty.
 # Original was [0.4, 0.3, 0.3] for (align, feas, novel)
 # Let's make novelty as important as alignment.
-weights: [0.4, 0.2, 0.4]
+weights: [0.3, 0.2, 0.3]
 enable_length_penalty: false
 enable_progression_adjustment: false

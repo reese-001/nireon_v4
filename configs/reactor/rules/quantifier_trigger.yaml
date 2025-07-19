@@ -9,7 +9,7 @@ rules:
         signal_type: TrustAssessmentSignal
       - type: payload_expression
         expression: |
-          signal.trust_score > 6.0 and payload.is_stable == True
+          signal.trust_score > 7.5 and payload.is_stable == True
     actions:
       - type: trigger_component
         component_id: quantifier_agent_primary

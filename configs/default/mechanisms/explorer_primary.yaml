@@ -1,10 +1,10 @@
 # nireon/configs/default/mechanisms/explorer_primary.yaml
-divergence_strength: 0.8
+divergence_strength: 0.6
 exploration_timeout_seconds: 60.0
 max_depth: 5
 application_rate: 0.5
 exploration_strategy: "depth_first"
-max_variations_per_level: 3
+max_variations_per_level: 4
 enable_llm_enhancement: true
 # You can also slightly increase the creativity_factor for the LLM
-creativity_factor: 0.95
+creativity_factor: 0.60

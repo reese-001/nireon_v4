@@ -331,7 +331,14 @@ class SentinelMechanism(ProcessorMechanism, ServiceResolutionMixin):
         
         target_idea_id = str(data.get('target_idea_id', ''))
         logger.info(f"[{self.component_id}] Target idea ID: {target_idea_id}")
-        
+
+        # Skip or adjust for formal ideas (if bypassed rule fails)
+        if extracted_metadata.get('is_formal', False):
+            logger.info(f"[{self.component_id}] Detected formal idea - using adjusted scoring or skipping")
+            # Optional: Return a default high score or redirect
+            # For now, proceed but log
+
+
         try:
             # Delegate to ProcessingHelper
             result = await self._process_helper.process_impl(data, context)

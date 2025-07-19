@@ -1,8 +1,8 @@
 """
-Nireon V4 – In-memory budget manager (thread-safe).
+Nireon V4 - In-memory budget manager (thread-safe).
 
 Implements BudgetManagerPort + NireonBaseComponent.
-Suitable for development / unit tests – NOT durable storage.
+Suitable for development / unit tests - NOT durable storage.
 """
 # process [math_engine, principia_agent]
 from __future__ import annotations
@@ -18,7 +18,7 @@ from core.results import ProcessResult
 from domain.context import NireonExecutionContext
 
 # ---------------------------------------------------------------------------
-# Optional shim – if the real interface isn't on PYTHONPATH in this env
+# Optional shim - if the real interface isn't on PYTHONPATH in this env
 # ---------------------------------------------------------------------------
 try:
     from domain.ports.budget_manager_port import BudgetManagerPort
@@ -172,5 +172,5 @@ class InMemoryBudgetManager(NireonBaseComponent, BudgetManagerPort):
     async def _process_impl(
         self, data: Any, context: NireonExecutionContext
     ) -> ProcessResult:
-        """Budget manager is not a stream processor – no-op."""
+        """Budget manager is not a stream processor - no-op."""
         return ProcessResult.ok("No processing performed.")

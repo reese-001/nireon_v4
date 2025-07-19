@@ -24,7 +24,7 @@ STAGE_EVALUATION_SERVICE_METADATA = ComponentMetadata(
     version="1.1.0",
     category="service_core",
     description=(
-        "Resolves stage‑specific assessment parameters and synthesises the LLM "
+        "Resolves stage-specific assessment parameters and synthesises the LLM "
         "prompt used by evaluation mechanisms (e.g. Sentinel)."
     ),
     epistemic_tags=["evaluator", "contextualizer", "parameter_resolver"],
@@ -55,9 +55,9 @@ _PROMPT_TEMPLATE = textwrap.dedent(
     Evaluate the following idea against the stated objective.
 
     • **Current stage:** “{stage}” → focus on {stage_focus}.
-    • **Scoring:** Provide 1–10 floats for:
-        – Alignment (align_score)  
-        – Feasibility (feas_score)
+    • **Scoring:** Provide 1-10 floats for:
+        - Alignment (align_score)  
+        - Feasibility (feas_score)
 
     Return **only** a valid JSON object with:
     {{
@@ -77,7 +77,7 @@ _PROMPT_TEMPLATE = textwrap.dedent(
 
 class StageEvaluationService(NireonBaseComponent):
     """
-    Library‑style component.
+    Library-style component.
     Resolves assessment weights/thresholds and builds the evaluation prompt.
     """
 
@@ -94,7 +94,7 @@ class StageEvaluationService(NireonBaseComponent):
             "stage_evaluation_configs", {}
         )
         logger.info(
-            "[%s] loaded %d stage‑specific override sets",
+            "[%s] loaded %d stage-specific override sets",
             self.component_id,
             len(self._stage_overrides),
         )
@@ -106,12 +106,12 @@ class StageEvaluationService(NireonBaseComponent):
         self, data: Any, context: NireonExecutionContext
     ) -> ProcessResult:  # noqa: D401
         """
-        This service is query‑only; direct processing is unsupported.
+        This service is query-only; direct processing is unsupported.
         """
         return ProcessResult(
             success=False,
             component_id=self.component_id,
-            message="Direct `process()` not supported – call helper methods instead.",
+            message="Direct `process()` not supported - call helper methods instead.",
             error_code="METHOD_NOT_SUPPORTED",
         )
 
@@ -125,7 +125,7 @@ class StageEvaluationService(NireonBaseComponent):
         base_params: Mapping[str, Any] | None = None,
     ) -> Dict[str, Any]:
         """
-        Merge global defaults → mechanism‑supplied base_params → stage overrides.
+        Merge global defaults → mechanism-supplied base_params → stage overrides.
         """
         stage_key = (stage or EpistemicStage.DEFAULT).value
         overrides = self._stage_overrides.get(stage_key, {})

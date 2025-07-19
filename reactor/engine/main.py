@@ -32,8 +32,8 @@ class MainReactorEngine:
             self._event_bus: Optional[EventBusPort] = self.registry.get_service_instance(EventBusPort)
         except ComponentRegistryMissingError:
             self._event_bus = None
-            logger.warning('Reactor could not find an EventBusPort – emitted signals will not be broadcast.')
-        logger.info('MainReactorEngine ready – %d rule(s) sorted by priority, max_depth=%d', len(self.rules), self.max_recursion_depth)
+            logger.warning('Reactor could not find an EventBusPort - emitted signals will not be broadcast.')
+        logger.info('MainReactorEngine ready - %d rule(s) sorted by priority, max_depth=%d', len(self.rules), self.max_recursion_depth)
 
     def add_rule(self, rule: ReactorRule) -> None:
         self.rules.append(rule)
@@ -365,7 +365,7 @@ class MainReactorEngine:
         if self._event_bus:
             self._event_bus.publish(new_sig.signal_type, new_sig)
         else:
-            logger.debug('Event bus unavailable – signal not broadcast externally')
+            logger.debug('Event bus unavailable - signal not broadcast externally')
             
         await self.process_signal(new_sig, _depth=context.recursion_depth + 1)
 

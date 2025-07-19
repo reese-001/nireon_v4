@@ -275,25 +275,29 @@ class ExplorerOrchestrator:
                 )
             
             capturer.subscribe_to_signals()
+            seed_metadata = seed_config.get('metadata', {})
             
-            # Prepare seed signal
             payload = {
                 'seed_idea_id': seed_idea.idea_id,
                 'text': seed_idea.text,
-                'metadata': {
-                    'iteration': iteration,  # Include actual iteration number
+                'objective': objective.strip(),
+                'metadata': { # Still pass metadata in payload for other potential consumers
+                    'iteration': iteration,
                     'total_iterations': self.config['execution'].get('iterations', 1),
                     'original_seed_id': original_id,
-                    'objective': objective.strip(),
                     'depth': 0,
-                    'seed_config_id': seed_id
+                    'seed_config_id': seed_id,
+                    **seed_metadata
                 }
             }
+        
             
             seed_signal = SeedSignal(
                 source_node_id='ExplorerOrchestrator',
+                run_id=self.context.run_id,
+                seed_content=seed_idea.text,
                 payload=payload,
-                run_id=self.context.run_id
+                context_tags=seed_metadata  # <-- The CRITICAL addition
             )
             
             # Log seed signal emission
@@ -311,51 +315,53 @@ class ExplorerOrchestrator:
             else:
                 self.event_bus.publish(SeedSignal.__name__, seed_signal)
             
-            # Wait for completion
+            # --- NEW, MORE ROBUST WAITING LOGIC ---
             timeout = self.config['execution']['timeout']
-            test_passed = True
-            failure_reason = None
+            test_passed = False  # Default to False
+            failure_reason = "No completion signal received."
             
-            timeout = self.config['execution']['timeout']
-            completion_type = self.config['execution'].get('completion_condition', {}).get('type', 'all_assessed')
-            test_passed = False
-            failure_reason = None
-
-            run_start_time = time.time()
-
-            self.logger.info("Waiting for completion event (e.g., GenerativeLoopFinishedSignal)...")
+            self.logger.info(f"Waiting for run completion (or timeout of {timeout}s)...")
             try:
-                # Wait for the capturer's event, which is set by signals
+                # This waits for the capturer's internal logic to set the event
                 await asyncio.wait_for(capturer.completion_event.wait(), timeout=timeout)
-                self.logger.info('✅ Completion event received.')
-                test_passed = True
+                
+                # Check the reason for completion
+                if capturer.proto_task_detected:
+                    self.logger.info("✅ Run complete: ProtoTaskSignal detected.")
+                    failure_reason = None
+                    test_passed = True  # Or wait for proto result if needed
+                    
+                    # Handle proto execution if detected
+                    proto_result = await self._wait_for_proto_execution()
+                    if proto_result and proto_result.get('success'):
+                        self.logger.info('✅ Proto execution successful')
+                        
+                        if self.dag_logger:
+                            self.dag_logger.log_event(
+                                event_type="PROTO_EXECUTION_SUCCESS",
+                                node_id=proto_result.get('proto_id', 'unknown'),
+                                details=proto_result
+                            )
+                    else:
+                        test_passed = False
+                        failure_reason = 'Proto execution failed'
+                        
+                        if self.dag_logger:
+                            self.dag_logger.log_event(
+                                event_type="PROTO_EXECUTION_FAILURE",
+                                node_id=proto_result.get('proto_id', 'unknown') if proto_result else 'unknown',
+                                details=proto_result or {}
+                            )
+                else:
+                    self.logger.info("✅ Run complete: All ideas assessed or loop finished.")
+                    failure_reason = None
+                    test_passed = True
+                    
             except asyncio.TimeoutError:
                 self.logger.error(f'❌ Timeout after {timeout}s waiting for completion event.')
-                test_passed = False
                 failure_reason = f'Timeout after {timeout}s'
-            
-            # Check for proto execution
-            if capturer.proto_task_detected:
-                proto_result = await self._wait_for_proto_execution()
-                if proto_result and proto_result.get('success'):
-                    self.logger.info('✅ Proto execution successful')
-                    
-                    if self.dag_logger:
-                        self.dag_logger.log_event(
-                            event_type="PROTO_EXECUTION_SUCCESS",
-                            node_id=proto_result.get('proto_id', 'unknown'),
-                            details=proto_result
-                        )
-                else:
-                    test_passed = False
-                    failure_reason = 'Proto execution failed'
-                    
-                    if self.dag_logger:
-                        self.dag_logger.log_event(
-                            event_type="PROTO_EXECUTION_FAILURE",
-                            node_id=proto_result.get('proto_id', 'unknown') if proto_result else 'unknown',
-                            details=proto_result or {}
-                        )
+                test_passed = False
+            # --- END OF NEW LOGIC ---
             
             # Finalize and prepare result
             capturer.finalize()
@@ -383,22 +389,30 @@ class ExplorerOrchestrator:
             return result
             
         except Exception as e:
-            self.logger.error(f'Error running seed {seed_id}: {e}', exc_info=True)
+            self.logger.error(f"Error running seed {seed_id}: {str(e)}", exc_info=True)
             
             if self.dag_logger:
                 self.dag_logger.log_event(
                     event_type="SEED_EXECUTION_ERROR",
                     node_id=f"SEED_EXEC_{seed_id}",
-                    details={"error": str(e)}
+                    details={
+                        "error": str(e),
+                        "seed_id": seed_id,
+                        "iteration": iteration
+                    }
                 )
             
             return {
                 'seed_id': seed_id,
+                'seed_text': seed_text,
+                'objective': objective,
                 'test_passed': False,
-                'error': str(e),
-                'failure_reason': f'Exception: {e}',
+                'failure_reason': f'Exception: {str(e)}',
                 'start_time': start_time.isoformat(),
-                'end_time': datetime.now().isoformat()
+                'end_time': datetime.now().isoformat(),
+                'duration_seconds': (datetime.now() - start_time).total_seconds(),
+                'run_data': {},
+                'summary_stats': {}
             }
     
     async def _wait_for_proto_execution(self, timeout: float = 30.0) -> Optional[Dict[str, Any]]:

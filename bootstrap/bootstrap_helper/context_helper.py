@@ -17,7 +17,7 @@ def _component_logger(component_id: str, event_bus: EventBusPort) -> logging.Log
         try:
             return event_bus.get_logger(component_id)
         except Exception as exc:
-            logger.warning("Event‑bus logger retrieval failed for '%s': %s", component_id, exc)
+            logger.warning("Event-bus logger retrieval failed for '%s': %s", component_id, exc)
     return logging.getLogger(f'nireon.{component_id}')
 def _ensure(assertion: bool, message: str) -> None:
     if not assertion:

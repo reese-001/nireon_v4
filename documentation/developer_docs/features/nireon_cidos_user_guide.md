@@ -1,20 +1,20 @@
 # CIDOS User Manual
 
-> Version 0.1  •  Last updated 2025‑06‑19
+> Version 0.1  •  Last updated 2025-06-19
 
 ---
 
 ## About This Manual
 
-This manual teaches **analysts, data scientists, and power‑users** how to leverage **CIDOS** (Cognitive Intent Dialect Of System) inside NIREON to add mathematical insight, visualisations, and structured logic to any idea‑flow. No back‑end coding required—everything is declared in YAML.
+This manual teaches **analysts, data scientists, and power-users** how to leverage **CIDOS** (Cognitive Intent Dialect Of System) inside NIREON to add mathematical insight, visualisations, and structured logic to any idea-flow. No back-end coding required—everything is declared in YAML.
 
-> **Target Audience** – Users comfortable editing simple text files, basic Python syntax, and reading YAML.
+> **Target Audience** - Users comfortable editing simple text files, basic Python syntax, and reading YAML.
 
 ---
 
 ## 1  What Is CIDOS?
 
-CIDOS is NIREON’s declarative language for expressing *what* you want the system to do—math simulations, rule triggers, critique plans—without telling it *how* in imperative code. Think of CIDOS blocks as **self‑contained instruction cards** that agents can pick up and execute.
+CIDOS is NIREON’s declarative language for expressing *what* you want the system to do—math simulations, rule triggers, critique plans—without telling it *how* in imperative code. Think of CIDOS blocks as **self-contained instruction cards** that agents can pick up and execute.
 
 ### 1.1  Dialects
 
@@ -26,7 +26,7 @@ CIDOS is NIREON’s declarative language for expressing *what* you want the syst
 
 ---
 
-## 2  Quick‑Start (5 Minutes)
+## 2  Quick-Start (5 Minutes)
 
 1. **Install prerequisites**
 
@@ -59,7 +59,7 @@ CIDOS is NIREON’s declarative language for expressing *what* you want the syst
    equation_latex: "C = (15 + 100 t) V"
    ```
 3. **Drop the file** into `runtime/cidos/`.
-4. **Run NIREON** as usual—`dynamic_math_runner` auto‑detects the new CIDOS block, executes it, and emits a `MathResultSignal`.
+4. **Run NIREON** as usual—`dynamic_math_runner` auto-detects the new CIDOS block, executes it, and emits a `MathResultSignal`.
 5. **Check output**
    \* PNG plot in `runtime/math/artifacts/`
    \* Numeric result in the final report
@@ -76,35 +76,35 @@ CIDOS is NIREON’s declarative language for expressing *what* you want the syst
 | `schema_version` | Always `cidos/1.0` for now                  |
 | `eidos`          | Must be `math` to invoke math runner        |
 | `id`             | Unique string, letters + `_` + digits       |
-| `description`    | One‑sentence summary                        |
-| `function_name`  | Entry‑point function defined in `code`      |
+| `description`    | One-sentence summary                        |
+| `function_name`  | Entry-point function defined in `code`      |
 | `code`           | Valid Python 3; may define helper functions |
 
 ### 3.2  Optional Enhancements
 
-* **`inputs`** – Key/value pairs auto‑injected as kwargs.
-* **`equation_latex`** – Display‑ready formula for the report.
-* **`requirements`** – Extra pip packages (`numpy`, `sympy`, …).
-* **`limits`** – Safety caps (`timeout_sec`, `memory_mb`).
+* **`inputs`** - Key/value pairs auto-injected as kwargs.
+* **`equation_latex`** - Display-ready formula for the report.
+* **`requirements`** - Extra pip packages (`numpy`, `sympy`, …).
+* **`limits`** - Safety caps (`timeout_sec`, `memory_mb`).
 
 ### 3.3  Best Practices
 
 * Keep code idempotent; avoid global state.
 * Save plots with **relative paths**—runner rewrites to artifact dir.
 * Don’t import `os`, `subprocess`, or network libraries (blocked).
-* Use `inputs` for parameters instead of hard‑coding constants.
+* Use `inputs` for parameters instead of hard-coding constants.
 
 ---
 
 ## 4  Running & Scheduling Tasks
 
-### 4.1  On‑Demand
+### 4.1  On-Demand
 
 Place CIDOS YAML into `runtime/cidos/`. The file watcher component publishes a `MathTaskCIDOSSignal` which triggers the runner.
 
 ### 4.2  Triggered from Ideas
 
-Agents or reactor rules can generate CIDOS blocks on the fly and emit the same signal—ideal for “math‑assist” enrichment.
+Agents or reactor rules can generate CIDOS blocks on the fly and emit the same signal—ideal for “math-assist” enrichment.
 
 ---
 
@@ -122,7 +122,7 @@ A successful run emits `MathResultSignal` with payload:
 }
 ```
 
-*Plots* are auto‑embedded in HTML/PDF post‑run reports.
+*Plots* are auto-embedded in HTML/PDF post-run reports.
 *LaTeX* renders with MathJax.
 *Numeric values* feed into trust or fitness scoring.
 
@@ -132,7 +132,7 @@ A successful run emits `MathResultSignal` with payload:
 
 | Symptom                    | Likely Cause                 | Fix                                                  |
 | -------------------------- | ---------------------------- | ---------------------------------------------------- |
-| `MathErrorSignal: timeout` | Long‑running loop            | Increase `limits.timeout_sec` (≤30) or optimise code |
+| `MathErrorSignal: timeout` | Long-running loop            | Increase `limits.timeout_sec` (≤30) or optimise code |
 | `ImportError: matplotlib`  | Missing dep                  | Add `requirements: ["matplotlib"]`                   |
 | Plot file missing          | `plot_result()` never called | Ensure code saves PNG under same directory           |
 | YAML validation error      | Missing required field       | Run `cidolib validate file.yaml`                     |
@@ -141,11 +141,11 @@ A successful run emits `MathResultSignal` with payload:
 
 ## 7  FAQ
 
-**Q – Is Docker required?**  No, the default runner uses Python sub‑process isolation with resource caps.
+**Q - Is Docker required?**  No, the default runner uses Python sub-process isolation with resource caps.
 
-**Q – Can I import heavy libs like TensorFlow?**  Discouraged; resource caps will likely kill the job.
+**Q - Can I import heavy libs like TensorFlow?**  Discouraged; resource caps will likely kill the job.
 
-**Q – Where are artifacts stored?**  `runtime/math/artifacts/` with run‑scoped UUID sub‑folders.
+**Q - Where are artifacts stored?**  `runtime/math/artifacts/` with run-scoped UUID sub-folders.
 
 ---
 
@@ -160,7 +160,7 @@ A successful run emits `MathResultSignal` with payload:
 
 ---
 
-## 9  Appendix A – CIDOS Math Cheat‑Sheet
+## 9  Appendix A - CIDOS Math Cheat-Sheet
 
 ```yaml
 # Minimal block

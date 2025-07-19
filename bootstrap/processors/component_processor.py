@@ -48,7 +48,7 @@ def _load_config(source: Any, component_id: str) -> Dict[str, Any]:
     if isinstance(source, Mapping):
         return dict(source)
 
-    logger.warning("Unexpected config type for '%s': %s – ignoring.", component_id, type(source))
+    logger.warning("Unexpected config type for '%s': %s - ignoring.", component_id, type(source))
     return {}
 
 def _merge_configs(pydantic_defaults: Dict[str, Any], yaml_cfg: Dict[str, Any], override: Dict[str, Any], context: str) -> Dict[str, Any]:
@@ -115,7 +115,7 @@ async def process_simple_component(
         name=cid,
         version='0.1.0',
         category=ctype,
-        description=f"Auto‑generated metadata for {ctype} '{cid}'",
+        description=f"Auto-generated metadata for {ctype} '{cid}'",
     )
     
     try:
@@ -234,7 +234,7 @@ async def instantiate_shared_service(
 
     try:
         if registry.get(service_key_in_manifest, None):
-            logger.info("Service '%s' already registered – skipping.", service_key_in_manifest)
+            logger.info("Service '%s' already registered - skipping.", service_key_in_manifest)
             return
     except (KeyError, ComponentRegistryMissingError):
         pass
@@ -401,7 +401,7 @@ def _register_virtual_command(
 
 def _mark_disabled(reporter: BootstrapHealthReporter, comp_id: str | None, meta: ComponentMetadata) -> None:
     reporter.add_component_status(comp_id or 'unknown_disabled', ComponentStatus.DISABLED, meta, ['Disabled in manifest'])
-    logger.info("Component '%s' disabled via manifest – skipped.", comp_id)
+    logger.info("Component '%s' disabled via manifest - skipped.", comp_id)
 
 def _def_error(msg: str, reporter: BootstrapHealthReporter, comp_id: str | None, meta: ComponentMetadata, strict: bool, exc: Exception | None = None) -> None:
     logger.error(msg)

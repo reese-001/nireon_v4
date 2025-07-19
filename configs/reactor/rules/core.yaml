@@ -1,0 +1,88 @@
+version: 1.0
+rules:
+  # This rule detects if a seed has 'math' or 'philosophy' tags and routes it
+  # directly to the QuantifierAgent for immediate analysis, bypassing initial exploration.
+  - id: route_analytical_seed_to_quantifier
+    enabled: true
+    priority: 10
+    namespace: "core"
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "SeedSignal"
+      - type: "payload_expression"
+        expression: "exists(signal.context_tags.tags) and 'math' in signal.context_tags.tags"
+    actions:
+      - type: "trigger_component"
+        component_id: "quantifier_agent_primary"
+        input_data_mapping:
+          idea_id: "payload.seed_idea_id"
+          idea_text: "payload.text"
+          objective: "payload.objective"
+
+  # New, high-priority rule to bypass Sentinel for formal ideas.
+  # It checks for the 'is_formal' flag in the idea's metadata.
+  - id: route_formal_idea_to_quantifier
+    enabled: true
+    priority: 5 # Higher priority (lower number) than route_idea_to_sentinel (10)
+    namespace: "core"
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "IdeaGeneratedSignal"
+      - type: "payload_expression"
+        expression: "exists(payload.metadata) and 'is_formal' in payload.metadata and payload.metadata.is_formal == True"
+    actions:
+      - type: "trigger_component"
+        component_id: "quantifier_agent_primary"
+        input_data_mapping:
+          idea_id: "payload.id"
+          idea_text: "payload.text"
+          objective: "payload.objective"
+
+  # This is the standard rule for routing all other generated ideas to Sentinel
+  # for a quality/trust assessment. It will only run if the higher-priority
+  # formal idea rule does not match.
+  - id: route_idea_to_sentinel
+    enabled: true
+    priority: 10
+    namespace: "core"
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "IdeaGeneratedSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "sentinel_instance_01"
+        input_data_mapping:
+          target_idea_id: "payload.id"
+          objective: "payload.objective"
+          # Pass along the metadata, which includes the 'is_formal' flag
+          # This allows Sentinel to handle it defensively if it ever receives one.
+          metadata: "payload.metadata"
+
+  # This is the standard rule for any seed that doesn't meet special criteria.
+  # It's the default entry point into the generative loop.
+  - id: basic_seed_to_explorer
+    enabled: true
+    priority: 100 # Low priority, acts as a catch-all for seeds.
+    namespace: "core"
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "SeedSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "explorer_instance_01"
+        input_data_mapping:
+          data: "signal.payload"
+  
+  # Routes a generated ProtoTask to the gateway for execution.
+  - id: route_proto_task_to_gateway
+    enabled: true
+    priority: 10
+    namespace: "core"
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "ProtoTaskSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "proto_gateway_main"
+        input_data_mapping:
+          signal: "signal"

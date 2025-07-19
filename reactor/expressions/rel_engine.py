@@ -1,4 +1,4 @@
-# C:\Users\erees\Documents\development\nireon_v4\reactor\expressions\rel_engine.py
+# rel_engine.py
 from __future__ import annotations
 import ast
 import logging
@@ -66,6 +66,16 @@ class _Validator(ast.NodeVisitor):
             raise ValueError(f'Function {ast.unparse(node.func)} not permitted')
         for arg in node.args:
             self.visit(arg)
+
+    def visit_IfExp(self, node: ast.IfExp) -> None:
+        self.visit(node.test)
+        self.visit(node.body)
+        self.visit(node.orelse)
+
+    def visit_List(self, node: ast.List) -> None:
+        # Allow lists (e.g., empty []) and visit elements if any
+        for el in node.elts:
+            self.visit(el)
 
 _VALIDATOR = _Validator()
 
@@ -137,5 +147,8 @@ class RELEngine:
             
             args = [self._eval(a, ctx) for a in node.args]
             return func_to_call(*args)
+        if isinstance(node, ast.IfExp):
+            test = self._eval(node.test, ctx)
+            return self._eval(node.body, ctx) if test else self._eval(node.orelse, ctx)
 
         raise ValueError(f'Unhandled node type {type(node).__name__}')

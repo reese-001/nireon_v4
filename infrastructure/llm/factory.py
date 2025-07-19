@@ -15,7 +15,7 @@ class LLMFactoryError(RuntimeError):
 
 def _split_path(dotted: str) -> tuple[str, str]: # Keep as is
     if ':' not in dotted:
-        raise LLMFactoryError(f"Backend path '{dotted}' is missing ':' – expected 'pkg.mod:ClassName'")
+        raise LLMFactoryError(f"Backend path '{dotted}' is missing ':' - expected 'pkg.mod:ClassName'")
     module_path, attr_name = dotted.split(':', 1)
     return (module_path, attr_name)
 

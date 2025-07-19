@@ -37,7 +37,7 @@ class EpistemicSignal(BaseModel):
     )
 
     # ------------------------------------------------------------------ #
-    # Core attributes (public contract – do not rename/remove!)
+    # Core attributes (public contract - do not rename/remove!)
     # ------------------------------------------------------------------ #
     signal_type: str = Field(
         ...,
@@ -55,19 +55,19 @@ class EpistemicSignal(BaseModel):
         default=None,
         ge=0.0,
         le=1.0,
-        description="Trust/confidence score for the signal content (0–1).",
+        description="Trust/confidence score for the signal content (0-1).",
     )
     novelty_score: Optional[float] = Field(
         default=None,
         ge=0.0,
         le=1.0,
-        description="Novelty score indicating how unique the signal content is (0–1).",
+        description="Novelty score indicating how unique the signal content is (0-1).",
     )
     confidence: Optional[float] = Field(
         default=None,
         ge=0.0,
         le=1.0,
-        description="Confidence level of the emitting component (0–1).",
+        description="Confidence level of the emitting component (0-1).",
     )
     signal_id: str = Field(
         default_factory=lambda: f"sig_{uuid.uuid4()}",

@@ -1,4 +1,4 @@
-"""Slim, behaviour‑only contract for embedding providers."""
+"""Slim, behaviour-only contract for embedding providers."""
 from __future__ import annotations
 
 from typing import Protocol, Sequence, runtime_checkable
@@ -14,5 +14,5 @@ class EmbeddingPort(Protocol):
     def encode(self, text: str) -> Vector:  # noqa: D401
         """Return a *normalised* Vector embedding for *text*."""
 
-    # Optional bulk helper – *may* raise NotImplementedError
+    # Optional bulk helper - *may* raise NotImplementedError
     def encode_batch(self, texts: Sequence[str]) -> list[Vector]: ...

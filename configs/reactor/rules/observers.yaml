@@ -1,0 +1,43 @@
+version: 1.0
+rules:
+  - id: route_trust_assessment_to_updater
+    enabled: true
+    priority: 50
+    namespace: "observers"
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "idea_score_updater"
+        input_data_mapping:
+          # This is the fix. We are mapping the whole 'signal' object
+          # to the 'signal' key in the component's input data.
+          signal: "signal"
+
+  - id: route_trust_assessment_to_stagnation_detector
+    enabled: true
+    priority: 51
+    namespace: "observers"
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "stagnation_detector_main"
+        input_data_mapping:
+          # This is also fixed.
+          signal: "signal"
+
+  - id: trigger_reintegration_on_formal_result
+    enabled: true
+    priority: 50
+    namespace: "observers"
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "FormalResultSignal"
+    actions:
+      - type: "trigger_component"
+        component_id: "reintegration_observer_main"
+        input_data_mapping:
+          signal: "signal"

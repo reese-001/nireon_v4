@@ -263,12 +263,12 @@ planners:
     metadata_definition: "components.planners.bandit_planner.metadata:BANDIT_PLANNER_METADATA"
     config:
       model_path: "runtime/models/bandit_planner_v1.pkl"
-      exploration_epsilon: 1.0  # Always explore (random choice)
-      available_actions: ["EXPLORE"]  # Only allow EXPLORE action initially
+      exploration_epsilon: 0.2  # Use the model 80% of the time, explore 20%
+      available_actions: ["EXPLORE", "SYNTHESIZE"] # Give it a meaningful choice
       default_action: "EXPLORE"
       action_to_mechanism_map:
         EXPLORE: "explorer_instance_01"
-        SYNTHESIZE: "catalyst_instance_01"
+        SYNTHESIZE: "catalyst_instance_01" # Ensure Catalyst is a valid action target
 composites: {}
 observers:
   stagnation_detector_main:
@@ -285,6 +285,10 @@ observers:
     class: "components.observers.idea_score_updater:IdeaScoreUpdater"
     metadata_definition: "components.observers.idea_score_updater:IDEA_SCORE_UPDATER_METADATA"
     config: {}
+  reintegration_observer_main:
+    enabled: true
+    class: components.observers.reintegration_observer:ReintegrationObserver
+    metadata_definition: components.observers.reintegration_observer:REINTEGRATION_METADATA
 managers: {}
 orchestration_commands: {}
 environment_overrides: {}

@@ -295,6 +295,7 @@ class AssessmentCore:
             'idea_text': idea.text,
             'objective': objective,
             'depth': idea.metadata.get('depth', 0) if idea.metadata else 0,
+            
             'llm_parsing_status': parsing_status,
             'used_default_scores': used_defaults,
             'circuit_breaker_active': self.parser._circuit_breaker_active,

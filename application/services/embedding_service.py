@@ -4,14 +4,14 @@ Advanced implementation of the EmbeddingService.
 
 Highlights
 ----------
-* **Retry & back‑off** when the upstream embedder is transiently unavailable.
-* **Optional batch processing + async encode** (auto‑detected, no interface change).
+* **Retry & back-off** when the upstream embedder is transiently unavailable.
+* **Optional batch processing + async encode** (auto-detected, no interface change).
 * **Vector cache** (configurable LRU) to avoid recomputing embeddings for
   repeated input during a run.
-* **Pluggable novelty strategy** – prefers `similarity_search()` when the
-  VectorMemoryPort supports it; falls back to the previous sliding‑window scan.
-* **Structured logging & trace‑id** for easier cross‑component correlation.
-* **Light‑weight metrics hook** (`record_metric`) ready for Prom‑style exporters.
+* **Pluggable novelty strategy** - prefers `similarity_search()` when the
+  VectorMemoryPort supports it; falls back to the previous sliding-window scan.
+* **Structured logging & trace-id** for easier cross-component correlation.
+* **Light-weight metrics hook** (`record_metric`) ready for Prom-style exporters.
 * **More granular health states** (HEALTHY, DEGRADED, UNAVAILABLE).
 """
 from __future__ import annotations
@@ -66,7 +66,7 @@ EMBEDDING_SERVICE_METADATA = ComponentMetadata(
 
 
 class _LRUVectorCache(OrderedDict[str, Vector]):
-    """Simple LRU with max size; not thread‑safe – assuming single‑threaded actor."""
+    """Simple LRU with max size; not thread-safe - assuming single-threaded actor."""
 
     def __init__(self, max_items: int):
         super().__init__()
@@ -110,7 +110,7 @@ class EmbeddingService(NireonBaseComponent):
         self.high_novelty_detections = 0
         self.errors_count = 0
 
-        # Internal non‑persistent cache (best‑effort)
+        # Internal non-persistent cache (best-effort)
         cache_size = self.embedding_cfg.cache_size or 2048
         self._cache = _LRUVectorCache(cache_size)
 
@@ -141,12 +141,12 @@ class EmbeddingService(NireonBaseComponent):
 
             if not self.vector_memory_port:
                 logger.warning(
-                    "Vector memory '%s' not found – continuing without persistent storage",
+                    "Vector memory '%s' not found - continuing without persistent storage",
                     self.embedding_cfg.vector_memory_ref,
                 )
 
             if not self.event_bus_port:
-                logger.warning("Event bus not found – events will not be published")
+                logger.warning("Event bus not found - events will not be published")
 
             logger.info("EmbeddingService initialised successfully")
         except Exception:
@@ -162,9 +162,9 @@ class EmbeddingService(NireonBaseComponent):
     ) -> ProcessResult:
         """
         Accepts:
-            • str – single text
+            • str - single text
             • {'text': str}
-            • Iterable[str] – batch (optional)
+            • Iterable[str] - batch (optional)
         """
         try:
             # Normalise input ------------------------------------------------
@@ -247,7 +247,7 @@ class EmbeddingService(NireonBaseComponent):
             try:
                 missing = [t for t in texts if t not in self._cache]
                 if missing:
-                    # MyPy false‑positive: encode_batch may be sync or async
+                    # MyPy false-positive: encode_batch may be sync or async
                     batch_out = self.embedding_port.encode_batch(missing)  # type: ignore[attr-defined]
                     if asyncio.iscoroutine(batch_out):
                         batch_out = await batch_out  # type: ignore[assignment]
@@ -255,10 +255,10 @@ class EmbeddingService(NireonBaseComponent):
                     for m_text, vec in zip(missing, batch_out, strict=False):
                         self._cache[m_text] = vec
                 return [self._cache[t] for t in texts]
-            except Exception:  # provider may not fully support – fall back
+            except Exception:  # provider may not fully support - fall back
                 logger.debug("Batch encode fallback to individual path", exc_info=True)
 
-        # Per‑item path with gather()
+        # Per-item path with gather()
         return await asyncio.gather(*(_encode(t) for t in texts))
 
     async def _retry_with_backoff(self, fn, *, retries: int | None = None) -> Any:
@@ -276,7 +276,7 @@ class EmbeddingService(NireonBaseComponent):
                     raise
                 sleep_s = min(backoff_s * (2 ** (attempt - 1)), 32)
                 logger.warning(
-                    "Encode attempt %s/%s failed: %s – retrying in %.1fs",
+                    "Encode attempt %s/%s failed: %s - retrying in %.1fs",
                     attempt,
                     max_attempts,
                     exc,
@@ -284,7 +284,7 @@ class EmbeddingService(NireonBaseComponent):
                 )
                 await asyncio.sleep(sleep_s)
 
-    # ---------- Post‑processing ------------------------------------------ #
+    # ---------- Post-processing ------------------------------------------ #
 
     def _after_embedding(
         self, text: str, vector: Vector, novelty_score: float, similarity_max: float
@@ -350,7 +350,7 @@ class EmbeddingService(NireonBaseComponent):
 
             return 1.0 - max_sim, max_sim
         except Exception:
-            logger.exception("Error computing novelty – defaulting to neutral")
+            logger.exception("Error computing novelty - defaulting to neutral")
             return 0.5, 0.5
 
     # --------------------------------------------------------------------- #
@@ -358,7 +358,7 @@ class EmbeddingService(NireonBaseComponent):
     # --------------------------------------------------------------------- #
 
     def get_embedding(self, text: str) -> Vector:
-        """Synchronous helper preserved for backward‑compatibility."""
+        """Synchronous helper preserved for backward-compatibility."""
         loop = asyncio.get_event_loop()
         return loop.run_until_complete(self._encode_texts([text]))[0]
 
@@ -468,7 +468,7 @@ class EmbeddingService(NireonBaseComponent):
     # --------------------------------------------------------------------- #
 
     def _record_metric(self, name: str, value: int | float) -> None:
-        """Hook for external metric collectors (no‑op by default)."""
+        """Hook for external metric collectors (no-op by default)."""
         try:
             if hasattr(self, "metric_recorder"):
                 self.metric_recorder.record(name, value)

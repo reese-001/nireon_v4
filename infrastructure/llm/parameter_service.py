@@ -110,7 +110,7 @@ class ParameterService(NireonBaseComponent):
                 value = eval(compile(tree, filename='<llm_rule>', mode='eval'), eval_globals)
                 out[param_key] = value
             except Exception as exc:
-                logger.warning('Dynamic LLM param rule failed for %s – %s', param_key, exc)
+                logger.warning('Dynamic LLM param rule failed for %s - %s', param_key, exc)
         return out
 
 LLMParameterService = ParameterService

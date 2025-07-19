@@ -34,7 +34,7 @@ class BootstrapContextBuildConfig(BaseModel):
     def _non_empty(cls, v: str) -> str:
         v = v.strip()
         if not v:
-            raise ValueError('run_id must be non‑empty')
+            raise ValueError('run_id must be non-empty')
         if len(v) > 200:
             raise ValueError('run_id must be <\u202f200 chars')
         return v
@@ -86,7 +86,7 @@ class BootstrapContextBuilder:
         self._guard_unbuilt('with_event_bus')
         if event_bus is None:
             if self._build_cfg.enable_placeholders:
-                logger.warning('No EventBus provided – creating placeholder.')
+                logger.warning('No EventBus provided - creating placeholder.')
                 # Import placeholder here to avoid circular imports
                 try:
                     from bootstrap.bootstrap_helper.placeholders import PlaceholderEventBusImpl
@@ -139,7 +139,7 @@ class BootstrapContextBuilder:
 
     async def build(self) -> BootstrapContext:
         if self._built:
-            raise BootstrapContextBuildError('Builder already used – create a new instance')
+            raise BootstrapContextBuildError('Builder already used - create a new instance')
 
         try:
             self._validate_required_fields()
@@ -201,7 +201,7 @@ class BootstrapContextBuilder:
         except Exception as exc:
             if self._build_cfg.strict_mode:
                 raise BootstrapContextBuildError(f'Dependency validation failed: {exc}') from exc
-            logger.warning('Dependency validation failed (non‑strict mode): %s', exc)
+            logger.warning('Dependency validation failed (non-strict mode): %s', exc)
 
     def _make_context(self) -> BootstrapContext:
         return BootstrapContext(

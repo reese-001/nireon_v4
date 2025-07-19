@@ -20,19 +20,21 @@ except ImportError:  # pragma: no cover
 from domain.ports.llm_port import LLMPort, LLMResponse
 from domain.context import NireonExecutionContext
 from domain.epistemic_stage import EpistemicStage
+from .exceptions import LLMConfigurationError  # Make sure this is imported
 
 logger = logging.getLogger(__name__)
 
 
 class GenericHttpLLM(LLMPort):
     """
-    Generic HTTP‑based LLM adapter.
+    Generic HTTP-based LLM adapter.
 
     * **Compatible** with existing callers (class name, ctor signature,
       `call_llm_sync`, `call_llm_async`, `get_stats` unchanged).
     * Eliminates duplicated code (shared helpers for request/response).
-    * Pre‑compiles the payload template & JSONPath for efficiency.
+    * Pre-compiles the payload template & JSONPath for efficiency.
     * Reduces log noise; keeps critical diagnostics.
+    * Uses persistent HTTP clients for connection pooling and stability.
     """
 
     # --------------------------------------------------------------------- #
@@ -50,6 +52,12 @@ class GenericHttpLLM(LLMPort):
         # HTTP / auth
         self.method: str = self.config.get("method", "POST").upper()
         self.base_url: str = self.config.get("base_url", "").rstrip("/")
+        
+        if not self.base_url:
+            raise LLMConfigurationError(
+                f"Configuration for model '{self.internal_model_name}' using GenericHttpLLM is missing a 'base_url'."
+            )
+
         self.endpoint: str = self.config.get("endpoint", "")
         self.timeout: float | int = self.config.get("timeout", 30)
 
@@ -61,6 +69,11 @@ class GenericHttpLLM(LLMPort):
         )
         if self.auth_style != "none" and not self.auth_token:
             logger.warning("Auth token not found in env var '%s'", self.auth_token_env)
+
+        # Create persistent HTTP clients with headers
+        headers = self._build_headers()
+        self._async_client = httpx.AsyncClient(timeout=self.timeout, headers=headers)
+        self._sync_client = httpx.Client(timeout=self.timeout, headers=headers)
 
         # Template & response extraction
         raw_template = self.config.get("payload_template", "{}")
@@ -100,10 +113,10 @@ class GenericHttpLLM(LLMPort):
         if self._auth_required_but_missing():
             return self._mock_response(prompt, sync=False)
 
-        url, headers, payload = self._prepare_request(prompt, stage, role, context, settings)
+        url, _, payload = self._prepare_request(prompt, stage, role, context, settings)
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                resp = await self._http_send_async(client, url, headers, payload)
+            # Use the persistent async client
+            resp = await self._http_send_async(self._async_client, url, {}, payload)
             return self._build_llm_response(resp)
         except Exception as e:
             logger.exception("Async call #%s failed: %s", self.call_count, e)
@@ -122,10 +135,10 @@ class GenericHttpLLM(LLMPort):
         if self._auth_required_but_missing():
             return self._mock_response(prompt, sync=True)
 
-        url, headers, payload = self._prepare_request(prompt, stage, role, context, settings)
+        url, _, payload = self._prepare_request(prompt, stage, role, context, settings)
         try:
-            with httpx.Client(timeout=self.timeout) as client:
-                resp = self._http_send_sync(client, url, headers, payload)
+            # Use the persistent sync client
+            resp = self._http_send_sync(self._sync_client, url, {}, payload)
             return self._build_llm_response(resp)
         except Exception as e:
             logger.exception("Sync call #%s failed: %s", self.call_count, e)
@@ -297,3 +310,17 @@ class GenericHttpLLM(LLMPort):
                     return parts[0].get("text", "")
             return data.get("text") or data.get("content") or json.dumps(data)
         return str(data)
+
+    # --------------------------------------------------------------------- #
+    # Cleanup
+    # --------------------------------------------------------------------- #
+    def __del__(self):
+        # Ensure clients are closed when the object is destroyed
+        try:
+            if hasattr(self, '_sync_client') and self._sync_client and not self._sync_client.is_closed:
+                self._sync_client.close()
+            # Note: Closing the async client must be done in an async context.
+            # This is a best-effort cleanup. For a fully robust solution,
+            # a dedicated `close()` method would be called from an async shutdown hook.
+        except Exception:
+            pass  # Suppress errors during garbage collection

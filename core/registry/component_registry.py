@@ -42,7 +42,7 @@ class ComponentRegistry:
     ## REMOVE WHEN POSSIBLE: TODO
     def resolve(self, key: typing.Any):
         """
-        DEPRECATED – kept only so legacy helpers don’t break.
+        DEPRECATED - kept only so legacy helpers don’t break.
         Prefer `get_service_instance()` for protocols or `get()` for IDs.
         """
         if isinstance(key, str):

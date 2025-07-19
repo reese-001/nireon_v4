@@ -16,7 +16,7 @@ from domain.ideas.idea import Idea
 from domain.ports.mechanism_gateway_port import MechanismGatewayPort
 from signals.core import TrustAssessmentSignal
 
-if TYPE_CHECKING:  # avoids run‑time import cycle
+if TYPE_CHECKING:  # avoids run-time import cycle
     from ..service import SentinelMechanism
 
 logger: Final = logging.getLogger(__name__)
@@ -42,13 +42,13 @@ class ComponentNotAvailableError(Exception):
 
 
 class EventPublisher:
-    """Publishes Sentinel‑related signals and bookkeeping events."""
+    """Publishes Sentinel-related signals and bookkeeping events."""
 
     def __init__(self, sentinel: "SentinelMechanism") -> None:
         self.sentinel = sentinel
 
     # ------------------------------------------------------------------ #
-    # 1. Trust‑assessment signal via Gateway (Production-hardened)
+    # 1. Trust-assessment signal via Gateway (Production-hardened)
     # ------------------------------------------------------------------ #
     async def publish_assessment_event(
         self,
@@ -119,7 +119,7 @@ class EventPublisher:
         # Ensure we have idea with text (reload if needed)
         if not idea or not getattr(idea, 'text', None):
             ctx.logger.warning(
-                '[%s] idea.text missing for %s – attempting reload',
+                '[%s] idea.text missing for %s - attempting reload',
                 self.sentinel.component_id, assess_obj.idea_id
             )
             
@@ -160,7 +160,7 @@ class EventPublisher:
         # Final check - fail if still no text
         if not idea or not getattr(idea, 'text', None):
             ctx.logger.error(
-                '[%s] Still no idea.text for %s – aborting publish (failed_publishes=%d)',
+                '[%s] Still no idea.text for %s - aborting publish (failed_publishes=%d)',
                 self.sentinel.component_id, assess_obj.idea_id, self.sentinel._failed_publishes + 1
             )
             self.sentinel._failed_publishes += 1
@@ -281,7 +281,7 @@ class EventPublisher:
             raise
 
     # ------------------------------------------------------------------ #
-    # 2. Adaptation‑parameter change event
+    # 2. Adaptation-parameter change event
     # ------------------------------------------------------------------ #
     async def publish_adaptation_event(
         self,

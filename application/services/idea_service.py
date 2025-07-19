@@ -14,23 +14,33 @@ class IdeaService(IdeaServicePort):
         self.repository = repository
         self.event_bus = event_bus
         logger.info('IdeaService initialised')
-    def create_idea(self, *, text: str, parent_id: str | None=None, context: NireonExecutionContext | None=None, metadata: Optional[Dict[str, Any]] = None, method: str = 'manual') -> Idea:
-        idea = Idea.create(text, parent_id, metadata=metadata, method=method)
+
+        
+    def create_idea(self, *, text: str, parent_id: str | None=None, context: NireonExecutionContext | None=None, metadata: Optional[Dict[str, Any]]=None, method: str='manual', idea_id: Optional[str]=None) -> Idea:
+        # Pass idea_id to Idea.create if provided (for explicit ID control, e.g., seeds)
+        idea = Idea.create(text, parent_id, metadata=metadata, method=method, idea_id=idea_id)
+        
         if hasattr(idea, 'compute_hash'):
             try:
                 idea.metadata['hash'] = idea.compute_hash()
             except Exception:
                 logger.debug('compute_hash() failed for new idea', exc_info=True)
+        
         self.repository.save(idea)
+        
         if parent_id and hasattr(self.repository, 'add_child_relationship'):
             try:
                 self.repository.add_child_relationship(parent_id, idea.idea_id)
             except Exception:
                 logger.debug('Repository lacks add_child_relationship() or it failed', exc_info=True)
+        
         if self.event_bus:
             self.event_bus.publish('idea_created', {'idea_id': idea.idea_id, 'text': idea.text[:50] + '...' if len(idea.text) > 50 else idea.text, 'parent_ids': idea.parent_ids, 'run_id': context.run_id if context else None})
+        
         logger.info('Created Idea %s', idea.idea_id)
         return idea
+    
+
     def save_idea(self, idea: Idea, context: NireonExecutionContext | None=None) -> None:
         if not isinstance(idea, Idea):
             logger.error('Attempted to save non-Idea object: %s', type(idea))

@@ -1,0 +1,28 @@
+version: "1.0"
+rules:
+  - id: "trigger_next_step_on_high_trust"
+    description: "After a successful assessment, trigger the planner to decide the next action, creating a recursive loop."
+    namespace: "planning_loop"
+    priority: 90
+    enabled: true
+    conditions:
+      - type: "signal_type_match"
+        signal_type: "TrustAssessmentSignal"
+      - type: "payload_expression"
+        expression: >-
+          signal.trust_score > 4.0 and
+          payload.is_stable == True and
+          (
+            (exists(payload.assessment_details.metadata.depth) and payload.assessment_details.metadata.depth < 5) or
+            not exists(payload.assessment_details.metadata.depth)
+          )
+    actions:
+      - type: "emit_signal"
+        signal_type: "PlanNextStepSignal"
+        source_node_id: "Reactor"
+        current_idea_id: "{{ signal.target_id }}"
+        current_idea_text: "{{ payload.assessment_details.metadata.idea_text }}"
+        current_trust_score: "{{ signal.trust_score }}"
+        current_depth: "{{ payload.assessment_details.metadata.depth }}"
+        objective: "{{ payload.assessment_details.metadata.objective }}"
+        session_id: "{{ payload.assessment_details.metadata.session_id }}"

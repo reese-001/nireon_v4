@@ -7,13 +7,13 @@ Adds a thin certification layer on top of the core
 
 Improvements over the legacy v4.0 implementation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-* **Full type hints & `__all__`** – IDE / static‑analysis friendly.
-* **Module & function docstrings** – automatic API docs generation.
-* **Richer logging** – lazy‑formatted strings for performance.
-* **Safer clean‑up** – unregister rollback moved into a dedicated helper.
-* **Deterministic cert hashes** – converts mutable values to *repr* strings
+* **Full type hints & `__all__`** - IDE / static-analysis friendly.
+* **Module & function docstrings** - automatic API docs generation.
+* **Richer logging** - lazy-formatted strings for performance.
+* **Safer clean-up** - unregister rollback moved into a dedicated helper.
+* **Deterministic cert hashes** - converts mutable values to *repr* strings
   before hashing to avoid ordering issues.
-* **Slots on internal structs** – memory footprint reduced for large systems.
+* **Slots on internal structs** - memory footprint reduced for large systems.
 
 No behaviour changes have been introduced; all public APIs are identical.
 """
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 class RegistryManager:
     """
     Helper that delegates storage to :class:`~core.registry.ComponentRegistry`
-    while adding **self‑certification** metadata for each registered component.
+    while adding **self-certification** metadata for each registered component.
     """
 
     # ------------------------------------------------------------------ #
@@ -74,7 +74,7 @@ class RegistryManager:
 
             cert = self._generate_certification_data(component, metadata, additional_cert_data)
             self.registry.register_certification(cid, cert)
-            logger.info("✓ Component '%s' registered with self‑certification", cid)
+            logger.info("✓ Component '%s' registered with self-certification", cid)
         except Exception as exc:
             logger.error("Failed to register '%s': %s", cid, exc, exc_info=True)
             self._safe_unregister(cid)
@@ -92,7 +92,7 @@ class RegistryManager:
     ) -> None:
         """
         Convenience wrapper for services that are registered *by type* as well
-        as by component‑ID.
+        as by component-ID.
         """
         from bootstrap.bootstrap_helper.metadata import create_service_metadata
 
@@ -162,7 +162,7 @@ class RegistryManager:
                 self.registry.unregister(component_id)  # type: ignore[attr-defined]
                 logger.debug("Rolled back registration of '%s'", component_id)
         except Exception:
-            pass  # swallow rollback failures – original error is more important
+            pass  # swallow rollback failures - original error is more important
 
     # certification data generation -------------------------------------
 

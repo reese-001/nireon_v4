@@ -1,7 +1,7 @@
 """
 Manifest Processor
 ──────────────────
-* JSON‑schema validation (optional when `jsonschema` not installed)
+* JSON-schema validation (optional when `jsonschema` not installed)
 * Parsing of *simple* and *enhanced* manifest formats
 * Extraction of `ComponentSpec` objects
 """
@@ -18,7 +18,7 @@ from runtime.utils import detect_manifest_type
 logger = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------- #
-# Optional dependency – jsonschema
+# Optional dependency - jsonschema
 # --------------------------------------------------------------------------- #
 try:
     import jsonschema as _jsonschema  # type: ignore
@@ -110,7 +110,7 @@ class ManifestProcessor:
         if not _jsonschema:
             if self.strict_mode:
                 return ["jsonschema package required for validation in strict mode"]
-            logger.warning("jsonschema not installed – skipping schema validation")
+            logger.warning("jsonschema not installed - skipping schema validation")
             return []
 
         schema = await self._load_schema(mtype)
@@ -220,7 +220,7 @@ class ManifestProcessor:
         return comps
 
     # ------------------------------------------------------------------ #
-    # Component‑spec validation
+    # Component-spec validation
     # ------------------------------------------------------------------ #
     def _validate_component_spec(self, spec: "ComponentSpec") -> List[str]:
         errs: List[str] = []
@@ -232,7 +232,7 @@ class ManifestProcessor:
 
         # common
         if not spec.component_id:
-            errs.append("Component must have a non‑empty ID")
+            errs.append("Component must have a non-empty ID")
 
         if spec.manifest_type == "enhanced":
             if spec.component_type in {"mechanism", "observer", "manager", "composite"}:

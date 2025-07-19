@@ -35,7 +35,7 @@ class Sig(Enum):
 # --------------------------------------------------------------------------- #
 
 class ResultCapturer:
-    """Collects runtime telemetry for a single DAG run in O(1) per‑event time."""
+    """Collects runtime telemetry for a single DAG run in O(1) per-event time."""
     __slots__ = (
         'logger', 'event_bus', 'config', 'run_data', 'node_by_id',
         'generated_ids', 'assessed_ids', 'completion_event',
@@ -58,7 +58,7 @@ class ResultCapturer:
         self.generated_ids: Set[str] = {seed_idea_id}
         self.assessed_ids:  Set[str] = set()
 
-        # Minimal run‑wide dictionary (everything else can be recomputed)                 
+        # Minimal run-wide dictionary (everything else can be recomputed)                 
         self.run_data: Dict[str, Any] = {
             'seed_idea' : asdict(seed_node),
             'metadata'  : {
@@ -103,7 +103,7 @@ class ResultCapturer:
     def _on_idea_gen(self, s: IdeaGeneratedSignal) -> None:
         payload = getattr(s, 'payload', s)  # works for both objects & dicts
         idea_id  = payload.get('id') or getattr(s, 'idea_id', None)
-        if not idea_id:  # badly formed signal – drop
+        if not idea_id:  # badly formed signal - drop
             return
         parent_id = payload.get('parent_id') or self.run_data['seed_idea']['id']
         text      = payload.get('text', 'No text')
@@ -162,7 +162,7 @@ class ResultCapturer:
     def _on_loop_done(self, s: Any) -> None:
         self.run_data['metadata']['signals_received'][Sig.LOOP_DONE.name] += 1
         self._add_event('loop_done')
-        # No completion here – rely on other conditions
+        # No completion here - rely on other conditions
 
     # ----------------------------------------------------------- completion  #
     def _maybe_complete(self) -> None:

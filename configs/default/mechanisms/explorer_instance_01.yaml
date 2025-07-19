@@ -2,8 +2,8 @@
 # --- Complete Default Configuration for Explorer Mechanism ---
 
 # Core exploration logic
-divergence_strength: 0.2
-exploration_timeout_seconds: 60.0
+divergence_strength: 0.7
+exploration_timeout_seconds: 180.0
 max_depth: 5
 application_rate: 0.5
 exploration_strategy: "depth_first"
@@ -14,7 +14,7 @@ enable_llm_enhancement: true
 creativity_factor: 0.9
 minimum_idea_length: 10
 maximum_idea_length: 1500 # Increased for more complete ideas
-default_prompt_template: "Generate a creative variation of the following idea: '{seed_idea_text}'. Previous exploration distance: {vector_distance:.3f}. Objective: {objective}."
+# default_prompt_template: "Generate a creative variation of the following idea: '{seed_idea_text}'. Previous exploration distance: {vector_distance:.3f}. Objective: {objective}."
 
 # Diversity and Novelty Control
 enable_diversity_filter: true
@@ -25,6 +25,7 @@ reperturb_multiplier: 1.5
 
 # Semantic & Embedding Features
 enable_semantic_exploration: true
+enable_sentinel_feedback: true
 request_embeddings_for_variations: true
 max_pending_embedding_requests: 10
 embedding_response_timeout_s: 30.0
@@ -34,6 +35,8 @@ embedding_request_metadata: {}
 seed_randomness: null
 max_parallel_llm_calls_per_frame: 3
 preferred_gateway_ids: "gw_llm_fast_default,gw_llm_main_backup"
+
+default_prompt_template: "Take the following 'Seed Idea' and generate a completely different, highly creative, and unexpected variation. Do not simply rephrase it. Introduce a new concept or twist that dramatically changes the direction, while staying within the overall objective. Objective: {objective}. Seed Idea: '{seed_idea_text}'"
 
 # Note: The following are defined in the Pydantic model but are better suited for global/frame-level config
 # They are included here for completeness but could be removed if managed elsewhere.

@@ -43,19 +43,24 @@ reporting:
   generate_csv_summary: true
   include_dag_visualization: true
 
-
 criteria:
-  min_trust_score_for_quantifier: 6.0
+  min_trust_score_for_quantifier: 5.0
   max_depth: 6
 
-# Test seeds (your original seed is perfect for this)
 seeds:
-  - id: "prime counting"
-    text: "Develop a comprehensive and innovative philisophical proof that Mormonism cannot be true."
-    objective: "Do not focus on the religious aspects, but rather on the philosophical implications and logical structure of the belief system. Insist on a novel approach that challenges conventional reasoning and creates a new understanding of the topic."
-    tags: ["math", "philosophy", "theory"]
+  # - id: "prime counting"
+  #   text: r"Let \(f(n)\) be the number of distinct prime divisors of the digit-sum of \(n^n\). For each \(k\ge 0\) define \[a_k=\min\{\,n\in\mathbb N\mid f(n)=k\,\}.\]"
+  #   objective: r"Determine whether there exists an index \(m\in\mathbb N\) with \(a_{m+1}<a_m\); i.e. does the sequence \((a_k)\) ever decrease? Deliverables — follow **exactly** the five-part template below; do not alter any symbols or definitions. 1. **Definition** - restate \(f(n)\) and \(a_k\) verbatim.   2. **Small-n table** - compute \(n,\,s(n^n),\,f(n)\) for consecutive \(n\) (at least until  \(\max\{k\}\ge 10\) or a decrease is found).   3. **Extract \(a_k\)** - list the first values of \(a_k\) in order of \(k\).   4. **Check monotonicity** - state clearly whether any \(a_{k+1}<a_k\) occurs in the computed range.   5. **Conclusion** -    * If a decrease is found, give the first counter-example and prove it is minimal.    * If no decrease appears, provide a rigorous argument (computational bounds + number-theoretic reasoning) supporting monotonicity, or explain why the question remains open beyond the tested range.   Adhere strictly to the template; do **not** re-define \(f\), change variables, or introduce unrelated functions."
+  #   tags: ["math", "philosophy", "theory"]
 
-  # - id: "test"
-  #   text: "A dead lobster was found on a suburban lawn, 15 miles inland from the ocean, with no obvious explanation for its presence."
-  #   objective: "Provide a set of distinct, plausible, and scientifically-grounded hypotheses to explain the phenomenon, considering biology, meteorology, and human factors."
-  #   tags: ["analysis_query", "mystery"]
+
+- id: "formal_math_seed"
+  text: "What is the sum of the digits of the 6th perfect number?"
+  objective: "Formally compute the value and verify the system's ability to handle number theory problems."
+  metadata:
+    tags: ['math']
+    is_formal: true
+
+
+
+  

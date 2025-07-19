@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------#
 
 def _best_objective(payload: Dict[str, Any]) -> str:
-    """Fast‑path extractor with minimal nesting checks."""
+    """Fast-path extractor with minimal nesting checks."""
     return (
         payload.get('assessment_details', {})
         .get('metadata', {})
@@ -55,8 +55,8 @@ class StagnationDetectorConfig(BaseModel):
 
 class StagnationDetector(NireonBaseComponent, ServiceResolutionMixin):
     """
-    Counts consecutive low‑novelty ideas; when the streak hits the threshold,
-    sends the most recent high‑trust idea to the Catalyst.
+    Counts consecutive low-novelty ideas; when the streak hits the threshold,
+    sends the most recent high-trust idea to the Catalyst.
     """
 
     __slots__ = (
@@ -128,13 +128,13 @@ class StagnationDetector(NireonBaseComponent, ServiceResolutionMixin):
         if novelty is not None and novelty < self.cfg.novelty_score_threshold:
             self.low_novelty_streak += 1
             context.logger.info(
-                f"[{self.component_id}] low‑novelty streak "
+                f"[{self.component_id}] low-novelty streak "
                 f"{self.low_novelty_streak}/{self.cfg.stagnation_threshold}"
             )
             if self.low_novelty_streak >= self.cfg.stagnation_threshold:
                 return await self._trigger_catalyst(context)
         else:
-            self.low_novelty_streak = 0  # reset on any high‑novelty item
+            self.low_novelty_streak = 0  # reset on any high-novelty item
 
         return ProcessResult(
             True,
@@ -148,7 +148,7 @@ class StagnationDetector(NireonBaseComponent, ServiceResolutionMixin):
     ) -> ProcessResult:
         if not self.last_high_trust_candidate:
             self.low_novelty_streak = 0
-            msg = "Stagnation detected but no high‑trust idea available."
+            msg = "Stagnation detected but no high-trust idea available."
             context.logger.warning(f"[{self.component_id}] {msg}")
             return ProcessResult(True, message=msg)
 
@@ -156,7 +156,7 @@ class StagnationDetector(NireonBaseComponent, ServiceResolutionMixin):
         context.logger.warning(
             f"[{self.component_id}] stagnation threshold hit → Catalyst <= {idea_id[:8]}"
         )
-        # Fire‑and‑forget
+        # Fire-and-forget
         asyncio.create_task(
             self.catalyst_mechanism.process(
                 {'target_idea_id': idea_id, 'objective': objective}, context
@@ -175,7 +175,7 @@ class StagnationDetector(NireonBaseComponent, ServiceResolutionMixin):
 
 SHAKEUP_COORDINATOR_METADATA = ComponentMetadata(
     id='shake_up_coordinator',
-    name='Shake‑Up Coordinator',
+    name='Shake-Up Coordinator',
     version='1.0.0',
     category='observer',
     description='Periodically triggers the Catalyst mechanism to ensure diversity.',
@@ -192,7 +192,7 @@ class ShakeUpCoordinatorConfig(BaseModel):
 
 class ShakeUpCoordinator(NireonBaseComponent, ServiceResolutionMixin):
     """
-    After *N* processed signals, forwards the latest high‑trust idea
+    After *N* processed signals, forwards the latest high-trust idea
     (provided by the caller) to the Catalyst.
     """
 
@@ -234,10 +234,10 @@ class ShakeUpCoordinator(NireonBaseComponent, ServiceResolutionMixin):
                 message=f"counter={self.counter}/{self.cfg.trigger_interval}",
             )
 
-        # Interval hit – try to trigger
+        # Interval hit - try to trigger
         idea_id = data.get('idea_id')
         if not idea_id:
-            msg = "Shake‑up trigger fired but no idea supplied."
+            msg = "Shake-up trigger fired but no idea supplied."
             context.logger.warning(f"[{self.component_id}] {msg}")
             self.counter = 0
             return ProcessResult(True, message=msg)

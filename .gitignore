@@ -78,3 +78,10 @@ downloads/
 eggs/
 .eggs/
 runtime/*.json
+
+
+*.dot
+*.mmd
+*.txt
+dag_logs/*
+ reports/*
